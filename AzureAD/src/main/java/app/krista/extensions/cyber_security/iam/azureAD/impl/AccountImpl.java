@@ -6,6 +6,7 @@ import app.krista.extensions.cyber_security.iam.azureAD.impl.connectors.GraphSer
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.AuthenticationMethodResetPasswordParameterSet;
+import com.microsoft.graph.models.PasswordCredential;
 import com.microsoft.graph.models.PasswordProfile;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.UserCollectionPage;
@@ -34,6 +35,7 @@ public class AccountImpl implements Accounts {
     public PasswordProfile getPasswordProfile() {
         PasswordProfile passwordProfile = new PasswordProfile();
         passwordProfile.password = generateRandomPassword();
+        System.out.println(passwordProfile.password);
         passwordProfile.forceChangePasswordNextSignIn = true;
         return passwordProfile;
     }
@@ -44,12 +46,16 @@ public class AccountImpl implements Accounts {
         user.accountEnabled = true;
         user.userPrincipalName = email;
         user.mobilePhone = mobileNumber;
-        user.mailNickname = name;
+        String mailNickname = name.split(" ")[0];
+        user.mailNickname = mailNickname;
         if (extraFields != null) {
             updateExtraFields(user, extraFields);
         }
         // Generate and set password profile
-        PasswordProfile passwordProfile = getPasswordProfile();
+        PasswordProfile passwordProfile = new PasswordProfile();
+        passwordProfile.password = generateRandomPassword();
+        System.out.println("here is the pass - "+passwordProfile.password);
+        passwordProfile.forceChangePasswordNextSignIn = true;
         user.passwordProfile = passwordProfile;
 
         // Create user using GraphServiceClient
@@ -77,6 +83,7 @@ public class AccountImpl implements Accounts {
         try {
             provider.getGraphServiceClient().users(email).buildRequest().patch(user);
             User updatedUser = provider.getGraphServiceClient().users(email).buildRequest().get();
+            updatedUser.mail = email;
             return Account.from(updatedUser);
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,31 +143,27 @@ public class AccountImpl implements Accounts {
     }
 
     private String generateRandomPassword() {
-        // Define password policy parameters
-        int passwordLength = 12; // Length of the generated password
-        boolean includeUppercase = true; // Include uppercase letters
-        boolean includeLowercase = true; // Include lowercase letters
-        boolean includeDigits = true; // Include digits
-        boolean includeSpecialChars = true; // Include special characters
+        // Define the allowed characters for each position in the password
+        String allowedCharsAtPosition1 = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        String allowedCharsAtPosition2To8 = "0123456789";
+        String allowedCharsAtPosition9To12 = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-        // Create a PasswordGenerator with the defined password policy parameters
-        PasswordGenerator generator = new PasswordGenerator();
-        List<CharacterRule> rules = new ArrayList<>();
-        if (includeUppercase) {
-            rules.add(new CharacterRule(EnglishCharacterData.UpperCase, 1));
+        // Generate the password by randomly selecting a character from each allowed character set
+        StringBuilder passwordBuilder = new StringBuilder();
+        passwordBuilder.append(getRandomCharFromString(allowedCharsAtPosition1));
+        for (int i = 2; i <= 8; i++) {
+            passwordBuilder.append(getRandomCharFromString(allowedCharsAtPosition2To8));
         }
-        if (includeLowercase) {
-            rules.add(new CharacterRule(EnglishCharacterData.LowerCase, 1));
+        for (int i = 9; i <= 12; i++) {
+            passwordBuilder.append(getRandomCharFromString(allowedCharsAtPosition9To12));
         }
-        if (includeDigits) {
-            rules.add(new CharacterRule(EnglishCharacterData.Digit, 1));
-        }
-        if (includeSpecialChars) {
-            rules.add(new CharacterRule(EnglishCharacterData.Special, 1));
-        }
-        String randomPassword = generator.generatePassword(passwordLength, rules);
 
-        return randomPassword;
+        return passwordBuilder.toString();
+    }
+
+    private char getRandomCharFromString(String string) {
+        int randomIndex = (int) (Math.random() * string.length());
+        return string.charAt(randomIndex);
     }
 
     public UserCollectionPage getUserCollectionPage() {
