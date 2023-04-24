@@ -79,6 +79,7 @@ public class AccountStore implements EntityStore<app.krista.extensions.cyber_sec
         // If no accounts are found and there is only one search condition, call getUsers() method with default parameters and add the returned accounts to the list
         if (accounts.isEmpty() && conditions.size() == 1) {
             accounts.addAll(getUsers(l, i, null));
+            return accounts;
         }
         // Return a sublist of accounts based on the specified range (l, i) with a maximum size of 10
         return accounts.subList((int) (l - 1) * i, Math.min(accounts.size(), (int) (l - 1) * i + 10));

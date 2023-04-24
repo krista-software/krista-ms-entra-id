@@ -6,15 +6,10 @@ import app.krista.extensions.cyber_security.iam.azureAD.impl.connectors.GraphSer
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.AuthenticationMethodResetPasswordParameterSet;
-import com.microsoft.graph.models.PasswordCredential;
 import com.microsoft.graph.models.PasswordProfile;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.UserCollectionPage;
 import org.jvnet.hk2.annotations.Service;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.PasswordGenerator;
-
 import javax.inject.Inject;
 import java.util.*;
 
@@ -35,7 +30,6 @@ public class AccountImpl implements Accounts {
     public PasswordProfile getPasswordProfile() {
         PasswordProfile passwordProfile = new PasswordProfile();
         passwordProfile.password = generateRandomPassword();
-        System.out.println(passwordProfile.password);
         passwordProfile.forceChangePasswordNextSignIn = true;
         return passwordProfile;
     }
@@ -45,26 +39,17 @@ public class AccountImpl implements Accounts {
         user.displayName = name;
         user.accountEnabled = true;
         user.userPrincipalName = email;
+        user.mail = email;
         user.mobilePhone = mobileNumber;
-        String mailNickname = name.split(" ")[0];
-        user.mailNickname = mailNickname;
+        user.mailNickname = name.split(" ")[0];
         if (extraFields != null) {
             updateExtraFields(user, extraFields);
         }
-        // Generate and set password profile
-        PasswordProfile passwordProfile = new PasswordProfile();
-        passwordProfile.password = generateRandomPassword();
-        System.out.println("here is the pass - "+passwordProfile.password);
-        passwordProfile.forceChangePasswordNextSignIn = true;
-        user.passwordProfile = passwordProfile;
-
-        // Create user using GraphServiceClient
+        user.passwordProfile = getPasswordProfile();
         User createdUser = provider.getGraphServiceClient().users().buildRequest().post(user);
-
-        // Prepare and return result map
         Map<String, Object> result = new HashMap<>();
         result.put("User Id", createdUser.id);
-        result.put("Default Password", user.passwordProfile.password);
+        result.put("Default Password", Objects.requireNonNull(user.passwordProfile).password);
         return result;
     }
 

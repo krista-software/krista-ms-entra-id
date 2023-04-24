@@ -1,4 +1,4 @@
-### Release Notes - Outlook Extension
+### Release Notes - Azure AD Extension
 
 ## Version 2.0.7
 
