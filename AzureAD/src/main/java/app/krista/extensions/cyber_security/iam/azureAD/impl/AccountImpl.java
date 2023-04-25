@@ -10,6 +10,8 @@ import com.microsoft.graph.models.PasswordProfile;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.UserCollectionPage;
 import org.jvnet.hk2.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.*;
 
@@ -17,7 +19,7 @@ import java.util.*;
 public class AccountImpl implements Accounts {
     public static final String AUTHENTICATION_METHOD_ID = "28c10230-6103-485e-b985-444c60001490";
     private final GraphServiceClientProvider provider;
-
+    private static final Logger log = LoggerFactory.getLogger(AccountImpl.class);
     @Inject
     public AccountImpl(GraphServiceClientProviderFactory factory) {
         this(factory.create());
@@ -35,22 +37,28 @@ public class AccountImpl implements Accounts {
     }
 
     public Map<String, Object> createUser(String name, String email, String mobileNumber, List<Map<String, Object>> extraFields) {
-        User user = new User();
-        user.displayName = name;
-        user.accountEnabled = true;
-        user.userPrincipalName = email;
-        user.mail = email;
-        user.mobilePhone = mobileNumber;
-        user.mailNickname = name.split(" ")[0];
-        if (extraFields != null) {
-            updateExtraFields(user, extraFields);
+        try {
+            User user = new User();
+            user.displayName = name;
+            user.accountEnabled = true;
+            user.userPrincipalName = email;
+            user.mail = email;
+            user.mobilePhone = mobileNumber;
+            user.mailNickname = name.split(" ")[0];
+            if (extraFields != null) {
+                updateExtraFields(user, extraFields);
+            }
+            user.passwordProfile = getPasswordProfile();
+            User createdUser = provider.getGraphServiceClient().users().buildRequest().post(user);
+            Map<String, Object> result = new HashMap<>();
+            result.put("User Id", createdUser.id);
+            result.put("Default Password", Objects.requireNonNull(user.passwordProfile).password);
+            return result;
         }
-        user.passwordProfile = getPasswordProfile();
-        User createdUser = provider.getGraphServiceClient().users().buildRequest().post(user);
-        Map<String, Object> result = new HashMap<>();
-        result.put("User Id", createdUser.id);
-        result.put("Default Password", Objects.requireNonNull(user.passwordProfile).password);
-        return result;
+        catch (Exception e) {
+            log.error("Failed to create user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to create user: " + e.getMessage(), e);
+        }
     }
 
 
@@ -71,10 +79,11 @@ public class AccountImpl implements Accounts {
             updatedUser.mail = email;
             return Account.from(updatedUser);
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            log.error("Failed to update user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to update user: " + e.getMessage(), e);
         }
     }
+
 
     private void updateExtraFields(User user, List<Map<String, Object>> extraFields) {
         for (Map<String, Object> extraField : extraFields) {
@@ -100,14 +109,20 @@ public class AccountImpl implements Accounts {
             provider.getGraphServiceClient().users(email).buildRequest().delete();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            log.error("Failed to delete user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to delete user: " + e.getMessage(), e);
         }
     }
 
+
     public Account getUser(String id) {
-        User userDetails = provider.getGraphServiceClient().users(id).buildRequest().get();
-        return Account.from(userDetails);
+        try {
+            User userDetails = provider.getGraphServiceClient().users(id).buildRequest().get();
+            return Account.from(userDetails);
+        } catch (Exception e) {
+            log.error("Failed to get user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get user: " + e.getMessage(), e);
+        }
     }
 
     public String resetPassword(String id) {
