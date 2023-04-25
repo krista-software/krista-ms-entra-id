@@ -1,6 +1,6 @@
 ### Release Notes - Azure AD Extension
 
-## Version 2.0.7
+## Version 1.0.0
 
 - **Developer Name** : Pulkit Jareda
 - **Krista Service APIs Java** : 1.0.64
