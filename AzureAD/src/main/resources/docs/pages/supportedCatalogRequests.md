@@ -98,9 +98,11 @@
 
 ### The Azure AD Extension supports the following entity requests
 
-#### Search Account
+### 1. Account
 
-- **Description**: Returns list of labels, and you can search by Name, Email, Mobile Number or ID.
+#### Search
+
+- **Description**: Returns list of Accounts, and you can search by Name, Email, Mobile Number.
 - **Input Parameters**: NA
 - **Output Parameters**:
 
@@ -109,8 +111,3 @@
 | **Parameter Name** | **Parameter Type** | 
 | Account            | List<Account>      | 
 
-#### Get Account
-
-- **Description**: Selects Account from searched result, and it will return the Account Details.
-- **Input Parameters**: NA
-- **Output Parameters**: NA

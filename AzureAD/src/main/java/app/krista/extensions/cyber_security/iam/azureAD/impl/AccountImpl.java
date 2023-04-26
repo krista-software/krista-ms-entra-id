@@ -10,10 +10,8 @@ import com.microsoft.graph.models.PasswordProfile;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.UserCollectionPage;
 import org.jvnet.hk2.annotations.Service;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.PasswordGenerator;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.*;
 
@@ -21,7 +19,7 @@ import java.util.*;
 public class AccountImpl implements Accounts {
     public static final String AUTHENTICATION_METHOD_ID = "28c10230-6103-485e-b985-444c60001490";
     private final GraphServiceClientProvider provider;
-
+    private static final Logger log = LoggerFactory.getLogger(AccountImpl.class);
     @Inject
     public AccountImpl(GraphServiceClientProviderFactory factory) {
         this(factory.create());
@@ -39,27 +37,28 @@ public class AccountImpl implements Accounts {
     }
 
     public Map<String, Object> createUser(String name, String email, String mobileNumber, List<Map<String, Object>> extraFields) {
-        User user = new User();
-        user.displayName = name;
-        user.accountEnabled = true;
-        user.userPrincipalName = email;
-        user.mobilePhone = mobileNumber;
-        user.mailNickname = name;
-        if (extraFields != null) {
-            updateExtraFields(user, extraFields);
+        try {
+            User user = new User();
+            user.displayName = name;
+            user.accountEnabled = true;
+            user.userPrincipalName = email;
+            user.mail = email;
+            user.mobilePhone = mobileNumber;
+            user.mailNickname = name.split(" ")[0];
+            if (extraFields != null) {
+                updateExtraFields(user, extraFields);
+            }
+            user.passwordProfile = getPasswordProfile();
+            User createdUser = provider.getGraphServiceClient().users().buildRequest().post(user);
+            Map<String, Object> result = new HashMap<>();
+            result.put("User Id", createdUser.id);
+            result.put("Default Password", Objects.requireNonNull(user.passwordProfile).password);
+            return result;
         }
-        // Generate and set password profile
-        PasswordProfile passwordProfile = getPasswordProfile();
-        user.passwordProfile = passwordProfile;
-
-        // Create user using GraphServiceClient
-        User createdUser = provider.getGraphServiceClient().users().buildRequest().post(user);
-
-        // Prepare and return result map
-        Map<String, Object> result = new HashMap<>();
-        result.put("User Id", createdUser.id);
-        result.put("Default Password", user.passwordProfile.password);
-        return result;
+        catch (Exception e) {
+            log.error("Failed to create user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to create user: " + e.getMessage(), e);
+        }
     }
 
 
@@ -77,12 +76,14 @@ public class AccountImpl implements Accounts {
         try {
             provider.getGraphServiceClient().users(email).buildRequest().patch(user);
             User updatedUser = provider.getGraphServiceClient().users(email).buildRequest().get();
+            updatedUser.mail = email;
             return Account.from(updatedUser);
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            log.error("Failed to update user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to update user: " + e.getMessage(), e);
         }
     }
+
 
     private void updateExtraFields(User user, List<Map<String, Object>> extraFields) {
         for (Map<String, Object> extraField : extraFields) {
@@ -108,14 +109,20 @@ public class AccountImpl implements Accounts {
             provider.getGraphServiceClient().users(email).buildRequest().delete();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            log.error("Failed to delete user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to delete user: " + e.getMessage(), e);
         }
     }
 
+
     public Account getUser(String id) {
-        User userDetails = provider.getGraphServiceClient().users(id).buildRequest().get();
-        return Account.from(userDetails);
+        try {
+            User userDetails = provider.getGraphServiceClient().users(id).buildRequest().get();
+            return Account.from(userDetails);
+        } catch (Exception e) {
+            log.error("Failed to get user: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get user: " + e.getMessage(), e);
+        }
     }
 
     public String resetPassword(String id) {
@@ -136,31 +143,27 @@ public class AccountImpl implements Accounts {
     }
 
     private String generateRandomPassword() {
-        // Define password policy parameters
-        int passwordLength = 12; // Length of the generated password
-        boolean includeUppercase = true; // Include uppercase letters
-        boolean includeLowercase = true; // Include lowercase letters
-        boolean includeDigits = true; // Include digits
-        boolean includeSpecialChars = true; // Include special characters
+        // Define the allowed characters for each position in the password
+        String allowedCharsAtPosition1 = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        String allowedCharsAtPosition2To8 = "0123456789";
+        String allowedCharsAtPosition9To12 = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-        // Create a PasswordGenerator with the defined password policy parameters
-        PasswordGenerator generator = new PasswordGenerator();
-        List<CharacterRule> rules = new ArrayList<>();
-        if (includeUppercase) {
-            rules.add(new CharacterRule(EnglishCharacterData.UpperCase, 1));
+        // Generate the password by randomly selecting a character from each allowed character set
+        StringBuilder passwordBuilder = new StringBuilder();
+        passwordBuilder.append(getRandomCharFromString(allowedCharsAtPosition1));
+        for (int i = 2; i <= 8; i++) {
+            passwordBuilder.append(getRandomCharFromString(allowedCharsAtPosition2To8));
         }
-        if (includeLowercase) {
-            rules.add(new CharacterRule(EnglishCharacterData.LowerCase, 1));
+        for (int i = 9; i <= 12; i++) {
+            passwordBuilder.append(getRandomCharFromString(allowedCharsAtPosition9To12));
         }
-        if (includeDigits) {
-            rules.add(new CharacterRule(EnglishCharacterData.Digit, 1));
-        }
-        if (includeSpecialChars) {
-            rules.add(new CharacterRule(EnglishCharacterData.Special, 1));
-        }
-        String randomPassword = generator.generatePassword(passwordLength, rules);
 
-        return randomPassword;
+        return passwordBuilder.toString();
+    }
+
+    private char getRandomCharFromString(String string) {
+        int randomIndex = (int) (Math.random() * string.length());
+        return string.charAt(randomIndex);
     }
 
     public UserCollectionPage getUserCollectionPage() {

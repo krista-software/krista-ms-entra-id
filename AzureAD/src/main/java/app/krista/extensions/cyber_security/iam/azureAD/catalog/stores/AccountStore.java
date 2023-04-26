@@ -68,20 +68,15 @@ public class AccountStore implements EntityStore<app.krista.extensions.cyber_sec
     public List<Account> search(SearchQuery searchQuery, long l, int i) {
         List<SearchCondition> conditions = searchQuery.getSearchConditions();
         List<Account> accounts = new ArrayList<>();
-        // Iterate through each search condition
         for (SearchCondition con : conditions) {
-            // Check if the field name in the search condition matches any of the specified values
             if ("Name".equalsIgnoreCase(con.getFieldName()) || ("Email".equalsIgnoreCase(con.getFieldName())) || ("Mobile Number".equalsIgnoreCase(con.getFieldName())) || ("Id".equalsIgnoreCase(con.getFieldName()))) {
-                // Call getUsers() method with specified parameters and add the returned accounts to the list
                 accounts.addAll(getUsers(l, i, con));
             }
         }
-        // If no accounts are found and there is only one search condition, call getUsers() method with default parameters and add the returned accounts to the list
         if (accounts.isEmpty() && conditions.size() == 1) {
             accounts.addAll(getUsers(l, i, null));
         }
-        // Return a sublist of accounts based on the specified range (l, i) with a maximum size of 10
-        return accounts.subList((int) (l - 1) * i, Math.min(accounts.size(), (int) (l - 1) * i + 10));
+        return accounts.stream().skip(Math.max((l - 1) * i, 0)).limit(i).collect(Collectors.toList());
     }
 
     private List<Account> getUsers(long l, int i, SearchCondition searchCondition) {
