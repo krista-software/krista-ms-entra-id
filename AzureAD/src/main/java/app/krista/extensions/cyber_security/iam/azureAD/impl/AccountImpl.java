@@ -57,7 +57,7 @@ public class AccountImpl implements Accounts {
         }
         catch (Exception e) {
             log.error("Failed to create user: {}", e.getMessage(),e);
-            throw new RuntimeException("Failed to create user: Please provide a valid email");
+            throw new RuntimeException("Failed to create user: Please provide a valid Email");
         }
     }
 
@@ -121,7 +121,7 @@ public class AccountImpl implements Accounts {
             return Account.from(userDetails);
         } catch (Exception e) {
             log.error("Failed to get user: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to get user: Please provide a valid Email or ID");
+            throw new RuntimeException("Failed to get user: Please provide a valid Email or a valid ID");
         }
     }
 
@@ -137,7 +137,7 @@ public class AccountImpl implements Accounts {
                     .buildRequest()
                     .post();
         } catch (ClientException exception) {
-            throw new RuntimeException("Failed to reset the password for user: Please provide a valid Email or ID");
+            throw new RuntimeException("Failed to reset the password for user: Please provide a valid Email or a valid ID");
         }
         return randomPassword;
     }
