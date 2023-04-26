@@ -96,11 +96,11 @@
 
 ## Entity Requests
 
-### 1. Account
-
 ### The Azure AD Extension supports the following entity requests
 
-#### Search Account
+### 1. Account
+
+#### Search
 
 - **Description**: Returns list of Accounts, and you can search by Name, Email, Mobile Number.
 - **Input Parameters**: NA
