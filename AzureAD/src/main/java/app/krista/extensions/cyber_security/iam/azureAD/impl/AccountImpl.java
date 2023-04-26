@@ -56,8 +56,8 @@ public class AccountImpl implements Accounts {
             return result;
         }
         catch (Exception e) {
-            log.error("Failed to create user: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to create user: " + e.getMessage(), e);
+            log.error("Failed to create user: {}", e.getMessage(),e);
+            throw new RuntimeException("Failed to create user: Please provide a valid email");
         }
     }
 
@@ -80,7 +80,7 @@ public class AccountImpl implements Accounts {
             return Account.from(updatedUser);
         } catch (Exception e) {
             log.error("Failed to update user: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to update user: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to update user: Please provide a valid email or a valid ID");
         }
     }
 
@@ -109,8 +109,8 @@ public class AccountImpl implements Accounts {
             provider.getGraphServiceClient().users(email).buildRequest().delete();
             return true;
         } catch (Exception e) {
-            log.error("Failed to delete user: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to delete user: " + e.getMessage(), e);
+            log.error("Failed to delete user: {}", e.getMessage());
+            throw new RuntimeException("Failed to delete user: Please provide a valid email or a valid ID");
         }
     }
 
@@ -121,7 +121,7 @@ public class AccountImpl implements Accounts {
             return Account.from(userDetails);
         } catch (Exception e) {
             log.error("Failed to get user: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to get user: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get user: Please provide a valid Email or ID");
         }
     }
 
@@ -137,7 +137,7 @@ public class AccountImpl implements Accounts {
                     .buildRequest()
                     .post();
         } catch (ClientException exception) {
-            throw new IllegalStateException(exception.getMessage(), exception.getCause());
+            throw new RuntimeException("Failed to reset the password for user: Please provide a valid Email or ID");
         }
         return randomPassword;
     }
