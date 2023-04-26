@@ -136,7 +136,8 @@ public class AccountImpl implements Accounts {
                             .build())
                     .buildRequest()
                     .post();
-        } catch (ClientException exception) {
+        } catch (ClientException cause) {
+            log.error("Failed to reset the password for user: {}", cause.getMessage(), cause);
             throw new RuntimeException("Failed to reset the password for user: Please provide a valid Email or a valid ID");
         }
         return randomPassword;
