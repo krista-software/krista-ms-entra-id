@@ -55,8 +55,8 @@ public class AccountImpl implements Accounts {
             result.put("Default Password", Objects.requireNonNull(user.passwordProfile).password);
             return result;
         }
-        catch (Exception e) {
-            log.error("Failed to create user: {}", e.getMessage(),e);
+        catch (Exception cause) {
+            log.error("Failed to create user: {}", cause.getMessage(),cause);
             throw new RuntimeException("Failed to create user: Please provide a valid Email");
         }
     }
@@ -78,8 +78,8 @@ public class AccountImpl implements Accounts {
             User updatedUser = provider.getGraphServiceClient().users(email).buildRequest().get();
             updatedUser.mail = email;
             return Account.from(updatedUser);
-        } catch (Exception e) {
-            log.error("Failed to update user: {}", e.getMessage(), e);
+        } catch (Exception cause) {
+            log.error("Failed to update user: {}", cause.getMessage(), cause);
             throw new RuntimeException("Failed to update user: Please provide a valid email or a valid ID");
         }
     }
@@ -108,8 +108,8 @@ public class AccountImpl implements Accounts {
         try {
             provider.getGraphServiceClient().users(email).buildRequest().delete();
             return true;
-        } catch (Exception e) {
-            log.error("Failed to delete user: {}", e.getMessage());
+        } catch (Exception cause) {
+            log.error("Failed to delete user: {}", cause.getMessage());
             throw new RuntimeException("Failed to delete user: Please provide a valid email or a valid ID");
         }
     }
@@ -119,8 +119,8 @@ public class AccountImpl implements Accounts {
         try {
             User userDetails = provider.getGraphServiceClient().users(id).buildRequest().get();
             return Account.from(userDetails);
-        } catch (Exception e) {
-            log.error("Failed to get user: {}", e.getMessage(), e);
+        } catch (Exception cause) {
+            log.error("Failed to get user: {}", cause.getMessage(), cause);
             throw new RuntimeException("Failed to get user: Please provide a valid Email or a valid ID");
         }
     }
