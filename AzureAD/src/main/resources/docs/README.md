@@ -16,5 +16,3 @@ This extension connects to **Azure Active Directory** and performs various opera
     * [Supported Requests](pages/supportedCatalogRequests.md)
 * ### Release Notes
     * [Release Notes](pages/release-notes.md)
-* ### Known Issues
-    * [Known Issues](pages/knownIssues.md)
