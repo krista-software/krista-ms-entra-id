@@ -14,3 +14,5 @@
 * [Supported Requests](pages/supportedCatalogRequests.md)
 
 * [Release Notes](pages/release-notes.md)
+
+* [Known Issues](pages/knownIssues.md)
