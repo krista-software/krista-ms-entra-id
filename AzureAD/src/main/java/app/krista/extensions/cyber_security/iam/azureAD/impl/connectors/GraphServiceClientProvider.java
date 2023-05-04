@@ -59,7 +59,7 @@ public class GraphServiceClientProvider {
 
     private GraphServiceClient getGraphServiceClient(boolean useEmail) {
         try {
-            String userId = getUserId(useEmail) + "$" + getAzureADAttributes().getClientId() + getAzureADAttributes().getClientSecret();
+            String userId = getUserId(useEmail);
             String refreshToken = refreshTokenStore.get(userId);
             if (refreshToken == null) {
                 throw createMustAuthorizationException(userId, false);
