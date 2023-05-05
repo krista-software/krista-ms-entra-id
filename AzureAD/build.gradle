@@ -1,7 +1,7 @@
 apply plugin: 'java-library'
 jar.archiveBaseName = "AzureAD-extension"
 group 'app.krista.extensions.essentials.collaboration'
-version '1.0.0'
+version '2.0.0'
 
 if (rootProject.file('buildnr.txt').canRead()) {
     ext.buildnr = rootProject.file('buildnr.txt').text.trim()
