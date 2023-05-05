@@ -87,10 +87,9 @@ public class GraphServiceClientProvider {
             return GraphServiceClient.builder()
                     .authenticationProvider(new GraphServiceClientAuthenticationProvider(authenticationResult.accessToken()))
                     .buildClient();
-        } catch (ClientException | ExecutionException | MalformedURLException cause){
-            throw createMustAuthorizationException(userId,true);
-        }
-        catch ( InterruptedException cause) {
+        } catch (ClientException | ExecutionException | MalformedURLException cause) {
+            throw createMustAuthorizationException(userId, true);
+        } catch (InterruptedException cause) {
             Thread.currentThread().interrupt();
             throw createMustAuthorizationException(userId, true);
         }

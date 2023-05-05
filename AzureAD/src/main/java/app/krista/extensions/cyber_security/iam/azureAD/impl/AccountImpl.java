@@ -7,21 +7,24 @@ import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.AuthenticationMethodResetPasswordParameterSet;
-import com.microsoft.graph.models.EducationUser;
 import com.microsoft.graph.models.PasswordProfile;
 import com.microsoft.graph.models.User;
-import com.microsoft.graph.requests.EducationRootRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
-import com.microsoft.graph.requests.UserRequestBuilder;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 @Service
 public class AccountImpl implements Accounts {
-    private final GraphServiceClientProvider provider;
     private static final Logger log = LoggerFactory.getLogger(AccountImpl.class);
+    private final GraphServiceClientProvider provider;
+
     @Inject
     public AccountImpl(GraphServiceClientProviderFactory factory) {
         this(factory.create());
@@ -56,9 +59,8 @@ public class AccountImpl implements Accounts {
             result.put("User Id", createdUser.id);
             result.put("Default Password", Objects.requireNonNull(user.passwordProfile).password);
             return result;
-        }
-        catch (ClientException cause) {
-            log.error("Failed to create user: {}", cause.getMessage(),cause);
+        } catch (ClientException cause) {
+            log.error("Failed to create user: {}", cause.getMessage(), cause);
             throw new ClientException("Failed to create user: Please provide a valid Email", cause);
         }
     }
@@ -80,8 +82,7 @@ public class AccountImpl implements Accounts {
             User updatedUser = provider.getGraphServiceClient().users(email).buildRequest().get();
             updatedUser.mail = email;
             return Account.from(updatedUser);
-        }
-        catch (ClientException cause) {
+        } catch (ClientException cause) {
             log.error("Failed to update user: {}", cause.getMessage(), cause);
             throw new ClientException("Failed to update user: Please provide a valid email or a valid ID", cause);
         }
@@ -111,10 +112,9 @@ public class AccountImpl implements Accounts {
         try {
             provider.getGraphServiceClient().users(email).buildRequest().delete();
             return true;
-        }
-        catch (ClientException cause) {
+        } catch (ClientException cause) {
             log.error("Failed to delete user: {}", cause.getMessage());
-            throw new ClientException("Failed to delete user: Please provide a valid email or a valid ID",cause);
+            throw new ClientException("Failed to delete user: Please provide a valid email or a valid ID", cause);
         }
     }
 
@@ -131,16 +131,8 @@ public class AccountImpl implements Accounts {
     public String resetPassword(String id) {
         String randomPassword = generateRandomPassword();
         try {
-            provider.getGraphServiceClient().users(id).authentication()
-                    .methods(Constants.AUTHENTICATION_METHOD_ID)
-                    .resetPassword(AuthenticationMethodResetPasswordParameterSet
-                            .newBuilder()
-                            .withNewPassword(randomPassword)
-                            .build())
-                    .buildRequest()
-                    .post();
-        }
-        catch (ClientException cause) {
+            provider.getGraphServiceClient().users(id).authentication().methods(Constants.AUTHENTICATION_METHOD_ID).resetPassword(AuthenticationMethodResetPasswordParameterSet.newBuilder().withNewPassword(randomPassword).build()).buildRequest().post();
+        } catch (ClientException cause) {
             log.error("Failed to reset the password for user: {}", cause.getMessage(), cause);
             throw new ClientException("Failed to reset the password for user: Please provide a valid Email or a valid ID", cause);
         }
@@ -172,8 +164,7 @@ public class AccountImpl implements Accounts {
     public UserCollectionPage getUserCollectionPage() {
         try {
             return provider.getGraphServiceClient().users().buildRequest().get();
-        }
-        catch (ClientException cause){
+        } catch (ClientException cause) {
             throw new ClientException("Failed to get the users ", cause);
 
         }
