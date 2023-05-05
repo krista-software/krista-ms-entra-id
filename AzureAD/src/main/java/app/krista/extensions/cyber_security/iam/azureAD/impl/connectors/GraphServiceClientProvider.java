@@ -9,6 +9,7 @@ import app.krista.ksdk.context.RequestContext;
 import app.krista.model.field.NamedValuedField;
 import com.microsoft.aad.msal4j.*;
 import com.microsoft.graph.authentication.IAuthenticationProvider;
+import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.UserRequestBuilder;
 import okhttp3.Request;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -85,7 +87,10 @@ public class GraphServiceClientProvider {
             return GraphServiceClient.builder()
                     .authenticationProvider(new GraphServiceClientAuthenticationProvider(authenticationResult.accessToken()))
                     .buildClient();
-        } catch (IOException | ExecutionException | InterruptedException cause) {
+        } catch (ClientException | ExecutionException | MalformedURLException cause){
+            throw createMustAuthorizationException(userId,true);
+        }
+        catch ( InterruptedException cause) {
             Thread.currentThread().interrupt();
             throw createMustAuthorizationException(userId, true);
         }
