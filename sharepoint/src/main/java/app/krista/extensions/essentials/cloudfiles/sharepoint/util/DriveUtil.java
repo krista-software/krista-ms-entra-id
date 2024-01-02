@@ -1,7 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import com.microsoft.graph.models.DriveItem;
-import com.microsoft.graph.models.ItemReference;
 
 import java.io.*;
 import java.net.URI;

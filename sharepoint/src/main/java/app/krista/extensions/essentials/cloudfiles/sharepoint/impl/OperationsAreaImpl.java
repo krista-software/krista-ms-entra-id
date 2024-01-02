@@ -5,14 +5,14 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import com.microsoft.graph.http.GraphServiceException;
 import org.jvnet.hk2.annotations.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Map;
 
 /**
  * Class for creating,deleting and updating SharePoint lists & Site using Microsoft Graph API.
+ *
+ * @author Vaibhav Choudhary
  */
 @Service
 public class OperationsAreaImpl {
@@ -23,7 +23,6 @@ public class OperationsAreaImpl {
 
     private final OperationsAreaSiteImpl operationsAreaSiteImpl;
 
-    private static final Logger log = LoggerFactory.getLogger(OperationsAreaImpl.class);
 
     @Inject
     public OperationsAreaImpl(GraphServiceClientProviderFactory clientProviderFactory, SharePointAttributes sharePointAttributes,

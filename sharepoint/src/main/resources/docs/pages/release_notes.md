@@ -1,6 +1,6 @@
-# Release Notes - Krista OneDrive Extension
+# Release Notes - Krista SharePoint Extension
 
-## Version 2.0.0rc1
+## Version 2.0.0-rc1
 
 - **Developer Name** : Vaibhav Choudhary
 - **Krista Service APIs Java** : 1.0.91

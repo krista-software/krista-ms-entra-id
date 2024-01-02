@@ -6,7 +6,7 @@
 
 * [Obtaining Client ID, Tenant ID, and Client Secret](pages/obtainingClientIDClientSecret.md)
 
-* [Connecting with One Drive Extension](pages/connectingWithOneDriveExtension.md)
+* [Connecting with SharePoint Extension](pages/connectingWithSharePointExtension.md)
 
 * [Supported Requests](pages/supportedRequest.md)
 

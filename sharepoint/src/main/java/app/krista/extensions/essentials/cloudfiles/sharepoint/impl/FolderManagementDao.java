@@ -33,16 +33,18 @@ public class FolderManagementDao {
 
     private final GraphServiceClientProvider provider;
 
-    private final FileManagementDao fileManagementDao;
+    private final ManagementUtilityService managementUtilityService;
 
     @Inject
-    public FolderManagementDao(GraphServiceClientProviderFactory factory, FileManagementDao fileManagementDao) {
-        this(factory.create(), fileManagementDao);
+    public FolderManagementDao(GraphServiceClientProviderFactory factory,
+                               ManagementUtilityService managementUtilityService) {
+        this(factory.create(),managementUtilityService);
     }
 
-    public FolderManagementDao(GraphServiceClientProvider provider, FileManagementDao fileManagementDao) {
+    public FolderManagementDao(GraphServiceClientProvider provider,
+                               ManagementUtilityService managementUtilityService) {
         this.provider = provider;
-        this.fileManagementDao = fileManagementDao;
+        this.managementUtilityService = managementUtilityService;
     }
 
     @NotNull
@@ -51,18 +53,17 @@ public class FolderManagementDao {
         try {
             List<FileService> files = new ArrayList<>();
             if (relativePath != null) {
-                DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
+                DriveItem driveItem = checkIfFileExist(relativePath, payload);
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     relativePath = DriveUtil.getRelativePath(relativePath);
                     getRootFilesByDriveIDPath(driveItem.parentReference.driveId, relativePath, files, useEmail, accountID, search, payload);
                 } else {
-                    ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+                    ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
                 }
             } else {
-                ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+                ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
         }
         return payload;
@@ -90,20 +91,19 @@ public class FolderManagementDao {
                     }
                 }
             } else {
-                ResponseUtil.getInfoResponse(false, "Provide Valid Folder Path", payload);
+                ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
         }
     }
 
 
-    private DriveItem checkIfFileExist(String sourcePath, FreeForm payload, boolean useEmail, String accountID) {
+    private DriveItem checkIfFileExist(String sourcePath, FreeForm payload) {
         DriveItem driveItem = new DriveItem();
         try {
             if (sourcePath != null) {
-                driveItem = getFileByAbsolutePath(sourcePath);
+                driveItem = managementUtilityService.getFileByAbsolutePath(sourcePath);
                 if (driveItem != null && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
                     ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);
                     ResponseUtil.getInfoResponse(true, "File Found", payload);
@@ -118,70 +118,6 @@ public class FolderManagementDao {
             return new DriveItem();
         }
         return driveItem;
-    }
-
-    private DriveItem getFileByAbsolutePath(String filePath) {
-        LOGGER.info("Searching for files with name: {}, selector: {}, page: {}, page size: {}", filePath);
-        if (filePath != null) {
-            filePath = filePath.replace("%20", " ");
-            DriveItem driveItem = new DriveItem();  // Initialize the result page
-            try {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(true, null);
-
-                LinkedList<SearchRequest> requestsList = new LinkedList<>();
-                SearchRequest requests = new SearchRequest();
-                requests.entityTypes = Arrays.asList(EntityType.SITE, EntityType.LIST, EntityType.LIST_ITEM,
-                        EntityType.DRIVE, EntityType.DRIVE_ITEM);
-
-                LinkedList<SortProperty> sortProperties = new LinkedList<>();
-                SortProperty sort = new SortProperty();
-                sort.name = "LastModifiedTime";
-                sort.isDescending = false;
-                sortProperties.add(sort);
-                requests.sortProperties = sortProperties;
-
-                SearchQuery query = new SearchQuery();
-                query.queryString = "path:\"" + filePath + "\"";
-
-                requests.query = query;
-                requests.from = 0;
-                requests.size = 50;
-                requestsList.add(requests);
-
-                SearchEntityQueryCollectionPage page = graphClient.search().query(SearchEntityQueryParameterSet
-                        .newBuilder().withRequests(requestsList).build()).buildRequest().post();
-
-                if (page != null && !page.getCurrentPage().isEmpty()) {
-                    for (SearchResponse driveInPage : page.getCurrentPage()) {
-                        if (driveInPage.hitsContainers != null) {
-                            for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-                                if (hitContainer.hits != null) {
-                                    for (SearchHit hits : hitContainer.hits) {
-                                        if (hits != null && hits.resource instanceof DriveItem) {
-                                            DriveItem potentialFolder = (DriveItem) hits.resource;
-                                            if (potentialFolder.webUrl != null && potentialFolder.webUrl.equals(filePath)) {
-                                                driveItem = potentialFolder;
-                                                break;  // Stop searching once the folder is found
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (driveItem != null) {
-                    return driveItem;
-                } else {
-                    return null;
-                }
-            } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
-                throw new IllegalArgumentException(cause.getMessage(), cause);
-            }
-        } else {
-            return null;
-        }
     }
 
 }

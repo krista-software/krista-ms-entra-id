@@ -3,13 +3,11 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
-import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +17,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.*;
 
+/**
+ * This class provides functionality for sharing files in SharePoint using Microsoft Graph API.
+ * It includes methods to create sharing links, grant permissions, and handle exceptions.
+ *
+ * ***************************************************************
+ * WARNING: DO NOT CHANGE ANYTHING IN THIS CLASS.
+ * ***************************************************************
+ *
+ * @author Vaibhav Choudhary
+ */
+
 @Service
 public class SharedFileDao {
 
@@ -26,66 +35,73 @@ public class SharedFileDao {
 
     private final GraphServiceClientProvider provider;
 
-    private final OperationsManagementDao operationsManagementDao;
+    private final ManagementUtilityService managementUtilityService;
 
     @Inject
-    public SharedFileDao(GraphServiceClientProviderFactory factory, OperationsManagementDao operationsManagementDao) {
-        this(factory.create(), operationsManagementDao);
+    public SharedFileDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
+        this(factory.create(), managementUtilityService);
     }
 
-    public SharedFileDao(GraphServiceClientProvider provider, OperationsManagementDao operationsManagementDao) {
+    public SharedFileDao(GraphServiceClientProvider provider, ManagementUtilityService managementUtilityService) {
         this.provider = provider;
-        this.operationsManagementDao = operationsManagementDao;
+        this.managementUtilityService = managementUtilityService;
     }
 
     public Map<String, Object> shareFile(String source, List<Map<String, Object>> share) {
         Map<String, Object> payload = new HashMap<>();
+
         try {
-            if (source != null) {
+            if (source == null) {
+                handleInvalidPath(payload);
+                return payload;
+            }
 
-                DriveItem drive = operationsManagementDao.checkIfFileExist(source, payload);
-                if ((boolean) payload.get("Success")) {
-                    String sharingLink = "";
-                    DriveItemCreateLinkParameterSet parameterSet = DriveItemCreateLinkParameterSet.newBuilder().withType("edit").withScope("organization").withExpirationDateTime(null).withPassword(null).withMessage(null).withRetainInheritedPermissions(null).build();
-                    String sourcePath = DriveUtil.getRelativePath(source);
-                    sharingLink = getSharingLink(drive.parentReference.driveId, sourcePath, parameterSet);
+            DriveItem drive = managementUtilityService.checkIfFileExist(source, payload);
+            if (!(boolean) payload.get(Constants.SUCCESS)) {
+                handleInvalidPath(payload);
+                return payload;
+            }
 
-                    if (sharingLink != null) {
+            String sharingLink = "";
+            DriveItemCreateLinkParameterSet parameterSet = DriveItemCreateLinkParameterSet.newBuilder().withType(Constants.EDIT).withScope(Constants.ORGANIZATION).withExpirationDateTime(null).withPassword(null).withMessage(null).withRetainInheritedPermissions(null).build();
+            String sourcePath = DriveUtil.getRelativePath(source);
+            sharingLink = getSharingLink(drive.parentReference.driveId, sourcePath, parameterSet);
+            if (sharingLink != null) {
 
-                        String encodedSharingUrl = getEncodedSharingURL(sharingLink);
-                        List<String> usersWithReadPermission = FileUtil.getUsersWithPermission(share, "Read");
-                        List<String> usersWithWritePermission = FileUtil.getUsersWithPermission(share, "Write");
-                        usersWithWritePermission.addAll(FileUtil.getUsersWithPermission(share, "Read and Write"));
-                        Map<String, List<String>> usersWithPermission = new LinkedHashMap<>();
-                        usersWithPermission.put("view", !usersWithReadPermission.isEmpty() ? usersWithReadPermission : null);
-                        usersWithPermission.put("edit", !usersWithWritePermission.isEmpty() ? usersWithWritePermission : null);
+                String encodedSharingUrl = getEncodedSharingURL(sharingLink);
+                List<String> usersWithReadPermission = FileUtil.getUsersWithPermission(share, Constants.READ);
+                List<String> usersWithWritePermission = FileUtil.getUsersWithPermission(share, Constants.WRITE);
+                usersWithWritePermission.addAll(FileUtil.getUsersWithPermission(share, Constants.READ_AND_WRITE));
+                Map<String, List<String>> usersWithPermission = new LinkedHashMap<>();
+                usersWithPermission.put(Constants.VIEW, !usersWithReadPermission.isEmpty() ? usersWithReadPermission : null);
+                usersWithPermission.put(Constants.EDIT, !usersWithWritePermission.isEmpty() ? usersWithWritePermission : null);
 
-                        for (Map.Entry<String, List<String>> users : usersWithPermission.entrySet()) {
-                            grantPermissions(users.getKey(), users.getValue(), encodedSharingUrl);
-                        }
-
-                        DriveItem driveItem = getFileInfo(drive.parentReference.driveId, sourcePath);
-                        payload.put("File", CatalogTypes.fromFile(new FileImpl(driveItem, null, null)));
-
-                        payload.put("Message", "File Has been shared Successfully");
-                        return payload;
-                    }
-                } else {
-                    payload.put("Success", false);
-                    payload.put("Message", "Provide Valid Path");
-                    return payload;
+                for (Map.Entry<String, List<String>> users : usersWithPermission.entrySet()) {
+                    grantPermissions(users.getKey(), users.getValue(), encodedSharingUrl);
                 }
-            } else {
-                payload.put("Success", false);
-                payload.put("Message", "Provide Valid Path");
+
+                DriveItem driveItem = getFileInfo(drive.parentReference.driveId, sourcePath);
+                payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, null, null)));
+
+                payload.put(Constants.MESSAGE, Constants.FILE_SHARED_SUCCESS);
                 return payload;
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            payload.put("Message", Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage());
-            payload.put("Success", false);
-            cause.printStackTrace();
+            handleGraphServiceException(cause, payload);
         }
-        return Map.of();
+
+        return payload;
+    }
+
+    private void handleInvalidPath(Map<String, Object> payload) {
+        payload.put(Constants.SUCCESS, false);
+        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
+    }
+
+    private void handleGraphServiceException(Exception cause, Map<String, Object> payload) {
+        LOGGER.error(Constants.ERROR_MESSAGE+" : "+cause.getMessage());
+        payload.put(Constants.MESSAGE, Constants.FAILED_TO_SHARE_FILE);
+        payload.put(Constants.SUCCESS, false);
     }
 
     public DriveItem getFileInfo(String driveId, String path) {
@@ -97,7 +113,7 @@ public class SharedFileDao {
     private void grantPermissions(String role, List<String> usersList, String encodedSharingUrl) {
         try {
             List<DriveRecipient> recipientsList = new LinkedList<>();
-            if(usersList != null) {
+            if (usersList != null) {
                 for (String user : usersList) {
                     DriveRecipient driveRecipient = new DriveRecipient();
                     driveRecipient.email = user;

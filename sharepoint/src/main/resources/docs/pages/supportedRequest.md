@@ -422,7 +422,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**                              |
 |--------------------|--------------------|------------------------------------------|
 | File               | File               | [{name : "ABC", extension:".txt" , ...}] |
-| Message            | Text               | "List Created"                           |
+| Message            | Text               | "List Modified"                          |
 | Success            | Yes/No             | Yes                                      |
 
 
@@ -444,7 +444,7 @@ Krista SharePoint Extension supports the following Entity Request:
 | Name               | Text               | No            | Sample.xlsx                                                                       |
 | Absolute Path      | Text               | No            | https://domain.sharepoint.com/sites/siteName /Shared Documents/folder/Sample.xlsx |
 | Extension          | Text               | No            | xlsx                                                                              |
-| Is Folder          | Text               | No            | FolderName                                                                        |
+| Owner              | Text               | No            | Owner Name                                                                        |
 
 * Output:
 

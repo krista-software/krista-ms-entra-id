@@ -1,28 +1,28 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import com.microsoft.graph.models.DriveItem;
-import com.microsoft.graph.requests.PermissionCollectionPage;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
+/**
+* @author Vaibhav Choudhary
+ *
+ **/
+
 public class DrivePermissionImpl implements FileService {
 
     private final DriveItem driveItem;
     private final DriveItem driveMetaData;
-    private final PermissionCollectionPage permissionCollectionPage;
-    private final SharePointAttributes sharePointAttributes;
+
     private final GraphServiceClientProvider clientProvider;
 
-    public DrivePermissionImpl(DriveItem driveItem, PermissionCollectionPage permissionCollectionPage, SharePointAttributes sharePointAttributes, GraphServiceClientProvider clientProvider) {
+    public DrivePermissionImpl(DriveItem driveItem, GraphServiceClientProvider clientProvider) {
         this.driveItem = driveItem;
-        this.permissionCollectionPage = permissionCollectionPage;
-        this.sharePointAttributes = sharePointAttributes;
         this.clientProvider = clientProvider;
         this.driveMetaData = FileSearchUtilityService.getDriveMetaData(driveItem, clientProvider);
     }
@@ -117,6 +117,5 @@ public class DrivePermissionImpl implements FileService {
         }
         return driveItem.lastModifiedBy.user != null ? driveItem.lastModifiedBy.user.displayName : null;
     }
-
 
 }

@@ -3,7 +3,7 @@ apply plugin: 'maven-publish'
 jar.archiveBaseName = "sharepoint-extension"
 
 group 'app.krista.extensions.essentials.cloudfiles'
-version '2.0.0'
+version '2.0.0-rc1'
 
 if (rootProject.file('buildnr.txt').canRead()) {
     ext.buildnr = rootProject.file('buildnr.txt').text.trim()

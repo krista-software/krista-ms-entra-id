@@ -16,30 +16,37 @@ import java.util.Map;
 public class ManagementDaoImpl {
 
     private final GraphServiceClientProvider provider;
-
     private final FileManagementDao fileManagementDao;
-
     private final FolderManagementDao folderManagementDao;
-
     private final OperationsManagementDao operationsManagementDao;
-
+    private final FileDownloadService fileDownloadService;
+    private final FileUploadService fileUploadService;
     private final SharedFileDao sharedFileDao;
-
     private final CopyFileDao copyFileDao;
+    private final DriveTextFileService driveTextFileService;
 
 
     @Inject
-    public ManagementDaoImpl(GraphServiceClientProviderFactory factory, FileManagementDao fileManagementDao,FolderManagementDao folderManagementDao,OperationsManagementDao operationsManagementDao,SharedFileDao sharedFileDao,CopyFileDao copyFileDao) {
-        this(factory.create(), fileManagementDao, folderManagementDao,operationsManagementDao,sharedFileDao,copyFileDao);
+    public ManagementDaoImpl(GraphServiceClientProviderFactory factory, FileManagementDao fileManagementDao,FolderManagementDao folderManagementDao,
+                             OperationsManagementDao operationsManagementDao,SharedFileDao sharedFileDao,CopyFileDao copyFileDao,
+                             FileDownloadService fileDownloadService,FileUploadService fileUploadService, DriveTextFileService driveTextFileService) {
+        this(factory.create(), fileManagementDao, folderManagementDao,operationsManagementDao,sharedFileDao,copyFileDao,
+                fileDownloadService,fileUploadService,driveTextFileService);
     }
 
-    public ManagementDaoImpl(GraphServiceClientProvider provider, FileManagementDao fileManagementDao, FolderManagementDao folderManagementDao ,OperationsManagementDao operationsManagementDao, SharedFileDao sharedFileDao ,CopyFileDao copyFileDao){
+    public ManagementDaoImpl(GraphServiceClientProvider provider, FileManagementDao fileManagementDao,
+                             FolderManagementDao folderManagementDao ,OperationsManagementDao operationsManagementDao,
+                             SharedFileDao sharedFileDao ,CopyFileDao copyFileDao, FileDownloadService fileDownloadService,
+                             FileUploadService fileUploadService,DriveTextFileService driveTextFileService){
         this.provider = provider;
         this.fileManagementDao = fileManagementDao;
         this.folderManagementDao = folderManagementDao;
         this.operationsManagementDao = operationsManagementDao;
         this.sharedFileDao = sharedFileDao;
         this.copyFileDao = copyFileDao;
+        this.fileDownloadService = fileDownloadService;
+        this.fileUploadService = fileUploadService;
+        this.driveTextFileService = driveTextFileService;
     }
 
 
@@ -63,7 +70,7 @@ public class ManagementDaoImpl {
 
     public Map<String, Object> downloadFile(Boolean downloadAsLink, Boolean downloadAsKristaFile, String source) {
         try {
-            return operationsManagementDao.downloadFiles(downloadAsLink, downloadAsKristaFile, source);
+            return fileDownloadService.downloadFiles(downloadAsLink, downloadAsKristaFile, source);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
@@ -126,7 +133,7 @@ public class ManagementDaoImpl {
 
     public Map<String, Object> readTxtFile(String source) {
         try{
-            return operationsManagementDao.readTxtFile(source);
+            return driveTextFileService.readTxtFile(source);
         }catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
@@ -135,7 +142,7 @@ public class ManagementDaoImpl {
 
     public Map<String, Object> uploadFile(app.krista.model.base.File kristaFile, String targetPath) {
         try{
-            return operationsManagementDao.uploadFiles(kristaFile,targetPath);
+            return fileUploadService.uploadFiles(kristaFile,targetPath);
         }catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
@@ -144,7 +151,7 @@ public class ManagementDaoImpl {
 
     public Map<String, Object> uploadFileAsTxt(String fileContent, String target) {
         try{
-            return operationsManagementDao.uploadTxtFile(fileContent,target);
+            return driveTextFileService.uploadTxtFile(fileContent,target);
         }catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);

@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.models.List;
 import com.microsoft.graph.models.Site;
 import com.microsoft.graph.options.Option;
@@ -8,10 +9,16 @@ import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SiteCollectionPage;
 import okhttp3.Request;
+import org.jvnet.hk2.annotations.Service;
 
 import java.util.LinkedList;
 import java.util.Map;
 
+/**
+ * @author Vaibhav Choudhary
+ */
+
+@Service
 public class OperationsAreaUtilityService {
 
     private OperationsAreaUtilityService(){}
@@ -24,14 +31,14 @@ public class OperationsAreaUtilityService {
         }
     }
 
-    public static void processResponse(List list, Map<String, Object> payload) {
+    public static void processResponse(List list, Map<String, Object> payload, String response) {
         if (list != null) {
-            payload.put("File", CatalogTypes.fromFile(new ListImpl(list)));
-            payload.put("Success", true);
-            payload.put("Message", "List created successfully");
+            payload.put(Constants.FILE, CatalogTypes.fromFile(new ListImpl(list)));
+            payload.put(Constants.SUCCESS, true);
+            payload.put(Constants.MESSAGE, "List "+response+" successfully");
         } else {
-            payload.put("Success", false);
-            payload.put("Message", "Failed to create list");
+            payload.put(Constants.SUCCESS, false);
+            payload.put(Constants.MESSAGE, Constants.FAILED_LIST_CREATION);
         }
     }
 
@@ -58,12 +65,65 @@ public class OperationsAreaUtilityService {
 
     public static void processResponse(Site site, Map<String, Object> payload) {
         if (site != null) {
-            payload.put("Success", true);
-            payload.put("Message", "Site updated successfully");
-            payload.put("File", new SiteImpl(site, null)); // Include updated site information
+            payload.put(Constants.SUCCESS, true);
+            payload.put(Constants.MESSAGE, Constants.SITE_UPDATED_SUCCESSFULLY);
+            payload.put(Constants.FILE, CatalogTypes.fromFile(new SiteImpl(site))); // Include updated site information
         } else {
-            payload.put("Success", false);
-            payload.put("Message", "Failed to update site");
+            payload.put(Constants.SUCCESS, false);
+            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_SITE);
         }
     }
+
+    protected boolean validateSiteAndListNames(String siteName, String listName, Map<String, Object> payload) {
+        if (siteName == null || siteName.isEmpty()) {
+            payload.put(Constants.MESSAGE, Constants.SITE_NAME_CANNOT_BE_NULL);
+            payload.put(Constants.SUCCESS, false);
+            return false;
+        }
+
+        if (listName == null || listName.isEmpty()) {
+            payload.put(Constants.MESSAGE, Constants.LIST_NAME_CANNOT_BE_NULL);
+            payload.put(Constants.SUCCESS, false);
+            return false;
+        }
+        return true; // Validation successful
+    }
+
+    protected boolean validateSiteAndListAndUpdatedNames(String siteName, String listName, Map<String, Object> payload, String displayName) {
+        if (!validateSiteAndListNames(siteName, listName ,payload)) {
+            return false;
+        }
+
+        if (displayName == null || displayName.isEmpty()) {
+            payload.put(Constants.MESSAGE, Constants.UPDATED_LIST_NAME_CANNOT_BE_NULL);
+            payload.put(Constants.SUCCESS, false);
+            return false;
+        }
+        return true; // Validation successful
+    }
+
+    protected boolean validateSiteNames(String siteName, Map<String, Object> payload) {
+        if (siteName == null || siteName.isEmpty()) {
+            payload.put(Constants.MESSAGE, Constants.SITE_NAME_CANNOT_BE_NULL);
+            payload.put(Constants.SUCCESS, false);
+            return false;
+        }
+
+        return true; // Validation successful
+    }
+
+    protected boolean validateSiteAndUpdatedNames(String siteName, String newSiteName, Map<String, Object> payload) {
+        if (!validateSiteNames(siteName, payload)) {
+            return false; // Early return if validation fails
+        }
+
+        if (newSiteName == null || newSiteName.isEmpty()) {
+            payload.put(Constants.MESSAGE, Constants.UPDATED_SITE_NAME_CANNOT_BE_NULL);
+            payload.put(Constants.SUCCESS, false);
+            return false;
+        }
+
+        return true; // Validation successful
+    }
+
 }

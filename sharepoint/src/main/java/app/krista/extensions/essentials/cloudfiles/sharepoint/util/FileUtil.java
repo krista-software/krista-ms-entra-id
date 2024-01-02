@@ -5,9 +5,15 @@ import com.microsoft.graph.models.DriveItem;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class with static methods for common file-related operations, string validation, and file creation.
+ *
+ * */
 public class FileUtil {
 
     private FileUtil() {
@@ -32,12 +38,6 @@ public class FileUtil {
     public static String getFilePath(String filePath, DriveItem driveItem) {
         String fileName = driveItem.name;
         return filePath + "/" + fileName;
-    }
-
-    public static void stringValidator(String value, String errorMessage) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(errorMessage);
-        }
     }
 
     public static String getParentPath(String relativePath) {
@@ -83,4 +83,9 @@ public class FileUtil {
         return file;
     }
 
+    public static boolean hasFileExtension(String path) {
+        Path filePath = Paths.get(path);
+
+        return filePath.getFileName() != null && filePath.getFileName().toString().contains(".");
+    }
 }

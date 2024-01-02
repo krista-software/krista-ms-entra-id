@@ -51,118 +51,187 @@ public class FileManagementDao {
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
+            if (sourcePath == null || sourcePath.trim().isEmpty()) { // Check for null or empty string
+                handleInvalidPathError("Invalid Folder Path", payload);
+                return payload; // Exit the method early
+            }
             DriveItem driveItem = checkIfFileExist(sourcePath, payload, useEmail, accountID);
             if ((boolean) payload.get(Constants.SUCCESS)) {
-                sourcePath = DriveUtil.getRelativePath(sourcePath);
                 fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
-            } else {
-                payload.put(Constants.MESSAGE, "Please Provide valid path.");
-                payload.put(Constants.SUCCESS, false);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            payload.put(Constants.MESSAGE, "An error occurred. Please Provide valid path.");
-            payload.put(Constants.SUCCESS, false);
+            handleErrorResponse("An error occurred. Please provide a valid path.", payload);
         }
         return payload;
     }
 
+    private void handleErrorResponse(String errorMessage, FreeForm payload) {
+        payload.put(Constants.MESSAGE, errorMessage);
+        payload.put(Constants.SUCCESS, false);
+        LOGGER.error("Error during processing: {}", errorMessage);
+    }
+
     private DriveItem checkIfFileExist(String sourcePath, FreeForm payload, boolean useEmail, String accountID) {
-        DriveItem driveItem = new DriveItem();
         try {
-            if (sourcePath != null) {
-                driveItem = getFileByAbsolutePath(sourcePath);
-                if (driveItem != null && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
-                    sourcePath = DriveUtil.getRelativePath(sourcePath);
-                    DriveItem driveItemCollectionPage = provider.getUserRequestBuilder(useEmail, accountID).drives(driveItem.parentReference.driveId).root().itemWithPath(sourcePath).buildRequest().get();
-                    if(driveItemCollectionPage != null && driveItemCollectionPage.folder != null){
-                        ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);
-                        ResponseUtil.getInfoResponse(true, "File Found", payload);
-                    } else {
-                        ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
-                    }
-                } else {
-                    ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
-                }
+            if (shouldSkipFileCheck(sourcePath, payload, useEmail, accountID)) return new DriveItem();
+
+            DriveItem driveItem = getFileByAbsolutePath(sourcePath);
+            if (isInvalidDriveItem(driveItem,payload)) return new DriveItem();
+
+            sourcePath = DriveUtil.getRelativePath(sourcePath);
+            DriveItem driveItemCollectionPage = getDriveItemCollectionPage(driveItem, sourcePath, useEmail, accountID);
+
+            if (isFolderValid(driveItemCollectionPage)) {
+                ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);
+                ResponseUtil.getInfoResponse(true, "File Found", payload);
             } else {
                 ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
             }
+
+            return driveItem;
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
+            handleException(cause, payload);
             return new DriveItem();
         }
-        return driveItem;
+    }
+
+    private boolean shouldSkipFileCheck(String sourcePath, FreeForm payload, boolean useEmail, String accountID) {
+        if (sourcePath == null) {
+            ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isInvalidDriveItem(DriveItem driveItem, FreeForm payload) {
+        if (driveItem == null || driveItem.parentReference == null || driveItem.parentReference.driveId == null) {
+            ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+            return true;
+        }
+        return false;
+    }
+
+    private DriveItem getDriveItemCollectionPage(DriveItem driveItem, String sourcePath, boolean useEmail, String accountID) {
+        return provider.getUserRequestBuilder(useEmail, accountID)
+                .drives(driveItem.parentReference.driveId)
+                .root()
+                .itemWithPath(sourcePath)
+                .buildRequest()
+                .get();
+    }
+
+    private void handleException(Exception cause, FreeForm payload) {
+        ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
+    }
+
+    private boolean isFolderValid(DriveItem driveItemCollectionPage) {
+        return driveItemCollectionPage != null && driveItemCollectionPage.folder != null;
     }
 
     private DriveItem getFileByAbsolutePath(String filePath) {
         LOGGER.info("Searching for files with name: {}, selector: {}, page: {}, page size: {}", filePath);
-        if (filePath != null) {
-            filePath = filePath.replace("%20", " ");
-            DriveItem driveItem = new DriveItem();  // Initialize the result page
-            try {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(true, null);
 
-                LinkedList<SearchRequest> requestsList = new LinkedList<>();
-                SearchRequest requests = new SearchRequest();
-                requests.entityTypes = Arrays.asList(EntityType.SITE, EntityType.LIST, EntityType.LIST_ITEM,
-                        EntityType.DRIVE, EntityType.DRIVE_ITEM);
+        if (filePath == null) {
+            return null;
+        }
 
-                LinkedList<SortProperty> sortProperties = new LinkedList<>();
-                SortProperty sort = new SortProperty();
-                sort.name = "LastModifiedTime";
-                sort.isDescending = false;
-                sortProperties.add(sort);
-                requests.sortProperties = sortProperties;
+        try {
+            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(true, null);
+            LinkedList<SearchRequest> requestsList = buildSearchRequests(filePath);
+            SearchEntityQueryCollectionPage page = executeSearchQuery(graphClient, requestsList);
 
-                SearchQuery query = new SearchQuery();
-                query.queryString = "path:\"" + filePath + "\"";
+            return extractDriveItemFromSearchPage(page);
 
-                requests.query = query;
-                requests.from = 0;
-                requests.size = 1;
-                requestsList.add(requests);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            handleSearchError(cause);
+            return null;
+        }
+    }
 
-                SearchEntityQueryCollectionPage page = graphClient.search().query(SearchEntityQueryParameterSet
-                        .newBuilder().withRequests(requestsList).build()).buildRequest().post();
+    private LinkedList<SearchRequest> buildSearchRequests(String filePath) {
+        LinkedList<SearchRequest> requestsList = new LinkedList<>();
 
-                if (page != null && !page.getCurrentPage().isEmpty()) {
-                    for (SearchResponse driveInPage : page.getCurrentPage()) {
-                        if (driveInPage.hitsContainers != null) {
-                            for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-                                if (hitContainer.hits != null) {
-                                    for (SearchHit hits : hitContainer.hits) {
-                                        if (hits != null && hits.resource instanceof DriveItem) {
-                                            driveItem = (DriveItem) hits.resource;
-                                        }
-                                    }
+        SearchRequest requests = new SearchRequest();
+        requests.entityTypes = Arrays.asList(EntityType.SITE, EntityType.LIST, EntityType.LIST_ITEM,
+                EntityType.DRIVE, EntityType.DRIVE_ITEM);
+
+        LinkedList<SortProperty> sortProperties = buildSortProperties();
+        requests.sortProperties = sortProperties;
+
+        SearchQuery query = buildSearchQuery(filePath);
+        requests.query = query;
+        requests.from = 0;
+        requests.size = 1;
+
+        requestsList.add(requests);
+        return requestsList;
+    }
+
+    private LinkedList<SortProperty> buildSortProperties() {
+        LinkedList<SortProperty> sortProperties = new LinkedList<>();
+
+        SortProperty sort = new SortProperty();
+        sort.name = "LastModifiedTime";
+        sort.isDescending = false;
+
+        sortProperties.add(sort);
+        return sortProperties;
+    }
+
+    private SearchQuery buildSearchQuery(String filePath) {
+        SearchQuery query = new SearchQuery();
+        query.queryString = "path:\"" + filePath + "\"";
+        return query;
+    }
+
+    private SearchEntityQueryCollectionPage executeSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {
+        return graphClient.search().query(SearchEntityQueryParameterSet
+                .newBuilder().withRequests(requestsList).build()).buildRequest().post();
+    }
+
+    private DriveItem extractDriveItemFromSearchPage(SearchEntityQueryCollectionPage page) {
+        if (page != null && !page.getCurrentPage().isEmpty()) {
+            for (SearchResponse driveInPage : page.getCurrentPage()) {
+                if (driveInPage.hitsContainers != null) {
+                    for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
+                        if (hitContainer.hits != null) {
+                            for (SearchHit hits : hitContainer.hits) {
+                                if (hits != null && hits.resource instanceof DriveItem) {
+                                    return (DriveItem) hits.resource;
                                 }
                             }
                         }
                     }
                 }
-                if (driveItem != null) {
-                    return driveItem;
-                } else {
-                    return null;
-                }
-            } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
-                throw new IllegalArgumentException(cause.getMessage(), cause);
             }
-        } else {
-            return null;
         }
+        return null;
+    }
+
+    private void handleSearchError(Exception cause) {
+        LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
+        throw new IllegalArgumentException(cause.getMessage(), cause);
     }
 
     private void fetchFileInfo(String sourcePath, FreeForm payload, boolean useEmail, String accountID, DriveItem driveItem) {
         try {
-            if (driveItem != null && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
-                DriveItemCollectionPage driveItemCollectionPage = provider.getUserRequestBuilder(useEmail, accountID).drives(driveItem.parentReference.driveId).root().itemWithPath(sourcePath).children().buildRequest().get();
-                if (driveItemCollectionPage != null) {
-                    processResponse(driveItemCollectionPage, payload);
-                }
+            sourcePath = DriveUtil.getRelativePath(sourcePath);
+            DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID)
+                    .drives(driveItem.parentReference.driveId)
+                    .root()
+                    .itemWithPath(sourcePath)
+                    .children()
+                    .buildRequest()
+                    .get();
+
+            if (page != null && !page.getCurrentPage().isEmpty()) {
+                processResponse(page, payload);
+            } else {
+                payload.put(Constants.MESSAGE, "No information available for the provided path.");
+                payload.put(Constants.SUCCESS, false);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
+            handleErrorResponse("An error occurred while fetching file information.", payload);
         }
     }
 
@@ -239,53 +308,59 @@ public class FileManagementDao {
         return List.of("", "");
     }
 
+
     @NotNull
     public FreeForm getListOfFiles(String relativePath, String search, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
             List<FileService> files = new ArrayList<>();
-            if (relativePath != null) {
-                DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
-                if ((boolean) payload.get(Constants.SUCCESS)) {
-                    relativePath = DriveUtil.getRelativePath(relativePath);
-                    getRootFilesByDriveIDPath(driveItem.parentReference.driveId, relativePath, files, useEmail, accountID, search, payload);
-                    return payload;
-                } else {
-                    ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
-                    return payload;
-                }
-            } else {
-                ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
-                return payload;
+            if (relativePath == null || relativePath.trim().isEmpty()) { // Check for null or empty string
+                handleInvalidPathError("Invalid Folder Path", payload);
+                return payload; // Exit the method early
             }
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
-            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
+
+            DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
+            if (payload.get(Constants.SUCCESS) == Boolean.TRUE) {
+                String refinedRelativePath = DriveUtil.getRelativePath(relativePath);
+                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath, files, useEmail, accountID, search, payload);
+            }
+        } catch (GraphServiceException | IllegalArgumentException e) {
+            handleServiceException(e, payload);
         }
+
         return payload;
+    }
+
+    private void handleInvalidPathError(String message, FreeForm payload) {
+        ResponseUtil.getInfoResponse(false, message, payload);
+    }
+
+    private DriveItem checkIfFileExistAndGetParentDriveId(String relativePath, FreeForm payload, boolean useEmail, String accountID) {
+        DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
+        if (payload.get(Constants.SUCCESS) == Boolean.TRUE) { // Explicit boolean check
+            return driveItem;
+        } else {
+            handleInvalidPathError("Invalid Folder Path", payload);
+            return null; // Directly return null to indicate failure
+        }
+    }
+
+    private void handleServiceException(Exception cause, FreeForm payload) {
+        String errorMessage = Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage();
+        ResponseUtil.getInfoResponse(false, errorMessage, payload);
     }
 
     public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload) {
         try {
-            DriveItem driveItem = provider.getUserRequestBuilder(useEmail, accountID).drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
+            DriveItem driveItem = provider.getUserRequestBuilder(useEmail, accountID)
+                    .drives(driveID)
+                    .root()
+                    .itemWithPath(relativePath)
+                    .buildRequest()
+                    .get();
+
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
-                DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID).drives(driveID).root().itemWithPath(relativePath).children().buildRequest().get();
-                while (page != null && !page.getCurrentPage().isEmpty()) {
-                    for (DriveItem driveInPage : page.getCurrentPage()) {
-                        if (search != null && !search.isEmpty() && driveInPage.name != null && driveInPage.name.contains(search)) {
-                            files.add(new FileImpl(driveInPage, null, null));
-                        }
-                        if (search != null && search.isBlank()) {
-                            files.add(new FileImpl(driveInPage, null, null));
-                        }
-                    }
-                    if (page.getNextPage() != null) {
-                        page = page.getNextPage().buildRequest().get();
-                    } else {
-                        ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
-                        break;
-                    }
-                }
+                iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload);
             } else {
                 files.add(new FileImpl(driveItem, null, null));
                 ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
@@ -295,5 +370,36 @@ public class FileManagementDao {
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
         }
     }
+
+    private void iterateAndAddFilesToCollection(List<FileService> files, String search, String driveID, String relativePath, boolean useEmail, String accountID, FreeForm payload) {
+        DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID)
+                .drives(driveID)
+                .root()
+                .itemWithPath(relativePath)
+                .children()
+                .buildRequest()
+                .get();
+
+        while (page != null && !page.getCurrentPage().isEmpty()) {
+            for (DriveItem driveInPage : page.getCurrentPage()) {
+                if (isSearchCriteriaMatched(search, driveInPage)) {
+                    files.add(new FileImpl(driveInPage, null, null));
+                }
+            }
+
+            if (page.getNextPage() != null) {
+                page = page.getNextPage().buildRequest().get();
+            } else {
+                ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                break;
+            }
+        }
+    }
+
+    private boolean isSearchCriteriaMatched(String search, DriveItem driveItem) {
+        return search != null && !search.isEmpty() && driveItem.name != null && driveItem.name.contains(search)
+                || search != null && search.isBlank();
+    }
+
 
 }

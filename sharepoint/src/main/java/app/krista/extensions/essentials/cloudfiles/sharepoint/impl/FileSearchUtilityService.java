@@ -2,18 +2,10 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import com.microsoft.graph.models.DriveItem;
-import com.microsoft.graph.models.Site;
-import com.microsoft.graph.requests.DriveItemSearchCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.SiteCollectionPage;
 import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.List;
 
 public class FileSearchUtilityService {
 

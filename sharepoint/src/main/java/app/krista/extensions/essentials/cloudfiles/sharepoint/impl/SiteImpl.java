@@ -12,11 +12,9 @@ import java.util.Map;
 public class SiteImpl implements FileService {
 
     private final Site site;
-    private final GraphServiceException exception;
 
-    public SiteImpl(Site site, GraphServiceException exception) {
+    public SiteImpl(Site site) {
         this.site = site;
-        this.exception = exception;
     }
 
     @Override
@@ -41,7 +39,7 @@ public class SiteImpl implements FileService {
 
     @Override
     public String getAbsolutePath() {
-        return site.parentReference != null ? site.parentReference.path : null;
+        return site.webUrl != null ? site.webUrl : null;
     }
 
     @Override

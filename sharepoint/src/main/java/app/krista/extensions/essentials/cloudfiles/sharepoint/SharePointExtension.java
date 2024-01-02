@@ -19,7 +19,7 @@ import java.util.Map;
 @Field.Text(value = SharePointAttributes.TENANT_ID, isSecured = true)
 @Field.Text(value = SharePointAttributes.EMAIL)
 @Field.Boolean(value = SharePointAttributes.ALLOW_ALERT_MAIL, required = false)
-@Extension(version = "2.0.0rc1")
+@Extension(version = "2.0.0-rc1")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {
 

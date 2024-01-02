@@ -3,12 +3,14 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.ColumnDefinitionCollectionPage;
 import com.microsoft.graph.requests.ColumnDefinitionCollectionResponse;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
+import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,21 +18,31 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Objects;
 
+/**
+ * This class provides operations for managing SharePoint lists, including creating, deleting, and updating lists.
+ * It utilizes Microsoft Graph API for communication with SharePoint.
+ *
+ * @author Vaibhav Choudhary
+ */
+
+@Service
 public class OperationsAreaListImpl {
 
     private final GraphServiceClientProvider clientProvider;
+    private final OperationsAreaUtilityService operationsAreaUtilityService;
 
-    private static final Logger log = LoggerFactory.getLogger(OperationsAreaImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsAreaImpl.class);
 
     @Inject
-    public OperationsAreaListImpl(GraphServiceClientProviderFactory clientProviderFactory, SharePointAttributes sharePointAttributes) {
-        this(clientProviderFactory.create(sharePointAttributes));
+    public OperationsAreaListImpl(GraphServiceClientProviderFactory clientProviderFactory,
+                                  SharePointAttributes sharePointAttributes,OperationsAreaUtilityService operationsAreaUtilityService) {
+        this(clientProviderFactory.create(sharePointAttributes),operationsAreaUtilityService);
     }
 
-    public OperationsAreaListImpl(GraphServiceClientProvider clientProvider) {
+    public OperationsAreaListImpl(GraphServiceClientProvider clientProvider,OperationsAreaUtilityService operationsAreaUtilityService) {
         this.clientProvider = clientProvider;
+        this.operationsAreaUtilityService = operationsAreaUtilityService;
     }
 
     /**
@@ -46,13 +58,16 @@ public class OperationsAreaListImpl {
      */
     public Map<String, Object> createList(String siteName, String listName) {
         Map<String, Object> payload = new HashMap<>();
+        if (!operationsAreaUtilityService.validateSiteAndListNames(siteName, listName, payload)) {
+            return payload; // Early return if validation fails
+        }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
 
             Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);    // Check if site exists
             if (existingSite == null) {
-                payload.put("Message", "Site '" + siteName + "' not found while creating list");
-                payload.put("Success", false);
+                payload.put(Constants.MESSAGE, "Site '" + siteName + "' not found while creating list");
+                payload.put(Constants.SUCCESS, false);
                 return payload;
             }
 
@@ -63,12 +78,12 @@ public class OperationsAreaListImpl {
             LinkedList<ColumnDefinition> columnsList = new LinkedList<>();
 
             ColumnDefinition columnDefinition = new ColumnDefinition();
-            columnDefinition.name = "Modified";
+            columnDefinition.name = Constants.MODIFIED;
             columnDefinition.dateTime = new DateTimeColumn();
             columnsList.add(columnDefinition);
 
             columnDefinition = new ColumnDefinition();
-            columnDefinition.name = "Modified By";
+            columnDefinition.name = Constants.MODIFIED_BY;
             columnDefinition.text = new TextColumn();
 
             columnsList.add(columnDefinition);
@@ -82,11 +97,11 @@ public class OperationsAreaListImpl {
 
             // Make the request to create the list & Return a success message or handle the response accordingly
             List list = graphClient.sites(existingSite.id).lists().buildRequest().post(microsoftGraphList);
-            OperationsAreaUtilityService.processResponse(list,payload);
+            OperationsAreaUtilityService.processResponse(list,payload,"created");
         } catch (Exception cause) {
-            log.error("Error creating list", cause);
-            payload.put("Message", Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "Site Not Found" : cause.getMessage());
-            payload.put("Success", false);
+            LOGGER.error("Error creating list : ", cause.getMessage());
+            payload.put(Constants.MESSAGE, Constants.ERROR_LIST_CREATION);
+            payload.put(Constants.SUCCESS, false);
         }
         return payload;
     }
@@ -103,31 +118,34 @@ public class OperationsAreaListImpl {
      */
     public Map<String, Object> deleteList(String siteName, String listName) {
         Map<String, Object> payload = new HashMap<>();
+        if (!operationsAreaUtilityService.validateSiteAndListNames(siteName,listName,payload)) {
+            return payload; // Early return if validation fails
+        }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
 
             Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);
             if (existingSite == null) {
-                payload.put("Message", "Site '" + siteName + "' not found while deleting list");
-                payload.put("Success", false);
+                payload.put(Constants.MESSAGE, "Site '" + siteName + "' not found while deleting list");
+                payload.put(Constants.SUCCESS, false);
                 return payload;
             }
 
             List existingList = OperationsAreaUtilityService.getList(graphClient, existingSite, listName);
             if (existingList == null) {
-                payload.put("Message", "List '" + listName + "' not found while deleting list");
-                payload.put("Success", false);
+                payload.put(Constants.MESSAGE, "List '" + listName + "' not found while deleting list");
+                payload.put(Constants.SUCCESS, false);
                 return payload;
             }
 
             graphClient.sites(existingSite.id).lists(existingList.id).buildRequest().delete();
 
-            payload.put("Success", true);
-            payload.put("Message", existingList.displayName + " List deleted successfully");
+            payload.put(Constants.SUCCESS, true);
+            payload.put(Constants.MESSAGE, existingList.displayName + Constants.LIST_DELETED_SUCCESSFULLY);
         } catch (Exception cause) {
-            log.error("Error deleting list", cause);
-            payload.put("Message", Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "List Not Found" : cause.getMessage());
-            payload.put("Success", false);
+            LOGGER.error("Error deleting list : ", cause.getMessage());
+            payload.put(Constants.MESSAGE, Constants.FAILED_TO_MODIFY_LIST);
+            payload.put(Constants.SUCCESS, false);
         }
         return payload;
     }
@@ -147,20 +165,23 @@ public class OperationsAreaListImpl {
      */
     public Map<String, Object> updateList(String siteName, String listName, String displayName, String description) {
         Map<String, Object> payload = new HashMap<>();
+        if (!operationsAreaUtilityService.validateSiteAndListAndUpdatedNames(siteName, listName ,payload, displayName)) {
+            return payload; // Early return if validation fails
+        }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
 
             Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);
             if (existingSite == null) {
-                payload.put("Message", "Site '" + siteName + "' not found while updating list");
-                payload.put("Success", false);
+                payload.put(Constants.MESSAGE, "Site '" + siteName + "' not found while updating list");
+                payload.put(Constants.SUCCESS, false);
                 return payload;
             }
 
             List existingList = OperationsAreaUtilityService.getList(graphClient, existingSite, listName);
             if (existingList == null) {
-                payload.put("Message", "List '" + listName + "' not found while updating list");
-                payload.put("Success", false);
+                payload.put(Constants.MESSAGE, "List '" + listName + "' not found while updating list");
+                payload.put(Constants.SUCCESS, false);
                 return payload;
             }
 
@@ -170,11 +191,11 @@ public class OperationsAreaListImpl {
                     .buildRequest()
                     .patch(existingList);
 
-            OperationsAreaUtilityService.processResponse(updatedList, payload); // Use the processResponse method for clarity
+            OperationsAreaUtilityService.processResponse(updatedList, payload, "modified"); // Use the processResponse method for clarity
         } catch (Exception cause) {
-            log.error("Error updating list", cause);
-            payload.put("Message", Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "List Not Found" : cause.getMessage());
-            payload.put("Success", false);
+            LOGGER.error("Error updating list : ", cause.getMessage());
+            payload.put(Constants.MESSAGE, Constants.FAILED_TO_MODIFY_LIST);
+            payload.put(Constants.SUCCESS, false);
         }
         return payload;
     }

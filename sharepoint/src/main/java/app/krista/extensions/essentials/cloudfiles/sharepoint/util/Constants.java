@@ -13,7 +13,6 @@ public class Constants {
     public static final String INVALID_STATE_PARAMETERS = "Invalid state parameters!";
     public static final String WS_CONTACT = "wsContact";
     public static final String IGNORED_EXCEPTION = "IGNORED EXCEPTION";
-    public static final String SUCCESS = "Success";
     public static final String SPACE = " ";
     public static final String UNAUTHORISED_USER = "Unauthorised user.";
     public static final String USER_AUTHENTICATED_SUCCESSFULLY_SAVE_THE_CHANGES = "User authenticated successfully. Save the changes.";
@@ -31,11 +30,6 @@ public class Constants {
     public static final String REFRESH_TOKEN_IS_NO_LONGER_VALID_PLEASE_REAUTHORIZE_YOURSELF = "Refresh Token is no longer valid. Please reauthorize yourself";
     public static final String FAILED_TO_GET_ACCOUNT = "Failed to get account";
     public static final String REST_SHAREPOINT_CALLBACK = "/rest/sharepoint/callback";
-    public static final String CREATED = "created";
-    public static final String REST_OUTLOOK_MAIL_NOTIFICATION = "/rest/outlook/mailNotification";
-    public static final String YYYY_MM_DD_T_HH_MM_SS_SSSSSSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'";
-    public static final String ME_MAIL_FOLDERS_INBOX_MESSAGES = "/mailFolders('Inbox')/messages";
-    public static final String REST_OUTLOOK_LIFECYCLE_NOTIFICATION = "/rest/outlook/lifecycleNotification";
     public static final String TEMP_DIR = "/tmp/krista/extension/outlook/";
     public static final String GOT_ERROR_FOR_AUTHENTICATION_SO_SENDING_FOR_RE_AUTHENTICATION = "Got error for Authentication. So sending for re authentication.";
     public static final String GOT_ERROR_FOR_AUTHENTICATION_SO_SENDING_FOR_AUTHENTICATION = "Got error for Authentication. So sending for authentication";
@@ -49,6 +43,57 @@ public class Constants {
     public static final String FILE = "File";
     public static final String FILES = "Files";
     public static final String IS_FILE_EXIST = "isFileExist";
+    public static final String IS_FOLDER_EXIST = "isFolderExist";
+    public static final String PARENT_REFERENCE = "parentReference";
+    public static final String ID = "id";
+    public static final String PROVIDE_VALID_SOURCE_PATH = "Provide Valid source Path";
+    public static final String PROVIDE_VALID_TARGET_PATH = "Provide Valid target Path";
+    public static final String ITEM_NOT_FOUND = "itemNotFound";
+    public static final String FILE_NOT_FOUND = "File Not Found";
+    public static final String FILE_DELETED_SUCCESSFULLY = "File Deleted Successfully";
+    public static final String FILE_UPLOADED_SUCCESSFULLY = "File Uploaded Successfully";
+    public static final String PROVIDE_VALID_PATH = "Provide Valid Path";
+    public static final String ERROR_MESSAGE = "ERROR MESSAGE";
+    public static final String FAILED_TO_UPLOAD_FILE = "Failed to upload file. File is empty.";
+    public static final String FAILED_TO_UPLOAD = "Failed to upload file. Provide valid file to upload.";
+    public static final String FAILED_TO_DOWNLOAD_FILE = "Failed to download file. Provide valid file to download.";
+    public static final String ERROR_IN_UPLOAD_FILE = "Error uploading files. Please try again later.";
+    public static final String FAILED_TO_RENAME_FILE = "Failed to rename file. Please try again later.";
+    public static final String INVALID_PATH_MESSAGE = "Please Provide a valid relative path for file.";
+    public static final String FILE_RENAMED_SUCCESSFULLY = "File Renamed Successfully";
+    public static final String FILE_EXTENSION_NOT_AVAILABLE = "File Extension is Not Available";
+    public static final String FAILED_TO_READ_TEXTFILE = "Failed to read text file. Please try again later.";
+    public static final String FAILED_TO_UPLOAD_TEXTFILE = "Failed to upload text file. Please try again later.";
+    public static final String INVALID_FILE_NAME = "Invalid File Name or Invalid File Extension";
+    public static final String CONTENT = "Content";
+    public static final String DRIVE_ITEM = "DriveItem";
+    public static final String FILE_READ_SUCCESS = "File read successfully";
+    public static final String INVALID_FILENAME = "Invalid FileName";
+
+    public static final String SUCCESS = "Success";
+    public static final String FILE_SHARED_SUCCESS = "File has been shared successfully";
+    public static final String READ = "Read";
+    public static final String WRITE = "Write";
+    public static final String READ_AND_WRITE = "Read and Write";
+    public static final String ORGANIZATION = "organization";
+    public static final String EDIT = "edit";
+    public static final String VIEW = "view";
+    public static final String FAILED_TO_SHARE_FILE = "Failed to share file. Please try again later.";
+    public static final String SITE_DELETED_SUCCESSFULLY = "Site deleted successfully";
+    public static final String FAILED_TO_DELETE_SITE = "Failed to delete site. Please try again later.";
+    public static final String PROVIDE_VALID_INPUT = "Provide valid input";
+    public static final String ERROR_LIST_CREATION = "Error creating list. Please try again later.";
+    public static final String FAILED_LIST_CREATION = "Failed to create list. Please try again later.";
+    public static final String FAILED_TO_MODIFY_LIST = "Failed to modify list. Please try again later.";
+    public static final String FAILED_TO_UPDATE_SITE = "Failed to update site. Please try again later.";
+    public static final String SITE_UPDATED_SUCCESSFULLY = "Site updated successfully";
+    public static final String SITE_NAME_CANNOT_BE_NULL = "Site name cannot be null or empty";
+    public static final String LIST_NAME_CANNOT_BE_NULL = "List name cannot be null or empty";
+    public static final String UPDATED_LIST_NAME_CANNOT_BE_NULL = "Updated List name cannot be null or empty";
+    public static final String MODIFIED = "Modified";
+    public static final String MODIFIED_BY = "Modified By";
+    public static final String LIST_DELETED_SUCCESSFULLY = "List deleted successfully";
+    public static final String UPDATED_SITE_NAME_CANNOT_BE_NULL = "Updated Site name cannot be null or empty";
 
     private Constants() {
     }
