@@ -218,10 +218,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Renames the file given at the Source File Path to the name Given.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory**                          | **Example**   |
-|--------------------|--------------------|----------------------------------------|---------------|
-| File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-| Target File Name   | Text               | Yes                                    | NewExcel.xlsx |
+| **Parameter Name** | **Parameter Type** | **Mandatory**                          | **Example**              |
+|--------------------|--------------------|----------------------------------------|--------------------------|
+| File               | Entity             | {name : "ABC", extension:".txt" , ...} | {name : "NewSheet.xlsx"} |
+| Target File Name   | Text               | Yes                                    | NewExcel.xlsx            |
 
 - **Output**:
 
@@ -230,7 +230,6 @@ Krista SharePoint extension supports the following Catalog Requests:
   | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
   | Message            | Text               | " "                                    |
   | Success            | Yes/No             | Yes                                    |
-- 
 
 #### Share File
 

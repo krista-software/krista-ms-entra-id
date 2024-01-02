@@ -85,7 +85,7 @@ public class CopyFileDao {
 
     private boolean validateReplaceAndCreateFolderParameters(Boolean replace, Boolean createFolder, Map<String, Object> payload) {
         if (replace != null && createFolder != null && replace && createFolder) {
-            payload.put(Constants.MESSAGE, "Please Specify Whether to Replace or Create");
+            payload.put(Constants.MESSAGE, Constants.PLEASE_SPECIFY_REPLACE_OR_CREATE);
             payload.put(Constants.SUCCESS, false);
             return false;
         }
@@ -102,7 +102,7 @@ public class CopyFileDao {
         }
 
         if (!(boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
-            payload.put(Constants.MESSAGE, "Provide a Valid Target Path");
+            payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_TARGET_PATH);
             payload.put(Constants.SUCCESS, false);
         }
         return driveItemTarget;
@@ -172,7 +172,7 @@ public class CopyFileDao {
                     .buildRequest().get();
 
             payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, null, null)));
-            payload.put(Constants.MESSAGE, "File has been copied successfully");
+            payload.put(Constants.MESSAGE, Constants.FILE_COPIED_SUCCESSFULLY);
             payload.put(Constants.SUCCESS, true);
         } else if (statusResponse.code() == 409) {
             payload.put(Constants.MESSAGE, "A file with this name already exists. Please choose a different file name.");

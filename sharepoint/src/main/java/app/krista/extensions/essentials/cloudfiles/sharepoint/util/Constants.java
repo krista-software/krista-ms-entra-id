@@ -94,6 +94,8 @@ public class Constants {
     public static final String MODIFIED_BY = "Modified By";
     public static final String LIST_DELETED_SUCCESSFULLY = "List deleted successfully";
     public static final String UPDATED_SITE_NAME_CANNOT_BE_NULL = "Updated Site name cannot be null or empty";
+    public static final String PLEASE_SPECIFY_REPLACE_OR_CREATE = "Please Specify Whether to Replace or Create";
+    public static final String FILE_COPIED_SUCCESSFULLY = "File has been copied successfully";
 
     private Constants() {
     }

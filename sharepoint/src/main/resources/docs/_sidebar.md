@@ -6,7 +6,7 @@
 
 * [Obtaining Client ID, Tenant ID, and Client Secret](pages/obtainingClientIDClientSecret.md)
 
-* [Connecting with SharePoint Extension](pages/connectingWithSharePointExtension.md)
+* [Configuring SharePoint Extension in Krista](pages/connectingWithSharePointExtension.md)
 
 * [Supported Requests](pages/supportedRequest.md)
 

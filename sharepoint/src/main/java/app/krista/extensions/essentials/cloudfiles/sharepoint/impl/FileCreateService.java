@@ -9,11 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.List;
 
 public class FileCreateService {
 
-    private static final Logger log = LoggerFactory.getLogger(FileCreateService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileCreateService.class);
 
     private final GraphServiceClient<Request> graphClient;
 
@@ -22,49 +21,50 @@ public class FileCreateService {
     }
 
     /**
-     * Creates a new group in Microsoft Graph.
+     * Creates a new group using the provided groupData map, validates the input, and performs the group creation.
      *
-     * @param map A map containing properties of the group.
-     *            - "Name": The display name of the group.
-     *            - "Base Name": The mail nickname or base name of the group.
-     *            (Additional properties can be included based on requirements.)
-     * @return A {@link GroupImpl} representing the created group.
-     * If the group is successfully created, the returned object contains the group details.
-     * If there is an error during the creation process, the returned object contains the error details.
-     * @throws IllegalArgumentException If the input map is null or missing required properties.
+     * @param groupData A map containing properties for group creation, including "Name" and "Base Name".
+     * @return A GroupImpl object representing the newly created group, or null if creation fails.
      * @see GroupImpl
+     * @see GraphServiceException
      */
     public GroupImpl createGroup(Map<String, Object> groupData) {
         try {
-            // Validate input map
-            if (groupData == null) {
-                log.error("Invalid input: groupData map is null");
-                return new GroupImpl(null, null);
+            if (!validateGroupData(groupData)) {
+                LOGGER.error("Invalid input: Missing group data or properties");
+                throw new IllegalArgumentException("Invalid input: Missing group data or properties");
             }
 
-            // Extract group properties with null checks
-            String groupName = (String) groupData.get("Name");
-            String groupBaseName = (String) groupData.get("Base Name");
-            if (groupName == null || groupBaseName == null) {
-                log.error("Invalid input: Missing group name or base name");
-                return new GroupImpl(null, null);
-            }
-
-            // Create a new group object
-            Group groupToCreate = new Group();
-            groupToCreate.displayName = groupName;
-            groupToCreate.mailNickname = groupBaseName;
-            groupToCreate.groupTypes = Collections.singletonList("Unified");
-            groupToCreate.mailEnabled = true;
-            groupToCreate.securityEnabled = false;
-
-            // Send the request to create the group
+            Group groupToCreate = buildGroup(groupData);
             Group createdGroup = graphClient.groups().buildRequest().post(groupToCreate);
 
             return new GroupImpl(createdGroup, null);
-        } catch (GraphServiceException e) {
-            log.error("Error creating group", e);
-            return new GroupImpl(null, e);
+        } catch (GraphServiceException cause) {
+            LOGGER.error("Error creating group", cause.getMessage());
+            throw new IllegalArgumentException("Error : "+cause.getMessage());
         }
     }
+
+    private boolean validateGroupData(Map<String, Object> groupData) {
+        String groupName = (String) groupData.get("Name");
+        String groupBaseName = (String) groupData.get("Base Name");
+
+        return groupData != null
+                && groupName != null && !groupName.trim().isEmpty()
+                && groupBaseName != null && !groupBaseName.trim().isEmpty()
+                && groupName.matches("[a-zA-Z0-9 ]+")  // Allow only letters, numbers, and spaces
+                && groupBaseName.matches("[a-zA-Z0-9 ]+")
+                && !groupBaseName.contains(" ");
+    }
+
+    private Group buildGroup(Map<String, Object> groupData){
+        Group groupToCreate = new Group();
+        groupToCreate.displayName = (String) groupData.get("Name");
+        groupToCreate.mailNickname = ((String) groupData.get("Base Name")).trim();
+        groupToCreate.groupTypes = Collections.singletonList("Unified");
+        groupToCreate.mailEnabled = true;
+        groupToCreate.securityEnabled = false;
+        return groupToCreate;
+    }
+
 }

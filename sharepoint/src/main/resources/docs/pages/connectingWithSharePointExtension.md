@@ -1,4 +1,4 @@
-# Connecting with SharePoint Extension
+# Configuring SharePoint Extension in Krista
 
 ### Steps for connection
 
@@ -13,7 +13,7 @@
 
 
 * To authorize yourself you are required to follow these steps:
-   * Go to the Details page of the extension and copy the Routing id from there. After that, append **"/rest/sharepoint/callback"** at the end of the routing id (This is you redirect uri). Now add this uri in Authorized redirect uri in credentials of your registered app in azure portal.
+   * Go to the Details page of the extension and copy the Routing id from there. After that, append **"/rest/sharepoint/callback"** at the end of the routing id (This is you redirect URI). Now add this URI in Authorized redirect URI in credentials of your registered app in azure portal.
      ![Routing Id Reference](../_media/routing_id.png)
      ![Authorized redirect uri Reference](../_media/redirectUrl.png)
    * Run one of the request of the extension through conversation in the client. Once you run the request in the client, an authentication will appear. Click on that tab and authorize yourself using the same account which is used to register your application in azure portal.
@@ -23,3 +23,23 @@
 
 
 * After the connection is established, you are good to go with the requests of the extension.
+
+
+### Setup SharePoint extension
+
+
+* Adding SharePoint extension
+  * Catalogs > Essentials > Cloud Files > SharePoint    
+    ![SetupPage](../_media/setup1.jpg)
+
+
+* Add SharePoint extension by clicking on **Add to Workspace**
+  * Setup Share Point > **Name** > Save  
+    ![SetupPage](../_media/setup2.jpg)
+
+
+* Now you can use this same Client id , Client secret, Tenant id and Email as Setup Parameters in Setup Page and Click on Validate Attributes.
+  ![SetupPage](../_media/setup3.jpg)
+
+
+

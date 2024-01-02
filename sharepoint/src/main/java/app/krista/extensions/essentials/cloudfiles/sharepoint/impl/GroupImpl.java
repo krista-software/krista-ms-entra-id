@@ -12,9 +12,9 @@ public class GroupImpl implements FileService {
 
     private final Group group;
 
-    private final GraphServiceException exception;
+    private final Exception exception;
 
-    public GroupImpl(Group group, GraphServiceException exception) {
+    public GroupImpl(Group group, Exception exception) {
         this.group = group;
         this.exception = exception;
     }

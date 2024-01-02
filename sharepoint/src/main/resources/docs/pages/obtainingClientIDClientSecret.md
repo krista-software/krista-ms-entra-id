@@ -1,7 +1,7 @@
 # Obtaining Client ID, Tenant ID, and Client Secret
 
 
-* For the SharePoint Extension, you would need to obtain Client ID, Tenant ID, and Client Secret from the Azure Portal.
+For the SharePoint Extension, you would need to obtain Client ID, Tenant ID, and Client Secret from the Azure Portal.
 
 
 ### Steps to get Client ID, Tenant ID, and Client Secret
@@ -23,7 +23,7 @@
 
 
 * **Register an application** page is displayed. Enter the relevant details on this application page. Enter the **Name** that would be display name. Select the **Supported account types**. Out of the available options, select accounts in the single tenant only (first option). Under Redirect URI, select the Web platform. Add the authorized redirect URI corresponding to your SharePoint extension. Click **Register**.
-  * Go to the Details page of the extension and copy the Routing id from there. After that, append **"/rest/sharepoint/callback"** at the end of the routing id (This is you redirect uri). Now add this uri in Authorized redirect uri in credentials of your registered app in azure portal.
+  * Go to the Details page of the extension and copy the Routing id from there. After that, append **"/rest/sharepoint/callback"** at the end of the routing id (This is you redirect URI). Now add this URI in Authorized redirect URI in credentials of your registered app in azure portal.
       ![Routing Id Reference](../_media/routing_id.png)
       ![Register](../_media/register.png)
 
@@ -54,11 +54,11 @@
   ![Select Permission](../_media/selectPermissions.png)
 
 
-* Click **Certificates & secrets**, go to and click **New client secret**.
+* Select **Certificates & secrets**, go to **Client secrets** tab, and click **New client secret**.
   ![Certificates & Secrets](../_media/certificates&Secrets.png)
 
 
-* On the **Add a client secret panel**, enter the **Description**, and set up the time span of expiry in the **Expires** field. Click **Add**.
+* On the **Add a client secret** panel, enter the **Description**, and set up the time span of expiry in the **Expires** field. Click **Add**.
   ![Add Client Secret](../_media/addClientSecret.png)
 
 
