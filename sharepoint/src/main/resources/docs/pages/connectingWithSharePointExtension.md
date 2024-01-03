@@ -19,27 +19,35 @@
    * Run one of the request of the extension through conversation in the client. Once you run the request in the client, an authentication will appear. Click on that tab and authorize yourself using the same account which is used to register your application in azure portal.
 
 
+### Setup SharePoint extension
+
+
+* Adding SharePoint extension by going to **Catalogs** > **Essentials** > **Cloud Files** > **SharePoint**   
+  ![SetupPage](../_media/setup1.jpg)
+
+
+* Add Extension To Workspace , Click on **"Add to Workspace"** button and provide Extension Name in **Setup SharePoint** and Click on **"Save"**.
+  ![SetupPage](../_media/setup2.jpg)
+
+
+* Go to **Extensions** > **SharePoint** , and get into Setup page Tab.
+  ![SetupPage](../_media/setup4.jpg)  
+
+
+* Now you can use **Client Id** , **Client Secret**, **Tenant Id** and **Email** as Setup Parameters which you have Obtained previously.
+  * Go to Setup Page and add parameters as below Example used for a Microsoft OAuth 2.0 Setup:
+
+    * **Client Id** : "4uhu24givb35y39b399bv39".
+    * **Client Secret** : "your_client_secret".
+    * **Tenant Id** : "your_tenant_id".
+    * **Email** : "sharepoint.testmail@contoso.com".
+    
+  ![SetupPage](../_media/setup3.jpg)
+
+
 * Once you are authorized, you can see if the connection is established by clicking test connection on setup page.
 
 
 * After the connection is established, you are good to go with the requests of the extension.
-
-
-### Setup SharePoint extension
-
-
-* Adding SharePoint extension
-  * Catalogs > Essentials > Cloud Files > SharePoint    
-    ![SetupPage](../_media/setup1.jpg)
-
-
-* Add SharePoint extension by clicking on **Add to Workspace**
-  * Setup Share Point > **Name** > Save  
-    ![SetupPage](../_media/setup2.jpg)
-
-
-* Now you can use this same Client id , Client secret, Tenant id and Email as Setup Parameters in Setup Page and Click on Validate Attributes.
-  ![SetupPage](../_media/setup3.jpg)
-
 
 

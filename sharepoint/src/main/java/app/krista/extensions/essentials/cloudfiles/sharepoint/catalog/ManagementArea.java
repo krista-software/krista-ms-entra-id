@@ -104,10 +104,8 @@ public class ManagementArea {
             @Field(name = "From Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double fromSize,
             @Field(name = "To Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double toSize) {
         final String taskId = UUID.randomUUID().toString();
-        boolean useEmail = !requestContext.invokeAsUser();
-        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFileBySizeRange(fromSize,toSize,useEmail,accountID);
+            FreeForm freeForm = managementDao.getFileBySizeRange(fromSize,toSize);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -123,10 +121,8 @@ public class ManagementArea {
     public String fetchFileByModificationDateRange(
             @Field.DateRange(name = "Modification Date Range", required = true, showHowManyDaysInViewer = 60) DateRange modificationDateRange) {
         final String taskId = UUID.randomUUID().toString();
-        boolean useEmail = !requestContext.invokeAsUser();
-        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFileByDateRange(modificationDateRange,useEmail,accountID);
+            FreeForm freeForm = managementDao.getFileByDateRange(modificationDateRange);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;

@@ -12,6 +12,10 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Vaibhav Choudhary
+ */
+
 @Service
 public class ManagementDaoImpl {
 
@@ -24,20 +28,24 @@ public class ManagementDaoImpl {
     private final SharedFileDao sharedFileDao;
     private final CopyFileDao copyFileDao;
     private final DriveTextFileService driveTextFileService;
+    private final FileSearchFilterByRange fileSearchFilterByRange;
 
 
     @Inject
-    public ManagementDaoImpl(GraphServiceClientProviderFactory factory, FileManagementDao fileManagementDao,FolderManagementDao folderManagementDao,
-                             OperationsManagementDao operationsManagementDao,SharedFileDao sharedFileDao,CopyFileDao copyFileDao,
-                             FileDownloadService fileDownloadService,FileUploadService fileUploadService, DriveTextFileService driveTextFileService) {
-        this(factory.create(), fileManagementDao, folderManagementDao,operationsManagementDao,sharedFileDao,copyFileDao,
-                fileDownloadService,fileUploadService,driveTextFileService);
+    public ManagementDaoImpl(GraphServiceClientProviderFactory factory, FileManagementDao fileManagementDao,
+                             FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
+                             SharedFileDao sharedFileDao, CopyFileDao copyFileDao, FileDownloadService fileDownloadService,
+                             FileUploadService fileUploadService, DriveTextFileService driveTextFileService,
+                             FileSearchFilterByRange fileSearchFilterByRange) {
+        this(factory.create(), fileManagementDao, folderManagementDao, operationsManagementDao, sharedFileDao, copyFileDao,
+                fileDownloadService, fileUploadService, driveTextFileService, fileSearchFilterByRange);
     }
 
     public ManagementDaoImpl(GraphServiceClientProvider provider, FileManagementDao fileManagementDao,
-                             FolderManagementDao folderManagementDao ,OperationsManagementDao operationsManagementDao,
-                             SharedFileDao sharedFileDao ,CopyFileDao copyFileDao, FileDownloadService fileDownloadService,
-                             FileUploadService fileUploadService,DriveTextFileService driveTextFileService){
+                             FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
+                             SharedFileDao sharedFileDao, CopyFileDao copyFileDao, FileDownloadService fileDownloadService,
+                             FileUploadService fileUploadService, DriveTextFileService driveTextFileService,
+                             FileSearchFilterByRange fileSearchFilterByRange) {
         this.provider = provider;
         this.fileManagementDao = fileManagementDao;
         this.folderManagementDao = folderManagementDao;
@@ -47,6 +55,7 @@ public class ManagementDaoImpl {
         this.fileDownloadService = fileDownloadService;
         this.fileUploadService = fileUploadService;
         this.driveTextFileService = driveTextFileService;
+        this.fileSearchFilterByRange = fileSearchFilterByRange;
     }
 
 
@@ -114,45 +123,45 @@ public class ManagementDaoImpl {
     }
 
     public Map<String, Object> renameFile(File renameFile, String targetFileName) {
-        try{
-            return operationsManagementDao.renameFile(renameFile,targetFileName);
-        }catch (GraphServiceException | IllegalArgumentException cause) {
+        try {
+            return operationsManagementDao.renameFile(renameFile, targetFileName);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
     public FreeForm getInfo(String sourcePath, boolean useEmail, String accountID) {
-        try{
-            return fileManagementDao.getFileInfo(sourcePath,useEmail,accountID);
-        }catch (GraphServiceException | IllegalArgumentException cause) {
+        try {
+            return fileManagementDao.getFileInfo(sourcePath, useEmail, accountID);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
     public Map<String, Object> readTxtFile(String source) {
-        try{
+        try {
             return driveTextFileService.readTxtFile(source);
-        }catch (GraphServiceException | IllegalArgumentException cause) {
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
     public Map<String, Object> uploadFile(app.krista.model.base.File kristaFile, String targetPath) {
-        try{
-            return fileUploadService.uploadFiles(kristaFile,targetPath);
-        }catch (GraphServiceException | IllegalArgumentException cause) {
+        try {
+            return fileUploadService.uploadFiles(kristaFile, targetPath);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
     public Map<String, Object> uploadFileAsTxt(String fileContent, String target) {
-        try{
-            return driveTextFileService.uploadTxtFile(fileContent,target);
-        }catch (GraphServiceException | IllegalArgumentException cause) {
+        try {
+            return driveTextFileService.uploadTxtFile(fileContent, target);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
@@ -162,19 +171,19 @@ public class ManagementDaoImpl {
         return Map.of();
     }
 
-    public FreeForm getFileByDateRange(DateRange modificationDateRange, boolean useEmail, String accountID) {
-        try{
-            return new FreeForm();
-        }catch (GraphServiceException | IllegalArgumentException cause) {
+    public FreeForm getFileByDateRange(DateRange modificationDateRange) {
+        try {
+            return fileSearchFilterByRange.getFilesByModificationDate(modificationDateRange);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
-    public FreeForm getFileBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
-        try{
-            return new FreeForm();
-        }catch (GraphServiceException | IllegalArgumentException cause) {
+    public FreeForm getFileBySizeRange(Double fromSize, Double toSize) {
+        try {
+            return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

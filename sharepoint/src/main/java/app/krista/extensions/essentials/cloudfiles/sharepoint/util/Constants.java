@@ -96,6 +96,13 @@ public class Constants {
     public static final String UPDATED_SITE_NAME_CANNOT_BE_NULL = "Updated Site name cannot be null or empty";
     public static final String PLEASE_SPECIFY_REPLACE_OR_CREATE = "Please Specify Whether to Replace or Create";
     public static final String FILE_COPIED_SUCCESSFULLY = "File has been copied successfully";
+    public static final String PERMISSIONS = "permission";
+    public static final String QUERY_PERMISSIONS = "permissions";
+    public static final String FILE_SIZE_CANNOT_BE_NULL = "File Size can't be null or 0";
+    public static final String PROVIDE_VALID_SIZE_RANGE = "Provide valid size range";
+    public static final String NO_FILE_FOUND_IN_SIZE_RANGE = "No File found within size range";
+    public static final String DATE_RANGE_CANT_BE_EMPTY = "Modified date range can't be null OR empty";
+    public static final String NO_FILE_FOUND_IN_DATE_RANGE = "No File found within date range";
 
     private Constants() {
     }

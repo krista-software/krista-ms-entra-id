@@ -8,6 +8,12 @@ import com.microsoft.graph.models.Group;
 import java.sql.Timestamp;
 import java.util.Map;
 
+/**
+ *
+ * @author Vaibhav Choudhary
+ *
+ */
+
 public class GroupImpl implements FileService {
 
     private final Group group;

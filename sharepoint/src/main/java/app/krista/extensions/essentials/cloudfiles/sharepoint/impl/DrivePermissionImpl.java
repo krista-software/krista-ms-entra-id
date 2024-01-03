@@ -10,9 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* @author Vaibhav Choudhary
  *
- **/
+ * @author Vaibhav Choudhary
+ *
+ */
 
 public class DrivePermissionImpl implements FileService {
 
@@ -44,17 +45,21 @@ public class DrivePermissionImpl implements FileService {
 
     @Override
     public String getParentFolder() {
-        return driveMetaData.parentReference != null ? FileSearchUtilityService.extractParentFolderNameFromUrl(driveMetaData) : null;
+        return (driveMetaData != null && driveMetaData.parentReference != null) ?
+                (FileSearchUtilityService.extractParentFolderNameFromUrl(driveMetaData.webUrl)) :
+                (driveItem != null && driveItem.webUrl != null ? FileSearchUtilityService.extractParentFolderNameFromUrl(driveItem.webUrl) : null);
     }
 
     @Override
     public String getAbsolutePath() {
-        return driveMetaData.webUrl != null ? driveMetaData.webUrl + (driveItem.name != null ?  "/" + driveItem.name : "") : null;
+        return (driveMetaData != null && driveMetaData.webUrl != null) ?
+                (driveMetaData.webUrl + (driveItem.name != null ?  "/" + driveItem.name : "")) :
+                (driveItem != null && driveItem.webUrl != null ? driveItem.webUrl : null);
     }
 
     @Override
     public String getPath() {
-        return driveMetaData.webUrl != null ? driveMetaData.webUrl + (driveItem.name != null ?  "/" + driveItem.name : "") : null;
+        return driveItem != null && driveItem.webUrl != null ? driveItem.webUrl : null;
     }
 
     @Override
@@ -99,7 +104,7 @@ public class DrivePermissionImpl implements FileService {
 
     @Override
     public List<Map<String, Object>> getSharedWith() {
-        return driveMetaData.permissions != null ? FileDaoImpl.getSharedWithPermissions(driveMetaData.permissions) : null;
+        return driveMetaData != null && driveMetaData.permissions != null ? FileDaoImpl.getSharedWithPermissions(driveMetaData.permissions) : null;
     }
 
     @Override

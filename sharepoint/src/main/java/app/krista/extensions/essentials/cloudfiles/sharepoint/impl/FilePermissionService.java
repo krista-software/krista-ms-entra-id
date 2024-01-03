@@ -6,6 +6,12 @@ import com.microsoft.graph.requests.PermissionCollectionPage;
 
 import java.util.*;
 
+/**
+ *
+ * @author Vaibhav Choudhary
+ *
+ */
+
 public class FilePermissionService {
 
     public List<Map<String, Object>> getSharedWithPermissions(PermissionCollectionPage permissionCollectionPage) {

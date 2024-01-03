@@ -54,7 +54,6 @@ public class FileSearchImpl {
         } else if ("Owner".equals(selector)) {
             query.queryString = "isDocument=true AND CreatedBy:" + name;
         } else if ("Absolute Path".equals(selector)) {
-            //isDocument=true AND
             query.queryString = "path:\"" + name + "\"";
         } else {
             query.queryString = "isDocument=true AND " + name;

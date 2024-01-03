@@ -1,0 +1,13 @@
+{
+  "studio_url": "http://127.0.0.1:4400/",
+  "client_url": "http://localhost:8100/",
+  "extension_url": "http://localhost:8765/",
+  "username": "vaibhav.choudhary@kristasoft.com",
+  "password": "Python@125",
+  "workspace_id": "ws_default",
+  "ecosystem": "Essentials",
+  "domain": "Cloud Files",
+  "extension_name": "Share Point",
+  "client_api_ext_name": "Client API Mayur",
+  "conversation_name": "Calculator"
+}
