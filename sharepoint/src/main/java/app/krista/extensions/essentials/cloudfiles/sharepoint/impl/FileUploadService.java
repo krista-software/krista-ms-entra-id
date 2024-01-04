@@ -19,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
@@ -43,7 +41,6 @@ public class FileUploadService {
 
     public Map<String, Object> uploadFiles(app.krista.model.base.File kristaFile, String targetPath) {
         Map<String, Object> payload = new HashMap<>();
-
         try {
             validateAndUploadFile(kristaFile, targetPath, payload);
         } catch (Exception cause) {
@@ -53,16 +50,12 @@ public class FileUploadService {
     }
 
     private void validateAndUploadFile(app.krista.model.base.File kristaFile, String targetPath, Map<String, Object> payload) {
-        if (targetPath != null) {
-            if (!FileUtil.hasFileExtension(targetPath)) {
-                DriveItem drive = managementUtilityService.checkIfFileExist(targetPath, payload);
+        if (targetPath != null && !FileUtil.hasFileExtension(targetPath)) {
+            DriveItem drive = managementUtilityService.checkIfFileExist(targetPath, payload);
 
-                if ((boolean) payload.get(Constants.SUCCESS)) {
-                    targetPath = DriveUtil.getRelativePath(targetPath);
-                    uploadFileByPathByDriveID(drive.parentReference.driveId, targetPath, kristaFile, payload);
-                } else {
-                    setInvalidPathMessage(payload);
-                }
+            if ((boolean) payload.get(Constants.SUCCESS)) {
+                targetPath = DriveUtil.getRelativePath(targetPath);
+                uploadFileByPathByDriveID(drive.parentReference.driveId, targetPath, kristaFile, payload);
             } else {
                 setInvalidPathMessage(payload);
             }
@@ -94,7 +87,7 @@ public class FileUploadService {
                         provider.getUserRequestBuilder(null, null).drives(driveID).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile))
                         : provider.getUserRequestBuilder(null, null).drive().items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
                 if (uploadedDriveItem != null) {
-                    app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = CatalogTypes.fromFile(new FileImpl(driveItem, null, null));
+                    app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, provider));
                     payload.put(Constants.FILE, fileEntity);
                     payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
                     payload.put(Constants.SUCCESS, true);

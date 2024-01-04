@@ -79,7 +79,7 @@ public class Constants {
     public static final String EDIT = "edit";
     public static final String VIEW = "view";
     public static final String FAILED_TO_SHARE_FILE = "Failed to share file. Please try again later.";
-    public static final String SITE_DELETED_SUCCESSFULLY = "Site deleted successfully";
+    public static final String SITE_DELETED_SUCCESSFULLY = " Site deleted successfully";
     public static final String FAILED_TO_DELETE_SITE = "Failed to delete site. Please try again later.";
     public static final String PROVIDE_VALID_INPUT = "Provide valid input";
     public static final String ERROR_LIST_CREATION = "Error creating list. Please try again later.";
@@ -103,6 +103,7 @@ public class Constants {
     public static final String NO_FILE_FOUND_IN_SIZE_RANGE = "No File found within size range";
     public static final String DATE_RANGE_CANT_BE_EMPTY = "Modified date range can't be null OR empty";
     public static final String NO_FILE_FOUND_IN_DATE_RANGE = "No File found within date range";
+    public static final String INVALID_FOLDER_PATH = "Invalid Folder Path";
 
     private Constants() {
     }

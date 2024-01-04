@@ -222,6 +222,12 @@ public class ManagementArea {
             map.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
             map.put(Constants.SUCCESS,eventData.get(Constants.SUCCESS));
             return map;
+        } else if(eventData != null) {
+            Map<String,Object> map = new HashMap<>();
+            map.put(Constants.FILES,null);
+            map.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
+            map.put(Constants.SUCCESS,eventData.get(Constants.SUCCESS));
+            return map;
         }
         throw new IllegalStateException("Invalid Input");
     }

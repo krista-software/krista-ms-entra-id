@@ -83,10 +83,10 @@ public class FolderManagementDao {
                 while (page != null && !page.getCurrentPage().isEmpty()) {
                     for (DriveItem driveInPage : page.getCurrentPage()) {
                         if (search != null && !search.isEmpty() && driveInPage.folder != null && driveInPage.name != null && driveInPage.name.contains(search)) {
-                            files.add(new FileImpl(driveInPage, null, null));
+                            files.add(new DrivePermissionImpl(driveInPage, provider));
                         }
                         if (search != null && search.isBlank() && driveInPage.folder != null) {
-                            files.add(new FileImpl(driveInPage, null, null));
+                            files.add(new DrivePermissionImpl(driveInPage, provider));
                         }
                     }
                     if (page.getNextPage() != null) {

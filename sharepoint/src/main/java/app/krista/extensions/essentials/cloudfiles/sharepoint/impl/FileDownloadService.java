@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
@@ -47,20 +45,16 @@ public class FileDownloadService {
     public Map<String, Object> downloadFiles(Boolean downloadAsLink, Boolean downloadAsKristaFile, String relativePath) {
         Map<String, Object> payload = new HashMap<>();
         try {
-            if (relativePath != null) {
-                if(FileUtil.hasFileExtension(relativePath)) {
-                    List<File> files = new ArrayList<>();
-                    DriveItem driveItem = managementUtilityService.checkIfFileExist(relativePath, payload);
+            if (relativePath != null && FileUtil.hasFileExtension(relativePath)) {
+                List<File> files = new ArrayList<>();
+                DriveItem driveItem = managementUtilityService.checkIfFileExist(relativePath, payload);
 
-                    if ((boolean) payload.get(Constants.SUCCESS)) {
-                        relativePath = DriveUtil.getRelativePath(relativePath);
-                        downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink, downloadAsKristaFile, files, payload);
-                        handleDownloadResult(payload);
-                    } else {
-                        setInvalidPathMessage(payload);
-                    }
+                if ((boolean) payload.get(Constants.SUCCESS)) {
+                    relativePath = DriveUtil.getRelativePath(relativePath);
+                    downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink, downloadAsKristaFile, files, payload);
+                    handleDownloadResult(payload);
                 } else {
-                    setInvalidFilePathMessage(payload);
+                    setInvalidPathMessage(payload);
                 }
             } else {
                 setInvalidPathMessage(payload);

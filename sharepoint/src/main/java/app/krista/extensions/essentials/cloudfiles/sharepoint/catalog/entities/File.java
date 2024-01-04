@@ -56,7 +56,6 @@ public class File {
     @Field.PickOne(name = "Permissions", values = {"Read", "Write", "Read and Write"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String permissions;
 
-    //    @Searchable
     @Field.Boolean(name = "Is Folder", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Boolean isFolder;
 

@@ -2,6 +2,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
@@ -25,12 +26,12 @@ public class FileSearchUtilityService {
 
     public static DriveItem getDriveMetaData(DriveItem driveItem, GraphServiceClientProvider clientProvider) {
         DriveItem driveMetaData = null;
-        if (driveItem.parentReference.driveId != null && driveItem.parentReference.id != null) {
+        if (driveItem != null && driveItem.parentReference.driveId != null && driveItem.parentReference.id != null) {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
 
             try {
                 driveMetaData = graphClient.drives(driveItem.parentReference.driveId).
-                        items(driveItem.parentReference.id).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
+                        items(driveItem.id).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
             } catch (Exception cause) {
                 return driveMetaData;
             }
@@ -60,4 +61,37 @@ public class FileSearchUtilityService {
         }
     }
 
+
+    public static String getAbsolutePath(DriveItem driveMetaData, DriveItem driveItem) {
+        if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains(".aspx")) {
+            return driveItem.webUrl;
+        } else if (driveMetaData != null && driveMetaData.webUrl != null) {
+            return driveMetaData.webUrl + (driveItem.name != null ? "/" + driveItem.name : "");
+        }
+        return null;
+    }
+
+
+    public static String getParentFolder(DriveItem driveMetaData, DriveItem driveItem) {
+        if (driveMetaData != null && driveMetaData.parentReference != null && driveMetaData.parentReference.name != null) {
+            return driveMetaData.parentReference.name;
+        } else {
+            String path = getAbsolutePath(driveMetaData, driveItem);
+            if (path != null && !path.contains(".aspx")) {
+                return extractParentFolderNameFromUrl(path);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public static String getExtension(DriveItem driveMetaData, DriveItem driveItem) {
+        if(driveMetaData != null && driveMetaData.folder == null){
+            return FileUtil.getBaseName(driveItem.name != null ? driveItem.name : null).get(1);
+        } else {
+            return null;
+        }
+    }
+
 }
+

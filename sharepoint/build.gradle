@@ -78,7 +78,7 @@ configurations {
 }
 
 dependencies {
-    annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.91' // used to generate the extension.json
+    annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.92' // used to generate the extension.json
     compileOnly 'app.krista:krista-apis:1.0.91' // defines the Krista Service APIs
     compileOnly 'org.glassfish.hk2:hk2-api:3.0.3' // used to define scope of objects
     implementation 'com.microsoft.graph:microsoft-graph:5.41.0'

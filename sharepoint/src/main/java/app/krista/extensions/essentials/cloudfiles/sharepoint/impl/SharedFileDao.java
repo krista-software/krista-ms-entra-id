@@ -51,7 +51,7 @@ public class SharedFileDao {
         Map<String, Object> payload = new HashMap<>();
 
         try {
-            if (source == null) {
+            if (source.equals(null) ||source.isEmpty()) {
                 handleInvalidPath(payload);
                 return payload;
             }
@@ -81,7 +81,7 @@ public class SharedFileDao {
                 }
 
                 DriveItem driveItem = getFileInfo(drive.parentReference.driveId, sourcePath);
-                payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, null, null)));
+                payload.put(Constants.FILE, CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, provider)));
 
                 payload.put(Constants.MESSAGE, Constants.FILE_SHARED_SUCCESS);
                 return payload;
@@ -89,7 +89,6 @@ public class SharedFileDao {
         } catch (GraphServiceException | IllegalArgumentException cause) {
             handleGraphServiceException(cause, payload);
         }
-
         return payload;
     }
 

@@ -4,6 +4,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.models.File;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -40,21 +41,18 @@ public class DrivePermissionImpl implements FileService {
 
     @Override
     public String getExtension() {
-        return FileUtil.getBaseName(driveItem.name != null ? driveItem.name : null).get(1);
+        return FileSearchUtilityService.getExtension(driveMetaData,driveItem);
+        //return FileUtil.getBaseName(driveItem.name != null ? driveItem.name : null).get(1);
     }
 
     @Override
     public String getParentFolder() {
-        return (driveMetaData != null && driveMetaData.parentReference != null) ?
-                (FileSearchUtilityService.extractParentFolderNameFromUrl(driveMetaData.webUrl)) :
-                (driveItem != null && driveItem.webUrl != null ? FileSearchUtilityService.extractParentFolderNameFromUrl(driveItem.webUrl) : null);
+        return FileSearchUtilityService.getParentFolder(driveMetaData,driveItem);
     }
 
     @Override
     public String getAbsolutePath() {
-        return (driveMetaData != null && driveMetaData.webUrl != null) ?
-                (driveMetaData.webUrl + (driveItem.name != null ?  "/" + driveItem.name : "")) :
-                (driveItem != null && driveItem.webUrl != null ? driveItem.webUrl : null);
+        return FileSearchUtilityService.getAbsolutePath(driveMetaData,driveItem);
     }
 
     @Override
@@ -99,7 +97,7 @@ public class DrivePermissionImpl implements FileService {
 
     @Override
     public Boolean getIsFolder() {
-        return driveItem.folder != null;
+        return driveMetaData.folder != null;
     }
 
     @Override

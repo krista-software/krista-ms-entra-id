@@ -57,8 +57,8 @@ public class FileManagementDao {
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
-            if (sourcePath == null || sourcePath.trim().isEmpty()) { // Check for null or empty string
-                handleInvalidPathError("Invalid Folder Path", payload);
+            if (sourcePath.equalsIgnoreCase(null) || sourcePath.trim().isEmpty()) { // Check for null or empty string
+                handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload; // Exit the method early
             }
             DriveItem driveItem = checkIfFileExist(sourcePath, payload, useEmail, accountID);
@@ -320,9 +320,9 @@ public class FileManagementDao {
         FreeForm payload = new FreeForm();
         try {
             List<FileService> files = new ArrayList<>();
-            if (relativePath == null || relativePath.trim().isEmpty()) { // Check for null or empty string
-                handleInvalidPathError("Invalid Folder Path", payload);
-                return payload; // Exit the method early
+            if (relativePath.equalsIgnoreCase(null) || relativePath.trim().isEmpty()) {
+                handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
+                return payload;
             }
 
             DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
@@ -333,7 +333,6 @@ public class FileManagementDao {
         } catch (GraphServiceException | IllegalArgumentException e) {
             handleServiceException(e, payload);
         }
-
         return payload;
     }
 
@@ -368,7 +367,7 @@ public class FileManagementDao {
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload);
             } else {
-                files.add(new FileImpl(driveItem, null, null));
+                files.add(new DrivePermissionImpl(driveItem, provider));
                 ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -389,7 +388,7 @@ public class FileManagementDao {
         while (page != null && !page.getCurrentPage().isEmpty()) {
             for (DriveItem driveInPage : page.getCurrentPage()) {
                 if (isSearchCriteriaMatched(search, driveInPage)) {
-                    files.add(new FileImpl(driveInPage, null, null));
+                    files.add(new DrivePermissionImpl(driveInPage, provider));
                 }
             }
 

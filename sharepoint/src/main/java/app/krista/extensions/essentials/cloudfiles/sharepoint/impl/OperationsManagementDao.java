@@ -66,24 +66,23 @@ public class OperationsManagementDao {
 
     public Map<String, Object> renameFile(File renameFile, String targetFileName) {
         Map<String, Object> payload = new HashMap<>();
-
         try {
             validateAndRenameFile(renameFile, targetFileName, payload);
         } catch (Exception cause) {
             handleRenameFileException(cause, payload);
         }
-
         return payload;
     }
 
     private void validateAndRenameFile(File renameFile, String targetFileName, Map<String, Object> payload) {
         if (renameFile != null) {
-            if (!renameFile.extension.isBlank() && FileUtil.getBaseName(targetFileName).get(1) == null) {
+            if (!renameFile.extension.isBlank() && (FileUtil.getBaseName(targetFileName).get(1).equalsIgnoreCase(null) ||
+                    FileUtil.getBaseName(targetFileName).get(1).isEmpty())) {
                 setFileExtensionNotAvailableMessage(payload);
             } else {
                 DriveItem drive = managementUtilityService.checkIfFileExist(renameFile.absolutePath, payload);
 
-                if ((boolean) payload.get(Constants.SUCCESS)) {
+                if(payload.get(Constants.SUCCESS) == Boolean.TRUE) {
                     renameDriveItem(renameFile, targetFileName, drive, payload);
                 } else {
                     setFileNotFoundMessage(payload);

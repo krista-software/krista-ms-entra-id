@@ -21,7 +21,7 @@ import java.util.*;
 
 /**
  * This class provides operations for copying and moving files in SharePoint.
- *
+ * <p>
  * ***************************************************************
  * WARNING: DO NOT CHANGE ANYTHING IN THIS CLASS.
  * ***************************************************************
@@ -40,7 +40,7 @@ public class CopyFileDao {
 
     @Inject
     public CopyFileDao(GraphServiceClientProviderFactory factory, OperationsManagementDao operationsManagementDao,
-                       ManagementUtilityService managementUtilityService,CopyFileUtilityService copyFileUtilityService) {
+                       ManagementUtilityService managementUtilityService, CopyFileUtilityService copyFileUtilityService) {
         this(factory.create(), operationsManagementDao, managementUtilityService, copyFileUtilityService);
     }
 
@@ -65,22 +65,29 @@ public class CopyFileDao {
                         DriveItem driveItemTarget = createOrCheckTargetItem(target, createFolder, payload, replace);
 
                         if ((boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
-                            String endpoint = driveItemSource.id + "/copy";
-                            endpoint = addConflictBehaviorQueryParam(endpoint, replace);
-
-                            Response copyResponse = getRestClient(driveItemTarget.parentReference.driveId)
-                                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(driveItemTarget.id));
-
-                            processResponse(copyResponse, payload, driveItemSource);
+                            buildCopyFileRequest(driveItemSource, replace, driveItemTarget, payload, target);
                         }
                     }
                 }
             }
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            copyFileUtilityService.handleCopyFileException(cause, payload);
+        }
+        return payload;
+    }
+
+    private void buildCopyFileRequest(DriveItem driveItemSource, Boolean replace, DriveItem driveItemTarget, Map<String, Object> payload, String target) {
+        try {
+            String endpoint = driveItemSource.id + "/copy";
+            endpoint = addConflictBehaviorQueryParam(endpoint, replace);
+
+            Response copyResponse = getRestClient(driveItemTarget.parentReference.driveId)
+                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(driveItemTarget.id));
+
+            processResponse(copyResponse, payload, driveItemSource);
         } catch (GraphServiceException | IOException | IllegalArgumentException cause) {
             copyFileUtilityService.handleCopyFileException(cause, payload);
         }
-
-        return payload;
     }
 
     private boolean validateReplaceAndCreateFolderParameters(Boolean replace, Boolean createFolder, Map<String, Object> payload) {
@@ -171,7 +178,7 @@ public class CopyFileDao {
                     .drives(driveItemSource.parentReference.driveId).items(driveItemSource.id)
                     .buildRequest().get();
 
-            payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, null, null)));
+            payload.put(Constants.FILE, CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, provider)));
             payload.put(Constants.MESSAGE, Constants.FILE_COPIED_SUCCESSFULLY);
             payload.put(Constants.SUCCESS, true);
         } else if (statusResponse.code() == 409) {

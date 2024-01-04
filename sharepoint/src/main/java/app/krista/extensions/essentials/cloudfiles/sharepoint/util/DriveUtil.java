@@ -61,10 +61,20 @@ public final class DriveUtil {
             String path = uri.getPath();
 
             String[] pathSegments = path.split("/");
-            int sitesIndex = indexOfSegment(pathSegments, "sites");
-            if (sitesIndex != -1 && sitesIndex + 3 < pathSegments.length) {
+
+            // Find the index of the last "Documents" segment, regardless of case:
+            int startIndex = -1;
+            for (int i = pathSegments.length - 1; i >= 0; i--) {
+                if (pathSegments[i].equalsIgnoreCase("Documents") || pathSegments[i].equalsIgnoreCase("Shared Documents")) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            if (startIndex != -1) {
+                startIndex++;  // Start after "Documents"
                 StringBuilder dynamicPath = new StringBuilder("/");
-                for (int i = sitesIndex + 3; i < pathSegments.length; i++) {
+                for (int i = startIndex; i < pathSegments.length; i++) {
                     dynamicPath.append(pathSegments[i]);
                     if (i < pathSegments.length - 1) {
                         dynamicPath.append("/");
@@ -72,20 +82,11 @@ public final class DriveUtil {
                 }
                 return dynamicPath.toString();
             } else {
-                return null;
+                return null;  // Handle cases where "Documents" is not found
             }
         } catch (URISyntaxException e) {
             return null;
         }
-    }
-
-    private static int indexOfSegment(String[] pathSegments, String segment) {
-        for (int i = 0; i < pathSegments.length; i++) {
-            if (segment.equals(pathSegments[i])) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     public static String removeLastSegment(String url) {

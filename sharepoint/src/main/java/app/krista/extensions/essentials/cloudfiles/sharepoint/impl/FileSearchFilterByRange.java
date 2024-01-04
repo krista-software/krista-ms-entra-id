@@ -110,7 +110,7 @@ public class FileSearchFilterByRange {
             }
 
             List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload);
-            if (drivePermissions != null) {
+            if (drivePermissions != null && drivePermissions.size() > 0) {
                 ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_SIZE_RANGE, payload);
@@ -131,7 +131,7 @@ public class FileSearchFilterByRange {
     private boolean isValidDoubleRange(Double fromSize, Double toSize) {
         int from = (int) Math.round(fromSize);
         int to = (int) Math.round(toSize);
-        return from != 0 && to != 0 && from != to && to > from;
+        return from != 0 && to != 0 && from != to && from < to;
     }
 
     public List<DrivePermissionImpl> getFileBySizeRange(Double fromSize, Double toSize, FreeForm payload) {
