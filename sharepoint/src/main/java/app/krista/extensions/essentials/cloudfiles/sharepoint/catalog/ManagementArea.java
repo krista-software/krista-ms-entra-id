@@ -11,7 +11,8 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.F
 import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.ManagementDaoImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.ManagementDaoImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.MediaClient;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.util.EventHandler;
 
@@ -19,6 +20,9 @@ import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
 import app.krista.model.base.DateRange;
 import app.krista.model.base.FreeForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +34,7 @@ import java.util.concurrent.Executors;
         ecosystemVersion = "b434c9e2-24f6-4b49-860e-887fd92df6cb")
 public class ManagementArea {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementArea.class);
     private final EventHandler eventHandler;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final ManagementDaoImpl managementDao;
@@ -184,21 +189,8 @@ public class ManagementArea {
             payload.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
             payload.put(Constants.SUCCESS,eventData.get(Constants.SUCCESS));
             return payload;
-        }else {
-            payload.put("Files", 0);
-            payload.put("Folders",0);
-            payload.put("Size", 0);
-            payload.put("Oldest File", "");
-            payload.put("Oldest File Create Date", 0L);
-            payload.put("Newest File", "");
-            payload.put("Newest File Date", 0L);
-            payload.put("Last Modified File Id","");
-            payload.put("Last Modified File Name", "");
-            payload.put("Last Modified File Create Date", 0L);
-            payload.put(Constants.MESSAGE, eventData.get("Invalid Input"));
-            payload.put(Constants.SUCCESS,eventData.get(Constants.SUCCESS));
-            return payload;
         }
+        throw new IllegalStateException("Invalid Input");
     }
 
     @SuppressWarnings("unchecked")
@@ -216,15 +208,9 @@ public class ManagementArea {
             @Field(name = "eventData", type = "FreeForm") FreeForm eventData,
             @Field.Text(name = "Task ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String taskID) {
         if (eventName.equals(taskID)) {
-            System.out.println("In");
+            LOGGER.info(" In ");
             Map<String,Object> map = new HashMap<>();
             map.put(Constants.FILES,eventData.get(Constants.FILES));
-            map.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
-            map.put(Constants.SUCCESS,eventData.get(Constants.SUCCESS));
-            return map;
-        } else if(eventData != null) {
-            Map<String,Object> map = new HashMap<>();
-            map.put(Constants.FILES,null);
             map.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
             map.put(Constants.SUCCESS,eventData.get(Constants.SUCCESS));
             return map;
@@ -266,7 +252,7 @@ public class ManagementArea {
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFoldersByPath(sourcePath,search,useEmail,accountID); //.stream().map(CatalogTypes::fromFile).collect(Collectors.toList());
+            FreeForm freeForm = managementDao.getFoldersByPath(sourcePath,search,useEmail,accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -358,27 +344,6 @@ public class ManagementArea {
             @Field(name = "File Content", type = "Paragraph", required = true, attributes = {@Attribute(name = "visualWidth", value = "L")}, options = {}) String fileContent,
             @Field.Text(name = "Target", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String target) {
         return managementDao.uploadFileAsTxt(fileContent, target);
-    }
-
-    @CatalogRequest(
-            id = "localDomainRequest_f81df943-763c-4206-99d7-2c0f99747625",
-            name = "When a File is changed",
-            description = "Monitors the cloud storage for changes. When a change arrives and the affected files/folders match the source path and event type, the event will be triggered.",
-            area = "Management",
-            type = CatalogRequest.Type.WAIT_FOR_EVENT)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
-    @Field.PickOne(name = "Result", values = {"Updated","Created","Deleted"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    public Map<String, Object> whenAFileIsChanged(
-            @Field(name = "eventName", type = "Text") String eventName,
-            @Field(name = "eventData", type = "FreeForm") FreeForm eventData,
-            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
-            @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
-            @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search) {
-
-        if (eventName.equalsIgnoreCase(Constants.FILE_RECEIVED)) {
-            return managementDao.getChangeFileEvent((String) eventData.get(Constants.SHAREPOINT_FILE_ID),source,search);
-        }
-        return null;
     }
 
 }

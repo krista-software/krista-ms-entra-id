@@ -1,4 +1,4 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -41,7 +41,6 @@ public class OperationsAreaImpl {
         try {
             return operationsAreaListImpl.createList(siteName, listName);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
@@ -50,7 +49,6 @@ public class OperationsAreaImpl {
         try {
             return operationsAreaListImpl.deleteList(siteName, listName);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
@@ -59,7 +57,6 @@ public class OperationsAreaImpl {
         try {
             return operationsAreaListImpl.updateList(siteName, listName, displayName, description);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
@@ -68,7 +65,6 @@ public class OperationsAreaImpl {
         try {
             return operationsAreaSiteImpl.updateSite(siteName, newSiteName);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
@@ -77,7 +73,6 @@ public class OperationsAreaImpl {
         try {
             return operationsAreaSiteImpl.deleteSite(siteName);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }

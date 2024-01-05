@@ -1,4 +1,4 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -14,7 +14,9 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
+ *
  * @author Vaibhav Choudhary
+ *
  */
 
 public class FileSearchUtilityService {
@@ -42,9 +44,7 @@ public class FileSearchUtilityService {
     public static String extractParentFolderNameFromUrl(String webUrl) {
         String[] parts = webUrl.split("/");
         if (parts.length >= 2) {
-            // Use parts.length - 3 to get the second-to-last part
             String parentFolderName = parts[parts.length - 2];
-            // Decode the name if needed
             return decodeUrlComponent(parentFolderName);
         } else {
             return null; // Not enough parts to extract the parent folder name
@@ -54,9 +54,7 @@ public class FileSearchUtilityService {
     private static String decodeUrlComponent(String encodedComponent) {
         try {
             return URLDecoder.decode(encodedComponent, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            // Handle decoding exception if needed
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException cause) {
             return encodedComponent;
         }
     }
@@ -65,7 +63,7 @@ public class FileSearchUtilityService {
     public static String getAbsolutePath(DriveItem driveMetaData, DriveItem driveItem) {
         if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains(".aspx")) {
             return driveItem.webUrl;
-        } else if (driveMetaData != null && driveMetaData.webUrl != null) {
+        } else if (driveMetaData != null && driveMetaData.webUrl != null && driveItem != null) {
             return driveMetaData.webUrl + (driveItem.name != null ? "/" + driveItem.name : "");
         }
         return null;
@@ -86,8 +84,17 @@ public class FileSearchUtilityService {
     }
 
     public static String getExtension(DriveItem driveMetaData, DriveItem driveItem) {
-        if(driveMetaData != null && driveMetaData.folder == null){
+        if (driveMetaData != null && driveMetaData.folder == null) {
             return FileUtil.getBaseName(driveItem.name != null ? driveItem.name : null).get(1);
+        } else {
+            return null;
+        }
+    }
+
+    public static String extractLastNameFromPath(String path) {
+        if (path != null && !path.isEmpty()) {
+            String[] pathSegments = path.split("/");
+            return pathSegments[pathSegments.length - 1];
         } else {
             return null;
         }

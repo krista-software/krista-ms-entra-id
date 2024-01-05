@@ -1,21 +1,18 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.DriveItemCollectionPage;
-import com.microsoft.graph.requests.DriveSharedWithMeCollectionPage;
-import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
-import okhttp3.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -33,7 +30,7 @@ import java.util.stream.Collectors;
  */
 
 @Service
-public class FolderManagementDao {
+public class FolderManagementDao{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FolderManagementDao.class);
 
@@ -60,7 +57,7 @@ public class FolderManagementDao {
             List<FileService> files = new ArrayList<>();
             if (relativePath != null) {
                 DriveItem driveItem = checkIfFileExist(relativePath, payload);
-                if ((boolean) payload.get(Constants.SUCCESS)) {
+                if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
                     relativePath = DriveUtil.getRelativePath(relativePath);
                     getRootFilesByDriveIDPath(driveItem.parentReference.driveId, relativePath, files, useEmail, accountID, search, payload);
                 } else {

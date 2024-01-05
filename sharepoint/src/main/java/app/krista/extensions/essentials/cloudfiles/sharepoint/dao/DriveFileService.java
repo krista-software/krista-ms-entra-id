@@ -1,19 +1,19 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.DriveItemCollectionPage;
-import com.microsoft.graph.requests.DriveSharedWithMeCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
@@ -36,20 +36,20 @@ import java.util.stream.Collectors;
  */
 
 @Service
-public class FileManagementDao {
+public class DriveFileService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileManagementDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DriveFileService.class);
 
     private final GraphServiceClientProvider provider;
 
     private final SharePointAttributes sharePointAttributes;
 
     @Inject
-    public FileManagementDao(GraphServiceClientProviderFactory factory, SharePointAttributes sharePointAttributes) {
+    public DriveFileService(GraphServiceClientProviderFactory factory, SharePointAttributes sharePointAttributes) {
         this(factory.create(), sharePointAttributes);
     }
 
-    public FileManagementDao(GraphServiceClientProvider provider, SharePointAttributes sharePointAttributes) {
+    public DriveFileService(GraphServiceClientProvider provider, SharePointAttributes sharePointAttributes) {
         this.provider = provider;
         this.sharePointAttributes = sharePointAttributes;
     }
@@ -283,7 +283,6 @@ public class FileManagementDao {
                 }
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
@@ -326,9 +325,9 @@ public class FileManagementDao {
             }
 
             DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
-            if (payload.get(Constants.SUCCESS) == Boolean.TRUE) {
+            if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
                 String refinedRelativePath = DriveUtil.getRelativePath(relativePath);
-                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath, files, useEmail, accountID, search, payload);
+                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath, files, useEmail, accountID, search, payload, relativePath);
             }
         } catch (GraphServiceException | IllegalArgumentException e) {
             handleServiceException(e, payload);
@@ -355,7 +354,7 @@ public class FileManagementDao {
         ResponseUtil.getInfoResponse(false, errorMessage, payload);
     }
 
-    public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload) {
+    public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload, String absolutePath) {
         try {
             DriveItem driveItem = provider.getUserRequestBuilder(useEmail, accountID)
                     .drives(driveID)
@@ -365,18 +364,17 @@ public class FileManagementDao {
                     .get();
 
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
-                iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload);
+                iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload, absolutePath);
             } else {
                 files.add(new DrivePermissionImpl(driveItem, provider));
                 ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
         }
     }
 
-    private void iterateAndAddFilesToCollection(List<FileService> files, String search, String driveID, String relativePath, boolean useEmail, String accountID, FreeForm payload) {
+    private void iterateAndAddFilesToCollection(List<FileService> files, String search, String driveID, String relativePath, boolean useEmail, String accountID, FreeForm payload, String absolutePath) {
         DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID)
                 .drives(driveID)
                 .root()
@@ -388,7 +386,7 @@ public class FileManagementDao {
         while (page != null && !page.getCurrentPage().isEmpty()) {
             for (DriveItem driveInPage : page.getCurrentPage()) {
                 if (isSearchCriteriaMatched(search, driveInPage)) {
-                    files.add(new DrivePermissionImpl(driveInPage, provider));
+                    files.add(new FileImpl(driveInPage, provider, absolutePath+"/"+driveInPage.name, absolutePath));
                 }
             }
 

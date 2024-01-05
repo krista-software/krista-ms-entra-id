@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import com.microsoft.graph.models.DriveItem;
@@ -8,28 +9,32 @@ import com.microsoft.graph.models.DriveItem;
 import java.sql.Timestamp;
 import java.util.List;
 
-import com.microsoft.graph.requests.PermissionCollectionPage;
-
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 public class FileImpl implements FileService {
 
     private final DriveItem driveItem;
+    private final DriveItem driveMetaData;
+    private final String parentFolder;
+    private final String absolutePath;
 
-    private final PermissionCollectionPage permissionCollectionPage;
+    private final GraphServiceClientProvider clientProvider;
 
-    private final SharePointAttributes sharePointAttributes;
-
-    public FileImpl(DriveItem driveItem, PermissionCollectionPage permissionCollectionPage, SharePointAttributes sharePointAttributes) {
+    public FileImpl(DriveItem driveItem, GraphServiceClientProvider clientProvider, String sourcePath, String targetPath) {
         this.driveItem = driveItem;
-        this.permissionCollectionPage = permissionCollectionPage;
-        this.sharePointAttributes = sharePointAttributes;
+        this.clientProvider = clientProvider;
+        if (targetPath != null) {
+            this.parentFolder = FileSearchUtilityService.extractLastNameFromPath(targetPath);
+            this.absolutePath = targetPath + "/" + FileSearchUtilityService.extractLastNameFromPath(sourcePath);
+        } else {
+            this.parentFolder = null;
+            this.absolutePath = sourcePath;
+        }
+        this.driveMetaData = FileSearchUtilityService.getDriveMetaData(driveItem, clientProvider);
     }
 
     @Override
@@ -39,35 +44,31 @@ public class FileImpl implements FileService {
 
     @Override
     public String getBaseName() {
-        return FileUtil.getBaseName(driveItem.name!=null ? driveItem.name : null).get(0);
+        return FileUtil.getBaseName(driveItem.name != null ? driveItem.name : null).get(0);
     }
 
     @Override
     public String getExtension() {
-        return FileUtil.getBaseName(driveItem.name!=null ? driveItem.name : null).get(1);
+        return FileSearchUtilityService.getExtension(driveMetaData, driveItem);
     }
 
     @Override
     public String getParentFolder() {
-        return driveItem.parentReference != null ? driveItem.parentReference.name : null;
+        return parentFolder != null ? parentFolder : (driveMetaData != null && driveItem != null ? FileSearchUtilityService.getParentFolder(driveMetaData,driveItem) : null);
     }
 
     @Override
     public String getAbsolutePath() {
-        return null;
+        return absolutePath != null ? absolutePath : null;
     }
 
     @Override
     public String getPath() {
-        return FileUtil.getFilePath(
-                (driveItem.remoteItem != null)
-                ? driveItem.remoteItem.webDavUrl
-                : (driveItem.parentReference != null ? driveItem.parentReference.path : null), driveItem);
+        return driveItem != null && driveItem.webUrl != null ? driveItem.webUrl : null;
     }
 
     @Override
     public String getOwner() {
-
         if (driveItem.createdBy != null) {
             assert driveItem.createdBy.user != null;
             return driveItem.createdBy.user.displayName;
@@ -88,7 +89,7 @@ public class FileImpl implements FileService {
 
     @Override
     public Double getSize() {
-        return driveItem.size != null ? Double.valueOf(driveItem.size) : null;
+        return driveItem.size != null ? (double) driveItem.size : null;
     }
 
     @Override
@@ -103,12 +104,12 @@ public class FileImpl implements FileService {
 
     @Override
     public Boolean getIsFolder() {
-        return driveItem.folder != null;
+        return driveMetaData.folder != null;
     }
 
     @Override
     public List<Map<String, Object>> getSharedWith() {
-        return null;
+        return driveMetaData != null && driveMetaData.permissions != null ? FileDaoImpl.getSharedWithPermissions(driveMetaData.permissions) : null;
     }
 
     @Override

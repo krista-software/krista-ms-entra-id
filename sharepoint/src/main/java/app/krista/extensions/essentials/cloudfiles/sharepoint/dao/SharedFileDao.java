@@ -1,6 +1,8 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -49,40 +51,26 @@ public class SharedFileDao {
 
     public Map<String, Object> shareFile(String source, List<Map<String, Object>> share) {
         Map<String, Object> payload = new HashMap<>();
-
         try {
-            if (source.equals(null) ||source.isEmpty()) {
-                handleInvalidPath(payload);
-                return payload;
+            if (isNullOrEmpty(source)) {
+                return handleInvalidPath(payload);
             }
-
             DriveItem drive = managementUtilityService.checkIfFileExist(source, payload);
             if (!(boolean) payload.get(Constants.SUCCESS)) {
-                handleInvalidPath(payload);
-                return payload;
+                return handleInvalidPath(payload);
             }
 
-            String sharingLink = "";
-            DriveItemCreateLinkParameterSet parameterSet = DriveItemCreateLinkParameterSet.newBuilder().withType(Constants.EDIT).withScope(Constants.ORGANIZATION).withExpirationDateTime(null).withPassword(null).withMessage(null).withRetainInheritedPermissions(null).build();
-            String sourcePath = DriveUtil.getRelativePath(source);
-            sharingLink = getSharingLink(drive.parentReference.driveId, sourcePath, parameterSet);
+            String sharingLink = getSharingLink(drive.parentReference.driveId, DriveUtil.getRelativePath(source), createLinkParameterSet());
             if (sharingLink != null) {
-
                 String encodedSharingUrl = getEncodedSharingURL(sharingLink);
-                List<String> usersWithReadPermission = FileUtil.getUsersWithPermission(share, Constants.READ);
-                List<String> usersWithWritePermission = FileUtil.getUsersWithPermission(share, Constants.WRITE);
-                usersWithWritePermission.addAll(FileUtil.getUsersWithPermission(share, Constants.READ_AND_WRITE));
-                Map<String, List<String>> usersWithPermission = new LinkedHashMap<>();
-                usersWithPermission.put(Constants.VIEW, !usersWithReadPermission.isEmpty() ? usersWithReadPermission : null);
-                usersWithPermission.put(Constants.EDIT, !usersWithWritePermission.isEmpty() ? usersWithWritePermission : null);
+                Map<String, List<String>> usersWithPermission = getUsersWithPermissionMap(share);
 
                 for (Map.Entry<String, List<String>> users : usersWithPermission.entrySet()) {
                     grantPermissions(users.getKey(), users.getValue(), encodedSharingUrl);
                 }
 
-                DriveItem driveItem = getFileInfo(drive.parentReference.driveId, sourcePath);
-                payload.put(Constants.FILE, CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, provider)));
-
+                DriveItem driveItem = getFileInfo(drive.parentReference.driveId, DriveUtil.getRelativePath(source));
+                payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, provider, source, null)));
                 payload.put(Constants.MESSAGE, Constants.FILE_SHARED_SUCCESS);
                 return payload;
             }
@@ -92,9 +80,33 @@ public class SharedFileDao {
         return payload;
     }
 
-    private void handleInvalidPath(Map<String, Object> payload) {
+    private DriveItemCreateLinkParameterSet createLinkParameterSet() {
+        return DriveItemCreateLinkParameterSet.newBuilder()
+                .withType(Constants.EDIT)
+                .withScope(Constants.ORGANIZATION)
+                .withExpirationDateTime(null)
+                .withPassword(null)
+                .withMessage(null)
+                .withRetainInheritedPermissions(null)
+                .build();
+    }
+
+    private Map<String, List<String>> getUsersWithPermissionMap(List<Map<String, Object>> share) {
+        List<String> usersWithReadPermission = FileUtil.getUsersWithPermission(share, Constants.READ);
+        List<String> usersWithWritePermission = FileUtil.getUsersWithPermission(share, Constants.WRITE);
+        usersWithWritePermission.addAll(FileUtil.getUsersWithPermission(share, Constants.READ_AND_WRITE));
+
+        Map<String, List<String>> usersWithPermission = new LinkedHashMap<>();
+        usersWithPermission.put(Constants.VIEW, !usersWithReadPermission.isEmpty() ? usersWithReadPermission : null);
+        usersWithPermission.put(Constants.EDIT, !usersWithWritePermission.isEmpty() ? usersWithWritePermission : null);
+
+        return usersWithPermission;
+    }
+
+    private Map<String, Object> handleInvalidPath(Map<String, Object> payload) {
         payload.put(Constants.SUCCESS, false);
         payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
+        return payload;
     }
 
     private void handleGraphServiceException(Exception cause, Map<String, Object> payload) {
@@ -126,10 +138,8 @@ public class SharedFileDao {
                                 .build()).buildRequest().post();
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
-
     }
 
     private String getEncodedSharingURL(String sharingLink) {
@@ -149,6 +159,10 @@ public class SharedFileDao {
                 return cause.getMessage();
             }
         }
+    }
+
+    private boolean isNullOrEmpty(String value) {
+        return value == null || value.isEmpty();
     }
 
 }

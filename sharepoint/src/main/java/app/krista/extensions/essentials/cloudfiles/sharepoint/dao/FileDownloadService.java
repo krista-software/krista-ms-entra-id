@@ -1,7 +1,8 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -98,34 +99,46 @@ public class FileDownloadService {
                     : provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path).buildRequest().get();
             if (driveItem != null && driveItem.folder == null) {
                 if (downloadAsLink != null && downloadAsLink) {
-                    payload.put(Constants.SUCCESS, true);
-                    payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
-                    payload.put("Download Link", driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString());
+                    handleDownloadLink(payload,driveItem);
                 } else if (downloadAsKristaFile != null && downloadAsKristaFile && driveItem.size != null && driveItem.size > (1024 * 1024 * 30)) {
-                    payload.put(Constants.SUCCESS, true);
-                    payload.put(Constants.MESSAGE, "File Size is Greater than 30MB, Please Download file By URL");
-                    payload.put("Download Link", driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString());
-
+                    handleDownloadAsKristaFile(payload,driveItem);
                 } else {
-                    if (driveItem.size != null && driveItem.size > (1024 * 1024 * 30)) { // 30MB
-                        payload.put(Constants.SUCCESS, true);
-                        payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
-                        payload.put("Download Link", "");
-                    } else if (driveItem.size != null && driveItem.size < (1024 * 1024 * 30) && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
-                        assert driveItem.id != null;
-                        InputStream inputStream = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
-                        java.io.File content = DriveUtil.getFileFromInputStream(inputStream, driveItem.name);
-                        app.krista.model.base.File kristaFile = CatalogTypes.toFile(content.getName(), content);
-                        payload.put("Krista File", kristaFile);
-                        payload.put(Constants.SUCCESS, true);
-                        payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
-                    }
+                    handleDownload(payload,driveItem);
                 }
             }
         } catch (GraphServiceException | IllegalArgumentException | IOException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
+
+    private void handleDownloadLink(Map<String, Object> payload, DriveItem driveItem) {
+        payload.put(Constants.SUCCESS, true);
+        payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
+        payload.put("Download Link", driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString());
+    }
+
+    private void handleDownloadAsKristaFile(Map<String, Object> payload, DriveItem driveItem) {
+        payload.put(Constants.SUCCESS, true);
+        payload.put(Constants.MESSAGE, "File Size is Greater than 30MB, Please Download file By URL");
+        payload.put("Download Link", driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString());
+    }
+
+    private void handleDownload(Map<String, Object> payload, DriveItem driveItem) throws IOException {
+        if (driveItem.size != null && driveItem.size > (1024 * 1024 * 30)) { // 30MB
+            payload.put(Constants.SUCCESS, true);
+            payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
+            payload.put("Download Link", "");
+        } else if (driveItem.size != null && driveItem.size < (1024 * 1024 * 30) && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
+            assert driveItem.id != null;
+            InputStream inputStream = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
+            java.io.File content = DriveUtil.getFileFromInputStream(inputStream, driveItem.name);
+            app.krista.model.base.File kristaFile = CatalogTypes.toFile(content.getName(), content);
+            payload.put("Krista File", kristaFile);
+            payload.put(Constants.SUCCESS, true);
+            payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
+        }
+    }
+
+
 
 }

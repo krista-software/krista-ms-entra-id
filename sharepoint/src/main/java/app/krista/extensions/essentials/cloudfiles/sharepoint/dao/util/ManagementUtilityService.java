@@ -1,5 +1,6 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -26,7 +27,7 @@ import java.util.Objects;
 @Service
 public class ManagementUtilityService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CopyFileDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementUtilityService.class);
     private final GraphServiceClientProvider provider;
 
     private final FileSearchImpl fileSearchImpl;
@@ -41,7 +42,7 @@ public class ManagementUtilityService {
         this.fileSearchImpl = fileSearchImpl;
     }
 
-    protected DriveItem checkIfFileExist(String sourcePath, Map<String, Object> payload) {
+    public DriveItem checkIfFileExist(String sourcePath, Map<String, Object> payload) {
         DriveItem driveItem = new DriveItem();
         if (sourcePath != null) {
             try {
@@ -69,12 +70,12 @@ public class ManagementUtilityService {
     }
 
     private void handleFileExistenceCheckException(Exception cause, Map<String, Object> payload) {
-        LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
+        LOGGER.error("{} : {}", Constants.ERROR_MESSAGE, cause.getMessage());
         payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage());
         payload.put(Constants.SUCCESS, false);
     }
 
-    protected DriveItem getFileByAbsolutePath(String filePath) {
+    public DriveItem getFileByAbsolutePath(String filePath) {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
             filePath = filePath.replace("%20", " ");
@@ -102,7 +103,7 @@ public class ManagementUtilityService {
     }
 
     protected DriveItem getRootFolderByAbsolutePath(String filePath) {
-        LOGGER.info("Searching for files with name: {}, selector: {}, page: {}, page size: {}", filePath);
+        LOGGER.info("Searching for files with name: {}", filePath);
         if (filePath != null) {
             filePath = filePath.replace("%20", " ");
             DriveItem driveItem = new DriveItem();  // Initialize the result page
@@ -121,14 +122,14 @@ public class ManagementUtilityService {
                 }
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
-                throw new IllegalArgumentException(cause.getMessage(), cause);
+                throw new IllegalArgumentException("Error during file search : ", cause);
             }
         } else {
             return null;
         }
     }
 
-    protected void handleDeleteFileException(Exception cause, Map<String, Object> payload) {
+    public void handleDeleteFileException(Exception cause, Map<String, Object> payload) {
         LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
         payload.put(Constants.MESSAGE, "Invalid Input provided");
         payload.put(Constants.SUCCESS, false);

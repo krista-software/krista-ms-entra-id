@@ -33,17 +33,17 @@ public class ListImpl implements FileService {
 
     @Override
     public String getExtension() {
-        return FileUtil.getBaseName(list.name!=null ? list.name : null).get(1);
+        return null;
     }
 
     @Override
     public String getParentFolder() {
-        return list.parentReference != null ? list.parentReference.name : null;
+        return null;
     }
 
     @Override
     public String getAbsolutePath() {
-        return list.parentReference != null ? list.parentReference.path : null;
+        return list.webUrl != null ? list.webUrl : null;
     }
 
     @Override

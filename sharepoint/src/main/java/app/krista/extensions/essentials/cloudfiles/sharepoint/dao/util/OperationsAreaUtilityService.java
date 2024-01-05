@@ -1,6 +1,8 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.ListImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SiteImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.models.List;
 import com.microsoft.graph.models.Site;
@@ -76,7 +78,7 @@ public class OperationsAreaUtilityService {
         }
     }
 
-    protected boolean validateSiteAndListNames(String siteName, String listName, Map<String, Object> payload) {
+    public boolean validateSiteAndListNames(String siteName, String listName, Map<String, Object> payload) {
         if (siteName == null || siteName.isEmpty()) {
             payload.put(Constants.MESSAGE, Constants.SITE_NAME_CANNOT_BE_NULL);
             payload.put(Constants.SUCCESS, false);
@@ -91,7 +93,7 @@ public class OperationsAreaUtilityService {
         return true; // Validation successful
     }
 
-    protected boolean validateSiteAndListAndUpdatedNames(String siteName, String listName, Map<String, Object> payload, String displayName) {
+    public boolean validateSiteAndListAndUpdatedNames(String siteName, String listName, Map<String, Object> payload, String displayName) {
         if (!validateSiteAndListNames(siteName, listName ,payload)) {
             return false;
         }
@@ -104,7 +106,7 @@ public class OperationsAreaUtilityService {
         return true; // Validation successful
     }
 
-    protected boolean validateSiteNames(String siteName, Map<String, Object> payload) {
+    public boolean validateSiteNames(String siteName, Map<String, Object> payload) {
         if (siteName == null || siteName.isEmpty()) {
             payload.put(Constants.MESSAGE, Constants.SITE_NAME_CANNOT_BE_NULL);
             payload.put(Constants.SUCCESS, false);
@@ -114,7 +116,7 @@ public class OperationsAreaUtilityService {
         return true; // Validation successful
     }
 
-    protected boolean validateSiteAndUpdatedNames(String siteName, String newSiteName, Map<String, Object> payload) {
+    public boolean validateSiteAndUpdatedNames(String siteName, String newSiteName, Map<String, Object> payload) {
         if (!validateSiteNames(siteName, payload)) {
             return false; // Early return if validation fails
         }

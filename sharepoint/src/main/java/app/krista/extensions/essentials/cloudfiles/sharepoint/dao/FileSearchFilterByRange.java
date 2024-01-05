@@ -1,6 +1,7 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 public class FileSearchFilterByRange {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsManagementDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchFilterByRange.class);
 
     private final GraphServiceClientProvider clientProvider;
     private final FileSearchImpl fileSearchImpl;
@@ -106,7 +107,6 @@ public class FileSearchFilterByRange {
         try {
             if (!isValidDoubleRange(fromSize, toSize)) {
                 handleInvalidError(Constants.FILE_SIZE_CANNOT_BE_NULL, payload);
-                return payload;
             }
 
             List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload);

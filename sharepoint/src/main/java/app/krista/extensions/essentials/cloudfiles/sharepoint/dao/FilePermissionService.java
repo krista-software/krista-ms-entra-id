@@ -1,4 +1,4 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.Permission;
@@ -37,7 +37,6 @@ public class FilePermissionService {
             }
             return mapList;
         } catch (GraphServiceException cause) {
-            cause.printStackTrace();
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }

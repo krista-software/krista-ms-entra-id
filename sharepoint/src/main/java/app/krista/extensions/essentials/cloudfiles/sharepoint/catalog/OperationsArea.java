@@ -4,8 +4,7 @@ import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.OperationsAreaImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaImpl;
 
 import javax.inject.Inject;
 import java.util.Map;

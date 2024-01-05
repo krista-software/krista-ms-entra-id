@@ -1,12 +1,19 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.DriveTextFileManager;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.MediaClient;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public final class CatalogTypes {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CatalogTypes.class);
+
     private CatalogTypes() {
     }
 
@@ -40,8 +47,7 @@ public final class CatalogTypes {
         try {
             return MediaClient.create().download(MediaClient.createMediaUrl(file.getMediaId()), file.getFileName());
         } catch (IOException cause) {
-            System.err.println(cause.getMessage());
-            cause.printStackTrace();
+            LOGGER.error(Constants.ERROR_MESSAGE+" : "+cause.getMessage());
             throw new IllegalArgumentException(cause);
         }
     }

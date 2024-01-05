@@ -1,6 +1,7 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.OperationsAreaUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * This class provides operations for managing SharePoint sites, including updating display names and deleting sites.
@@ -33,7 +33,7 @@ public class OperationsAreaSiteImpl {
 
     private final OperationsAreaUtilityService operationsAreaUtilityService;
 
-    private static final Logger log = LoggerFactory.getLogger(OperationsAreaImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(OperationsAreaSiteImpl.class);
 
     @Inject
     public OperationsAreaSiteImpl(GraphServiceClientProviderFactory clientProviderFactory,

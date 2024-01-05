@@ -1,6 +1,8 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -31,20 +33,20 @@ import java.util.Objects;
  */
 
 @Service
-public class DriveTextFileService {
+public class DriveTextFileManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsManagementDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DriveTextFileManager.class);
 
     private final GraphServiceClientProvider provider;
 
     private final ManagementUtilityService managementUtilityService;
 
     @Inject
-    public DriveTextFileService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
+    public DriveTextFileManager(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
         this(factory.create(), managementUtilityService);
     }
 
-    public DriveTextFileService(GraphServiceClientProvider provider, ManagementUtilityService managementUtilityService) {
+    public DriveTextFileManager(GraphServiceClientProvider provider, ManagementUtilityService managementUtilityService) {
         this.provider = provider;
         this.managementUtilityService = managementUtilityService;
     }
@@ -58,17 +60,7 @@ public class DriveTextFileService {
                     String path = DriveUtil.getRelativePath(source);
                     getFileInfo(drive.parentReference.driveId, path, payload);
                     if ((boolean) payload.get(Constants.SUCCESS)) {
-                        DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
-                        if (driveItem.name != null && FileUtil.getBaseName(driveItem.name).get(1) != null && FileUtil.getBaseName(driveItem.name).get(1).equalsIgnoreCase("txt")) {
-
-                            InputStream inputStream = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
-
-                            payload.put(Constants.CONTENT, FileUtil.readFile(inputStream));
-                            payload.put(Constants.MESSAGE, Constants.FILE_READ_SUCCESS);
-                            payload.put(Constants.SUCCESS, true);
-                        } else {
-                            invalidPath(payload);
-                        }
+                        readTxtFileFromSource(payload);
                     }
                 } else {
                     invalidFileName(payload);
@@ -77,45 +69,45 @@ public class DriveTextFileService {
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
-            payload.put(Constants.SUCCESS, false);
+            failedToReadTextFile(payload);
         }
         return payload;
+    }
+
+    private void failedToReadTextFile(Map<String, Object> payload) {
+        payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
+        payload.put(Constants.SUCCESS, false);
+    }
+
+    private void readTxtFileFromSource(Map<String, Object> payload) {
+        DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
+        if (driveItem.name != null && FileUtil.getBaseName(driveItem.name).get(1) != null && FileUtil.getBaseName(driveItem.name).get(1).equalsIgnoreCase("txt")) {
+
+            InputStream inputStream = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
+
+            payload.put(Constants.CONTENT, FileUtil.readFile(inputStream));
+            payload.put(Constants.MESSAGE, Constants.FILE_READ_SUCCESS);
+            payload.put(Constants.SUCCESS, true);
+        } else {
+            invalidPath(payload);
+        }
+
     }
 
     public Map<String, Object> uploadTxtFile(String fileContent, String target) {
         Map<String, Object> payload = new HashMap<>();
         try {
-            if (target != null) {
-                if (!FileUtil.hasFileExtension(fileContent) && target.endsWith(".txt")) {
-                    DriveItem drive = managementUtilityService.checkIfFileExist(DriveUtil.removeLastSegment(target), payload);
-                    if ((boolean) payload.get(Constants.SUCCESS)) {
-                        String path = DriveUtil.getRelativePath(target);
-                        String parentPath = FileUtil.getParentPath(path);
-                        Map<String, Object> response = new HashMap<>();
-                        getFileInfo(drive.parentReference.driveId, parentPath, response);
-                        if ((boolean) response.get(Constants.SUCCESS)) {
-                            DriveItem driveItem = (DriveItem) response.get(Constants.DRIVE_ITEM);
-                            if (driveItem.name != null && driveItem.folder != null) {
-
-                                String[] stream = path.split("/");
-
-                                String fileName = stream[stream.length - 1].contains(".txt") ? stream[stream.length - 1] : null;
-                                if (fileName != null) {
-                                    java.io.File javaFile = FileUtil.createTxtFile(fileName, fileContent);
-                                    DriveItem uploadFile = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
-                                    if (uploadFile != null) {
-                                        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = CatalogTypes.fromFile(new FileImpl(uploadFile, null, null));
-                                        payload.put(Constants.FILE, fileEntity);
-                                        payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
-                                        payload.put(Constants.SUCCESS, true);
-                                    }
-                                } else {
-                                    invalidFileName(payload);
-                                }
-                            }
-                        } else {
-                            invalidPath(payload);
+            if (target != null && !FileUtil.hasFileExtension(fileContent) && target.endsWith(".txt")) {
+                DriveItem drive = managementUtilityService.checkIfFileExist(DriveUtil.removeLastSegment(target), payload);
+                if ((boolean) payload.get(Constants.SUCCESS)) {
+                    String path = DriveUtil.getRelativePath(target);
+                    String parentPath = FileUtil.getParentPath(path);
+                    Map<String, Object> response = new HashMap<>();
+                    getFileInfo(drive.parentReference.driveId, parentPath, response);
+                    if ((boolean) response.get(Constants.SUCCESS)) {
+                        DriveItem driveItem = (DriveItem) response.get(Constants.DRIVE_ITEM);
+                        if (driveItem.name != null && driveItem.folder != null) {
+                            uploadTxtFileFromTarget(path,fileContent,payload,driveItem);
                         }
                     } else {
                         invalidPath(payload);
@@ -128,10 +120,32 @@ public class DriveTextFileService {
             }
         } catch (GraphServiceException | IllegalArgumentException | IOException cause) {
             LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPLOAD_TEXTFILE);
-            payload.put(Constants.SUCCESS, false);
+            failedToUploadTxtFile(payload);
         }
         return payload;
+    }
+
+    private void uploadTxtFileFromTarget(String path, String fileContent, Map<String, Object> payload, DriveItem driveItem) throws IOException {
+        String[] stream = path.split("/");
+
+        String fileName = stream[stream.length - 1].contains(".txt") ? stream[stream.length - 1] : null;
+        if (fileName != null) {
+            java.io.File javaFile = FileUtil.createTxtFile(fileName, fileContent);
+            DriveItem uploadFile = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
+            if (uploadFile != null) {
+                app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(uploadFile, provider));
+                payload.put(Constants.FILE, fileEntity);
+                payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
+                payload.put(Constants.SUCCESS, true);
+            }
+        } else {
+            invalidFileName(payload);
+        }
+    }
+
+    private void failedToUploadTxtFile(Map<String, Object> payload) {
+        payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPLOAD_TEXTFILE);
+        payload.put(Constants.SUCCESS, false);
     }
 
     public void invalidPath(Map<String, Object> payload) {

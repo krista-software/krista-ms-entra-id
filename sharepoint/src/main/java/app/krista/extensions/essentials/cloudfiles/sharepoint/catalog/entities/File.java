@@ -35,6 +35,10 @@ public class File {
     @Field.Text(name = "Absolute Path", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String absolutePath;
 
+    @ToString
+    @Field.Text(name = "Path", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public String path;
+
     @Searchable
     @ToString
     @Field.Text(name = "Owner", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})

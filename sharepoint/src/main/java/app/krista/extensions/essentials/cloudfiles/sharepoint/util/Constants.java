@@ -92,7 +92,7 @@ public class Constants {
     public static final String UPDATED_LIST_NAME_CANNOT_BE_NULL = "Updated List name cannot be null or empty";
     public static final String MODIFIED = "Modified";
     public static final String MODIFIED_BY = "Modified By";
-    public static final String LIST_DELETED_SUCCESSFULLY = "List deleted successfully";
+    public static final String LIST_DELETED_SUCCESSFULLY = " List deleted successfully";
     public static final String UPDATED_SITE_NAME_CANNOT_BE_NULL = "Updated Site name cannot be null or empty";
     public static final String PLEASE_SPECIFY_REPLACE_OR_CREATE = "Please Specify Whether to Replace or Create";
     public static final String FILE_COPIED_SUCCESSFULLY = "File has been copied successfully";
@@ -104,6 +104,8 @@ public class Constants {
     public static final String DATE_RANGE_CANT_BE_EMPTY = "Modified date range can't be null OR empty";
     public static final String NO_FILE_FOUND_IN_DATE_RANGE = "No File found within date range";
     public static final String INVALID_FOLDER_PATH = "Invalid Folder Path";
+    public static final String SOURCE_OR_TARGET_PATHS_CANT_BE_NULL = "Source OR Target paths cannot be null or empty";
+    public static final String CREATED = "created";
 
     private Constants() {
     }
