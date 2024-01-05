@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileTransferService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsManagementDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -32,13 +31,8 @@ public class CopyFileUtilityService {
 
     @Inject
     public CopyFileUtilityService(GraphServiceClientProviderFactory factory, OperationsManagementDao operationsManagementDao,
-                       ManagementUtilityService managementUtilityService) {
-        this(factory.create(), operationsManagementDao, managementUtilityService);
-    }
-
-    public CopyFileUtilityService(GraphServiceClientProvider provider, OperationsManagementDao operationsManagementDao,
-                       ManagementUtilityService managementUtilityService) {
-        this.provider = provider;
+                                  ManagementUtilityService managementUtilityService) {
+        this.provider = factory.create();
         this.operationsManagementDao = operationsManagementDao;
         this.managementUtilityService = managementUtilityService;
     }
@@ -48,7 +42,7 @@ public class CopyFileUtilityService {
             payload.put(Constants.MESSAGE, Constants.SOURCE_OR_TARGET_PATHS_CANT_BE_NULL);
             payload.put(Constants.SUCCESS, false);
         } else {
-            if(FileUtil.hasFileExtension(target)){
+            if (FileUtil.hasFileExtension(target)) {
                 payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_TARGET_PATH);
                 payload.put(Constants.SUCCESS, false);
             } else {
@@ -80,7 +74,7 @@ public class CopyFileUtilityService {
     }
 
     public void handleInvalidTargetPath(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, "Provide Valid target Path");
+        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_TARGET_PATH);
         payload.put(Constants.SUCCESS, false);
     }
 
@@ -107,7 +101,7 @@ public class CopyFileUtilityService {
     }
 
     public void handleCopyFileException(Exception cause, Map<String, Object> payload) {
-        LOGGER.error(" Error : "+cause.getMessage());
+        LOGGER.error(" Error : " + cause.getMessage());
         payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : Constants.PROVIDE_VALID_TARGET_PATH);
         payload.put(Constants.SUCCESS, false);
     }
@@ -119,11 +113,9 @@ public class CopyFileUtilityService {
     }
 
     public Map<String, Object> handleInvalidSourcePath(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, "Provide Valid source Path");
+        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_SOURCE_PATH);
         payload.put(Constants.SUCCESS, false);
         return payload;
     }
-
-
 
 }

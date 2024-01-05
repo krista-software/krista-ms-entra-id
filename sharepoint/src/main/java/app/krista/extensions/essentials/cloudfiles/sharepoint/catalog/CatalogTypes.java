@@ -1,7 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.DriveTextFileManager;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.MediaClient;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -47,7 +46,7 @@ public final class CatalogTypes {
         try {
             return MediaClient.create().download(MediaClient.createMediaUrl(file.getMediaId()), file.getFileName());
         } catch (IOException cause) {
-            LOGGER.error(Constants.ERROR_MESSAGE+" : "+cause.getMessage());
+            LOGGER.error(" {} : {} "+Constants.ERROR_MESSAGE , cause.getMessage());
             throw new IllegalArgumentException(cause);
         }
     }

@@ -24,29 +24,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ *
  * @author Vaibhav Choudhary
+ *
  */
 
 @Service
 public class FileSearchFilterByRange {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchFilterByRange.class);
-
     private final GraphServiceClientProvider clientProvider;
     private final FileSearchImpl fileSearchImpl;
 
 
     @Inject
     public FileSearchFilterByRange(GraphServiceClientProviderFactory factory, FileSearchImpl fileSearchImpl) {
-        this(factory.create(), fileSearchImpl);
-    }
-
-    public FileSearchFilterByRange(GraphServiceClientProvider clientProvider, FileSearchImpl fileSearchImpl) {
-        this.clientProvider = clientProvider;
+        this.clientProvider = factory.create();
         this.fileSearchImpl = fileSearchImpl;
     }
 
-    public FreeForm getFilesByModificationDate(DateRange modificationDateRange) {
+    public FreeForm getFilesByModificationDate(DateRange modificationDateRange, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
             if (modificationDateRange == null) {
@@ -60,7 +57,7 @@ public class FileSearchFilterByRange {
                 return payload;
             }
 
-            List<DrivePermissionImpl> drivePermissions = getFileByDateRange(fromDate, toDate, payload);
+            List<DrivePermissionImpl> drivePermissions = getFileByDateRange(fromDate, toDate, payload, useEmail, accountID);
             if (drivePermissions != null) {
                 ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             } else {
@@ -75,11 +72,11 @@ public class FileSearchFilterByRange {
         return payload;
     }
 
-    public List<DrivePermissionImpl> getFileByDateRange(String fromDate, String toDate, FreeForm payload) {
+    public List<DrivePermissionImpl> getFileByDateRange(String fromDate, String toDate, FreeForm payload, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with File Range: {} {}", fromDate, toDate);
         List<DrivePermissionImpl> resultPage = new ArrayList<>();
         try {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(useEmail, accountID);
             LinkedList<SearchRequest> requestsList = buildSearchRequestListForDate(fromDate, toDate);
             SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
@@ -102,14 +99,14 @@ public class FileSearchFilterByRange {
         return dateFormat.format(date);
     }
 
-    public FreeForm getFilesBySizeRange(Double fromSize, Double toSize) {
+    public FreeForm getFilesBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
             if (!isValidDoubleRange(fromSize, toSize)) {
                 handleInvalidError(Constants.FILE_SIZE_CANNOT_BE_NULL, payload);
             }
 
-            List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload);
+            List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload, useEmail, accountID);
             if (drivePermissions != null && drivePermissions.size() > 0) {
                 ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             } else {
@@ -134,12 +131,12 @@ public class FileSearchFilterByRange {
         return from != 0 && to != 0 && from != to && from < to;
     }
 
-    public List<DrivePermissionImpl> getFileBySizeRange(Double fromSize, Double toSize, FreeForm payload) {
+    public List<DrivePermissionImpl> getFileBySizeRange(Double fromSize, Double toSize, FreeForm payload, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with File Range: {} {}", fromSize, toSize);
         List<DrivePermissionImpl> resultPage = new ArrayList<>();
         if (fromSize != null && toSize != null && fromSize != 0 && toSize != 0 && toSize > fromSize) {
             try {
-                GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+                GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(useEmail, accountID);
                 LinkedList<SearchRequest> requestsList = buildSearchRequestList(fromSize, toSize);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 

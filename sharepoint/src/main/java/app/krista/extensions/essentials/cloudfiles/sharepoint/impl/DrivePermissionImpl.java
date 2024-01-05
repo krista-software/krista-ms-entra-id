@@ -20,7 +20,6 @@ public class DrivePermissionImpl implements FileService {
 
     private final DriveItem driveItem;
     private final DriveItem driveMetaData;
-
     private final GraphServiceClientProvider clientProvider;
 
     public DrivePermissionImpl(DriveItem driveItem, GraphServiceClientProvider clientProvider) {
@@ -42,7 +41,6 @@ public class DrivePermissionImpl implements FileService {
     @Override
     public String getExtension() {
         return FileSearchUtilityService.getExtension(driveMetaData,driveItem);
-        //return FileUtil.getBaseName(driveItem.name != null ? driveItem.name : null).get(1);
     }
 
     @Override

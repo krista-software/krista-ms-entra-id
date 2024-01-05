@@ -58,7 +58,7 @@ public class SharePointExtension {
         if (attributes.getMailId() != null && !attributes.getMailId().isBlank()) {
             clientProviderFactory.create(attributes)
                     .getGraphServiceClientForAdmin()
-                    .me().mailFolders().buildRequest().get();
+                    .me().drive().root().children().buildRequest().get();
         }
     }
 
@@ -67,7 +67,7 @@ public class SharePointExtension {
         if (sharePointAttributes.getMailId() != null && !sharePointAttributes.getMailId().isBlank()) {
             clientProviderFactory.create(sharePointAttributes)
                     .getGraphServiceClientForAdmin()
-                    .me().mailFolders().buildRequest().get();
+                    .me().drive().root().children().buildRequest().get();
         }
     }
 

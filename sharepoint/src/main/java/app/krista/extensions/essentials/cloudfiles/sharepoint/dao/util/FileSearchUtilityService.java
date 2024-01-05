@@ -29,7 +29,7 @@ public class FileSearchUtilityService {
     public static DriveItem getDriveMetaData(DriveItem driveItem, GraphServiceClientProvider clientProvider) {
         DriveItem driveMetaData = null;
         if (driveItem != null && driveItem.parentReference.driveId != null && driveItem.parentReference.id != null) {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
             try {
                 driveMetaData = graphClient.drives(driveItem.parentReference.driveId).
@@ -59,7 +59,6 @@ public class FileSearchUtilityService {
         }
     }
 
-
     public static String getAbsolutePath(DriveItem driveMetaData, DriveItem driveItem) {
         if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains(".aspx")) {
             return driveItem.webUrl;
@@ -68,7 +67,6 @@ public class FileSearchUtilityService {
         }
         return null;
     }
-
 
     public static String getParentFolder(DriveItem driveMetaData, DriveItem driveItem) {
         if (driveMetaData != null && driveMetaData.parentReference != null && driveMetaData.parentReference.name != null) {

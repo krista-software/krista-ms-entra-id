@@ -37,13 +37,10 @@ public class OperationsManagementDao {
 
     @Inject
     public OperationsManagementDao(GraphServiceClientProviderFactory factory,ManagementUtilityService managementUtilityService) {
-        this(factory.create(),managementUtilityService);
-    }
-
-    public OperationsManagementDao(GraphServiceClientProvider provider,ManagementUtilityService managementUtilityService) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
+
 
     public Map<String, Object> deleteFile(String target) {
         Map<String, Object> payload = new HashMap<>();

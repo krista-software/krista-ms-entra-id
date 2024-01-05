@@ -1,11 +1,13 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.OperationsAreaUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import com.microsoft.graph.models.*;
+import com.microsoft.graph.models.ColumnDefinition;
+import com.microsoft.graph.models.DateTimeColumn;
+import com.microsoft.graph.models.List;
+import com.microsoft.graph.models.Site;
 import com.microsoft.graph.requests.ColumnDefinitionCollectionPage;
 import com.microsoft.graph.requests.ColumnDefinitionCollectionResponse;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -35,12 +37,8 @@ public class OperationsAreaListImpl {
 
     @Inject
     public OperationsAreaListImpl(GraphServiceClientProviderFactory clientProviderFactory,
-                                  SharePointAttributes sharePointAttributes, OperationsAreaUtilityService operationsAreaUtilityService) {
-        this(clientProviderFactory.create(sharePointAttributes), operationsAreaUtilityService);
-    }
-
-    public OperationsAreaListImpl(GraphServiceClientProvider clientProvider, OperationsAreaUtilityService operationsAreaUtilityService) {
-        this.clientProvider = clientProvider;
+                                  OperationsAreaUtilityService operationsAreaUtilityService) {
+        this.clientProvider = clientProviderFactory.create();
         this.operationsAreaUtilityService = operationsAreaUtilityService;
     }
 
@@ -53,7 +51,7 @@ public class OperationsAreaListImpl {
             return payload; // Early return if validation fails
         }
         try {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
             Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);    // Check if site exists
 
@@ -67,7 +65,7 @@ public class OperationsAreaListImpl {
 
             OperationsAreaUtilityService.processResponse(createdList, payload, Constants.CREATED);
         } catch (Exception cause) {
-            LOGGER.error("Error creating list : ", cause.getMessage());
+            LOGGER.error("Error creating list : {} ", cause.getMessage());
             handleIfNotFound(payload, Constants.ERROR_LIST_CREATION);
         }
         return payload;
@@ -107,7 +105,7 @@ public class OperationsAreaListImpl {
             return payload; // Early return if validation fails
         }
         try {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
             Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);
             if (existingSite == null) {
@@ -124,7 +122,7 @@ public class OperationsAreaListImpl {
             payload.put(Constants.SUCCESS, true);
             payload.put(Constants.MESSAGE, existingList.displayName + Constants.LIST_DELETED_SUCCESSFULLY);
         } catch (Exception cause) {
-            LOGGER.error("Error deleting list : ", cause.getMessage());
+            LOGGER.error("Error deleting list : {} ", cause.getMessage());
             handleIfNotFound(payload, Constants.FAILED_TO_MODIFY_LIST);
         }
         return payload;
@@ -139,7 +137,7 @@ public class OperationsAreaListImpl {
             return payload; // Early return if validation fails
         }
         try {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
             Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);
             if (existingSite == null) {
@@ -157,7 +155,7 @@ public class OperationsAreaListImpl {
 
             OperationsAreaUtilityService.processResponse(updatedList, payload, "modified"); // Use the processResponse method for clarity
         } catch (Exception cause) {
-            LOGGER.error("Error updating list : ", cause.getMessage());
+            LOGGER.error("Error updating list : {} ", cause.getMessage());
             handleIfNotFound(payload, Constants.FAILED_TO_MODIFY_LIST);
         }
         return payload;

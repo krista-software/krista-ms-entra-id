@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ *
  * @author Vaibhav Choudhary
+ *
  */
 
 @Service
@@ -35,11 +37,7 @@ public class FileDownloadService {
 
     @Inject
     public FileDownloadService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
-        this(factory.create(), managementUtilityService);
-    }
-
-    public FileDownloadService(GraphServiceClientProvider provider, ManagementUtilityService managementUtilityService) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
 

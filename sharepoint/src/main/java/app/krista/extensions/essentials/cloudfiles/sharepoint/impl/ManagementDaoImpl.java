@@ -1,6 +1,7 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.*;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.model.base.DateRange;
@@ -13,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ *
  * @author Vaibhav Choudhary
+ *
  */
 
 @Service
@@ -37,16 +40,7 @@ public class ManagementDaoImpl {
                              SharedFileDao sharedFileDao, FileTransferService copyFileDao, FileDownloadService fileDownloadService,
                              FileUploadService fileUploadService, DriveTextFileManager driveTextFileService,
                              FileSearchFilterByRange fileSearchFilterByRange) {
-        this(factory.create(), fileManagementDao, folderManagementDao, operationsManagementDao, sharedFileDao, copyFileDao,
-                fileDownloadService, fileUploadService, driveTextFileService, fileSearchFilterByRange);
-    }
-
-    public ManagementDaoImpl(GraphServiceClientProvider provider, DriveFileService fileManagementDao,
-                             FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
-                             SharedFileDao sharedFileDao, FileTransferService copyFileDao, FileDownloadService fileDownloadService,
-                             FileUploadService fileUploadService, DriveTextFileManager driveTextFileService,
-                             FileSearchFilterByRange fileSearchFilterByRange) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.fileManagementDao = fileManagementDao;
         this.folderManagementDao = folderManagementDao;
         this.operationsManagementDao = operationsManagementDao;
@@ -155,17 +149,17 @@ public class ManagementDaoImpl {
         }
     }
 
-    public FreeForm getFileByDateRange(DateRange modificationDateRange) {
+    public FreeForm getFileByDateRange(DateRange modificationDateRange, boolean useEmail, String accountID) {
         try {
-            return fileSearchFilterByRange.getFilesByModificationDate(modificationDateRange);
+            return fileSearchFilterByRange.getFilesByModificationDate(modificationDateRange, useEmail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
-    public FreeForm getFileBySizeRange(Double fromSize, Double toSize) {
+    public FreeForm getFileBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
         try {
-            return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize);
+            return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize, useEmail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

@@ -46,11 +46,7 @@ public class DriveFileService {
 
     @Inject
     public DriveFileService(GraphServiceClientProviderFactory factory, SharePointAttributes sharePointAttributes) {
-        this(factory.create(), sharePointAttributes);
-    }
-
-    public DriveFileService(GraphServiceClientProvider provider, SharePointAttributes sharePointAttributes) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.sharePointAttributes = sharePointAttributes;
     }
 
@@ -79,9 +75,9 @@ public class DriveFileService {
 
     private DriveItem checkIfFileExist(String sourcePath, FreeForm payload, boolean useEmail, String accountID) {
         try {
-            if (shouldSkipFileCheck(sourcePath, payload, useEmail, accountID)) return new DriveItem();
+            if (shouldSkipFileCheck(sourcePath, payload)) return new DriveItem();
 
-            DriveItem driveItem = getFileByAbsolutePath(sourcePath);
+            DriveItem driveItem = getFileByAbsolutePath(sourcePath, useEmail, accountID);
             if (isInvalidDriveItem(driveItem,payload)) return new DriveItem();
 
             sourcePath = DriveUtil.getRelativePath(sourcePath);
@@ -101,7 +97,7 @@ public class DriveFileService {
         }
     }
 
-    private boolean shouldSkipFileCheck(String sourcePath, FreeForm payload, boolean useEmail, String accountID) {
+    private boolean shouldSkipFileCheck(String sourcePath, FreeForm payload) {
         if (sourcePath == null) {
             ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
             return true;
@@ -134,15 +130,13 @@ public class DriveFileService {
         return driveItemCollectionPage != null && driveItemCollectionPage.folder != null;
     }
 
-    private DriveItem getFileByAbsolutePath(String filePath) {
-        LOGGER.info("Searching for files with name: {}, selector: {}, page: {}, page size: {}", filePath);
-
+    private DriveItem getFileByAbsolutePath(String filePath, boolean useEmail, String accountID) {
+        LOGGER.info("Searching for files with filePath : {} ", filePath);
         if (filePath == null) {
             return null;
         }
-
         try {
-            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
             LinkedList<SearchRequest> requestsList = buildSearchRequests(filePath);
             SearchEntityQueryCollectionPage page = executeSearchQuery(graphClient, requestsList);
 
@@ -341,11 +335,11 @@ public class DriveFileService {
 
     private DriveItem checkIfFileExistAndGetParentDriveId(String relativePath, FreeForm payload, boolean useEmail, String accountID) {
         DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
-        if (payload.get(Constants.SUCCESS) == Boolean.TRUE) { // Explicit boolean check
+        if (payload.get(Constants.SUCCESS) == Boolean.TRUE) {
             return driveItem;
         } else {
-            handleInvalidPathError("Invalid Folder Path", payload);
-            return null; // Directly return null to indicate failure
+            handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
+            return null;
         }
     }
 

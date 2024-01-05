@@ -1,21 +1,13 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.UUID;
-
-import app.krista.extension.impl.anno.CatalogRequest;
-
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extension.impl.anno.Attribute;
+import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.ManagementDaoImpl;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.MediaClient;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.ManagementDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.util.EventHandler;
-
 import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
 import app.krista.model.base.DateRange;
@@ -24,6 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -57,15 +53,15 @@ public class ManagementArea {
             description = "Copy the provide file represented by the entity to the target location",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
-    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")})
+    @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")})
     public Map<String, Object> copy(
-            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
-            @Field.Text(name = "Target", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String target,
-            @Field.Boolean(name = "Replace", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Boolean replace,
-            @Field.Boolean(name = "Create Folder", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Boolean createFolder) {
-        return managementDao.copyFile(source,target,replace,createFolder);
+            @Field.Text(name = "Source", attributes = {@Attribute(name = "visualWidth", value = "S")}) String source,
+            @Field.Text(name = "Target", attributes = {@Attribute(name = "visualWidth", value = "S")}) String target,
+            @Field.Boolean(name = "Replace", attributes = {@Attribute(name = "visualWidth", value = "S")}) Boolean replace,
+            @Field.Boolean(name = "Create Folder", attributes = {@Attribute(name = "visualWidth", value = "S")}) Boolean createFolder) {
+        return managementDao.copyFile(source, target, replace, createFolder);
     }
 
     @CatalogRequest(
@@ -88,14 +84,14 @@ public class ManagementArea {
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Text(name = "Download Link", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.File(name = "Krista File" , multipleFileUpload = false, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.File(name = "Krista File", multipleFileUpload = false, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> download(
             @Field.Boolean(name = "Download As Link", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Boolean downloadAsLink,
             @Field.Boolean(name = "Download As Krista File", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Boolean downloadAsKristaFile,
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source) {
-        return managementDao.downloadFile(downloadAsLink,downloadAsKristaFile,source);
+        return managementDao.downloadFile(downloadAsLink, downloadAsKristaFile, source);
     }
 
     @CatalogRequest(
@@ -109,8 +105,10 @@ public class ManagementArea {
             @Field(name = "From Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double fromSize,
             @Field(name = "To Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double toSize) {
         final String taskId = UUID.randomUUID().toString();
+        boolean useEmail = !requestContext.invokeAsUser();
+        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFileBySizeRange(fromSize,toSize);
+            FreeForm freeForm = managementDao.getFileBySizeRange(fromSize, toSize, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -126,8 +124,10 @@ public class ManagementArea {
     public String fetchFileByModificationDateRange(
             @Field.DateRange(name = "Modification Date Range", required = true, showHowManyDaysInViewer = 60) DateRange modificationDateRange) {
         final String taskId = UUID.randomUUID().toString();
+        boolean useEmail = !requestContext.invokeAsUser();
+        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFileByDateRange(modificationDateRange);
+            FreeForm freeForm = managementDao.getFileByDateRange(modificationDateRange, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -146,7 +146,7 @@ public class ManagementArea {
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getInfo(sourcePath,useEmail,accountID);
+            FreeForm freeForm = managementDao.getInfo(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -174,7 +174,7 @@ public class ManagementArea {
             @Field(name = "eventName", type = "Text") String eventName,
             @Field(name = "eventData", type = "FreeForm") FreeForm eventData,
             @Field.Text(name = "Task ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String taskID) {
-        Map<String,Object> payload = new HashMap<>();
+        Map<String, Object> payload = new HashMap<>();
         if (eventName.equals(taskID)) {
             payload.put("Files", eventData.get("Files"));
             payload.put("Folders", eventData.get("Folders"));
@@ -187,7 +187,7 @@ public class ManagementArea {
             payload.put("Last Modified File Name", eventData.get("Last Modified File Name"));
             payload.put("Last Modified File Create Date", eventData.get("Last Modified File Create Date"));
             payload.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
-            payload.put(Constants.SUCCESS,eventData.get(Constants.SUCCESS));
+            payload.put(Constants.SUCCESS, eventData.get(Constants.SUCCESS));
             return payload;
         }
         throw new IllegalStateException("Invalid Input");
@@ -200,7 +200,7 @@ public class ManagementArea {
             description = "Accept task ID as input and return List of Files",
             area = "Management",
             type = CatalogRequest.Type.WAIT_FOR_EVENT)
-    @Field.Desc(name = "Files", type = "[ Entity(File) ]",required = false)
+    @Field.Desc(name = "Files", type = "[ Entity(File) ]", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> getResult(
@@ -209,10 +209,10 @@ public class ManagementArea {
             @Field.Text(name = "Task ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String taskID) {
         if (eventName.equals(taskID)) {
             LOGGER.info(" In ");
-            Map<String,Object> map = new HashMap<>();
-            map.put(Constants.FILES,eventData.get(Constants.FILES));
+            Map<String, Object> map = new HashMap<>();
+            map.put(Constants.FILES, eventData.get(Constants.FILES));
             map.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
-            map.put(Constants.SUCCESS,eventData.get(Constants.SUCCESS));
+            map.put(Constants.SUCCESS, eventData.get(Constants.SUCCESS));
             return map;
         }
         throw new IllegalStateException("Invalid Input");
@@ -232,7 +232,7 @@ public class ManagementArea {
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFileByPath(sourcePath,search,useEmail,accountID);
+            FreeForm freeForm = managementDao.getFileByPath(sourcePath, search, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -247,12 +247,12 @@ public class ManagementArea {
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String listFolders(
             @Field.Text(name = "Source Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String sourcePath,
-            @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search){
+            @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFoldersByPath(sourcePath,search,useEmail,accountID);
+            FreeForm freeForm = managementDao.getFoldersByPath(sourcePath, search, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -264,13 +264,13 @@ public class ManagementArea {
             description = "Move a file on the drive from source to target where both denote a full file path.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> move(
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
             @Field.Text(name = "Target", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String target) {
-        return managementDao.moveFile(source,target);
+        return managementDao.moveFile(source, target);
     }
 
     @CatalogRequest(
@@ -296,7 +296,7 @@ public class ManagementArea {
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> rename(
-            @Field.Desc(name = "Rename File", type = "Entity(File)",required = true) File renameFile,
+            @Field.Desc(name = "Rename File", type = "Entity(File)", required = true) File renameFile,
             @Field.Text(name = "Target File Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String targetFileName) {
         return managementDao.renameFile(renameFile, targetFileName);
     }
@@ -307,13 +307,13 @@ public class ManagementArea {
             description = "Share the file denoted by source with the given users identified by their email address applying the provided Permissions",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> shareFile(
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
-            @Field.Desc(name = "Share", type = "[ { User: Email, Permissions: PickOne(Read|Write|Read and Write) } ]",required = true) List<Map<String, Object>> share) {
-        return  managementDao.shareFile(source,share);
+            @Field.Desc(name = "Share", type = "[ { User: Email, Permissions: PickOne(Read|Write|Read and Write) } ]", required = true) List<Map<String, Object>> share) {
+        return managementDao.shareFile(source, share);
     }
 
     @CatalogRequest(
@@ -322,13 +322,13 @@ public class ManagementArea {
             description = "Upload the content of the file from the media server to the cloud storage at target path.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> upload(
-            @Field.File(name = "Krista File" , multipleFileUpload = false, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) app.krista.model.base.File kristaFile,
+            @Field.File(name = "Krista File", multipleFileUpload = false, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) app.krista.model.base.File kristaFile,
             @Field.Text(name = "Target Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String targetPath) {
-        return  managementDao.uploadFile(kristaFile,targetPath);
+        return managementDao.uploadFile(kristaFile, targetPath);
     }
 
     @CatalogRequest(
@@ -337,7 +337,7 @@ public class ManagementArea {
             description = "Uploads the file content to the cloud storage at the given target location as a plain text file.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> uploadText(

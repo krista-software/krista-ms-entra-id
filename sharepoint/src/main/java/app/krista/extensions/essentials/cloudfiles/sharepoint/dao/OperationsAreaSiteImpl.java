@@ -33,19 +33,15 @@ public class OperationsAreaSiteImpl {
 
     private final OperationsAreaUtilityService operationsAreaUtilityService;
 
-    private static final Logger log = LoggerFactory.getLogger(OperationsAreaSiteImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsAreaSiteImpl.class);
 
     @Inject
     public OperationsAreaSiteImpl(GraphServiceClientProviderFactory clientProviderFactory,
-                                  SharePointAttributes sharePointAttributes,
                                   OperationsAreaUtilityService operationsAreaUtilityService) {
-        this(clientProviderFactory.create(sharePointAttributes),operationsAreaUtilityService);
-    }
-
-    public OperationsAreaSiteImpl(GraphServiceClientProvider clientProvider,OperationsAreaUtilityService operationsAreaUtilityService) {
-        this.clientProvider = clientProvider;
+        this.clientProvider = clientProviderFactory.create();
         this.operationsAreaUtilityService = operationsAreaUtilityService;
     }
+
 
     /**
      * Updates the display name of a specified SharePoint site.
@@ -64,7 +60,7 @@ public class OperationsAreaSiteImpl {
             return payload; // Early return if validation fails
         }
         try {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
             Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);
             if (existingSite == null) {
@@ -79,7 +75,7 @@ public class OperationsAreaSiteImpl {
 
             OperationsAreaUtilityService.processResponse(updatedSite, payload); // Use the processResponse method
         } catch (Exception cause) {
-            log.error("Error updating site : ", cause.getMessage());
+            LOGGER.error("Error updating site : {} ", cause.getMessage());
             payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_SITE);
             payload.put(Constants.SUCCESS, false);
         }
@@ -101,7 +97,7 @@ public class OperationsAreaSiteImpl {
             return payload; // Early return if validation fails
         }
         try {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
             GroupCollectionPage existingGroups = graphClient.groups().buildRequest().get();
 
@@ -125,7 +121,7 @@ public class OperationsAreaSiteImpl {
                 payload.put(Constants.MESSAGE, "Site with name " + siteName + " not found");
             }
         } catch (Exception cause) {
-            log.error("Error deleting site : ", cause.getMessage());
+            LOGGER.error("Error deleting site : {} ", cause.getMessage());
             payload.put(Constants.SUCCESS, false);
             payload.put(Constants.MESSAGE, Constants.FAILED_TO_DELETE_SITE);
         }

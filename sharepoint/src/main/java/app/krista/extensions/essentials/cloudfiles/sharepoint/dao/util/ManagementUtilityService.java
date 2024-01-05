@@ -34,11 +34,7 @@ public class ManagementUtilityService {
 
     @Inject
     public ManagementUtilityService(GraphServiceClientProviderFactory factory, FileSearchImpl fileSearchImpl) {
-        this(factory.create(), fileSearchImpl);
-    }
-
-    public ManagementUtilityService(GraphServiceClientProvider provider, FileSearchImpl fileSearchImpl) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.fileSearchImpl = fileSearchImpl;
     }
 
@@ -46,7 +42,7 @@ public class ManagementUtilityService {
         DriveItem driveItem = new DriveItem();
         if (sourcePath != null) {
             try {
-                driveItem = getFileByAbsolutePath(sourcePath);
+                driveItem = getFileByAbsolutePath(sourcePath, true, null);
                 boolean isValidFile = driveItem != null && driveItem.parentReference != null;
 
                 if (isValidFile) {
@@ -75,13 +71,13 @@ public class ManagementUtilityService {
         payload.put(Constants.SUCCESS, false);
     }
 
-    public DriveItem getFileByAbsolutePath(String filePath) {
+    public DriveItem getFileByAbsolutePath(String filePath, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
             filePath = filePath.replace("%20", " ");
             DriveItem driveItem = new DriveItem();  // Initialize the result page
             try {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(true, null);
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
                 LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 

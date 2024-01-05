@@ -33,11 +33,7 @@ public class FileSearchImpl {
 
     @Inject
     public FileSearchImpl(GraphServiceClientProviderFactory factory) {
-        this(factory.create());
-    }
-
-    public FileSearchImpl(GraphServiceClientProvider clientProvider) {
-        this.clientProvider = clientProvider;
+        this.clientProvider = factory.create();
     }
 
     public LinkedList<SearchRequest> buildSearchRequestList(String filePath){

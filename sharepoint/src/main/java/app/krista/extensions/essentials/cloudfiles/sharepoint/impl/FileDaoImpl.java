@@ -60,7 +60,7 @@ public class FileDaoImpl implements FileDao {
     @Override
     public GroupImpl createGroup(Map<String, Object> map) {
         LOGGER.info("Creating group with details: {}", map);
-        FileCreateService fileCreateService = new FileCreateService(clientProvider.getUserRequestBuilder(true, null));
+        FileCreateService fileCreateService = new FileCreateService(clientProvider.getUserRequestBuilder(null, null));
         return fileCreateService.createGroup(map);
     }
 
@@ -78,7 +78,7 @@ public class FileDaoImpl implements FileDao {
             filePath = filePath.replace("%20", " ");
             List<DrivePermissionImpl> resultPage = new ArrayList<>();  // Initialize the result page
             try {
-                GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+                GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
                 LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient,requestsList);
 
@@ -131,7 +131,7 @@ public class FileDaoImpl implements FileDao {
     public List<DriveImpl> getFilesByFilter(String name, String selector, long pageIndex, int pageSize) {
         LOGGER.info("Searching for files with name: {}, selector: {}, page: {}, page size: {}", name, selector, pageIndex, pageSize);
         try {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(true, null);
+            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
             if (pageIndex == 1) {
                 cachedFiles = new ArrayList<>();
             }

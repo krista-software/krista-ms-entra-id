@@ -30,7 +30,7 @@ public class Constants {
     public static final String REFRESH_TOKEN_IS_NO_LONGER_VALID_PLEASE_REAUTHORIZE_YOURSELF = "Refresh Token is no longer valid. Please reauthorize yourself";
     public static final String FAILED_TO_GET_ACCOUNT = "Failed to get account";
     public static final String REST_SHAREPOINT_CALLBACK = "/rest/sharepoint/callback";
-    public static final String TEMP_DIR = "/tmp/krista/extension/outlook/";
+    public static final String TEMP_DIR = "/tmp/krista/extension/sharepoint/";
     public static final String GOT_ERROR_FOR_AUTHENTICATION_SO_SENDING_FOR_RE_AUTHENTICATION = "Got error for Authentication. So sending for re authentication.";
     public static final String GOT_ERROR_FOR_AUTHENTICATION_SO_SENDING_FOR_AUTHENTICATION = "Got error for Authentication. So sending for authentication";
     public static final String SHAREPOINT_FILE_ID = "sharePointFileId";

@@ -47,12 +47,7 @@ public class FileTransferService {
     @Inject
     public FileTransferService(GraphServiceClientProviderFactory factory, OperationsManagementDao operationsManagementDao,
                                ManagementUtilityService managementUtilityService, CopyFileUtilityService copyFileUtilityService) {
-        this(factory.create(), operationsManagementDao, managementUtilityService, copyFileUtilityService);
-    }
-
-    public FileTransferService(GraphServiceClientProvider provider, OperationsManagementDao operationsManagementDao,
-                               ManagementUtilityService managementUtilityService, CopyFileUtilityService copyFileUtilityService) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.operationsManagementDao = operationsManagementDao;
         this.managementUtilityService = managementUtilityService;
         this.copyFileUtilityService = copyFileUtilityService;
@@ -128,7 +123,7 @@ public class FileTransferService {
     private DriveItem checkIfTargetFolderExist(String target, Map<String, Object> response) {
         if (target != null) {
             try {
-                DriveItem driveItem = managementUtilityService.getFileByAbsolutePath(target);
+                DriveItem driveItem = managementUtilityService.getFileByAbsolutePath(target, true, null);
                 boolean isFolderExist = driveItem != null && driveItem.parentReference != null;
                 response.put(Constants.IS_FOLDER_EXIST, isFolderExist);
                 return isFolderExist ? driveItem : new DriveItem();

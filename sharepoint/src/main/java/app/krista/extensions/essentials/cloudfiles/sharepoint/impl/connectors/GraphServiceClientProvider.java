@@ -171,9 +171,7 @@ public class GraphServiceClientProvider {
             if (useEmail != null) {
                 return getGraphServiceClientForUser(useEmail, accountID);
             }
-            return requestContext.invokeAsUser()
-                    ? getGraphServiceClientForUser(null, null)
-                    : getGraphServiceClientForUser(null, null);
+            return getGraphServiceClientForUser(null, null);
         } catch (IOException cause) {
             throw new IllegalStateException(cause);
         }

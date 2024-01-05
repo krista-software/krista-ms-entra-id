@@ -41,13 +41,10 @@ public class SharedFileDao {
 
     @Inject
     public SharedFileDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
-        this(factory.create(), managementUtilityService);
-    }
-
-    public SharedFileDao(GraphServiceClientProvider provider, ManagementUtilityService managementUtilityService) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
+
 
     public Map<String, Object> shareFile(String source, List<Map<String, Object>> share) {
         Map<String, Object> payload = new HashMap<>();

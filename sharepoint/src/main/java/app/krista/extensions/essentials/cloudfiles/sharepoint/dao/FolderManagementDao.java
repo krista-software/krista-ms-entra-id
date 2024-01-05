@@ -41,12 +41,7 @@ public class FolderManagementDao{
     @Inject
     public FolderManagementDao(GraphServiceClientProviderFactory factory,
                                ManagementUtilityService managementUtilityService) {
-        this(factory.create(),managementUtilityService);
-    }
-
-    public FolderManagementDao(GraphServiceClientProvider provider,
-                               ManagementUtilityService managementUtilityService) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
 
@@ -56,7 +51,7 @@ public class FolderManagementDao{
         try {
             List<FileService> files = new ArrayList<>();
             if (relativePath != null) {
-                DriveItem driveItem = checkIfFileExist(relativePath, payload);
+                DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
                 if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
                     relativePath = DriveUtil.getRelativePath(relativePath);
                     getRootFilesByDriveIDPath(driveItem.parentReference.driveId, relativePath, files, useEmail, accountID, search, payload);
@@ -102,11 +97,11 @@ public class FolderManagementDao{
     }
 
 
-    private DriveItem checkIfFileExist(String sourcePath, FreeForm payload) {
+    private DriveItem checkIfFileExist(String sourcePath, FreeForm payload, boolean useEmail, String accountID) {
         DriveItem driveItem = new DriveItem();
         try {
             if (sourcePath != null) {
-                driveItem = managementUtilityService.getFileByAbsolutePath(sourcePath);
+                driveItem = managementUtilityService.getFileByAbsolutePath(sourcePath, useEmail, accountID);
                 if (driveItem != null && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
                     ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);
                     ResponseUtil.getInfoResponse(true, "File Found", payload);

@@ -43,11 +43,7 @@ public class DriveTextFileManager {
 
     @Inject
     public DriveTextFileManager(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
-        this(factory.create(), managementUtilityService);
-    }
-
-    public DriveTextFileManager(GraphServiceClientProvider provider, ManagementUtilityService managementUtilityService) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
 

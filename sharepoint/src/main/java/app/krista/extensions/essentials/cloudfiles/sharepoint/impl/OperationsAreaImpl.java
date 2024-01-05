@@ -1,6 +1,8 @@
-package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
+package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaListImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaSiteImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import com.microsoft.graph.http.GraphServiceException;
@@ -25,13 +27,9 @@ public class OperationsAreaImpl {
 
 
     @Inject
-    public OperationsAreaImpl(GraphServiceClientProviderFactory clientProviderFactory, SharePointAttributes sharePointAttributes,
+    public OperationsAreaImpl(GraphServiceClientProviderFactory clientProviderFactory,
                               OperationsAreaListImpl operationsAreaListImpl, OperationsAreaSiteImpl operationsAreaSiteImpl) {
-        this(clientProviderFactory.create(sharePointAttributes),operationsAreaListImpl,operationsAreaSiteImpl);
-    }
-
-    public OperationsAreaImpl(GraphServiceClientProvider clientProvider,OperationsAreaListImpl operationsAreaListImpl, OperationsAreaSiteImpl operationsAreaSiteImpl) {
-        this.clientProvider = clientProvider;
+        this.clientProvider = clientProviderFactory.create();
         this.operationsAreaListImpl = operationsAreaListImpl;
         this.operationsAreaSiteImpl = operationsAreaSiteImpl;
     }

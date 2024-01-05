@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -21,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ *
  * @author Vaibhav Choudhary
+ *
  */
 
 @Service
@@ -33,11 +36,7 @@ public class FileUploadService {
 
     @Inject
     public FileUploadService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
-        this(factory.create(), managementUtilityService);
-    }
-
-    public FileUploadService(GraphServiceClientProvider provider, ManagementUtilityService managementUtilityService) {
-        this.provider = provider;
+        this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
 
@@ -89,7 +88,7 @@ public class FileUploadService {
                         provider.getUserRequestBuilder(null, null).drives(driveID).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile))
                         : provider.getUserRequestBuilder(null, null).drive().items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
                 if (uploadedDriveItem != null) {
-                    app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, provider));
+                    File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, provider));
                     payload.put(Constants.FILE, fileEntity);
                     payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
                     payload.put(Constants.SUCCESS, true);

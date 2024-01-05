@@ -35,7 +35,9 @@ public class MediaClient {
         webTarget = ClientBuilder.newBuilder()
                 .register(MultiPartFeature.class).build()
                 .target(mediaUrl);
-        new File(Constants.TEMP_DIR).mkdirs();
+        File tempDir = new File(System.getProperty(Constants.TEMP_DIR));
+        tempDir.mkdir();
+        //new File(Constants.TEMP_DIR).mkdirs();
     }
 
     public static MediaClient create() {
