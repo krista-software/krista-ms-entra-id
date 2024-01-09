@@ -3,17 +3,16 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 import com.microsoft.graph.models.DriveItem;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class with static methods for common file-related operations, string validation, and file creation.
- *
- * */
+ */
+
 public class FileUtil {
 
     private FileUtil() {
@@ -35,19 +34,14 @@ public class FileUtil {
         return List.of();
     }
 
-    public static String getFilePath(String filePath, DriveItem driveItem) {
-        String fileName = driveItem.name;
-        return filePath + "/" + fileName;
-    }
-
     public static String getParentPath(String relativePath) {
-        int lastSlashIndex = relativePath.lastIndexOf('/');
+        int lastSlashIndex = relativePath.lastIndexOf(File.separator);
         if (lastSlashIndex != -1) {
             String path = relativePath.substring(0, lastSlashIndex);
             path = path.contains("shared/") ? path.replace("shared", "") : path;
             return path;
         } else {
-            throw new IllegalArgumentException("Invalid Path");
+            throw new IllegalArgumentException(Constants.INVALID_PATH);
         }
     }
 
@@ -67,9 +61,9 @@ public class FileUtil {
     public static List<String> getUsersWithPermission(List<Map<String, Object>> share, String targetPermission) {
         List<String> usersWithPermission = new ArrayList<>();
         for (Map<String, Object> user : share) {
-            String permission = (String) user.get("Permissions");
+            String permission = (String) user.get(Constants.PERMISSIONS);
             if (permission.equalsIgnoreCase(targetPermission)) {
-                usersWithPermission.add((String) user.get("User"));
+                usersWithPermission.add((String) user.get(Constants.USER));
             }
         }
         return usersWithPermission;

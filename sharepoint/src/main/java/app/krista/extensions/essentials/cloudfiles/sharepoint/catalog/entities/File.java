@@ -2,15 +2,14 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities;
 
 import java.util.Map;
 import java.util.List;
-
 import app.krista.extension.impl.anno.*;
 
-@Domain(id = "catEntryDomain_b1bfe7ff-3b3c-4d2c-a9e4-74acd5dae8e3",
+@Domain(id = "catEntryDomain_30c63e77-37f2-4a1d-afd8-f6bfda07ad57",
         name = "Cloud Files",
         ecosystemId = "catEntryEcosystem_84b53163-327b-4b1b-8c96-9334d292f9f5",
         ecosystemName = "Essentials",
-        ecosystemVersion ="6991c074-ff58-4466-944c-d0855e9ff1df")
-@Entity(name = "File", id = "localDomainEntity_f276c124-9f7a-4836-be9c-669bcd2c66ab", primaryKey = "Absolute Path", options = {})
+        ecosystemVersion ="a8626fe2-4d91-4667-b6ae-4f60bb914ccf")
+@Entity(name = "File", id = "localDomainEntity_292c2a1d-0d6c-4307-a4d1-04176dd5a315", primaryKey = "Absolute Path", options = {})
 public class File {
 
     @Searchable
@@ -18,60 +17,62 @@ public class File {
     @Field.Text(name = "Name", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String name;
 
+    @Searchable
     @Field.Text(name = "Base Name", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String baseName;
 
     @Searchable
-    @ToString
     @Field.Text(name = "Extension", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String extension;
 
+    @Searchable
     @ToString
     @Field.Text(name = "Parent Folder", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String parentFolder;
 
     @Searchable
-    @ToString
     @Field.Text(name = "Absolute Path", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String absolutePath;
 
-    @ToString
-    @Field.Text(name = "Path", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    public String path;
-
     @Searchable
-    @ToString
     @Field.Text(name = "Owner", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String owner;
 
+    @Searchable
     @ToString
     @Field.Date(name = "Created", required = false, includeTimeOfDay = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = true, allowFuture = true, defaultTimeSpan = 1, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Long created;
 
+    @Searchable
     @ToString
     @Field.Date(name = "Modified", required = false, includeTimeOfDay = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = true, allowFuture = true, defaultTimeSpan = 1, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Long modified;
 
+    @Searchable
     @ToString
     @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Double size;
 
-    @ToString
-    @Field.PickOne(name = "Permissions", values = {"Read", "Write", "Read and Write"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Searchable
+    @Field.PickOne(name = "Permissions", values = {"Read","Write","Read and Write","Own"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String permissions;
 
+    @Searchable
+    @ToString
     @Field.Boolean(name = "Is Folder", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Boolean isFolder;
 
-    @Field.Desc(name = "Tags", type = "[ Text ]", required = false)
+    @Field.Desc(name = "Tags", type = "[ Text ]",required = false)
     public List<String> tags;
 
-    @Field.Desc(name = "Shared With", type = "[ { User Email: Email, Permission: PickOne(Read|Write|Read and Write) } ]", required = false)
+    @Field.Desc(name = "Shared With", type = "[ { User Email: Email, Permission: PickOne(Read|Write|Read and Write|Own) } ]",required = false)
     public List<Map<String, Object>> sharedWith;
 
+    @Searchable
     @Field.Text(name = "Created By", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String createdBy;
 
+    @Searchable
     @Field.Text(name = "Modified By", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String modifiedBy;
 

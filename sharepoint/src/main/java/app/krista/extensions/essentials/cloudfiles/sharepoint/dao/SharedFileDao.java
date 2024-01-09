@@ -23,10 +23,6 @@ import java.util.*;
  * This class provides functionality for sharing files in SharePoint using Microsoft Graph API.
  * It includes methods to create sharing links, grant permissions, and handle exceptions.
  *
- * ***************************************************************
- * WARNING: DO NOT CHANGE ANYTHING IN THIS CLASS.
- * ***************************************************************
- *
  * @author Vaibhav Choudhary
  */
 
@@ -107,15 +103,17 @@ public class SharedFileDao {
     }
 
     private void handleGraphServiceException(Exception cause, Map<String, Object> payload) {
-        LOGGER.error(Constants.ERROR_MESSAGE+" : "+cause.getMessage());
+        LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
         payload.put(Constants.MESSAGE, Constants.FAILED_TO_SHARE_FILE);
         payload.put(Constants.SUCCESS, false);
     }
 
     public DriveItem getFileInfo(String driveId, String path) {
         return driveId != null ?
-                provider.getUserRequestBuilder(null, null).drives(driveId).root().itemWithPath(path).buildRequest().get() :
-                provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path).buildRequest().get();
+                provider.getUserRequestBuilder(null, null).drives(driveId).root()
+                        .itemWithPath(path).buildRequest().get() :
+                provider.getUserRequestBuilder(null, null).drive().root()
+                        .itemWithPath(path).buildRequest().get();
     }
 
     private void grantPermissions(String role, List<String> usersList, String encodedSharingUrl) {
@@ -141,13 +139,16 @@ public class SharedFileDao {
 
     private String getEncodedSharingURL(String sharingLink) {
         String base64Value = Base64.getEncoder().encodeToString(sharingLink.getBytes(StandardCharsets.UTF_8));
-        return "u!" + base64Value.replaceAll("[=/+]", "").replace('/', '_').replace('+', '-');
+        return "u!" + base64Value.replaceAll("[=/+]", "").replace('/', '_')
+                .replace('+', '-');
     }
 
     private String getSharingLink(String driveID, String path, DriveItemCreateLinkParameterSet parameterSet) {
         try {
-            Permission sharedFile = driveID != null ? provider.getUserRequestBuilder(null, null).drives(driveID).root().itemWithPath(path).createLink(parameterSet).buildRequest().post()
-                    : provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path).createLink(parameterSet).buildRequest().post();
+            Permission sharedFile = driveID != null ? provider.getUserRequestBuilder(null, null)
+                    .drives(driveID).root().itemWithPath(path).createLink(parameterSet).buildRequest().post()
+                    : provider.getUserRequestBuilder(null, null).drive().root()
+                    .itemWithPath(path).createLink(parameterSet).buildRequest().post();
             return (sharedFile != null && sharedFile.link != null) ? sharedFile.link.webUrl : null;
         } catch (GraphServiceException cause) {
             if (cause.getError() != null && cause.getError().error != null) {

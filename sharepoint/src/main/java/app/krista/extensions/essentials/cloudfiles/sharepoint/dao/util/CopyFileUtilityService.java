@@ -16,9 +16,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * Service class for copying and moving files using Microsoft Graph API.
+ * This class provides methods for validating source and target paths,
+ * checking the existence of the target folder, handling exceptions,
+ * and performing file operations.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
@@ -30,7 +33,8 @@ public class CopyFileUtilityService {
     private final ManagementUtilityService managementUtilityService;
 
     @Inject
-    public CopyFileUtilityService(GraphServiceClientProviderFactory factory, OperationsManagementDao operationsManagementDao,
+    public CopyFileUtilityService(GraphServiceClientProviderFactory factory,
+                                  OperationsManagementDao operationsManagementDao,
                                   ManagementUtilityService managementUtilityService) {
         this.provider = factory.create();
         this.operationsManagementDao = operationsManagementDao;
@@ -96,18 +100,21 @@ public class CopyFileUtilityService {
     }
 
     public void handleFolderExistenceCheckException(Exception cause, Map<String, Object> response) {
-        response.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "Folder Not Found" : cause.getMessage());
+        response.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
+                .contains("itemNotFound") ? "Folder Not Found" : cause.getMessage());
         response.put(Constants.IS_FOLDER_EXIST, false);
     }
 
     public void handleCopyFileException(Exception cause, Map<String, Object> payload) {
         LOGGER.error(" Error : " + cause.getMessage());
-        payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : Constants.PROVIDE_VALID_TARGET_PATH);
+        payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
+                .contains("itemNotFound") ? "File Not Found" : Constants.PROVIDE_VALID_TARGET_PATH);
         payload.put(Constants.SUCCESS, false);
     }
 
     public Map<String, Object> handleMoveFileException(Exception cause, Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage()).contains(Constants.ITEM_NOT_FOUND) ? Constants.FILE_NOT_FOUND : cause.getMessage());
+        payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
+                .contains(Constants.ITEM_NOT_FOUND) ? Constants.FILE_NOT_FOUND : cause.getMessage());
         payload.put(Constants.SUCCESS, false);
         return payload;
     }

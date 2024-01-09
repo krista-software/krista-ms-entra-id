@@ -2,19 +2,16 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.DriveItem;
 
 import java.sql.Timestamp;
 import java.util.List;
-
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 public class FileImpl implements FileService {
@@ -56,17 +53,13 @@ public class FileImpl implements FileService {
 
     @Override
     public String getParentFolder() {
-        return parentFolder != null ? parentFolder : (driveMetaData != null && driveItem != null ? FileSearchUtilityService.getParentFolder(driveMetaData,driveItem) : null);
+        return parentFolder != null ? parentFolder : (driveMetaData != null && driveItem != null ?
+                FileSearchUtilityService.getParentFolder(driveMetaData, driveItem) : null);
     }
 
     @Override
     public String getAbsolutePath() {
         return absolutePath != null ? absolutePath : null;
-    }
-
-    @Override
-    public String getPath() {
-        return driveItem != null && driveItem.webUrl != null ? driveItem.webUrl : null;
     }
 
     @Override
@@ -81,12 +74,14 @@ public class FileImpl implements FileService {
 
     @Override
     public Long getCreated() {
-        return driveItem.createdDateTime != null ? Timestamp.valueOf(driveItem.createdDateTime.toLocalDateTime()).getTime() : null;
+        return driveItem.createdDateTime != null ? Timestamp.valueOf(driveItem.createdDateTime
+                .toLocalDateTime()).getTime() : null;
     }
 
     @Override
     public Long getModified() {
-        return driveItem.lastModifiedDateTime != null ? Timestamp.valueOf(driveItem.lastModifiedDateTime.toLocalDateTime()).getTime() : null;
+        return driveItem.lastModifiedDateTime != null ? Timestamp.valueOf(driveItem.lastModifiedDateTime
+                .toLocalDateTime()).getTime() : null;
     }
 
     @Override
@@ -111,7 +106,8 @@ public class FileImpl implements FileService {
 
     @Override
     public List<Map<String, Object>> getSharedWith() {
-        return driveMetaData != null && driveMetaData.permissions != null ? FileDaoImpl.getSharedWithPermissions(driveMetaData.permissions) : null;
+        return driveMetaData != null && driveMetaData.permissions != null ?
+                FileDaoImpl.getSharedWithPermissions(driveMetaData.permissions) : null;
     }
 
     @Override

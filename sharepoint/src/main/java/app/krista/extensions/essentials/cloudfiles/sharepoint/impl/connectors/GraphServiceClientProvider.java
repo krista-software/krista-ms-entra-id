@@ -36,11 +36,13 @@ public class GraphServiceClientProvider {
     private final String authContextId;
 
     @Inject
-    public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, SharePointAttributes sharePointAttributes, RequestContext requestContext, AuthorizationContext authorizationContext) {
+    public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, SharePointAttributes sharePointAttributes,
+                                      RequestContext requestContext, AuthorizationContext authorizationContext) {
         this(refreshTokenStore, sharePointAttributes, requestContext, authorizationContext, null);
     }
 
-    public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, SharePointAttributes sharePointAttributes, RequestContext requestContext, AuthorizationContext authorizationContext, String authContextId) {
+    public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, SharePointAttributes sharePointAttributes,
+                                      RequestContext requestContext, AuthorizationContext authorizationContext, String authContextId) {
         this.refreshTokenStore = refreshTokenStore;
         this.sharePointAttributes = sharePointAttributes;
         this.requestContext = requestContext;
@@ -52,7 +54,9 @@ public class GraphServiceClientProvider {
         return sharePointAttributes;
     }
 
-    public RestClient getRestClient(String driveId) { return getRestClient(driveId, !requestContext.invokeAsUser()); }
+    public RestClient getRestClient(String driveId) {
+        return getRestClient(driveId, !requestContext.invokeAsUser());
+    }
 
     public GraphServiceClient<Request> getGraphServiceClientForUser(Boolean useEmail, String accountID) throws IOException {
         if (useEmail != null) {
@@ -84,7 +88,7 @@ public class GraphServiceClientProvider {
      * This method is used internally to obtain a GraphServiceClient object for authorized access to SharePoint
      * resources on behalf of the specified user.
      *
-     * @param userId The unique identifier of the user for whom the GraphServiceClient should be created.
+     * @param userId       The unique identifier of the user for whom the GraphServiceClient should be created.
      * @param refreshToken The refresh token associated with the user's account.
      * @return A GraphServiceClient object authorized to access SharePoint resources on behalf of the specified user.
      * @throws MustAuthorizeException If authorization fails due to invalid refresh token or other issues.
@@ -114,7 +118,7 @@ public class GraphServiceClientProvider {
 
     private RestClient getRestClient(String driveId, boolean useEmail) {
         try {
-            String userId = getUserId(useEmail,null);
+            String userId = getUserId(useEmail, null);
             String refreshToken = refreshTokenStore.get(userId);
             if (refreshToken == null) {
                 throw createMustAuthorizationException(userId, false);
@@ -142,6 +146,7 @@ public class GraphServiceClientProvider {
             throw createMustAuthorizationException(userId, true);
         }
     }
+
     private void updateRefreshToken(String userId, JsonObject jsonObject) {
         JsonObject refreshToken = jsonObject.get("RefreshToken").getAsJsonObject();
         String firstKey = refreshToken.keySet().iterator().next();
@@ -150,20 +155,21 @@ public class GraphServiceClientProvider {
         refreshTokenStore.put(userId, secret);
         System.out.println("Updated Refresh Token.");
     }
+
     /**
      * Builds a GraphServiceClient object for performing operations on behalf of the current user or a specific user.
-     *
+     * <p>
      * This method provides multiple options for obtaining a GraphServiceClient:
      * - If `useEmail` is true and `accountID` is provided, the method retrieves the user by email and creates a client for them.
      * - If `useEmail` is true and `accountID` is not provided, the method uses the currently logged-in user's email to create a client.
      * - If `useEmail` is null, the method checks `RequestContext.invokeAsUser`:
-     *   - If `invokeAsUser` is true, it creates a client for the currently logged-in user.
-     *   - If `invokeAsUser` is false, it throws an IllegalStateException because a user context is required.
+     * - If `invokeAsUser` is true, it creates a client for the currently logged-in user.
+     * - If `invokeAsUser` is false, it throws an IllegalStateException because a user context is required.
      *
-     * @param useEmail Whether to use the provided email (if true) or the currently logged-in user (if null).
+     * @param useEmail  Whether to use the provided email (if true) or the currently logged-in user (if null).
      * @param accountID The email address of the specific user (relevant only if `useEmail` is true).
      * @return A GraphServiceClient object authorized to access SharePoint resources on behalf of the specified user.
-     * @throws IOException If any I/O error occurs while retrieving user information.
+     * @throws IOException           If any I/O error occurs while retrieving user information.
      * @throws IllegalStateException If a user context is required but not available.
      */
     public GraphServiceClient<Request> getUserRequestBuilder(Boolean useEmail, String accountID) {
@@ -179,15 +185,19 @@ public class GraphServiceClientProvider {
 
 
     private MustAuthorizeException createMustAuthorizationException(String userId, boolean reAuthentication) {
-        LOGGER.debug(reAuthentication ? Constants.GOT_ERROR_FOR_AUTHENTICATION_SO_SENDING_FOR_RE_AUTHENTICATION : Constants.GOT_ERROR_FOR_AUTHENTICATION_SO_SENDING_FOR_AUTHENTICATION);
+        LOGGER.debug(reAuthentication ? Constants.GOT_ERROR_FOR_AUTHENTICATION_SO_SENDING_FOR_RE_AUTHENTICATION :
+                Constants.GOT_ERROR_FOR_AUTHENTICATION_SO_SENDING_FOR_AUTHENTICATION);
         List<NamedValuedField> details = new ArrayList<>();
         NamedValuedField userIdField = new NamedValuedField(Constants.USER_ID, Constants.TEXT, userId, new HashMap<>(), new HashMap<>());
         details.add(userIdField);
         if (authContextId != null) {
-            NamedValuedField contextIdField = new NamedValuedField(Constants.AUTH_CONTEXT_ID, Constants.TEXT, authContextId, new HashMap<>(), new HashMap<>());
+            NamedValuedField contextIdField = new NamedValuedField(Constants.AUTH_CONTEXT_ID, Constants.TEXT,
+                    authContextId, new HashMap<>(), new HashMap<>());
             details.add(contextIdField);
         }
-        return new MustAuthorizeException(reAuthentication ? Constants.REFRESH_TOKEN_IS_NO_LONGER_VALID_PLEASE_REAUTHORIZE_YOURSELF : Constants.YOU_ARE_NOT_AUTHORIZED_PLEASE_AUTHORIZE_YOURSELF, details);
+        return new MustAuthorizeException(reAuthentication ?
+                Constants.REFRESH_TOKEN_IS_NO_LONGER_VALID_PLEASE_REAUTHORIZE_YOURSELF :
+                Constants.YOU_ARE_NOT_AUTHORIZED_PLEASE_AUTHORIZE_YOURSELF, details);
     }
 
     private String getUserId(boolean calledFromValidateAttributes, String accountID) {

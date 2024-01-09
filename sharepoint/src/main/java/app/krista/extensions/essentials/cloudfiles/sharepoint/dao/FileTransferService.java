@@ -12,25 +12,26 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.google.gson.JsonObject;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.*;
-import okhttp3.*;
+import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The FileTransferService class provides methods for copying and moving files within a Microsoft Graph-driven system.
  * It utilizes the GraphServiceClientProvider for interacting with the Microsoft Graph API.
  * This class also collaborates with several utility services such as OperationsManagementDao,
  * ManagementUtilityService, and CopyFileUtilityService to achieve its functionality.
- *
- * ***************************************************************
- * WARNING: DO NOT CHANGE ANYTHING IN THIS CLASS.
- * ***************************************************************
  *
  * @author Vaibhav Choudhary
  */
@@ -45,8 +46,10 @@ public class FileTransferService {
     private final CopyFileUtilityService copyFileUtilityService;
 
     @Inject
-    public FileTransferService(GraphServiceClientProviderFactory factory, OperationsManagementDao operationsManagementDao,
-                               ManagementUtilityService managementUtilityService, CopyFileUtilityService copyFileUtilityService) {
+    public FileTransferService(GraphServiceClientProviderFactory factory,
+                               OperationsManagementDao operationsManagementDao,
+                               ManagementUtilityService managementUtilityService,
+                               CopyFileUtilityService copyFileUtilityService) {
         this.provider = factory.create();
         this.operationsManagementDao = operationsManagementDao;
         this.managementUtilityService = managementUtilityService;
@@ -77,7 +80,8 @@ public class FileTransferService {
         return payload;
     }
 
-    private void buildCopyFileRequest(DriveItem driveItemSource, Boolean replace, DriveItem driveItemTarget, Map<String, Object> payload, String target, String source) {
+    private void buildCopyFileRequest(DriveItem driveItemSource, Boolean replace, DriveItem driveItemTarget,
+                                      Map<String, Object> payload, String target, String source) {
         try {
             String endpoint = driveItemSource.id + "/copy";
             endpoint = addConflictBehaviorQueryParam(endpoint, replace);
@@ -91,7 +95,8 @@ public class FileTransferService {
         }
     }
 
-    private boolean validateReplaceAndCreateFolderParameters(Boolean replace, Boolean createFolder, Map<String, Object> payload) {
+    private boolean validateReplaceAndCreateFolderParameters(Boolean replace, Boolean createFolder,
+                                                             Map<String, Object> payload) {
         if (replace != null && createFolder != null && replace && createFolder) {
             payload.put(Constants.MESSAGE, Constants.PLEASE_SPECIFY_REPLACE_OR_CREATE);
             payload.put(Constants.SUCCESS, false);
@@ -100,9 +105,9 @@ public class FileTransferService {
         return true;
     }
 
-    private DriveItem createOrCheckTargetItem(String target, Boolean createFolder, Map<String, Object> payload, Boolean replace) {
+    private DriveItem createOrCheckTargetItem(String target, Boolean createFolder,
+                                              Map<String, Object> payload, Boolean replace) {
         DriveItem driveItemTarget;
-
         if (createFolder) {
             driveItemTarget = createFolderInPath(target, payload);
         } else {
@@ -123,7 +128,8 @@ public class FileTransferService {
     private DriveItem checkIfTargetFolderExist(String target, Map<String, Object> response) {
         if (target != null) {
             try {
-                DriveItem driveItem = managementUtilityService.getFileByAbsolutePath(target, true, null);
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(true, null);
+                DriveItem driveItem = managementUtilityService.getFileByAbsolutePath(target, graphClient);
                 boolean isFolderExist = driveItem != null && driveItem.parentReference != null;
                 response.put(Constants.IS_FOLDER_EXIST, isFolderExist);
                 return isFolderExist ? driveItem : new DriveItem();
@@ -156,7 +162,7 @@ public class FileTransferService {
     }
 
     private void processResponse(Response statusResponse, Map<String, Object> payload, DriveItem driveItemSource, String target, String source) throws IOException {
-        if (statusResponse.code() == 200 || statusResponse.code() == 202) {
+        if (statusResponse.code() == Constants.HTTP_STATUS_OK || statusResponse.code() == Constants.HTTP_STATUS_ACCEPTED) {
             DriveItem driveItem = provider.getUserRequestBuilder(null, null)
                     .drives(driveItemSource.parentReference.driveId).items(driveItemSource.id)
                     .buildRequest().get();
@@ -164,11 +170,11 @@ public class FileTransferService {
             payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, provider, source, target)));
             payload.put(Constants.MESSAGE, Constants.FILE_COPIED_SUCCESSFULLY);
             payload.put(Constants.SUCCESS, true);
-        } else if (statusResponse.code() == 409) {
-            payload.put(Constants.MESSAGE, "A file with this name already exists. Please choose a different file name.");
+        } else if (statusResponse.code() == Constants.HTTP_STATUS_CONFLICT) {
+            payload.put(Constants.MESSAGE, Constants.FILE_WITH_THIS_NAME_ALREADY_EXISTS);
             payload.put(Constants.SUCCESS, false);
         } else {
-            payload.put(Constants.MESSAGE, "There is some issue with File , Please choose a different file name.");
+            payload.put(Constants.MESSAGE, Constants.THERE_IS_SOME_ISSUE_WITH_FILE);
             payload.put(Constants.SUCCESS, false);
         }
     }
@@ -245,7 +251,8 @@ public class FileTransferService {
         return driveItem;
     }
 
-    private DriveItem createFoldersInTargetPath(String target, String absolutePathBuilder, DriveItem driveItemTarget, Map<String, Object> payload) {
+    private DriveItem createFoldersInTargetPath(String target, String absolutePathBuilder, DriveItem driveItemTarget,
+                                                Map<String, Object> payload) {
         DriveItem driveItem = new DriveItem();
         String[] folders = target.split("/");
 
@@ -259,14 +266,16 @@ public class FileTransferService {
             driveItem = checkIfTargetFolderExist(absolutePathBuilder.toString(), check);
 
             if (!(boolean) check.get(Constants.IS_FOLDER_EXIST)) {
-                driveItem = createDriveItemForFolder(folderName, absolutePathBuilder, relativePathBuilder.toString(), driveItemTarget, payload);
+                driveItem = createDriveItemForFolder(folderName, absolutePathBuilder, relativePathBuilder.toString(),
+                        driveItemTarget, payload);
                 return driveItem;
             }
         }
         return driveItem;
     }
 
-    private DriveItem createDriveItemForFolder(String folderName, String absolutePathBuilder, String relativePath, DriveItem driveItemTarget, Map<String, Object> payload) {
+    private DriveItem createDriveItemForFolder(String folderName, String absolutePathBuilder, String relativePath,
+                                               DriveItem driveItemTarget, Map<String, Object> payload) {
         DriveItem driveItem;
         driveItem = provider.getUserRequestBuilder(null, null)
                 .drives(driveItemTarget.parentReference.driveId).root()

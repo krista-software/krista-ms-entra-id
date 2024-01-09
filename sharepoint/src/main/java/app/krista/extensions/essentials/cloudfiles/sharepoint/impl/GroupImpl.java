@@ -1,17 +1,14 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
-import com.microsoft.graph.http.GraphServiceException;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.Group;
 
 import java.sql.Timestamp;
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 public class GroupImpl implements FileService {
@@ -32,7 +29,7 @@ public class GroupImpl implements FileService {
 
     @Override
     public String getBaseName() {
-        return FileUtil.getBaseName(group.mail!=null ? group.mail : null).get(0);
+        return FileUtil.getBaseName(group.mail != null ? group.mail : null).get(0);
     }
 
     @Override
@@ -47,11 +44,6 @@ public class GroupImpl implements FileService {
 
     @Override
     public String getAbsolutePath() {
-        return null;
-    }
-
-    @Override
-    public String getPath() {
         return null;
     }
 

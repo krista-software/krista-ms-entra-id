@@ -4,22 +4,25 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.*;
+import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
-
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.List;
-
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Service class for constructing Microsoft Graph API search queries and performing file searches.
- *
+ * <p>
  * [Note : This class works as Utility class for all FileSearch Implementation methods.]
  *
  * @author Vaibhav Choudhary
@@ -36,10 +39,10 @@ public class FileSearchImpl {
         this.clientProvider = factory.create();
     }
 
-    public LinkedList<SearchRequest> buildSearchRequestList(String filePath){
+    public LinkedList<SearchRequest> buildSearchRequestList(String filePath) {
         LinkedList<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
-        buildSearchRequestForRest(filePath,requests);
+        buildSearchRequestForRest(filePath, requests);
         requestsList.add(requests);
         return requestsList;
     }
@@ -50,13 +53,38 @@ public class FileSearchImpl {
         if ("Extension".equals(selector)) {
             query.queryString = "isDocument=true AND filetype:" + name;
         } else if ("Owner".equals(selector)) {
-            query.queryString = "isDocument=true AND CreatedBy:" + name;
+            query.queryString = "CreatedBy:" + name;
         } else if ("Absolute Path".equals(selector)) {
+            name = handleAbsolutePath(name);
             query.queryString = "path:\"" + name + "\"";
+        } else if ("Created By".equals(selector)) {
+            query.queryString = "CreatedBy:" + name;
+        } else if ("Modified By".equals(selector)) {
+            query.queryString = "ModifiedBy:" + name;
+        } else if ("Created".equals(selector)) {
+            name = DriveUtil.DoubleToDateConversion(name);
+            query.queryString = "Created = " + name;
+        } else if ("Modified".equals(selector)) {
+            name = DriveUtil.DoubleToDateConversion(name);
+            query.queryString = "LastModifiedTime = " + name;
         } else {
             query.queryString = "isDocument=true AND " + name;
         }
         return query;
+    }
+
+    public static String handleAbsolutePath(String name) {
+        if (name.startsWith(Constants.DOMAIN_PATH)) {
+            if(!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
+                name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
+            }
+        } else {
+            name = Constants.DOMAIN_PATH + name;
+            if(!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
+                name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
+            }
+        }
+        return name;
     }
 
     public SearchRequest buildSearchRequest() {
@@ -91,7 +119,7 @@ public class FileSearchImpl {
         return page;
     }
 
-    public void extractDriveFromSearchResults(List<DriveImpl> files, SearchEntityQueryCollectionPage page){
+    public void extractDriveFromSearchResults(List<DriveImpl> files, SearchEntityQueryCollectionPage page) {
         for (SearchResponse driveInPage : page.getCurrentPage()) {
             if (driveInPage.hitsContainers != null) {
                 for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
@@ -99,7 +127,9 @@ public class FileSearchImpl {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
+                                //if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
                                 files.add(new DriveImpl(driveItem, null, null, clientProvider));
+                                //}
                             }
                         }
                     }

@@ -8,20 +8,17 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.*;
+import com.microsoft.graph.models.DriveItem;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class provides operations for managing files in SharePoint, specifically deleting and renaming files.
- *
- * ***************************************************************
- * WARNING: DO NOT CHANGE ANYTHING IN THIS CLASS.
- * ***************************************************************
  *
  * @author Vaibhav Choudhary
  */
@@ -36,7 +33,8 @@ public class OperationsManagementDao {
     private final ManagementUtilityService managementUtilityService;
 
     @Inject
-    public OperationsManagementDao(GraphServiceClientProviderFactory factory,ManagementUtilityService managementUtilityService) {
+    public OperationsManagementDao(GraphServiceClientProviderFactory factory,
+                                   ManagementUtilityService managementUtilityService) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
@@ -80,7 +78,7 @@ public class OperationsManagementDao {
             } else {
                 DriveItem drive = managementUtilityService.checkIfFileExist(renameFile.absolutePath, payload);
 
-                if(payload.get(Constants.SUCCESS) == Boolean.TRUE) {
+                if (payload.get(Constants.SUCCESS) == Boolean.TRUE) {
                     renameDriveItem(renameFile, targetFileName, drive, payload);
                 } else {
                     setFileNotFoundMessage(payload);

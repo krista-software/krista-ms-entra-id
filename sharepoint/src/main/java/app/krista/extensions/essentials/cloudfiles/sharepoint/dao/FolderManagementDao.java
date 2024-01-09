@@ -5,32 +5,37 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Managemen
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.*;
+import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.DriveItemCollectionPage;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
+ * DAO class for managing folders in Microsoft Graph using the Graph API.
+ * Provides methods to retrieve a list of folders, validate folder existence,
+ * and handle exceptions and response messages.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
-public class FolderManagementDao{
+public class FolderManagementDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FolderManagementDao.class);
 
@@ -62,19 +67,24 @@ public class FolderManagementDao{
                 ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
+            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
+                    .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage(), payload);
         }
         return payload;
     }
 
-    public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload) {
+    public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files,
+                                          boolean useEmail, String accountID, String search, FreeForm payload) {
         try {
-            DriveItem driveItem = provider.getUserRequestBuilder(useEmail, accountID).drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
+            DriveItem driveItem = provider.getUserRequestBuilder(useEmail, accountID).drives(driveID).root()
+                    .itemWithPath(relativePath).buildRequest().get();
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
-                DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID).drives(driveID).root().itemWithPath(relativePath).children().buildRequest().get();
+                DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID).drives(driveID)
+                        .root().itemWithPath(relativePath).children().buildRequest().get();
                 while (page != null && !page.getCurrentPage().isEmpty()) {
                     for (DriveItem driveInPage : page.getCurrentPage()) {
-                        if (search != null && !search.isEmpty() && driveInPage.folder != null && driveInPage.name != null && driveInPage.name.contains(search)) {
+                        if (search != null && !search.isEmpty() && driveInPage.folder != null &&
+                                driveInPage.name != null && driveInPage.name.contains(search)) {
                             files.add(new DrivePermissionImpl(driveInPage, provider));
                         }
                         if (search != null && search.isBlank() && driveInPage.folder != null) {
@@ -84,7 +94,8 @@ public class FolderManagementDao{
                     if (page.getNextPage() != null) {
                         page = page.getNextPage().buildRequest().get();
                     } else {
-                        ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                        ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile)
+                                .collect(Collectors.toList()), true, " ", payload);
                         break;
                     }
                 }
@@ -92,7 +103,8 @@ public class FolderManagementDao{
                 ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
+            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
+                    .contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
         }
     }
 
@@ -101,18 +113,20 @@ public class FolderManagementDao{
         DriveItem driveItem = new DriveItem();
         try {
             if (sourcePath != null) {
-                driveItem = managementUtilityService.getFileByAbsolutePath(sourcePath, useEmail, accountID);
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
+                driveItem = managementUtilityService.getFileByAbsolutePath(sourcePath, graphClient);
                 if (driveItem != null && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
                     ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);
-                    ResponseUtil.getInfoResponse(true, "File Found", payload);
+                    ResponseUtil.getInfoResponse(true, Constants.FILE_FOUND, payload);
                 } else {
-                    ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+                    ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
                 }
             } else {
-                ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+                ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
+            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
+                    .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage(), payload);
             return new DriveItem();
         }
         return driveItem;

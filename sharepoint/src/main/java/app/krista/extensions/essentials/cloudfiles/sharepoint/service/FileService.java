@@ -15,8 +15,6 @@ public interface FileService {
 
     String getAbsolutePath();
 
-    String getPath();
-
     String getOwner();
 
     Long getCreated();

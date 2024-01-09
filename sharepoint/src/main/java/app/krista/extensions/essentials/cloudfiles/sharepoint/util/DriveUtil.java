@@ -7,19 +7,26 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
+/**
+ * Utility class for common operations related to Microsoft Graph Drive and File handling.
+ */
 
-public final class DriveUtil {
+public class DriveUtil {
 
     private DriveUtil() {
     }
 
     public static File getFileFromInputStream(InputStream stream, String fileName) throws IOException {
         if (stream == null) {
-            throw new IllegalArgumentException("Failed get file from input stream. Input stream is empty.");
+            throw new IllegalArgumentException(Constants.FAILED_GET_FILE_FROM_INPUT_STREAM_INPUT_STREAM_EMPTY);
         }
-        stringValidator(fileName, "Failed get file from input stream. File name is empty.");
+        stringValidator(fileName, Constants.FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY);
         File outputFile = new File(fileName);
         Files.copy(stream, outputFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         return outputFile;
@@ -47,7 +54,7 @@ public final class DriveUtil {
     }
 
     public static DriveItem getDriveItemForItem(String folderName) {
-        stringValidator(folderName, "Failed to get drive item. Folder name is empty.");
+        stringValidator(folderName, Constants.FAILED_TO_GET_DRIVE_ITEM_FOLDER_NAME_IS_EMPTY);
         DriveItem driveItem = new DriveItem();
         driveItem.name = folderName;
         driveItem.folder = new com.microsoft.graph.models.Folder();
@@ -60,12 +67,13 @@ public final class DriveUtil {
             URI uri = new URI(escapedUrl);
             String path = uri.getPath();
 
-            String[] pathSegments = path.split("/");
+            String[] pathSegments = path.split(File.separator.equals("\\") ? "\\\\" : File.separator);
 
             // Find the index of the last "Documents" segment, regardless of case:
             int startIndex = -1;
             for (int i = pathSegments.length - 1; i >= 0; i--) {
-                if (pathSegments[i].equalsIgnoreCase("Documents") || pathSegments[i].equalsIgnoreCase("Shared Documents")) {
+                if (pathSegments[i].equalsIgnoreCase(Constants.DOCUMENTS) ||
+                        pathSegments[i].equalsIgnoreCase(Constants.SHARED_DOCUMENTS)) {
                     startIndex = i;
                     break;
                 }
@@ -73,11 +81,11 @@ public final class DriveUtil {
 
             if (startIndex != -1) {
                 startIndex++;  // Start after "Documents"
-                StringBuilder dynamicPath = new StringBuilder("/");
+                StringBuilder dynamicPath = new StringBuilder(File.separator);
                 for (int i = startIndex; i < pathSegments.length; i++) {
                     dynamicPath.append(pathSegments[i]);
                     if (i < pathSegments.length - 1) {
-                        dynamicPath.append("/");
+                        dynamicPath.append(File.separator);
                     }
                 }
                 return dynamicPath.toString();
@@ -91,7 +99,7 @@ public final class DriveUtil {
 
     public static String removeLastSegment(String url) {
         if (url != null && !url.isEmpty()) {
-            int lastSlashIndex = url.lastIndexOf('/');
+            int lastSlashIndex = url.lastIndexOf(File.separator);
             if (lastSlashIndex >= 0 && lastSlashIndex < url.length() - 1) {
                 return url.substring(0, lastSlashIndex);
             }
@@ -101,8 +109,8 @@ public final class DriveUtil {
 
     public static String getRootUrl(String filePath) {
         if (filePath != null) {
-            int domainEndIndex = filePath.indexOf('/', 8);
-            int fourthSlashIndex = nthIndexOf(filePath, '/', domainEndIndex, 4);
+            int domainEndIndex = filePath.indexOf(File.separator, 8);
+            int fourthSlashIndex = nthIndexOf(filePath, File.separator.charAt(0), domainEndIndex, 4);
 
             if (fourthSlashIndex != -1) {
                 return filePath.substring(0, fourthSlashIndex);
@@ -123,10 +131,30 @@ public final class DriveUtil {
     }
 
     public static String removeFirstSlash(String inputPath) {
-        if (inputPath != null && inputPath.startsWith("/")) {
+        if (inputPath != null && inputPath.startsWith(File.separator)) {
             return inputPath.substring(1);
         }
         return inputPath;
+    }
+
+    public static String DoubleToDateConversion(String inputString) {
+        double inputDouble = Double.parseDouble(inputString);
+
+        // Convert double to Date
+        Date date = new Date((long) inputDouble);
+
+        // Format the date as "dd-MM-yyyy"
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = dateFormat.format(date);
+
+        return formattedDate;
+    }
+
+    public static String getModifiedDate(long from) {
+        Date date = new Date(from);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("IST"));
+        return dateFormat.format(date);
     }
 
 }

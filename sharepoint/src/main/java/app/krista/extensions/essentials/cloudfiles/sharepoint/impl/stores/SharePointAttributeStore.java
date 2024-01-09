@@ -26,7 +26,8 @@ public class SharePointAttributeStore {
 
     public SharePointAttributes load(String authContextId) {
         var attributes = Constants.GSON.fromJson(String.valueOf(store.get(authContextId)), Map.class);
-        return new SharePointAttributes(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE),
+        return new SharePointAttributes(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME,
+                RoutingInfo.Type.APPLIANCE),
                 (String) attributes.get(SharePointAttributes.CLIENT_ID),
                 (String) attributes.get(SharePointAttributes.CLIENT_SECRET),
                 (String) attributes.get(SharePointAttributes.EMAIL),
@@ -36,7 +37,8 @@ public class SharePointAttributeStore {
 
     public String save(SharePointAttributes sharePointAttributes) {
         String authContextId = UUID.randomUUID().toString();
-        store.put(authContextId, Constants.GSON.toJson(Map.of(SharePointAttributes.CLIENT_ID, sharePointAttributes.getClientId(),
+        store.put(authContextId, Constants.GSON.toJson(Map.of(SharePointAttributes.CLIENT_ID,
+                sharePointAttributes.getClientId(),
                 SharePointAttributes.CLIENT_SECRET, sharePointAttributes.getClientSecret(),
                 SharePointAttributes.TENANT_ID, sharePointAttributes.getTenantId(),
                 SharePointAttributes.EMAIL, sharePointAttributes.getMailId(),

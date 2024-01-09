@@ -22,7 +22,8 @@ public class SharePointRequestAuthenticator implements RequestAuthenticator {
     private final SharePointAttributeStore sharePointAttributeStore;
     private final SharePointAttributes sharePointAttributes;
 
-    public SharePointRequestAuthenticator(SharePointAttributeStore sharePointAttributeStore, SharePointAttributes sharePointAttributes) {
+    public SharePointRequestAuthenticator(SharePointAttributeStore sharePointAttributeStore,
+                                          SharePointAttributes sharePointAttributes) {
         this.sharePointAttributeStore = sharePointAttributeStore;
         this.sharePointAttributes = sharePointAttributes;
     }
@@ -83,7 +84,9 @@ public class SharePointRequestAuthenticator implements RequestAuthenticator {
     @Override
     public AuthorizationResponse getMustAuthorizeResponse(MustAuthorizeException cause) {
         String userId = (String) cause.getDetails().get(0).getValue();
-        Optional<NamedValuedField> authContextIdField = cause.getDetails().stream().filter(namedValuedField -> Objects.equals(namedValuedField.getName(), Constants.AUTH_CONTEXT_ID)).findFirst();
+        Optional<NamedValuedField> authContextIdField = cause.getDetails().stream()
+                .filter(namedValuedField -> Objects.equals(namedValuedField.getName(), Constants.AUTH_CONTEXT_ID))
+                .findFirst();
 
         SharePointAttributes effectiveSharePointAttributes;
         String state;
@@ -97,7 +100,8 @@ public class SharePointRequestAuthenticator implements RequestAuthenticator {
         }
         OAuth20Service oAuth20Service = effectiveSharePointAttributes.getOAuth20Service();
         String url = oAuth20Service.getAuthorizationUrl(state);
-        return new AuthorizationResponse(url + Constants.ACCESS_TYPE_OFFLINE_APPROVAL_PROMPT_FORCE, Collections.emptyList());
+        return new AuthorizationResponse(url + Constants.ACCESS_TYPE_OFFLINE_APPROVAL_PROMPT_FORCE,
+                Collections.emptyList());
     }
 
 }

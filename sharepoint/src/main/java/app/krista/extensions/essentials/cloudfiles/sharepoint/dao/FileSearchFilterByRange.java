@@ -5,12 +5,14 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissi
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.model.base.DateRange;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.*;
+import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -19,14 +21,15 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Service class for searching files based on date and size ranges using Microsoft Graph API.
+ * Provides methods to retrieve files modified within a specific date range or within a specific size range.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
@@ -50,8 +53,8 @@ public class FileSearchFilterByRange {
                 handleInvalidError(Constants.DATE_RANGE_CANT_BE_EMPTY, payload);
                 return payload;
             }
-            String fromDate = getModiofiedDate(modificationDateRange.getFrom());
-            String toDate = getModiofiedDate(modificationDateRange.getTo());
+            String fromDate = DriveUtil.getModifiedDate(modificationDateRange.getFrom());
+            String toDate = DriveUtil.getModifiedDate(modificationDateRange.getTo());
             if (fromDate == null && toDate == null) {
                 handleInvalidError(Constants.DATE_RANGE_CANT_BE_EMPTY, payload);
                 return payload;
@@ -59,7 +62,8 @@ public class FileSearchFilterByRange {
 
             List<DrivePermissionImpl> drivePermissions = getFileByDateRange(fromDate, toDate, payload, useEmail, accountID);
             if (drivePermissions != null) {
-                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile)
+                        .collect(Collectors.toList()), true, " ", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_DATE_RANGE, payload);
                 return payload;
@@ -72,7 +76,8 @@ public class FileSearchFilterByRange {
         return payload;
     }
 
-    public List<DrivePermissionImpl> getFileByDateRange(String fromDate, String toDate, FreeForm payload, boolean useEmail, String accountID) {
+    public List<DrivePermissionImpl> getFileByDateRange(String fromDate, String toDate, FreeForm payload,
+                                                        boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with File Range: {} {}", fromDate, toDate);
         List<DrivePermissionImpl> resultPage = new ArrayList<>();
         try {
@@ -92,13 +97,6 @@ public class FileSearchFilterByRange {
         return resultPage;
     }
 
-    private String getModiofiedDate(long from) {
-        Date date = new Date(from);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("IST"));
-        return dateFormat.format(date);
-    }
-
     public FreeForm getFilesBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
@@ -108,7 +106,8 @@ public class FileSearchFilterByRange {
 
             List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload, useEmail, accountID);
             if (drivePermissions != null && drivePermissions.size() > 0) {
-                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile)
+                        .collect(Collectors.toList()), true, " ", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_SIZE_RANGE, payload);
                 return payload;
@@ -131,7 +130,8 @@ public class FileSearchFilterByRange {
         return from != 0 && to != 0 && from != to && from < to;
     }
 
-    public List<DrivePermissionImpl> getFileBySizeRange(Double fromSize, Double toSize, FreeForm payload, boolean useEmail, String accountID) {
+    public List<DrivePermissionImpl> getFileBySizeRange(Double fromSize, Double toSize, FreeForm payload,
+                                                        boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with File Range: {} {}", fromSize, toSize);
         List<DrivePermissionImpl> resultPage = new ArrayList<>();
         if (fromSize != null && toSize != null && fromSize != 0 && toSize != 0 && toSize > fromSize) {

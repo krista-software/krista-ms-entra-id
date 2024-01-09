@@ -44,7 +44,8 @@ public class SharePointAttributes {
                 InvokerAttributes.getStringOrNull(attributes, TENANT_ID));
     }
 
-    public SharePointAttributes(String routingUrl, String clientId, String clientSecret, String mailId, boolean allowAlertMail, String tenantId) {
+    public SharePointAttributes(String routingUrl, String clientId, String clientSecret, String mailId,
+                                boolean allowAlertMail, String tenantId) {
         this.routingUrl = routingUrl;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -86,7 +87,8 @@ public class SharePointAttributes {
     }
 
     public String getCallbackUrl() {
-        return routingUrl + Constants.REST_SHAREPOINT_CALLBACK;
+        return "http://localhost:8765/extension/api/d9x_syuTvCPaY1Iq7OQUBHQ_e_e/rest/sharepoint/callback";
+        //return routingUrl + Constants.REST_SHAREPOINT_CALLBACK;
     }
 
     public synchronized OAuth20Service getOAuth20Service() {

@@ -17,15 +17,18 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
+ * Utility service class for performing operations related to SharePoint sites and lists
+ * using Microsoft Graph API. This class provides methods for retrieving lists, processing responses,
+ * obtaining site information, and validating site and list names.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
 public class OperationsAreaUtilityService {
 
-    private OperationsAreaUtilityService(){}
+    private OperationsAreaUtilityService() {
+    }
 
     public static List getList(GraphServiceClient<Request> graphClient, Site existingSite, String listName) {
         try {
@@ -39,7 +42,7 @@ public class OperationsAreaUtilityService {
         if (list != null) {
             payload.put(Constants.FILE, CatalogTypes.fromFile(new ListImpl(list)));
             payload.put(Constants.SUCCESS, true);
-            payload.put(Constants.MESSAGE, "List "+response+" successfully");
+            payload.put(Constants.MESSAGE, "List " + response + " successfully");
         } else {
             payload.put(Constants.SUCCESS, false);
             payload.put(Constants.MESSAGE, Constants.FAILED_LIST_CREATION);
@@ -93,8 +96,9 @@ public class OperationsAreaUtilityService {
         return true; // Validation successful
     }
 
-    public boolean validateSiteAndListAndUpdatedNames(String siteName, String listName, Map<String, Object> payload, String displayName) {
-        if (!validateSiteAndListNames(siteName, listName ,payload)) {
+    public boolean validateSiteAndListAndUpdatedNames(String siteName, String listName, Map<String, Object> payload,
+                                                      String displayName) {
+        if (!validateSiteAndListNames(siteName, listName, payload)) {
             return false;
         }
 
@@ -112,22 +116,19 @@ public class OperationsAreaUtilityService {
             payload.put(Constants.SUCCESS, false);
             return false;
         }
-
-        return true; // Validation successful
+        return true;
     }
 
     public boolean validateSiteAndUpdatedNames(String siteName, String newSiteName, Map<String, Object> payload) {
         if (!validateSiteNames(siteName, payload)) {
-            return false; // Early return if validation fails
+            return false;
         }
-
         if (newSiteName == null || newSiteName.isEmpty()) {
             payload.put(Constants.MESSAGE, Constants.UPDATED_SITE_NAME_CANNOT_BE_NULL);
             payload.put(Constants.SUCCESS, false);
             return false;
         }
-
-        return true; // Validation successful
+        return true;
     }
 
 }

@@ -22,9 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Service class for uploading files to Microsoft Graph using the Graph API.
+ * Provides methods to validate and upload files, handling exceptions and response messages.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
@@ -35,7 +36,8 @@ public class FileUploadService {
     private final ManagementUtilityService managementUtilityService;
 
     @Inject
-    public FileUploadService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
+    public FileUploadService(GraphServiceClientProviderFactory factory,
+                             ManagementUtilityService managementUtilityService) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
@@ -50,7 +52,8 @@ public class FileUploadService {
         return payload;
     }
 
-    private void validateAndUploadFile(app.krista.model.base.File kristaFile, String targetPath, Map<String, Object> payload) {
+    private void validateAndUploadFile(app.krista.model.base.File kristaFile, String targetPath,
+                                       Map<String, Object> payload) {
         if (targetPath != null && !FileUtil.hasFileExtension(targetPath)) {
             DriveItem drive = managementUtilityService.checkIfFileExist(targetPath, payload);
 
@@ -76,19 +79,24 @@ public class FileUploadService {
         payload.put(Constants.SUCCESS, false);
     }
 
-    private void uploadFileByPathByDriveID(String driveID, String targetPath, app.krista.model.base.File kristaFile, Map<String, Object> payload) {
+    private void uploadFileByPathByDriveID(String driveID, String targetPath, app.krista.model.base.File kristaFile,
+                                           Map<String, Object> payload) {
         try {
-            DriveItem driveItem = driveID != null ? provider.getUserRequestBuilder(null, null).drives(driveID).root().itemWithPath(targetPath).buildRequest().get()
-                    : provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(targetPath).buildRequest().get();
+            DriveItem driveItem = driveID != null ? provider.getUserRequestBuilder(null, null)
+                    .drives(driveID).root().itemWithPath(targetPath).buildRequest().get()
+                    : provider.getUserRequestBuilder(null, null).drive().root()
+                    .itemWithPath(targetPath).buildRequest().get();
             if (driveItem != null && driveItem.folder != null && driveItem.id != null) {
                 java.io.File javaFile = CatalogTypes.fromFile(kristaFile);
                 DriveUtil.listValidator(List.of(javaFile), Constants.FAILED_TO_UPLOAD_FILE);
 
                 DriveItem uploadedDriveItem = driveID != null ?
-                        provider.getUserRequestBuilder(null, null).drives(driveID).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile))
-                        : provider.getUserRequestBuilder(null, null).drive().items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
+                        provider.getUserRequestBuilder(null, null).drives(driveID).items(driveItem.id)
+                                .itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile))
+                        : provider.getUserRequestBuilder(null, null).drive().items(driveItem.id)
+                        .itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
                 if (uploadedDriveItem != null) {
-                    File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, provider));
+                    File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(uploadedDriveItem, provider));
                     payload.put(Constants.FILE, fileEntity);
                     payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
                     payload.put(Constants.SUCCESS, true);
@@ -99,6 +107,6 @@ public class FileUploadService {
             payload.put(Constants.SUCCESS, false);
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
-
     }
+
 }

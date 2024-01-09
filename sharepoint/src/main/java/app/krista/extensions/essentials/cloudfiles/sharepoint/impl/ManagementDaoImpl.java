@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
@@ -32,6 +30,7 @@ public class ManagementDaoImpl {
     private final FileTransferService copyFileDao;
     private final DriveTextFileManager driveTextFileService;
     private final FileSearchFilterByRange fileSearchFilterByRange;
+    private final FileVersionSearchDao fileVersionSearchDao;
 
 
     @Inject
@@ -39,7 +38,7 @@ public class ManagementDaoImpl {
                              FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
                              SharedFileDao sharedFileDao, FileTransferService copyFileDao, FileDownloadService fileDownloadService,
                              FileUploadService fileUploadService, DriveTextFileManager driveTextFileService,
-                             FileSearchFilterByRange fileSearchFilterByRange) {
+                             FileSearchFilterByRange fileSearchFilterByRange,FileVersionSearchDao fileVersionSearchDao) {
         this.provider = factory.create();
         this.fileManagementDao = fileManagementDao;
         this.folderManagementDao = folderManagementDao;
@@ -50,6 +49,7 @@ public class ManagementDaoImpl {
         this.fileUploadService = fileUploadService;
         this.driveTextFileService = driveTextFileService;
         this.fileSearchFilterByRange = fileSearchFilterByRange;
+        this.fileVersionSearchDao = fileVersionSearchDao;
     }
 
 
@@ -69,9 +69,17 @@ public class ManagementDaoImpl {
         }
     }
 
-    public Map<String, Object> downloadFile(Boolean downloadAsLink, Boolean downloadAsKristaFile, String source) {
+    public Map<String, Object> downloadFileAsLink(String source) {
         try {
-            return fileDownloadService.downloadFiles(downloadAsLink, downloadAsKristaFile, source);
+            return fileDownloadService.downloadFiles(true, false, source);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            throw new IllegalArgumentException(cause.getMessage(), cause);
+        }
+    }
+
+    public Map<String, Object> downloadFileAsFile(String source) {
+        try {
+            return fileDownloadService.downloadFiles(false, true, source);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
@@ -160,6 +168,14 @@ public class ManagementDaoImpl {
     public FreeForm getFileBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
         try {
             return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize, useEmail, accountID);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            throw new IllegalArgumentException(cause.getMessage(), cause);
+        }
+    }
+
+    public Map<String, Object> getVersionHistory(String sourcePath, String search, Long since) {
+        try {
+            return fileVersionSearchDao.getVersionHistory(sourcePath, search, since);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

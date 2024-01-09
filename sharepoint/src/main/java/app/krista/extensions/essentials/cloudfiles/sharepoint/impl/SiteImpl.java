@@ -1,8 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
-import com.microsoft.graph.http.GraphServiceException;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.Site;
 
 import java.sql.Timestamp;
@@ -10,9 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 public class SiteImpl implements FileService {
@@ -30,12 +27,12 @@ public class SiteImpl implements FileService {
 
     @Override
     public String getBaseName() {
-        return FileUtil.getBaseName(site.name!=null ? site.name : null).get(0);
+        return FileUtil.getBaseName(site.name != null ? site.name : null).get(0);
     }
 
     @Override
     public String getExtension() {
-        return FileUtil.getBaseName(site.name!=null ? site.name : null).get(1);
+        return FileUtil.getBaseName(site.name != null ? site.name : null).get(1);
     }
 
     @Override
@@ -46,11 +43,6 @@ public class SiteImpl implements FileService {
     @Override
     public String getAbsolutePath() {
         return site.webUrl != null ? site.webUrl : null;
-    }
-
-    @Override
-    public String getPath() {
-        return site.parentReference != null ? site.parentReference.path : null;
     }
 
     @Override
@@ -92,6 +84,7 @@ public class SiteImpl implements FileService {
     public Boolean getIsFolder() {
         return null;
     }
+
     @Override
     public List<Map<String, Object>> getSharedWith() {
         return List.of();

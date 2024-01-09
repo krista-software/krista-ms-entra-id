@@ -23,9 +23,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Service class for downloading files using Microsoft Graph API.
+ * Provides methods to download files based on various options such as download link,
+ * Krista file, and handling different scenarios.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
@@ -36,7 +38,8 @@ public class FileDownloadService {
     private final ManagementUtilityService managementUtilityService;
 
     @Inject
-    public FileDownloadService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
+    public FileDownloadService(GraphServiceClientProviderFactory factory,
+                               ManagementUtilityService managementUtilityService) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
@@ -50,7 +53,8 @@ public class FileDownloadService {
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     relativePath = DriveUtil.getRelativePath(relativePath);
-                    downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink, downloadAsKristaFile, files, payload);
+                    downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink,
+                            downloadAsKristaFile, files, payload);
                     handleDownloadResult(payload);
                 } else {
                     setInvalidPathMessage(payload);
@@ -87,21 +91,25 @@ public class FileDownloadService {
 
     private void handleDownloadFilesException(Exception cause, Map<String, Object> payload) {
         LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
-        payload.put(Constants.MESSAGE, "Error downloading files. Please try again later.");
+        payload.put(Constants.MESSAGE, Constants.ERROR_DOWNLOADING_FILES);
         payload.put(Constants.SUCCESS, false);
     }
 
-    private void downloadByDriveIDByPath(String driveID, String path, Boolean downloadAsLink, Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload) {
+    private void downloadByDriveIDByPath(String driveID, String path, Boolean downloadAsLink,
+                                         Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload) {
         try {
-            DriveItem driveItem = (driveID != null) ? provider.getUserRequestBuilder(null, null).drives(driveID).root().itemWithPath(path).buildRequest().get()
-                    : provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path).buildRequest().get();
+            DriveItem driveItem = (driveID != null) ? provider.getUserRequestBuilder(null, null)
+                    .drives(driveID).root().itemWithPath(path).buildRequest().get()
+                    : provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path)
+                    .buildRequest().get();
             if (driveItem != null && driveItem.folder == null) {
                 if (downloadAsLink != null && downloadAsLink) {
-                    handleDownloadLink(payload,driveItem);
-                } else if (downloadAsKristaFile != null && downloadAsKristaFile && driveItem.size != null && driveItem.size > (1024 * 1024 * 30)) {
-                    handleDownloadAsKristaFile(payload,driveItem);
+                    handleDownloadLink(payload, driveItem);
+                } else if (downloadAsKristaFile != null && downloadAsKristaFile && driveItem.size != null &&
+                        driveItem.size > (1024 * 1024 * 30)) {
+                    handleDownloadAsKristaFile(payload, driveItem);
                 } else {
-                    handleDownload(payload,driveItem);
+                    handleDownload(payload, driveItem);
                 }
             }
         } catch (GraphServiceException | IllegalArgumentException | IOException cause) {
@@ -111,32 +119,35 @@ public class FileDownloadService {
 
     private void handleDownloadLink(Map<String, Object> payload, DriveItem driveItem) {
         payload.put(Constants.SUCCESS, true);
-        payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
-        payload.put("Download Link", driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString());
+        payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
+        payload.put(Constants.DOWNLOAD_LINK, driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl")
+                .getAsString());
     }
 
     private void handleDownloadAsKristaFile(Map<String, Object> payload, DriveItem driveItem) {
         payload.put(Constants.SUCCESS, true);
-        payload.put(Constants.MESSAGE, "File Size is Greater than 30MB, Please Download file By URL");
-        payload.put("Download Link", driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString());
+        payload.put(Constants.MESSAGE, Constants.FILE_SIZE_IS_GREATER_THAN_30MB);
+        payload.put(Constants.DOWNLOAD_LINK, driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl")
+                .getAsString());
     }
 
     private void handleDownload(Map<String, Object> payload, DriveItem driveItem) throws IOException {
         if (driveItem.size != null && driveItem.size > (1024 * 1024 * 30)) { // 30MB
             payload.put(Constants.SUCCESS, true);
-            payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
-            payload.put("Download Link", "");
-        } else if (driveItem.size != null && driveItem.size < (1024 * 1024 * 30) && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
+            payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
+            payload.put(Constants.DOWNLOAD_LINK, "");
+        } else if (driveItem.size != null && driveItem.size < (1024 * 1024 * 30) &&
+                driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
             assert driveItem.id != null;
-            InputStream inputStream = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
+            InputStream inputStream = provider.getUserRequestBuilder(null, null)
+                    .drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
             java.io.File content = DriveUtil.getFileFromInputStream(inputStream, driveItem.name);
             app.krista.model.base.File kristaFile = CatalogTypes.toFile(content.getName(), content);
-            payload.put("Krista File", kristaFile);
+            payload.put(Constants.KRISTA_FILE, kristaFile);
             payload.put(Constants.SUCCESS, true);
-            payload.put(Constants.MESSAGE, "To Download file Please Click on URL");
+            payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
         }
     }
-
 
 
 }

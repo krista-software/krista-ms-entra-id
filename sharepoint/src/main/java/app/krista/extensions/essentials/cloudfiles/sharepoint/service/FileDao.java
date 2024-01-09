@@ -1,7 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.service;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 
 import java.util.List;
 import java.util.Map;

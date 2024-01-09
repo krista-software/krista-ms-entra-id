@@ -29,13 +29,16 @@ public class SharePointExtension {
     private final SharePointRequestAuthenticator requestAuthenticator;
 
     @Inject
-    public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes, GraphServiceClientProviderFactory clientProviderFactory, SharePointAttributeStore sharePointAttributeStore) {
-        this(invoker, sharePointAttributes,
-                clientProviderFactory,
+    public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
+                               GraphServiceClientProviderFactory clientProviderFactory,
+                               SharePointAttributeStore sharePointAttributeStore) {
+        this(invoker, sharePointAttributes, clientProviderFactory,
                 new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes));
     }
 
-    public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes, GraphServiceClientProviderFactory clientProviderFactory, SharePointRequestAuthenticator requestAuthenticator) {
+    public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
+                               GraphServiceClientProviderFactory clientProviderFactory,
+                               SharePointRequestAuthenticator requestAuthenticator) {
         this.routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
         this.sharePointAttributes = sharePointAttributes;
         this.clientProviderFactory = clientProviderFactory;
@@ -74,11 +77,6 @@ public class SharePointExtension {
     @InvokerRequest(InvokerRequest.Type.INVOKER_UPDATED)
     public void attributesUpdated(Map<String, Object> oldAttributes, Map<String, Object> newAttributes) {
         sharePointAttributes.update(newAttributes);
-    }
-
-    @InvokerRequest(InvokerRequest.Type.INVOKER_REMOVED)
-    public void invokerRemoved() {
-        // default implementation ignored
     }
 
 }

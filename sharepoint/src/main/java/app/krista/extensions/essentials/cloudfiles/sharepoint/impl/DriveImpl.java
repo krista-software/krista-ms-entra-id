@@ -2,8 +2,8 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.PermissionCollectionPage;
 
@@ -12,9 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 public class DriveImpl implements FileService {
@@ -24,7 +22,8 @@ public class DriveImpl implements FileService {
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProvider clientProvider;
 
-    public DriveImpl(DriveItem driveItem, PermissionCollectionPage permissionCollectionPage, SharePointAttributes sharePointAttributes, GraphServiceClientProvider clientProvider) {
+    public DriveImpl(DriveItem driveItem, PermissionCollectionPage permissionCollectionPage,
+                     SharePointAttributes sharePointAttributes, GraphServiceClientProvider clientProvider) {
         this.driveItem = driveItem;
         this.permissionCollectionPage = permissionCollectionPage;
         this.sharePointAttributes = sharePointAttributes;
@@ -57,11 +56,6 @@ public class DriveImpl implements FileService {
     }
 
     @Override
-    public String getPath() {
-        return driveItem.webUrl != null ? driveItem.webUrl : null;
-    }
-
-    @Override
     public String getOwner() {
         if (driveItem.createdBy != null) {
             assert driveItem.createdBy.user != null;
@@ -73,12 +67,14 @@ public class DriveImpl implements FileService {
 
     @Override
     public Long getCreated() {
-        return driveItem.createdDateTime != null ? Timestamp.valueOf(driveItem.createdDateTime.toLocalDateTime()).getTime() : null;
+        return driveItem.createdDateTime != null ? Timestamp.valueOf(driveItem.createdDateTime
+                .toLocalDateTime()).getTime() : null;
     }
 
     @Override
     public Long getModified() {
-        return driveItem.lastModifiedDateTime != null ? Timestamp.valueOf(driveItem.lastModifiedDateTime.toLocalDateTime()).getTime() : null;
+        return driveItem.lastModifiedDateTime != null ? Timestamp.valueOf(driveItem.lastModifiedDateTime
+                .toLocalDateTime()).getTime() : null;
     }
 
     @Override

@@ -14,9 +14,11 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * Utility service class for file-related search operations using Microsoft Graph API.
+ * This class provides methods to retrieve drive metadata, extract information from URLs,
+ * and obtain details such as absolute path, parent folder, and file extension.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 public class FileSearchUtilityService {
@@ -47,7 +49,7 @@ public class FileSearchUtilityService {
             String parentFolderName = parts[parts.length - 2];
             return decodeUrlComponent(parentFolderName);
         } else {
-            return null; // Not enough parts to extract the parent folder name
+            return null;
         }
     }
 
@@ -69,7 +71,8 @@ public class FileSearchUtilityService {
     }
 
     public static String getParentFolder(DriveItem driveMetaData, DriveItem driveItem) {
-        if (driveMetaData != null && driveMetaData.parentReference != null && driveMetaData.parentReference.name != null) {
+        if (driveMetaData != null && driveMetaData.parentReference != null
+                && driveMetaData.parentReference.name != null) {
             return driveMetaData.parentReference.name;
         } else {
             String path = getAbsolutePath(driveMetaData, driveItem);

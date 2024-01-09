@@ -41,7 +41,7 @@ public final class CatalogTypes {
 
     public static java.io.File fromFile(app.krista.model.base.File file) {
         if (file == null) {
-            throw new IllegalArgumentException("No file to parse");
+            throw new IllegalArgumentException(Constants.NO_FILE_TO_PARSE);
         }
         try {
             return MediaClient.create().download(MediaClient.createMediaUrl(file.getMediaId()), file.getFileName());
@@ -53,9 +53,9 @@ public final class CatalogTypes {
 
     public static app.krista.model.base.File toFile(String fileName, java.io.File file) {
         if (fileName == null || fileName.isBlank()) {
-            throw new IllegalArgumentException("File name is empty");
+            throw new IllegalArgumentException(Constants.FILE_NAME_IS_EMPTY);
         } else if (file == null) {
-            throw new IllegalArgumentException("No file to parse");
+            throw new IllegalArgumentException(Constants.NO_FILE_TO_PARSE);
         }
         int lastDot = fileName.lastIndexOf('.');
         String fileExtension = fileName.substring(lastDot + 1);

@@ -24,10 +24,6 @@ import java.util.Objects;
 /**
  * This service class provides methods for reading and uploading text files in SharePoint using Microsoft Graph API.
  * It includes functionality to check file existence, read text files, and upload text files.
- * <p>
- * ***************************************************************
- * WARNING: DO NOT CHANGE ANYTHING IN THIS CLASS.
- * ***************************************************************
  *
  * @author Vaibhav Choudhary
  */
@@ -42,7 +38,8 @@ public class DriveTextFileManager {
     private final ManagementUtilityService managementUtilityService;
 
     @Inject
-    public DriveTextFileManager(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
+    public DriveTextFileManager(GraphServiceClientProviderFactory factory,
+                                ManagementUtilityService managementUtilityService) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
     }
@@ -77,9 +74,11 @@ public class DriveTextFileManager {
 
     private void readTxtFileFromSource(Map<String, Object> payload) {
         DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
-        if (driveItem.name != null && FileUtil.getBaseName(driveItem.name).get(1) != null && FileUtil.getBaseName(driveItem.name).get(1).equalsIgnoreCase("txt")) {
+        if (driveItem.name != null && FileUtil.getBaseName(driveItem.name).get(1) != null &&
+                FileUtil.getBaseName(driveItem.name).get(1).equalsIgnoreCase("txt")) {
 
-            InputStream inputStream = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
+            InputStream inputStream = provider.getUserRequestBuilder(null, null)
+                    .drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
 
             payload.put(Constants.CONTENT, FileUtil.readFile(inputStream));
             payload.put(Constants.MESSAGE, Constants.FILE_READ_SUCCESS);
@@ -103,7 +102,7 @@ public class DriveTextFileManager {
                     if ((boolean) response.get(Constants.SUCCESS)) {
                         DriveItem driveItem = (DriveItem) response.get(Constants.DRIVE_ITEM);
                         if (driveItem.name != null && driveItem.folder != null) {
-                            uploadTxtFileFromTarget(path,fileContent,payload,driveItem);
+                            uploadTxtFileFromTarget(path, fileContent, payload, driveItem);
                         }
                     } else {
                         invalidPath(payload);
@@ -121,7 +120,8 @@ public class DriveTextFileManager {
         return payload;
     }
 
-    private void uploadTxtFileFromTarget(String path, String fileContent, Map<String, Object> payload, DriveItem driveItem) throws IOException {
+    private void uploadTxtFileFromTarget(String path, String fileContent, Map<String, Object> payload,
+                                         DriveItem driveItem) throws IOException {
         String[] stream = path.split("/");
 
         String fileName = stream[stream.length - 1].contains(".txt") ? stream[stream.length - 1] : null;
@@ -157,12 +157,15 @@ public class DriveTextFileManager {
     public void getFileInfo(String driveId, String path, Map<String, Object> response) {
         try {
             DriveItem driveItem = driveId != null ?
-                    provider.getUserRequestBuilder(null, null).drives(driveId).root().itemWithPath(path).buildRequest().get() :
-                    provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path).buildRequest().get();
+                    provider.getUserRequestBuilder(null, null).drives(driveId).root()
+                            .itemWithPath(path).buildRequest().get() :
+                    provider.getUserRequestBuilder(null, null).drive().root()
+                            .itemWithPath(path).buildRequest().get();
             response.put(Constants.DRIVE_ITEM, driveItem);
             response.put(Constants.SUCCESS, true);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            response.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage());
+            response.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
+                    .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage());
             response.put(Constants.SUCCESS, false);
         }
     }

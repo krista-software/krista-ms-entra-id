@@ -6,10 +6,10 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissi
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
@@ -25,14 +25,16 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Service class for interacting with Microsoft Graph API to retrieve information
+ * about SharePoint Drive items. Provides methods to get file information,
+ * check if a file exists, and list files in a specified path.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 @Service
@@ -78,18 +80,17 @@ public class DriveFileService {
             if (shouldSkipFileCheck(sourcePath, payload)) return new DriveItem();
 
             DriveItem driveItem = getFileByAbsolutePath(sourcePath, useEmail, accountID);
-            if (isInvalidDriveItem(driveItem,payload)) return new DriveItem();
+            if (isInvalidDriveItem(driveItem, payload)) return new DriveItem();
 
             sourcePath = DriveUtil.getRelativePath(sourcePath);
             DriveItem driveItemCollectionPage = getDriveItemCollectionPage(driveItem, sourcePath, useEmail, accountID);
 
             if (isFolderValid(driveItemCollectionPage)) {
                 ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);
-                ResponseUtil.getInfoResponse(true, "File Found", payload);
+                ResponseUtil.getInfoResponse(true, Constants.FILE_FOUND, payload);
             } else {
-                ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+                ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             }
-
             return driveItem;
         } catch (GraphServiceException | IllegalArgumentException cause) {
             handleException(cause, payload);
@@ -99,7 +100,7 @@ public class DriveFileService {
 
     private boolean shouldSkipFileCheck(String sourcePath, FreeForm payload) {
         if (sourcePath == null) {
-            ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+            ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             return true;
         }
         return false;
@@ -107,7 +108,7 @@ public class DriveFileService {
 
     private boolean isInvalidDriveItem(DriveItem driveItem, FreeForm payload) {
         if (driveItem == null || driveItem.parentReference == null || driveItem.parentReference.driveId == null) {
-            ResponseUtil.getInfoResponse(false, "Invalid Folder Path", payload);
+            ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             return true;
         }
         return false;
@@ -123,7 +124,8 @@ public class DriveFileService {
     }
 
     private void handleException(Exception cause, FreeForm payload) {
-        ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
+        ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
+                .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage(), payload);
     }
 
     private boolean isFolderValid(DriveItem driveItemCollectionPage) {
@@ -184,7 +186,8 @@ public class DriveFileService {
         return query;
     }
 
-    private SearchEntityQueryCollectionPage executeSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {
+    private SearchEntityQueryCollectionPage executeSearchQuery(GraphServiceClient<Request> graphClient,
+                                                               LinkedList<SearchRequest> requestsList) {
         return graphClient.search().query(SearchEntityQueryParameterSet
                 .newBuilder().withRequests(requestsList).build()).buildRequest().post();
     }
@@ -380,7 +383,7 @@ public class DriveFileService {
         while (page != null && !page.getCurrentPage().isEmpty()) {
             for (DriveItem driveInPage : page.getCurrentPage()) {
                 if (isSearchCriteriaMatched(search, driveInPage)) {
-                    files.add(new FileImpl(driveInPage, provider, absolutePath+"/"+driveInPage.name, absolutePath));
+                    files.add(new FileImpl(driveInPage, provider, absolutePath + "/" + driveInPage.name, absolutePath));
                 }
             }
 

@@ -3,9 +3,9 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores;
 import app.krista.extension.executor.SearchCondition;
 import app.krista.extension.executor.SearchQuery;
 import app.krista.extension.util.EntityStore;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import org.jvnet.hk2.annotations.Service;
 
 import javax.inject.Inject;
@@ -31,20 +31,21 @@ public class FileDetailsStore implements EntityStore<File> {
     }
 
     @Override
-    public File get(String s) throws IOException {
-        return CatalogTypes.fromFile(fileDao.getFileByAbsolutePath(s));
+    public File get(String id) throws IOException {
+        return CatalogTypes.fromFile(fileDao.getFileByAbsolutePath(id));
     }
 
     @Override
     public File update(File fileDetails) throws IOException {
-        return null;
+        return new File();
     }
 
     @Override
-    public void delete(String s) throws IOException {}
+    public void delete(String id) throws IOException {
+    }
 
     @Override
-    public boolean contains(String s) throws IOException {
+    public boolean contains(String id) throws IOException {
         return false;
     }
 
@@ -70,7 +71,9 @@ public class FileDetailsStore implements EntityStore<File> {
             String matchPattern = con.getOperand() != null ? String.valueOf(con.getOperand()).trim() : "";
             String selector = con.getFieldName();
             if ("Name".equalsIgnoreCase(selector) || "Extension".equalsIgnoreCase(selector) ||
-                    "Owner".equalsIgnoreCase(selector) || "Absolute Path".equalsIgnoreCase(selector)) {
+                    "Owner".equalsIgnoreCase(selector) || "Absolute Path".equalsIgnoreCase(selector) ||
+                    "Created By".equalsIgnoreCase(selector) || "Modified By".equalsIgnoreCase(selector) ||
+                    "Created".equalsIgnoreCase(selector) || "Modified".equalsIgnoreCase(selector)) {
                 fileDetails = fileDao.getFilesByFilter(matchPattern, selector, pageIndex, pageSize).stream()
                         .map(CatalogTypes::fromFile).collect(Collectors.toList());
             }

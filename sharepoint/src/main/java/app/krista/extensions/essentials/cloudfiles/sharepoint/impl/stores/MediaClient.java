@@ -16,10 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.UUID;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
@@ -35,9 +32,7 @@ public class MediaClient {
         webTarget = ClientBuilder.newBuilder()
                 .register(MultiPartFeature.class).build()
                 .target(mediaUrl);
-        File tempDir = new File(System.getProperty(Constants.TEMP_DIR));
-        tempDir.mkdir();
-        //new File(Constants.TEMP_DIR).mkdirs();
+        new File(Constants.TEMP_DIR).mkdirs();
     }
 
     public static MediaClient create() {
@@ -85,10 +80,10 @@ public class MediaClient {
 
     public void upload(String url, File file) {
         if (url == null || url.isBlank()) {
-            throw new IllegalArgumentException("Failed to upload file. URL not found.");
+            throw new IllegalArgumentException(Constants.FAILED_TO_UPLOAD_URL_NOT_FOUND);
         }
         if (file == null) {
-            throw new IllegalArgumentException("Failed to upload file. File not found.");
+            throw new IllegalArgumentException(Constants.FAILED_TO_UPLOAD_FILE_NOT_FOUND);
         }
         WebTarget resourceTarget = webTarget.path(url);
         resourceTarget = resourceTarget.queryParam("len", file.length());

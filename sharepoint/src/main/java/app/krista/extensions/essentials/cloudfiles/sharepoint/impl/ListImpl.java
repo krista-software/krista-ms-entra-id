@@ -1,16 +1,14 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.List;
 
 import java.sql.Timestamp;
 import java.util.Map;
 
 /**
- *
  * @author Vaibhav Choudhary
- *
  */
 
 public class ListImpl implements FileService {
@@ -28,7 +26,7 @@ public class ListImpl implements FileService {
 
     @Override
     public String getBaseName() {
-        return FileUtil.getBaseName(list.name!=null ? list.name : null).get(0);
+        return FileUtil.getBaseName(list.name != null ? list.name : null).get(0);
     }
 
     @Override
@@ -47,11 +45,6 @@ public class ListImpl implements FileService {
     }
 
     @Override
-    public String getPath() {
-        return list.parentReference != null ? list.parentReference.path : null;
-    }
-
-    @Override
     public String getOwner() {
         if (list.createdBy != null) {
             assert list.createdBy.user != null;
@@ -63,12 +56,14 @@ public class ListImpl implements FileService {
 
     @Override
     public Long getCreated() {
-        return list.createdDateTime != null ? Timestamp.valueOf(list.createdDateTime.toLocalDateTime()).getTime() : null;
+        return list.createdDateTime != null ? Timestamp.valueOf(list.createdDateTime
+                .toLocalDateTime()).getTime() : null;
     }
 
     @Override
     public Long getModified() {
-        return list.lastModifiedDateTime != null ? Timestamp.valueOf(list.lastModifiedDateTime.toLocalDateTime()).getTime() : null;
+        return list.lastModifiedDateTime != null ? Timestamp.valueOf(list.lastModifiedDateTime
+                .toLocalDateTime()).getTime() : null;
     }
 
     @Override

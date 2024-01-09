@@ -3,24 +3,24 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileCreateService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchImpl;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.*;
+import com.microsoft.graph.models.SearchRequest;
+import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.PermissionCollectionPage;
+import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
-
 import org.jvnet.hk2.annotations.ContractsProvided;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.List;
-
 import javax.inject.Inject;
+import java.util.*;
 
 /**
  * Implementation of FileDao interface for Microsoft Graph API file operations, including creation, retrieval, and search.
@@ -40,13 +40,10 @@ public class FileDaoImpl implements FileDao {
 
     @Inject
     public FileDaoImpl(GraphServiceClientProviderFactory clientProviderFactory, FileSearchImpl fileSearchImpl) {
-        this(clientProviderFactory.create(), fileSearchImpl);
-    }
-
-    public FileDaoImpl(GraphServiceClientProvider clientProvider, FileSearchImpl fileSearchImpl) {
-        this.clientProvider = clientProvider;
+        this.clientProvider = clientProviderFactory.create();
         this.fileSearchImpl = fileSearchImpl;
     }
+
 
     /**
      * Creates a new group using the {@link FileCreateService}.
@@ -60,7 +57,8 @@ public class FileDaoImpl implements FileDao {
     @Override
     public GroupImpl createGroup(Map<String, Object> map) {
         LOGGER.info("Creating group with details: {}", map);
-        FileCreateService fileCreateService = new FileCreateService(clientProvider.getUserRequestBuilder(null, null));
+        FileCreateService fileCreateService = new FileCreateService(clientProvider.
+                getUserRequestBuilder(null, null));
         return fileCreateService.createGroup(map);
     }
 
@@ -75,15 +73,16 @@ public class FileDaoImpl implements FileDao {
     public FileService getFileByAbsolutePath(String filePath) {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
-            filePath = filePath.replace("%20", " ");
+            filePath = filePath.replace(Constants.WHITE_SPACE, " ");
             List<DrivePermissionImpl> resultPage = new ArrayList<>();  // Initialize the result page
             try {
-                GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
+                GraphServiceClient<Request> graphClient = clientProvider.
+                        getUserRequestBuilder(null, null);
                 LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
-                SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient,requestsList);
+                SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
-                    fileSearchImpl.extractDrivePermissionsFromSearchResults(resultPage,page,filePath);
+                    fileSearchImpl.extractDrivePermissionsFromSearchResults(resultPage, page, filePath);
                 }
                 if (resultPage.size() > 0) {
                     return resultPage.get(0);
@@ -142,17 +141,17 @@ public class FileDaoImpl implements FileDao {
                     LinkedList<SearchRequest> requestsList = new LinkedList<>();
                     // Create a new SearchRequest instance within the loop
                     SearchRequest requests = fileSearchImpl.buildSearchRequest();
-                    requests.query = fileSearchImpl.buildQueryString(name,selector);
+                    requests.query = fileSearchImpl.buildQueryString(name, selector);
                     requests.from = ((int) pageIndex - 1) * pageSize;  // Start from 0 for the first page, 10 for the second, and so on
                     requests.size = Math.min(25, pageSize - cachedFiles.size() % pageSize);  // Adjust for partial page
 
                     requestsList.add(requests);
 
-                    SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient,requestsList);
+                    SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                     if (page != null && !page.getCurrentPage().isEmpty()) {
                         List<DriveImpl> files = new ArrayList<>();  // Create a new list for each response
-                        fileSearchImpl.extractDriveFromSearchResults(files,page);
+                        fileSearchImpl.extractDriveFromSearchResults(files, page);
                         cachedFiles.addAll(files);  // Add fetched files to cache
                     } else {
                         break;  // No more results available

@@ -2,19 +2,20 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.*;
+import com.microsoft.graph.models.Group;
+import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
 
 /**
+ * Service class for creating groups using Microsoft Graph API.
+ * Provides methods to validate group data and perform group creation.
  *
  * @author Vaibhav Choudhary
- *
  */
 
 public class FileCreateService {
@@ -48,7 +49,7 @@ public class FileCreateService {
             return new GroupImpl(createdGroup, null);
         } catch (GraphServiceException cause) {
             LOGGER.error("Error creating group", cause.getMessage());
-            throw new IllegalArgumentException("Error : "+cause.getMessage());
+            throw new IllegalArgumentException("Error : " + cause.getMessage());
         }
     }
 
@@ -64,7 +65,7 @@ public class FileCreateService {
                 && !groupBaseName.contains(" ");
     }
 
-    private Group buildGroup(Map<String, Object> groupData){
+    private Group buildGroup(Map<String, Object> groupData) {
         Group groupToCreate = new Group();
         groupToCreate.displayName = (String) groupData.get("Name");
         groupToCreate.mailNickname = ((String) groupData.get("Base Name")).trim();

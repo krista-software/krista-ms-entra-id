@@ -15,11 +15,11 @@ public class RestClient {
     public static final String BAD_REQUEST = "Bad Request";
     public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
-    public static  final  String REQUEST_IS_ACCEPTED="Request is Accepted";
+    public static final String REQUEST_IS_ACCEPTED = "Request is Accepted";
 
-    public static  final  String REQUEST_IS_SUCCESS="Request is Success";
+    public static final String REQUEST_IS_SUCCESS = "Request is Success";
 
-    public static  final String CONFLICT_OCCURS ="Conflict Occurs";
+    public static final String CONFLICT_OCCURS = "Conflict Occurs";
 
     public static final String ONE_OR_MORE_INPUT_PARAMETER_IS_INVALID = "One or more input parameter is invalid";
     public static final String ONE_OR_MORE_FIELD_PROVIDED_ARE_INVALID = "One or more field provided are invalid";
@@ -106,7 +106,7 @@ public class RestClient {
             System.out.println(STATUS_CODE_IS + response.code() + REQUEST_IS_SUCCESS);
             return response;
         } else if (statusCode == 202) {
-            System.out.println(STATUS_CODE_IS + response.code() + REQUEST_IS_ACCEPTED );
+            System.out.println(STATUS_CODE_IS + response.code() + REQUEST_IS_ACCEPTED);
             return response;
         } else if (statusCode == 409) {
             System.out.println(STATUS_CODE_IS + response.code() + CONFLICT_OCCURS);

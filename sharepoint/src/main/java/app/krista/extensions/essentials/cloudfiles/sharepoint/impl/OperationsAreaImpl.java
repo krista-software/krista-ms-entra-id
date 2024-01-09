@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaListImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaSiteImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -28,7 +27,8 @@ public class OperationsAreaImpl {
 
     @Inject
     public OperationsAreaImpl(GraphServiceClientProviderFactory clientProviderFactory,
-                              OperationsAreaListImpl operationsAreaListImpl, OperationsAreaSiteImpl operationsAreaSiteImpl) {
+                              OperationsAreaListImpl operationsAreaListImpl,
+                              OperationsAreaSiteImpl operationsAreaSiteImpl) {
         this.clientProvider = clientProviderFactory.create();
         this.operationsAreaListImpl = operationsAreaListImpl;
         this.operationsAreaSiteImpl = operationsAreaSiteImpl;
