@@ -5,6 +5,7 @@ import app.krista.extension.executor.SearchQuery;
 import app.krista.extension.util.EntityStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import org.jvnet.hk2.annotations.Service;
 
@@ -52,15 +53,7 @@ public class FileDetailsStore implements EntityStore<File> {
     @Deprecated
     @Override
     public List<File> search(List<SearchCondition> conditions, long pageIndex, int pageSize) {
-        List<File> fileDetails = new ArrayList<>();
-        for (SearchCondition con : conditions) {
-            String matchPattern = con.getOperand() != null ? String.valueOf(con.getOperand()).trim() : "";
-            String selector = con.getFieldName();
-            if ("Name".equalsIgnoreCase(selector)) {
-                fileDetails = fileDao.getFilesByFilter(matchPattern, selector, pageIndex, pageSize).stream().map(CatalogTypes::fromFile).collect(Collectors.toList());
-            }
-        }
-        return fileDetails;
+        return new ArrayList<>();
     }
 
     @Override

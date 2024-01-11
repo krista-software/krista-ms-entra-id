@@ -3,7 +3,6 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.List;
 
 public class Constants {
 
@@ -196,6 +195,8 @@ public class Constants {
 
     public static final String CREATED = "created";
 
+    public static final String UPDATED = "updated";
+
     public static final String NO_FILE_TO_PARSE = "No file to parse";
 
     public static final String FILE_NAME_IS_EMPTY = "File name is empty";
@@ -255,6 +256,31 @@ public class Constants {
     public static final String THERE_IS_NO_VERSION_HISTORY = "There is no version history for this file";
 
     public static final String FOUND_VERSION_HISTORY_FOR_FILE = "Found version history for file";
+
+    public static final String REST_SHAREPOINT_MAIL_NOTIFICATION = "/rest/sharepoint/fileNotification";
+
+    public static final String YYYY_MM_DD_T_HH_MM_SS_SSSSSSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'";
+
+    public static final String REST_SHAREPOINT_LIFECYCLE_NOTIFICATION = "/rest/sharepoint/lifecycleNotification";
+
+    public static final String VALIDATION_TOKEN = "validationToken";
+
+    public static final String RESOURCE_DATA = "resourceData";
+
+    public static final String VALUE = "value";
+
+    public static final String MESSAGE_ID = "messageId";
+
+    public static final String MAIL_RECEIVED = "mailReceived";
+
+    public static final String SUBSCRIPTION_ID = "subscriptionId";
+
+    public static final String LIFECYCLE_EVENT = "lifecycleEvent";
+
+    public static final String SUBSCRIPTION_REMOVED = "subscriptionRemoved";
+
+    public static final String REAUTHORIZATION_REQUIRED = "reauthorizationRequired";
+
 
     private Constants() {
     }

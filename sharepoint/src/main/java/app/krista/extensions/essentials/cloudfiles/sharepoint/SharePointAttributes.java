@@ -87,6 +87,8 @@ public class SharePointAttributes {
     }
 
     public String getCallbackUrl() {
+        //return "http://localhost:8765/extension/api/d9x_syuTvCPaY1Iq7OQUBHQ_e_e/test/rest/sharepoint/callback";
+        //return "http://localhost:8765/extension/api/d9x_syuTvCPaY1Iq7OQUBHQ_e_e/draft/rest/sharepoint/callback";
         return "http://localhost:8765/extension/api/d9x_syuTvCPaY1Iq7OQUBHQ_e_e/rest/sharepoint/callback";
         //return routingUrl + Constants.REST_SHAREPOINT_CALLBACK;
     }

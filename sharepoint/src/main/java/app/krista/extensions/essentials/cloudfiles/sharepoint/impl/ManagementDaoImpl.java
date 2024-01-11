@@ -180,4 +180,13 @@ public class ManagementDaoImpl {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
+
+    public Map<String, Object> whenAFileIsChanged(String source, String event, String search) {
+        try {
+            return fileVersionSearchDao.whenAFileIsChanged(source, event, search);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            throw new IllegalArgumentException(cause.getMessage(), cause);
+        }
+    }
+
 }

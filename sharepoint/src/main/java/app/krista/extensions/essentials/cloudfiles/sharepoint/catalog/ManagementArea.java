@@ -349,14 +349,9 @@ public class ManagementArea {
     @CatalogRequest(
             id = "localDomainRequest_799daa46-a5c5-47ad-9b39-094ee2b9d48d",
             name = "Changes Since",
-            description = "Produces a list of multifields that describes the recent updates within the folder denoted by " +
-                    "the source path between now and the provide since Date.  Updates are delivered a single multi-fields " +
-                    "with the following fields:  Path, Text describing the path to the file that was updated Update, " +
-                    "PickOne indicating what update took place e.g. Created, Updated, Deleted The list of updates is " +
-                    "non-recursive only including updates regarding filesystem entries within the given source path directly.  " +
-                    "The list of filesystem entries for which updates will be included can be filtered by providing " +
-                    "a valid regex in the optional Search Variable. If this variable is set and contains a valid regex " +
-                    "it will be applied to all entries inside source path and only updates for matching entries will be included.",
+            description = "This endpoint produces a list of recent updates within a specified folder since a given date. " +
+                    "The updates include information about the path, file status (e.g., Created, Updated, Deleted), and " +
+                    "can be filtered using an optional regex in the search variable.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Result", type = "[ { Path: Text, Date: Date, Update: PickOne(Created|Updated|Deleted) } ]",required = false)
@@ -369,4 +364,21 @@ public class ManagementArea {
         return managementDao.getVersionHistory(sourcePath, search, since);
     }
 
+    @CatalogRequest(
+            id = "localDomainRequest_15e1db59-62a4-41a7-a136-cc92f3eb3b2f",
+            name = "When a File is Changed",
+            description = "Monitors the Cloud Storage for changes. When a change arrives and the affected files/folders " +
+                    "match the source path and event type, the event will be triggered.",
+            area = "Management",
+            type = CatalogRequest.Type.WAIT_FOR_EVENT)
+    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.PickOne(name = "Event", values = {"Created","Updates","Deleted","Shared"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public Map<String, Object> whenAFileIsChanged(
+            @Field(name = "eventName", type = "Text") String eventName,
+            @Field(name = "eventData", type = "FreeForm") FreeForm eventData,
+            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
+            @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted","Shared"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
+            @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search) {
+        return managementDao.whenAFileIsChanged(source, event, search);
+    }
 }

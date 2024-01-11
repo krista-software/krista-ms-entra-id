@@ -1,8 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
-import com.microsoft.graph.models.DriveItem;
-
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -82,4 +81,17 @@ public class FileUtil {
 
         return filePath.getFileName() != null && filePath.getFileName().toString().contains(".");
     }
+
+    public static String getExtractBaseUrl(String URL) {
+        URI uri = URI.create(URL);
+
+        // Extract the subdomain using host() and substring() methods
+        String subdomain = uri.getHost();
+        int index = subdomain.indexOf("-");
+        if (index != -1) {
+            subdomain = subdomain.substring(0, index); // Remove any trailing parts
+        }
+        return subdomain;
+    }
+
 }

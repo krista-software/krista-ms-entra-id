@@ -9,6 +9,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
+import com.microsoft.graph.models.File;
 import com.microsoft.graph.models.SearchRequest;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.PermissionCollectionPage;
@@ -157,7 +158,7 @@ public class FileDaoImpl implements FileDao {
                         break;  // No more results available
                     }
                     totalFetched += page.getCurrentPage().size();
-                    if (page.getCurrentPage().size() < 25) {
+                    if (page.getCurrentPage().size() < Math.min(25, pageSize - totalFetched % pageSize)) {
                         break;
                     }
                 }
@@ -168,7 +169,7 @@ public class FileDaoImpl implements FileDao {
             int endIndex = Math.min(startIndex + pageSize, cachedFiles.size());
             return cachedFiles.subList(startIndex, endIndex);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
+            LOGGER.error("Error during file search: {} {} ", cause.getMessage(), cause);
             return Collections.emptyList();
         }
     }

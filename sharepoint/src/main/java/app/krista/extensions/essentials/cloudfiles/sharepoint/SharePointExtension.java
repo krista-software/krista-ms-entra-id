@@ -8,6 +8,7 @@ import app.krista.extension.impl.anno.InvokerRequest;
 import app.krista.extension.impl.anno.StaticResource;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.MailSubscription;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 
@@ -19,7 +20,7 @@ import java.util.Map;
 @Field.Text(value = SharePointAttributes.TENANT_ID, isSecured = true)
 @Field.Text(value = SharePointAttributes.EMAIL)
 @Field.Boolean(value = SharePointAttributes.ALLOW_ALERT_MAIL, required = false)
-@Extension(version = "2.0.0-rc1")
+@Extension(version = "2.0.0-rc2")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {
 
@@ -63,6 +64,7 @@ public class SharePointExtension {
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
         }
+        MailSubscription.createSubscription(routingUrl, clientProviderFactory.create(attributes));
     }
 
     @InvokerRequest(InvokerRequest.Type.TEST_CONNECTION)

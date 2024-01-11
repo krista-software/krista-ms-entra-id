@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -8,6 +9,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.*;
+import com.microsoft.graph.requests.DriveItemCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
@@ -33,10 +35,16 @@ public class FileSearchImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchImpl.class);
     private final GraphServiceClientProvider clientProvider;
+    private final SharePointAttributes sharePointAttributes;
+    private final GraphServiceClientProviderFactory clientProviderFactory;
+
 
     @Inject
-    public FileSearchImpl(GraphServiceClientProviderFactory factory) {
+    public FileSearchImpl(GraphServiceClientProviderFactory factory, SharePointAttributes sharePointAttributes,
+                          GraphServiceClientProviderFactory clientProviderFactory) {
         this.clientProvider = factory.create();
+        this.sharePointAttributes = sharePointAttributes;
+        this.clientProviderFactory = clientProviderFactory;
     }
 
     public LinkedList<SearchRequest> buildSearchRequestList(String filePath) {
@@ -49,42 +57,56 @@ public class FileSearchImpl {
 
     public SearchQuery buildQueryString(String name, String selector) {
         SearchQuery query = new SearchQuery();
+        String domainName = getDomainName();
+        String personalDrivePath = getDomainPath(domainName, false);
 
         if ("Extension".equals(selector)) {
-            query.queryString = "isDocument=true AND filetype:" + name;
+            query.queryString = "isDocument=true AND filetype:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Owner".equals(selector)) {
-            query.queryString = "CreatedBy:" + name;
+            query.queryString = "CreatedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Absolute Path".equals(selector)) {
-            name = handleAbsolutePath(name);
+            String siteDomainPath = getDomainPath(domainName, true);
+            name = handleAbsolutePath(name,siteDomainPath);
             query.queryString = "path:\"" + name + "\"";
         } else if ("Created By".equals(selector)) {
-            query.queryString = "CreatedBy:" + name;
+            query.queryString = "CreatedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Modified By".equals(selector)) {
-            query.queryString = "ModifiedBy:" + name;
+            query.queryString = "ModifiedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Created".equals(selector)) {
             name = DriveUtil.DoubleToDateConversion(name);
-            query.queryString = "Created = " + name;
+            query.queryString = "Created = " + name + " AND NOT path:\"" + personalDrivePath + "\"";;
         } else if ("Modified".equals(selector)) {
             name = DriveUtil.DoubleToDateConversion(name);
-            query.queryString = "LastModifiedTime = " + name;
+            query.queryString = "LastModifiedTime = " + name + " AND NOT path:\"" + personalDrivePath + "\"";;
         } else {
-            query.queryString = "isDocument=true AND " + name;
+            query.queryString = "isDocument=true AND " + name + " AND NOT path:\"" + personalDrivePath + "\"";;
         }
         return query;
     }
 
-    public static String handleAbsolutePath(String name) {
-        if (name.startsWith(Constants.DOMAIN_PATH)) {
-            if(!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
+    public String handleAbsolutePath(String name, String siteDomainPath) {
+        name = name.replace(Constants.WHITE_SPACE, " ");
+        if (name.startsWith(siteDomainPath)) {
+            if (!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
                 name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
             }
         } else {
-            name = Constants.DOMAIN_PATH + name;
-            if(!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
+            name = siteDomainPath + name;
+            if (!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
                 name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
             }
         }
         return name;
+    }
+
+    public String getDomainPath(String domain, boolean flag) {
+        String domainPath = null;
+        if (flag) {
+            domainPath = "https://"+domain+".sharepoint.com/sites";
+        } else if (!flag) {
+            domainPath = "https://"+domain+"-my.sharepoint.com/personal/";
+        }
+        return domainPath;
     }
 
     public SearchRequest buildSearchRequest() {
@@ -127,9 +149,9 @@ public class FileSearchImpl {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
-                                //if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
-                                files.add(new DriveImpl(driveItem, null, null, clientProvider));
-                                //}
+                                if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
+                                    files.add(new DriveImpl(driveItem, null, null, clientProvider));
+                                }
                             }
                         }
                     }
@@ -182,5 +204,23 @@ public class FileSearchImpl {
         return driveItem;
     }
 
+    public String getDomainName() {
+        String domainName = null;
+        if (sharePointAttributes.getMailId() != null && !sharePointAttributes.getMailId().isBlank()) {
+            DriveItemCollectionPage page = clientProviderFactory.create(sharePointAttributes)
+                    .getGraphServiceClientForAdmin()
+                    .me().drive().root().children().buildRequest().get();
+
+            if (page != null && !page.getCurrentPage().isEmpty()) {
+                for (DriveItem driveInPage : page.getCurrentPage()) {
+                    if (driveInPage != null && driveInPage.webUrl != null) {
+                        domainName = FileUtil.getExtractBaseUrl(driveInPage.webUrl);
+                        break;
+                    }
+                }
+            }
+        }
+        return domainName;
+    }
 
 }

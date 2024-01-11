@@ -82,8 +82,8 @@ public class ManagementUtilityService {
     public DriveItem getFileByAbsolutePath(String filePath, GraphServiceClient<Request> graphClient) {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
-            filePath = filePath.replace(Constants.WHITE_SPACE, " ");
-            filePath = fileSearchImpl.handleAbsolutePath(filePath);
+            String siteDomainPath = fileSearchImpl.getDomainPath(fileSearchImpl.getDomainName(), true);
+            filePath = fileSearchImpl.handleAbsolutePath(filePath, siteDomainPath);
             DriveItem driveItem = new DriveItem();  // Initialize the result page
             try {
                 LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
