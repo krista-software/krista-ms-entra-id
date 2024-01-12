@@ -1,0 +1,23 @@
+package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
+
+import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class FileChangeResourceUtil {
+
+    private FileChangeResourceUtil() {
+    }
+
+    private static Map<String, DriveItemDeltaCollectionPage> FILE_CHANGE_RESOURCE = new HashMap<>();
+
+    public static void addFileMetaData(String routingURL, DriveItemDeltaCollectionPage page) {
+        FILE_CHANGE_RESOURCE.put(routingURL, page);
+    }
+
+    public static DriveItemDeltaCollectionPage getFileChangeResource(String routingURL) {
+        return FILE_CHANGE_RESOURCE.get(routingURL);
+    }
+
+}

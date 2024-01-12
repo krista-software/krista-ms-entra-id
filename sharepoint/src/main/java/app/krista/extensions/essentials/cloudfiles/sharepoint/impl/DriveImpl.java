@@ -19,14 +19,12 @@ public class DriveImpl implements FileService {
 
     private final DriveItem driveItem;
     private final PermissionCollectionPage permissionCollectionPage;
-    private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProvider clientProvider;
 
     public DriveImpl(DriveItem driveItem, PermissionCollectionPage permissionCollectionPage,
-                     SharePointAttributes sharePointAttributes, GraphServiceClientProvider clientProvider) {
+                     GraphServiceClientProvider clientProvider) {
         this.driveItem = driveItem;
         this.permissionCollectionPage = permissionCollectionPage;
-        this.sharePointAttributes = sharePointAttributes;
         this.clientProvider = clientProvider;
     }
 

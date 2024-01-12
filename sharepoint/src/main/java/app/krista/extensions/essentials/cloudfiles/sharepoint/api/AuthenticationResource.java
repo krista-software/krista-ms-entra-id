@@ -164,17 +164,9 @@ public final class AuthenticationResource {
     public Response subscriptionNotification(JsonObject notification) {
         JsonArray array = notification.get(Constants.VALUE).getAsJsonArray();
         for (int i = 0; i < array.size(); i++) {
-            String messageId = array.get(i).getAsJsonObject().get(Constants.RESOURCE_DATA).
-                    getAsJsonObject().get(Constants.ID).getAsString();
-            //when mailNotification endpoint is called two times or more by Microsoft GraphAPI on same messageId
-            // which causes mail receive alert wait for event triggered two times or more, to avoid such case we are
-            // using isDuplicateMessageID to break the loop.
-            if (isDuplicateMessageID(messageId)) {
-                break;
-            }
             FreeForm freeForm = new FreeForm();
-            freeForm.put(Constants.MESSAGE_ID, Constants.TEXT, messageId);
-            eventHandler.handleEvent(Constants.MAIL_RECEIVED, freeForm);
+            freeForm.put(Constants.SHAREPOINT_FILE_ID,Constants.SWITCH, true);
+            eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
         }
         return Response.status(200).build();
     }

@@ -15,9 +15,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
-public class MailSubscription {
+public class SharePointSubscription {
 
-    private MailSubscription() {
+    private SharePointSubscription() {
     }
 
     /**
@@ -28,7 +28,8 @@ public class MailSubscription {
      */
     public static void createSubscription(String routingUrl, GraphServiceClientProvider provider) {
         try {
-            Subscription subscription = setSubscriptionParameters(routingUrl, provider.getSharePointAttributes().getMailId());
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app","https://4d24-125-19-87-178.ngrok-free.app") : routingUrl, provider.getSharePointAttributes().getMailId());
+            //Subscription subscription = setSubscriptionParameters(routingUrl.contains(routingUrl, "https://4d24-125-19-87-178.ngrok-free.app") , provider.getSharePointAttributes().getMailId());
 
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {

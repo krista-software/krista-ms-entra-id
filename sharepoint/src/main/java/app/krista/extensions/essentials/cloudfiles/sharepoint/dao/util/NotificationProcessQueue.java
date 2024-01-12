@@ -3,11 +3,10 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 import app.krista.extension.executor.Invoker;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.MailSubscription;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.google.gson.JsonArray;
-import org.jvnet.hk2.annotations.Service;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,9 +32,10 @@ public class NotificationProcessQueue {
             String subscriptionId = array.get(i).getAsJsonObject().get(Constants.SUBSCRIPTION_ID).getAsString();
             String lifecycleEvent = array.get(i).getAsJsonObject().get(Constants.LIFECYCLE_EVENT).getAsString();
             if (lifecycleEvent.equalsIgnoreCase(Constants.SUBSCRIPTION_REMOVED)) {
-                MailSubscription.createSubscription(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE), providerFactory.create());
+                //SharePointSubscription.createSubscription(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE), providerFactory.create());
+                SharePointSubscription.createSubscription(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).contains("https://extension.local.eng.krista.app") ? invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).replace("https://extension.local.eng.krista.app","https://4d24-125-19-87-178.ngrok-free.app") : invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE), providerFactory.create());
             } else if (lifecycleEvent.equalsIgnoreCase(Constants.REAUTHORIZATION_REQUIRED)) {
-                MailSubscription.renewSubscription(providerFactory.create(), subscriptionId);
+                SharePointSubscription.renewSubscription(providerFactory.create(), subscriptionId);
             }
         }
     }

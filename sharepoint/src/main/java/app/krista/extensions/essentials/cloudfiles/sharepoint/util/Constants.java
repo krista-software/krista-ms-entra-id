@@ -281,6 +281,17 @@ public class Constants {
 
     public static final String REAUTHORIZATION_REQUIRED = "reauthorizationRequired";
 
+    public static final String FILE_RECEIVED = "fileReceived";
+
+    public static final String EVENT = "Event";
+
+    public static final String DELETED = "Deleted";
+
+    public static final String SHAREPOINT_FILE_ID = "sharePointFileId";
+
+    public static final String SWITCH = "Switch";
+
+
 
     private Constants() {
     }

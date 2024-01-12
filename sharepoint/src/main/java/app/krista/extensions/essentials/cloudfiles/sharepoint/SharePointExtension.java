@@ -8,7 +8,7 @@ import app.krista.extension.impl.anno.InvokerRequest;
 import app.krista.extension.impl.anno.StaticResource;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.MailSubscription;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 
@@ -64,7 +64,7 @@ public class SharePointExtension {
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
         }
-        MailSubscription.createSubscription(routingUrl, clientProviderFactory.create(attributes));
+        SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(attributes));
     }
 
     @InvokerRequest(InvokerRequest.Type.TEST_CONNECTION)

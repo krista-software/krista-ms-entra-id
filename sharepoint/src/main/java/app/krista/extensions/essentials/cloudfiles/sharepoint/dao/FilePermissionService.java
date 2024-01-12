@@ -54,7 +54,7 @@ public class FilePermissionService {
         } else if (permission.grantedToIdentities != null) {
             for (IdentitySet identitySet : permission.grantedToIdentities) {
                 if (identitySet.user != null) {
-                    result.add(findOrCreateUser(mapList, identitySet.user.displayName));
+                    result.add(findOrCreateUser(mapList, String.valueOf(identitySet.user.additionalDataManager().get("email"))));
                 }
             }
         }

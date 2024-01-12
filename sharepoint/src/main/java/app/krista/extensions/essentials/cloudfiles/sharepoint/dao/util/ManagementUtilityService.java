@@ -106,13 +106,13 @@ public class ManagementUtilityService {
         }
     }
 
-    protected DriveItem getRootFolderByAbsolutePath(String filePath) {
+    public DriveItem getRootFolderByAbsolutePath(String filePath) {
         LOGGER.info("Searching for files with name: {}", filePath);
         if (filePath != null) {
             filePath = filePath.replace(Constants.WHITE_SPACE, " ");
             DriveItem driveItem = new DriveItem();  // Initialize the result page
             try {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(true, null);
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
                 LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 

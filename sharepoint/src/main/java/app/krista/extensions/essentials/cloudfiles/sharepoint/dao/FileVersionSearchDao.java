@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,10 +148,5 @@ public class FileVersionSearchDao {
         payload.put(Constants.SUCCESS, false);
     }
 
-    public Map<String, Object> whenAFileIsChanged(String source, String event, String search) {
-        LOGGER.info(" info : " + source);
-        LOGGER.info(" event : " + event);
-        LOGGER.info(" search : " + search);
-        return new HashMap<>();
-    }
+
 }

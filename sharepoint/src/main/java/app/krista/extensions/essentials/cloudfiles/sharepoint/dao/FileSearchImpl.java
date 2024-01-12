@@ -3,6 +3,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveSharedPermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -74,12 +75,12 @@ public class FileSearchImpl {
             query.queryString = "ModifiedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Created".equals(selector)) {
             name = DriveUtil.DoubleToDateConversion(name);
-            query.queryString = "Created = " + name + " AND NOT path:\"" + personalDrivePath + "\"";;
+            query.queryString = "Created = " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Modified".equals(selector)) {
             name = DriveUtil.DoubleToDateConversion(name);
-            query.queryString = "LastModifiedTime = " + name + " AND NOT path:\"" + personalDrivePath + "\"";;
+            query.queryString = "LastModifiedTime = " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else {
-            query.queryString = "isDocument=true AND " + name + " AND NOT path:\"" + personalDrivePath + "\"";;
+            query.queryString = "isDocument=true AND " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         }
         return query;
     }
@@ -150,7 +151,7 @@ public class FileSearchImpl {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
                                 if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
-                                    files.add(new DriveImpl(driveItem, null, null, clientProvider));
+                                    files.add(new DriveImpl(driveItem, null, clientProvider));
                                 }
                             }
                         }

@@ -31,6 +31,7 @@ public class ManagementDaoImpl {
     private final DriveTextFileManager driveTextFileService;
     private final FileSearchFilterByRange fileSearchFilterByRange;
     private final FileVersionSearchDao fileVersionSearchDao;
+    private final HandleFileIsChanged handleFileIsChanged;
 
 
     @Inject
@@ -38,7 +39,8 @@ public class ManagementDaoImpl {
                              FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
                              SharedFileDao sharedFileDao, FileTransferService copyFileDao, FileDownloadService fileDownloadService,
                              FileUploadService fileUploadService, DriveTextFileManager driveTextFileService,
-                             FileSearchFilterByRange fileSearchFilterByRange,FileVersionSearchDao fileVersionSearchDao) {
+                             FileSearchFilterByRange fileSearchFilterByRange,FileVersionSearchDao fileVersionSearchDao,
+                             HandleFileIsChanged handleFileIsChanged) {
         this.provider = factory.create();
         this.fileManagementDao = fileManagementDao;
         this.folderManagementDao = folderManagementDao;
@@ -50,6 +52,7 @@ public class ManagementDaoImpl {
         this.driveTextFileService = driveTextFileService;
         this.fileSearchFilterByRange = fileSearchFilterByRange;
         this.fileVersionSearchDao = fileVersionSearchDao;
+        this.handleFileIsChanged = handleFileIsChanged;
     }
 
 
@@ -181,9 +184,9 @@ public class ManagementDaoImpl {
         }
     }
 
-    public Map<String, Object> whenAFileIsChanged(String source, String event, String search) {
+    public Map<String, Object> whenAFileIsChanged(String source, String search) {
         try {
-            return fileVersionSearchDao.whenAFileIsChanged(source, event, search);
+            return handleFileIsChanged.getChangeFileEvent(source, search);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

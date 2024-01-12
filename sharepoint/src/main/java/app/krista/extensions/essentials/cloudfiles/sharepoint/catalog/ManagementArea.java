@@ -360,7 +360,7 @@ public class ManagementArea {
     public Map<String, Object> changesSince(
             @Field.Text(name = "Source Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String sourcePath,
             @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search,
-            @Field.Date(name = "Since", required = false, includeTimeOfDay = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = false, allowFuture = false, defaultTimeSpan = 1, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})  Long since) {
+            @Field.Date(name = "Since", required =  true, includeTimeOfDay = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = false, allowFuture = false, defaultTimeSpan = 1, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})  Long since) {
         return managementDao.getVersionHistory(sourcePath, search, since);
     }
 
@@ -379,6 +379,11 @@ public class ManagementArea {
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
             @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted","Shared"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
             @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search) {
-        return managementDao.whenAFileIsChanged(source, event, search);
+        Map<String, Object> fileStatus = managementDao.whenAFileIsChanged(source,search);
+        if (eventName.equalsIgnoreCase(Constants.FILE_RECEIVED) && fileStatus.get(Constants.EVENT).equals(event)) {
+            return fileStatus;
+        }
+        throw new IllegalStateException("Invalid Input");
     }
+
 }
