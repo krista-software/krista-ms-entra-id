@@ -66,8 +66,8 @@ public class HandleFileIsChanged {
         }
     }
 
-
     public Map<String, Object> getChangeFileEvent(String source, String search) {
+        System.out.println(" getChangeFileEvent started "+source+" "+search+" "+routingUrl);
         Map<String, Object> payload = new HashMap<>();
         try {
             if (source != null) {
@@ -97,6 +97,7 @@ public class HandleFileIsChanged {
             LOGGER.error(" {} : {} ", Constants.ERROR_DESCRIPTION, cause);
             ResponseUtil.successResponse(false, Constants.FILE_NOT_FOUND, payload);
         }
+        System.out.println(" getChangeFileEvent started "+source+" "+search+" "+routingUrl);
         return payload;
     }
 
@@ -250,7 +251,7 @@ public class HandleFileIsChanged {
     private void processFolder(DriveItem driveItem, Map<String, Object> payload, String search) {
         try {
             assert driveItem.id != null;
-            DriveItemCollectionPage collectionPage = getUserRequestBuilder().drive().items(driveItem.id).children().buildRequest().get();
+            DriveItemCollectionPage collectionPage = getUserRequestBuilder().drives(driveItem.parentReference.driveId).items(driveItem.id).children().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
                 for (DriveItem folderItem : collectionPage.getCurrentPage()) {
                     if (folderItem.parentReference != null && isFileDeleted(folderItem.parentReference.path + "/" + folderItem.name, search, payload)) {
@@ -274,9 +275,7 @@ public class HandleFileIsChanged {
         }
     }
 
-    private boolean checkIfFileIsCreated(String source, String
-            search, Map<String, Object> payload, DriveItem
-                                                 folderItem) {
+    private boolean checkIfFileIsCreated(String source, String search, Map<String, Object> payload, DriveItem folderItem) {
         if (FileChangeResourceUtil.getFileChangeResource(routingUrl) != null) {
             DriveItemDeltaCollectionPage page = FileChangeResourceUtil.getFileChangeResource(routingUrl);
             while (page != null && !page.getCurrentPage().isEmpty()) {
@@ -314,7 +313,6 @@ public class HandleFileIsChanged {
         if (source == null || source.isBlank()) {
             return driveItem;
         }
-        GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
         driveItem = managementUtilityService.getRootFolderByAbsolutePath(source);
         return driveItem;
     }

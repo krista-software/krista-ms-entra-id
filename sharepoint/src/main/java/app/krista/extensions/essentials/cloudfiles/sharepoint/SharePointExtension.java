@@ -8,7 +8,9 @@ import app.krista.extension.impl.anno.InvokerRequest;
 import app.krista.extension.impl.anno.StaticResource;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.HandleFileIsChanged;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileChangeResourceUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 
@@ -19,8 +21,8 @@ import java.util.Map;
 @Field.Text(value = SharePointAttributes.CLIENT_SECRET, isSecured = true)
 @Field.Text(value = SharePointAttributes.TENANT_ID, isSecured = true)
 @Field.Text(value = SharePointAttributes.EMAIL)
-@Field.Boolean(value = SharePointAttributes.ALLOW_ALERT_MAIL, required = false)
-@Extension(version = "2.0.0-rc2")
+@Field.Boolean(value = SharePointAttributes.ALLOW_GROUP_ALERT, required = false)
+@Extension(version = "2.0.0-rc1")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {
 
@@ -28,22 +30,24 @@ public class SharePointExtension {
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
     private final SharePointRequestAuthenticator requestAuthenticator;
+    private final HandleFileIsChanged fileIsChanged;
 
     @Inject
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
                                GraphServiceClientProviderFactory clientProviderFactory,
-                               SharePointAttributeStore sharePointAttributeStore) {
+                               SharePointAttributeStore sharePointAttributeStore,HandleFileIsChanged fileIsChanged) {
         this(invoker, sharePointAttributes, clientProviderFactory,
-                new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes));
+                new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes),fileIsChanged);
     }
 
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
                                GraphServiceClientProviderFactory clientProviderFactory,
-                               SharePointRequestAuthenticator requestAuthenticator) {
+                               SharePointRequestAuthenticator requestAuthenticator,HandleFileIsChanged fileIsChanged) {
         this.routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
         this.sharePointAttributes = sharePointAttributes;
         this.clientProviderFactory = clientProviderFactory;
         this.requestAuthenticator = requestAuthenticator;
+        this.fileIsChanged = fileIsChanged;
     }
 
     @InvokerRequest(InvokerRequest.Type.AUTHENTICATOR)
@@ -64,7 +68,10 @@ public class SharePointExtension {
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
         }
-        SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(attributes));
+        if (sharePointAttributes.getAllowGroupAlert()) {
+            SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(attributes));
+        }
+        // FileChangeResourceUtil.addFileMetaData(routinßgUrl , fileIsChanged.createFileChangeResource()));
     }
 
     @InvokerRequest(InvokerRequest.Type.TEST_CONNECTION)
@@ -73,6 +80,9 @@ public class SharePointExtension {
             clientProviderFactory.create(sharePointAttributes)
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
+        }
+        if (sharePointAttributes.getAllowGroupAlert()) {
+            SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create());
         }
     }
 

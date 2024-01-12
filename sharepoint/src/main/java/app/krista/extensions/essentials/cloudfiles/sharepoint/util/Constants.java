@@ -195,7 +195,11 @@ public class Constants {
 
     public static final String CREATED = "created";
 
-    public static final String UPDATED = "updated";
+    public static final String UPDATED = "deleted,created,updated";
+
+    public static final String SITE_RESOURCE = "sites/kristasoft.sharepoint.com,371e158f-e040-4d03-ac50-571c5b53dbd6,281ed155-9843-4233-9808-918fbef08f89/drive/root";
+
+    public static final String GROUP_RESOURCE = "/groups/2f85131a-5592-47ee-958d-a92e995be064";
 
     public static final String NO_FILE_TO_PARSE = "No file to parse";
 
@@ -245,8 +249,6 @@ public class Constants {
 
     public static final int HTTP_STATUS_CONFLICT = 409;
 
-    public static final String DOMAIN_PATH = "https://kristasoft.sharepoint.com/sites";
-
     public static final String SHARED_DOCUMENT_PATH = "/Shared Documents/";
 
     public static final String DOCUMENT_PATH = "/Documents/";
@@ -257,7 +259,7 @@ public class Constants {
 
     public static final String FOUND_VERSION_HISTORY_FOR_FILE = "Found version history for file";
 
-    public static final String REST_SHAREPOINT_MAIL_NOTIFICATION = "/rest/sharepoint/fileNotification";
+    public static final String REST_SHAREPOINT_MAIL_NOTIFICATION = "/rest/sharepoint/sharePointNotification";
 
     public static final String YYYY_MM_DD_T_HH_MM_SS_SSSSSSS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'";
 

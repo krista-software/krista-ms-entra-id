@@ -31,7 +31,7 @@ public class SharePointAttributeStore {
                 (String) attributes.get(SharePointAttributes.CLIENT_ID),
                 (String) attributes.get(SharePointAttributes.CLIENT_SECRET),
                 (String) attributes.get(SharePointAttributes.EMAIL),
-                (Boolean) attributes.get(SharePointAttributes.ALLOW_ALERT_MAIL),
+                (Boolean) attributes.get(SharePointAttributes.ALLOW_GROUP_ALERT),
                 (String) attributes.get(SharePointAttributes.TENANT_ID));
     }
 
@@ -42,7 +42,7 @@ public class SharePointAttributeStore {
                 SharePointAttributes.CLIENT_SECRET, sharePointAttributes.getClientSecret(),
                 SharePointAttributes.TENANT_ID, sharePointAttributes.getTenantId(),
                 SharePointAttributes.EMAIL, sharePointAttributes.getMailId(),
-                SharePointAttributes.ALLOW_ALERT_MAIL, sharePointAttributes.isAllowAlertMail())));
+                SharePointAttributes.ALLOW_GROUP_ALERT, sharePointAttributes.getAllowGroupAlert())));
         return authContextId;
     }
 

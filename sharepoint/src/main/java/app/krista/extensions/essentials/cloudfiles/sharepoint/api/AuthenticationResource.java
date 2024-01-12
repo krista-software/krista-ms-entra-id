@@ -129,44 +129,26 @@ public final class AuthenticationResource {
         }
     }
 
-    /*For Mail Subscription Start*/
-
-    private boolean isDuplicateMessageID(String messageId) {
-
-        if (!triggeredMailIds.contains(messageId)) {
-            if (triggeredMailIds.size() >= MESSAGE_ID_CAPACITY) {
-                removeOldestMessageIds((MESSAGE_ID_CAPACITY + 100) - triggeredMailIds.size());
-            }
-            triggeredMailIds.add(messageId);
-            return false;
-        }
-
-        return true;
-    }
-
-    private void removeOldestMessageIds(int messageIDCount) {
-        for (String messageId : new ArrayList<>(triggeredMailIds).subList(0, messageIDCount)) {
-            triggeredMailIds.remove(messageId);
-        }
-    }
-
     /* SharePoint Mail Subscription Start */
     @POST
-    @Path("/fileNotification")
+    @Path("/sharePointNotification")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response subscriptionValidation(@QueryParam(Constants.VALIDATION_TOKEN) String validationToken) {
         return Response.status(200).type(MediaType.TEXT_PLAIN).entity(validationToken.trim()).build();
     }
 
     @POST
-    @Path("/fileNotification")
+    @Path("/sharePointNotification")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response subscriptionNotification(JsonObject notification) {
+        System.out.println(" subscriptionNotification JsonObject "+notification);
         JsonArray array = notification.get(Constants.VALUE).getAsJsonArray();
+        System.out.println("subscriptionNotification JsonObject "+array.size());
         for (int i = 0; i < array.size(); i++) {
             FreeForm freeForm = new FreeForm();
             freeForm.put(Constants.SHAREPOINT_FILE_ID,Constants.SWITCH, true);
             eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
+            System.out.println(" Method calling done ");
         }
         return Response.status(200).build();
     }

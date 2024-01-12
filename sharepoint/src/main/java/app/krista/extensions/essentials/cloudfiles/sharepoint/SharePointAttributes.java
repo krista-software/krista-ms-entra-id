@@ -20,13 +20,13 @@ public class SharePointAttributes {
     public static final String CLIENT_SECRET = "clientSecret";
     public static final String TENANT_ID = "tenantId";
     public static final String EMAIL = "email";
-    public static final String ALLOW_ALERT_MAIL = "allowAlertMail";
+    public static final String ALLOW_GROUP_ALERT = "allowGroupAlert";
 
     private final String routingUrl;
     private String clientId;
     private String clientSecret;
     private String mailId;
-    private Boolean allowAlertMail;
+    private Boolean allowGroupAlert;
     private String tenantId;
     private OAuth20Service oAuth20Service;
 
@@ -40,17 +40,17 @@ public class SharePointAttributes {
         this(routingUrl, InvokerAttributes.getStringOrNull(attributes, CLIENT_ID),
                 InvokerAttributes.getStringOrNull(attributes, CLIENT_SECRET),
                 InvokerAttributes.getStringOrNull(attributes, EMAIL),
-                InvokerAttributes.getBooleanOrDefault(attributes, ALLOW_ALERT_MAIL, false),
+                InvokerAttributes.getBooleanOrDefault(attributes, ALLOW_GROUP_ALERT, false),
                 InvokerAttributes.getStringOrNull(attributes, TENANT_ID));
     }
 
     public SharePointAttributes(String routingUrl, String clientId, String clientSecret, String mailId,
-                                boolean allowAlertMail, String tenantId) {
+                                boolean allowGroupAlert, String tenantId) {
         this.routingUrl = routingUrl;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.mailId = mailId;
-        this.allowAlertMail = allowAlertMail;
+        this.allowGroupAlert = allowGroupAlert;
         this.tenantId = tenantId;
     }
 
@@ -62,7 +62,7 @@ public class SharePointAttributes {
         clientId = InvokerAttributes.getStringOrNull(newAttributes, CLIENT_ID);
         clientSecret = InvokerAttributes.getStringOrNull(newAttributes, CLIENT_SECRET);
         mailId = InvokerAttributes.getStringOrNull(newAttributes, EMAIL);
-        allowAlertMail = InvokerAttributes.getBooleanOrDefault(newAttributes, ALLOW_ALERT_MAIL, false);
+        allowGroupAlert = InvokerAttributes.getBooleanOrDefault(newAttributes, ALLOW_GROUP_ALERT, false);
         tenantId = InvokerAttributes.getStringOrNull(newAttributes, TENANT_ID);
     }
 
@@ -82,16 +82,16 @@ public class SharePointAttributes {
         return mailId;
     }
 
-    public boolean isAllowAlertMail() {
-        return allowAlertMail != null && allowAlertMail;
+    public boolean getAllowGroupAlert() {
+        return allowGroupAlert != null && allowGroupAlert;
     }
 
     public String getCallbackUrl() {
-        return "http://localhost:8765/extension/api/bVEgszmxVA_skmHPEtI1Pjg_e_e/rest/sharepoint/callback";
+        //return "http://localhost:8765/extension/api/bVEgszmxVA_skmHPEtI1Pjg_e_e/rest/sharepoint/callback";
         //return "http://localhost:8765/extension/api/d9x_syuTvCPaY1Iq7OQUBHQ_e_e/test/rest/sharepoint/callback";
         //return "http://localhost:8765/extension/api/d9x_syuTvCPaY1Iq7OQUBHQ_e_e/draft/rest/sharepoint/callback";
         //return "http://localhost:8765/extension/api/d9x_syuTvCPaY1Iq7OQUBHQ_e_e/rest/sharepoint/callback";
-        //return routingUrl + Constants.REST_SHAREPOINT_CALLBACK;
+        return routingUrl + Constants.REST_SHAREPOINT_CALLBACK;
     }
 
     public synchronized OAuth20Service getOAuth20Service() {
