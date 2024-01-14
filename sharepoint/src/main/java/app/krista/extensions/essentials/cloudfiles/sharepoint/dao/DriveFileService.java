@@ -1,7 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -41,15 +42,17 @@ import java.util.stream.Collectors;
 public class DriveFileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DriveFileService.class);
-
     private final GraphServiceClientProvider provider;
+    private final ManagementUtilityService managementUtilityService;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
-    private final SharePointAttributes sharePointAttributes;
 
     @Inject
-    public DriveFileService(GraphServiceClientProviderFactory factory, SharePointAttributes sharePointAttributes) {
+    public DriveFileService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
+                            FileSearchUtilityService fileSearchUtilityService) {
         this.provider = factory.create();
-        this.sharePointAttributes = sharePointAttributes;
+        this.managementUtilityService = managementUtilityService;
+        this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
@@ -59,6 +62,7 @@ public class DriveFileService {
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload; // Exit the method early
             }
+            sourcePath = managementUtilityService.getUpdatedFilePath(sourcePath);
             DriveItem driveItem = checkIfFileExist(sourcePath, payload, useEmail, accountID);
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
@@ -320,7 +324,7 @@ public class DriveFileService {
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload;
             }
-
+            relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
             DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
             if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
                 String refinedRelativePath = DriveUtil.getRelativePath(relativePath);
@@ -353,17 +357,14 @@ public class DriveFileService {
 
     public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload, String absolutePath) {
         try {
-            DriveItem driveItem = provider.getUserRequestBuilder(useEmail, accountID)
-                    .drives(driveID)
-                    .root()
-                    .itemWithPath(relativePath)
-                    .buildRequest()
-                    .get();
+            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
+
+            DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
 
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload, absolutePath);
             } else {
-                files.add(new DrivePermissionImpl(driveItem, provider));
+                files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
                 ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -372,27 +373,29 @@ public class DriveFileService {
     }
 
     private void iterateAndAddFilesToCollection(List<FileService> files, String search, String driveID, String relativePath, boolean useEmail, String accountID, FreeForm payload, String absolutePath) {
-        DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID)
-                .drives(driveID)
-                .root()
-                .itemWithPath(relativePath)
-                .children()
-                .buildRequest()
-                .get();
+        try {
+            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
 
-        while (page != null && !page.getCurrentPage().isEmpty()) {
-            for (DriveItem driveInPage : page.getCurrentPage()) {
-                if (isSearchCriteriaMatched(search, driveInPage)) {
-                    files.add(new FileImpl(driveInPage, provider, absolutePath + "/" + driveInPage.name, absolutePath));
+            DriveItemCollectionPage page = graphClient.drives(driveID).root().itemWithPath(relativePath).children()
+                    .buildRequest().get();
+
+            while (page != null && !page.getCurrentPage().isEmpty()) {
+                for (DriveItem driveInPage : page.getCurrentPage()) {
+                    if (isSearchCriteriaMatched(search, driveInPage)) {
+                        files.add(new FileImpl(driveInPage, graphClient, absolutePath + "/" + driveInPage.name, absolutePath, fileSearchUtilityService));
+                    }
+                }
+
+                if (page.getNextPage() != null) {
+                    page = page.getNextPage().buildRequest().get();
+                } else {
+                    ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                    break;
                 }
             }
-
-            if (page.getNextPage() != null) {
-                page = page.getNextPage().buildRequest().get();
-            } else {
-                ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
-                break;
-            }
+        } catch (Exception cause) {
+            LOGGER.error(" {} : {} ", Constants.ERROR_DESCRIPTION, cause);
+            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
         }
     }
 

@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -38,16 +39,16 @@ import java.util.stream.Collectors;
 public class FolderManagementDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FolderManagementDao.class);
-
     private final GraphServiceClientProvider provider;
-
     private final ManagementUtilityService managementUtilityService;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
     @Inject
-    public FolderManagementDao(GraphServiceClientProviderFactory factory,
-                               ManagementUtilityService managementUtilityService) {
+    public FolderManagementDao(GraphServiceClientProviderFactory factory,ManagementUtilityService managementUtilityService,
+                               FileSearchUtilityService fileSearchUtilityService) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
+        this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
     @NotNull
@@ -55,14 +56,14 @@ public class FolderManagementDao {
         FreeForm payload = new FreeForm();
         try {
             List<FileService> files = new ArrayList<>();
-            if (relativePath != null) {
-                DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
-                if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
-                    relativePath = DriveUtil.getRelativePath(relativePath);
-                    getRootFilesByDriveIDPath(driveItem.parentReference.driveId, relativePath, files, useEmail, accountID, search, payload);
-                } else {
-                    ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
-                }
+            if (relativePath == null || relativePath.isEmpty()) {
+                ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
+            }
+            relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
+            DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
+            if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
+                relativePath = DriveUtil.getRelativePath(relativePath);
+                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, relativePath, files, useEmail, accountID, search, payload);
             } else {
                 ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
             }
@@ -76,19 +77,19 @@ public class FolderManagementDao {
     public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files,
                                           boolean useEmail, String accountID, String search, FreeForm payload) {
         try {
-            DriveItem driveItem = provider.getUserRequestBuilder(useEmail, accountID).drives(driveID).root()
-                    .itemWithPath(relativePath).buildRequest().get();
+            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
+            DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
-                DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID).drives(driveID)
-                        .root().itemWithPath(relativePath).children().buildRequest().get();
+                DriveItemCollectionPage page = graphClient.drives(driveID).root().itemWithPath(relativePath).children()
+                        .buildRequest().get();
                 while (page != null && !page.getCurrentPage().isEmpty()) {
                     for (DriveItem driveInPage : page.getCurrentPage()) {
                         if (search != null && !search.isEmpty() && driveInPage.folder != null &&
                                 driveInPage.name != null && driveInPage.name.contains(search)) {
-                            files.add(new DrivePermissionImpl(driveInPage, provider));
+                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService));
                         }
                         if (search != null && search.isBlank() && driveInPage.folder != null) {
-                            files.add(new DrivePermissionImpl(driveInPage, provider));
+                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService));
                         }
                     }
                     if (page.getNextPage() != null) {
@@ -113,7 +114,7 @@ public class FolderManagementDao {
         DriveItem driveItem = new DriveItem();
         try {
             if (sourcePath != null) {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
                 driveItem = managementUtilityService.getFileByAbsolutePath(sourcePath, graphClient);
                 if (driveItem != null && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
                     ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);

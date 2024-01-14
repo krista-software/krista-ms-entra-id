@@ -66,7 +66,8 @@ public class FileDetailsStore implements EntityStore<File> {
             if ("Name".equalsIgnoreCase(selector) || "Extension".equalsIgnoreCase(selector) ||
                     "Owner".equalsIgnoreCase(selector) || "Absolute Path".equalsIgnoreCase(selector) ||
                     "Created By".equalsIgnoreCase(selector) || "Modified By".equalsIgnoreCase(selector) ||
-                    "Created".equalsIgnoreCase(selector) || "Modified".equalsIgnoreCase(selector)) {
+                    "Created".equalsIgnoreCase(selector) || "Modified".equalsIgnoreCase(selector) ||
+                    "Base Name".equalsIgnoreCase(selector) || "Size".equalsIgnoreCase(selector)) {
                 fileDetails = fileDao.getFilesByFilter(matchPattern, selector, pageIndex, pageSize).stream()
                         .map(CatalogTypes::fromFile).collect(Collectors.toList());
             }

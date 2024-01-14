@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
@@ -106,7 +107,7 @@ public class ManagementUtilityService {
         }
     }
 
-    public DriveItem getRootFolderByAbsolutePath(String filePath) {
+    public DriveItem getRootFolderByAbsolutePath(String filePath, Boolean flag) {
         LOGGER.info("Searching for files with name: {}", filePath);
         if (filePath != null) {
             filePath = filePath.replace(Constants.WHITE_SPACE, " ");
@@ -117,7 +118,7 @@ public class ManagementUtilityService {
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
-                    driveItem = fileSearchImpl.findDriveItemByFilePath(page, filePath, driveItem, true);
+                    driveItem = fileSearchImpl.findDriveItemByFilePath(page, filePath, driveItem, flag);
                 }
                 if (driveItem != null) {
                     return driveItem;
@@ -139,4 +140,12 @@ public class ManagementUtilityService {
         payload.put(Constants.SUCCESS, false);
     }
 
+    public String getUpdatedFilePath(String path) {
+        String domainName = fileSearchImpl.getDomainName();
+        String siteDomainPath = fileSearchImpl.getDomainPath(domainName, true);
+        if(!path.startsWith(File.separator)){
+            path = File.separator + path;
+        }
+        return fileSearchImpl.handleAbsolutePath(path, siteDomainPath);
+    }
 }

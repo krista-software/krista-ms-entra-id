@@ -2,6 +2,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.CopyFileUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -44,16 +45,19 @@ public class FileTransferService {
     private final OperationsManagementDao operationsManagementDao;
     private final ManagementUtilityService managementUtilityService;
     private final CopyFileUtilityService copyFileUtilityService;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
     @Inject
     public FileTransferService(GraphServiceClientProviderFactory factory,
                                OperationsManagementDao operationsManagementDao,
                                ManagementUtilityService managementUtilityService,
-                               CopyFileUtilityService copyFileUtilityService) {
+                               CopyFileUtilityService copyFileUtilityService,
+                               FileSearchUtilityService fileSearchUtilityService) {
         this.provider = factory.create();
         this.operationsManagementDao = operationsManagementDao;
         this.managementUtilityService = managementUtilityService;
         this.copyFileUtilityService = copyFileUtilityService;
+        this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
     public Map<String, Object> copyFile(String source, String target, Boolean replace, Boolean createFolder) {
@@ -61,11 +65,12 @@ public class FileTransferService {
         try {
             if (validateReplaceAndCreateFolderParameters(replace, createFolder, payload)) {
                 copyFileUtilityService.validateSourceAndTargetPaths(source, target, payload);
-
                 if ((boolean) payload.get(Constants.SUCCESS)) {
+                    source = managementUtilityService.getUpdatedFilePath(source);
                     DriveItem driveItemSource = managementUtilityService.checkIfFileExist(source, payload);
 
                     if ((boolean) payload.get(Constants.SUCCESS)) {
+                        target = managementUtilityService.getUpdatedFilePath(target);
                         DriveItem driveItemTarget = createOrCheckTargetItem(target, createFolder, payload, replace);
 
                         if ((boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
@@ -128,7 +133,7 @@ public class FileTransferService {
     private DriveItem checkIfTargetFolderExist(String target, Map<String, Object> response) {
         if (target != null) {
             try {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(true, null);
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
                 DriveItem driveItem = managementUtilityService.getFileByAbsolutePath(target, graphClient);
                 boolean isFolderExist = driveItem != null && driveItem.parentReference != null;
                 response.put(Constants.IS_FOLDER_EXIST, isFolderExist);
@@ -163,11 +168,12 @@ public class FileTransferService {
 
     private void processResponse(Response statusResponse, Map<String, Object> payload, DriveItem driveItemSource, String target, String source) throws IOException {
         if (statusResponse.code() == Constants.HTTP_STATUS_OK || statusResponse.code() == Constants.HTTP_STATUS_ACCEPTED) {
-            DriveItem driveItem = provider.getUserRequestBuilder(null, null)
-                    .drives(driveItemSource.parentReference.driveId).items(driveItemSource.id)
+            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
+
+            DriveItem driveItem = graphClient.drives(driveItemSource.parentReference.driveId).items(driveItemSource.id)
                     .buildRequest().get();
 
-            payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, provider, source, target)));
+            payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, graphClient, source, target, fileSearchUtilityService)));
             payload.put(Constants.MESSAGE, Constants.FILE_COPIED_SUCCESSFULLY);
             payload.put(Constants.SUCCESS, true);
         } else if (statusResponse.code() == Constants.HTTP_STATUS_CONFLICT) {
@@ -183,9 +189,11 @@ public class FileTransferService {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (copyFileUtilityService.validateSourceAndTargetPathsForMove(source, target, payload)) {
+                source = managementUtilityService.getUpdatedFilePath(source);
                 DriveItem driveItemSource = managementUtilityService.checkIfFileExist(source, payload);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
+                    target = managementUtilityService.getUpdatedFilePath(target);
                     DriveItem driveItemTarget = validateTargetFolderAndGetDriveItem(target, payload);
 
                     if ((boolean) payload.get(Constants.IS_FOLDER_EXIST)) {

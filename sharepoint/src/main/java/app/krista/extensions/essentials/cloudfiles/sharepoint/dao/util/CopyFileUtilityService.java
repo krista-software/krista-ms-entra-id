@@ -85,7 +85,7 @@ public class CopyFileUtilityService {
     public DriveItem checkRootTargetFolderExist(String target, Map<String, Object> response) {
         if (target != null) {
             try {
-                DriveItem driveItem = managementUtilityService.getRootFolderByAbsolutePath(target);
+                DriveItem driveItem = managementUtilityService.getRootFolderByAbsolutePath(target,true);
                 boolean isFolderExist = driveItem != null && driveItem.parentReference != null;
                 response.put(Constants.IS_FOLDER_EXIST, isFolderExist);
                 return isFolderExist ? driveItem : new DriveItem();

@@ -193,11 +193,17 @@ public class Constants {
 
     public static final String SOURCE_OR_TARGET_PATHS_CANT_BE_NULL = "Source OR Target paths cannot be null or empty";
 
-    public static final String CREATED = "created";
+    public static final String LIST_CREATED = "created";
 
-    public static final String UPDATED = "deleted,created,updated";
+    public static final String CREATED = "Created";
 
-    public static final String SITE_RESOURCE = "sites/kristasoft.sharepoint.com,371e158f-e040-4d03-ac50-571c5b53dbd6,281ed155-9843-4233-9808-918fbef08f89/drive/root";
+    public static final String UPDATED = "Updated";
+
+    public static final String DELETED = "Deleted";
+
+    public static final String CHANGETYPE = "updated";
+
+    public static final String SITE_RESOURCE = "/sites/kristasoft.sharepoint.com,371e158f-e040-4d03-ac50-571c5b53dbd6,281ed155-9843-4233-9808-918fbef08f89/lists/7d7ec388-6996-4133-8162-c00279599937";
 
     public static final String GROUP_RESOURCE = "/groups/2f85131a-5592-47ee-958d-a92e995be064";
 
@@ -286,8 +292,6 @@ public class Constants {
     public static final String FILE_RECEIVED = "fileReceived";
 
     public static final String EVENT = "Event";
-
-    public static final String DELETED = "Deleted";
 
     public static final String SHAREPOINT_FILE_ID = "sharePointFileId";
 

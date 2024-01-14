@@ -5,6 +5,8 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.Request;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -20,21 +22,24 @@ public class FileImpl implements FileService {
     private final DriveItem driveMetaData;
     private final String parentFolder;
     private final String absolutePath;
+    private final GraphServiceClient<Request> graphClient;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
-    private final GraphServiceClientProvider clientProvider;
-
-    public FileImpl(DriveItem driveItem, GraphServiceClientProvider clientProvider, String sourcePath, String targetPath) {
+    public FileImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient, String sourcePath, String targetPath,
+                    FileSearchUtilityService fileSearchUtilityService) {
         this.driveItem = driveItem;
-        this.clientProvider = clientProvider;
+        this.graphClient = graphClient;
+        this.fileSearchUtilityService = fileSearchUtilityService;
         if (targetPath != null) {
-            this.parentFolder = FileSearchUtilityService.extractLastNameFromPath(targetPath);
-            this.absolutePath = targetPath + "/" + FileSearchUtilityService.extractLastNameFromPath(sourcePath);
+            this.parentFolder = fileSearchUtilityService.extractLastNameFromPath(targetPath);
+            this.absolutePath = targetPath + "/" + fileSearchUtilityService.extractLastNameFromPath(sourcePath);
         } else {
             this.parentFolder = null;
             this.absolutePath = sourcePath;
         }
-        this.driveMetaData = FileSearchUtilityService.getDriveMetaData(driveItem, clientProvider);
+        this.driveMetaData = fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
     }
+
 
     @Override
     public String getName() {

@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -10,6 +11,8 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,15 +33,16 @@ import java.util.*;
 public class SharedFileDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharedFileDao.class);
-
     private final GraphServiceClientProvider provider;
-
     private final ManagementUtilityService managementUtilityService;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
     @Inject
-    public SharedFileDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
+    public SharedFileDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
+                         FileSearchUtilityService fileSearchUtilityService) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
+        this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
 
@@ -48,6 +52,7 @@ public class SharedFileDao {
             if (isNullOrEmpty(source)) {
                 return handleInvalidPath(payload);
             }
+            source = managementUtilityService.getUpdatedFilePath(source);
             DriveItem drive = managementUtilityService.checkIfFileExist(source, payload);
             if (!(boolean) payload.get(Constants.SUCCESS)) {
                 return handleInvalidPath(payload);
@@ -62,8 +67,9 @@ public class SharedFileDao {
                     grantPermissions(users.getKey(), users.getValue(), encodedSharingUrl);
                 }
 
-                DriveItem driveItem = getFileInfo(drive.parentReference.driveId, DriveUtil.getRelativePath(source));
-                payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, provider, source, null)));
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
+                DriveItem driveItem = getFileInfo(drive.parentReference.driveId, DriveUtil.getRelativePath(source), graphClient);
+                payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, graphClient, source, null, fileSearchUtilityService)));
                 payload.put(Constants.MESSAGE, Constants.FILE_SHARED_SUCCESS);
                 return payload;
             }
@@ -108,12 +114,10 @@ public class SharedFileDao {
         payload.put(Constants.SUCCESS, false);
     }
 
-    public DriveItem getFileInfo(String driveId, String path) {
+    public DriveItem getFileInfo(String driveId, String path, GraphServiceClient<Request> graphClient) {
         return driveId != null ?
-                provider.getUserRequestBuilder(null, null).drives(driveId).root()
-                        .itemWithPath(path).buildRequest().get() :
-                provider.getUserRequestBuilder(null, null).drive().root()
-                        .itemWithPath(path).buildRequest().get();
+                graphClient.drives(driveId).root().itemWithPath(path).buildRequest().get() :
+                graphClient.drive().root().itemWithPath(path).buildRequest().get();
     }
 
     private void grantPermissions(String role, List<String> usersList, String encodedSharingUrl) {

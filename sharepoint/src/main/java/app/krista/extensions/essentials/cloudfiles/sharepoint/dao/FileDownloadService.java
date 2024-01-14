@@ -48,6 +48,7 @@ public class FileDownloadService {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (relativePath != null && FileUtil.hasFileExtension(relativePath)) {
+                relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
                 List<File> files = new ArrayList<>();
                 DriveItem driveItem = managementUtilityService.checkIfFileExist(relativePath, payload);
 

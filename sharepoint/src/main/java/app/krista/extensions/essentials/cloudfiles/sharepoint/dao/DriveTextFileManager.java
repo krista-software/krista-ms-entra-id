@@ -1,6 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -10,6 +12,8 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,22 +36,23 @@ import java.util.Objects;
 public class DriveTextFileManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DriveTextFileManager.class);
-
     private final GraphServiceClientProvider provider;
-
     private final ManagementUtilityService managementUtilityService;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
     @Inject
-    public DriveTextFileManager(GraphServiceClientProviderFactory factory,
-                                ManagementUtilityService managementUtilityService) {
+    public DriveTextFileManager(GraphServiceClientProviderFactory factory,ManagementUtilityService managementUtilityService,
+                                FileSearchUtilityService fileSearchUtilityService) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
+        this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
     public Map<String, Object> readTxtFile(String source) {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (source != null) {
+                source = managementUtilityService.getUpdatedFilePath(source);
                 DriveItem drive = managementUtilityService.checkIfFileExist(source, payload);
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     String path = DriveUtil.getRelativePath(source);
@@ -92,7 +97,8 @@ public class DriveTextFileManager {
     public Map<String, Object> uploadTxtFile(String fileContent, String target) {
         Map<String, Object> payload = new HashMap<>();
         try {
-            if (target != null && !FileUtil.hasFileExtension(fileContent) && target.endsWith(".txt")) {
+            if (target != null && FileUtil.hasFileExtension(fileContent) && target.endsWith(".txt")) {
+                target = managementUtilityService.getUpdatedFilePath(target);
                 DriveItem drive = managementUtilityService.checkIfFileExist(DriveUtil.removeLastSegment(target), payload);
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     String path = DriveUtil.getRelativePath(target);
@@ -127,9 +133,10 @@ public class DriveTextFileManager {
         String fileName = stream[stream.length - 1].contains(".txt") ? stream[stream.length - 1] : null;
         if (fileName != null) {
             java.io.File javaFile = FileUtil.createTxtFile(fileName, fileContent);
-            DriveItem uploadFile = provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
+            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
+            DriveItem uploadFile = graphClient.drives(driveItem.parentReference.driveId).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
             if (uploadFile != null) {
-                app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(uploadFile, provider));
+                File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(uploadFile, graphClient, fileSearchUtilityService));
                 payload.put(Constants.FILE, fileEntity);
                 payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
                 payload.put(Constants.SUCCESS, true);

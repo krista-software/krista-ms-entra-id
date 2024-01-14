@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -19,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,12 +37,15 @@ public class FileSearchFilterByRange {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchFilterByRange.class);
     private final GraphServiceClientProvider clientProvider;
     private final FileSearchImpl fileSearchImpl;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
 
     @Inject
-    public FileSearchFilterByRange(GraphServiceClientProviderFactory factory, FileSearchImpl fileSearchImpl) {
+    public FileSearchFilterByRange(GraphServiceClientProviderFactory factory, FileSearchImpl fileSearchImpl,
+                                   FileSearchUtilityService fileSearchUtilityService) {
         this.clientProvider = factory.create();
         this.fileSearchImpl = fileSearchImpl;
+        this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
     public FreeForm getFilesByModificationDate(DateRange modificationDateRange, boolean useEmail, String accountID) {
@@ -86,7 +88,7 @@ public class FileSearchFilterByRange {
             SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
             if (page != null && !page.getCurrentPage().isEmpty()) {
-                extractDrivePermissionsFromSearchResults(resultPage, page);
+                extractDrivePermissionsFromSearchResults(resultPage, page, graphClient);
             }
 
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -141,7 +143,7 @@ public class FileSearchFilterByRange {
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
-                    extractDrivePermissionsFromSearchResults(resultPage, page);
+                    extractDrivePermissionsFromSearchResults(resultPage, page, graphClient);
                 }
 
             } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -196,21 +198,23 @@ public class FileSearchFilterByRange {
     }
 
     public void buildSearchRequestForDate(String fromDate, String toDate, SearchRequest requests) {
+        String domainName = fileSearchImpl.getDomainName();
+        String personalDrivePath = fileSearchImpl.getDomainPath(domainName, false);
         SearchQuery query = new SearchQuery();
-        query.queryString = "isDocument=true AND LastModifiedTime >= " + fromDate + " AND LastModifiedTime <= " + toDate + "";
+        query.queryString = "isDocument=true AND LastModifiedTime >= " + fromDate + " AND LastModifiedTime <= " + toDate + " AND NOT path:\"" + personalDrivePath + "\"";
         requests.query = query;
         requests.from = 0;
         requests.size = 500;
     }
 
-    public void extractDrivePermissionsFromSearchResults(List<DrivePermissionImpl> resultPage, SearchEntityQueryCollectionPage page) {
+    public void extractDrivePermissionsFromSearchResults(List<DrivePermissionImpl> resultPage, SearchEntityQueryCollectionPage page, GraphServiceClient<Request> graphClient) {
         for (SearchResponse driveInPage : page.getCurrentPage()) {
             if (driveInPage.hitsContainers != null) {
                 for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
                     if (hitContainer.hits != null) {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
-                                resultPage.add(new DrivePermissionImpl((DriveItem) hits.resource, clientProvider));
+                                resultPage.add(new DrivePermissionImpl((DriveItem) hits.resource, graphClient, fileSearchUtilityService));
                             }
                         }
                     }

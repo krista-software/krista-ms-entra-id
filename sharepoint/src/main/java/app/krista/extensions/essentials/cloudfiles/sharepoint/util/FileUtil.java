@@ -78,7 +78,6 @@ public class FileUtil {
 
     public static boolean hasFileExtension(String path) {
         Path filePath = Paths.get(path);
-
         return filePath.getFileName() != null && filePath.getFileName().toString().contains(".");
     }
 

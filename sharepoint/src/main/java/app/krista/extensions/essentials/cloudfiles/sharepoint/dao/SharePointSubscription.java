@@ -33,8 +33,8 @@ public class SharePointSubscription {
      */
     public static void createSubscription(String routingUrl, GraphServiceClientProvider provider) {
         try {
-            //Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://4d24-125-19-87-178.ngrok-free.app") : routingUrl);
-            Subscription subscription = setSubscriptionParameters(routingUrl);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://d8d1-103-97-240-165.ngrok-free.app") : routingUrl);
+            //Subscription subscription = setSubscriptionParameters(routingUrl);
             System.out.print(" Subscription "+subscription.notificationUrl+"-"+subscription.lifecycleNotificationUrl+"-"+subscription.resource);
 
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
@@ -71,11 +71,11 @@ public class SharePointSubscription {
     @NotNull
     private static Subscription setSubscriptionParameters(String routingUrl) throws ParseException {
         Subscription subscription = new Subscription();
-        subscription.changeType = Constants.UPDATED;
+        subscription.changeType = Constants.CHANGETYPE;
         subscription.notificationUrl = routingUrl + Constants.REST_SHAREPOINT_MAIL_NOTIFICATION;
         subscription.lifecycleNotificationUrl = routingUrl + Constants.REST_SHAREPOINT_LIFECYCLE_NOTIFICATION;
-        subscription.resource = Constants.GROUP_RESOURCE;
-        long threeDaysInMillis = System.currentTimeMillis() + (86000 * 1000 * 3);
+        subscription.resource = Constants.SITE_RESOURCE;
+        long threeDaysInMillis = System.currentTimeMillis() + (86000 * 1000 * 28);
         Date date = new Date(threeDaysInMillis);
         DateFormat dateFormat = new SimpleDateFormat(Constants.YYYY_MM_DD_T_HH_MM_SS_SSSSSSS_Z);
         subscription.expirationDateTime = OffsetDateTimeSerializer.deserialize(dateFormat.format(date));

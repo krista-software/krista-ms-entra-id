@@ -2,6 +2,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveSharedPermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -31,13 +32,15 @@ public class FilePermissionSearchDao {
     private final GraphServiceClientProvider clientProvider;
     private final FileSearchImpl fileSearchImpl;
     private final SharePointAttributes sharePointAttributes;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
     @Inject
     public FilePermissionSearchDao(GraphServiceClientProviderFactory clientProviderFactory, FileSearchImpl fileSearchImpl,
-                                   SharePointAttributes sharePointAttributes) {
+                                   SharePointAttributes sharePointAttributes, FileSearchUtilityService fileSearchUtilityService) {
         this.clientProvider = clientProviderFactory.create();
         this.fileSearchImpl = fileSearchImpl;
         this.sharePointAttributes = sharePointAttributes;
+        this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
 
@@ -52,7 +55,7 @@ public class FilePermissionSearchDao {
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
-                    extractDriveFromSearchResultsUsingPath(resultPage, page, permission);
+                    extractDriveFromSearchResultsUsingPath(resultPage, page, permission, graphClient);
                 }
 
                 if (resultPage.size() > 0) {
@@ -77,7 +80,6 @@ public class FilePermissionSearchDao {
         return requestsList;
     }
 
-
     public SearchRequest buildSearchRequest() {
         SearchRequest requests = new SearchRequest();
         requests.entityTypes = Arrays.asList(EntityType.LIST, EntityType.DRIVE, EntityType.DRIVE_ITEM);
@@ -92,7 +94,7 @@ public class FilePermissionSearchDao {
         return requests;
     }
 
-    public void extractDriveFromSearchResultsUsingPath(List<DriveSharedPermissionImpl> files, SearchEntityQueryCollectionPage page, String permission) {
+    public void extractDriveFromSearchResultsUsingPath(List<DriveSharedPermissionImpl> files, SearchEntityQueryCollectionPage page, String permission, GraphServiceClient<Request> graphClient) {
         for (SearchResponse driveInPage : page.getCurrentPage()) {
             if (driveInPage.hitsContainers != null) {
                 for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
@@ -101,7 +103,7 @@ public class FilePermissionSearchDao {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
                                 if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
-                                    files.add(new DriveSharedPermissionImpl(driveItem, clientProvider, sharePointAttributes, permission));
+                                    files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, permission, fileSearchUtilityService));
                                 }
                             }
                         }
@@ -118,7 +120,7 @@ public class FilePermissionSearchDao {
         query.queryString = "" + domainName + " AND NOT path:\"" + siteDomainPath + "\"";
         requests.query = query;
         requests.from = 0;
-        requests.size = 10;
+        requests.size = 25;
     }
 
 }

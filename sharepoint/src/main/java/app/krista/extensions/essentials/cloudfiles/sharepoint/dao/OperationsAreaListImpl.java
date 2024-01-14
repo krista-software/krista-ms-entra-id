@@ -63,7 +63,7 @@ public class OperationsAreaListImpl {
 
             List createdList = graphClient.sites(existingSite.id).lists().buildRequest().post(microsoftGraphList);
 
-            OperationsAreaUtilityService.processResponse(createdList, payload, Constants.CREATED);
+            OperationsAreaUtilityService.processResponse(createdList, payload, Constants.LIST_CREATED);
         } catch (Exception cause) {
             LOGGER.error("Error creating list : {} ", cause.getMessage());
             handleIfNotFound(payload, Constants.ERROR_LIST_CREATION);

@@ -15,6 +15,7 @@ import app.krista.ksdk.context.AuthorizationContext;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.microsoft.graph.http.GraphServiceException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,7 +141,7 @@ public final class AuthenticationResource {
     @POST
     @Path("/sharePointNotification")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response subscriptionNotification(JsonObject notification) {
+    public Response subscriptionNotification(@NotNull JsonObject notification) {
         System.out.println(" subscriptionNotification JsonObject "+notification);
         JsonArray array = notification.get(Constants.VALUE).getAsJsonArray();
         System.out.println("subscriptionNotification JsonObject "+array.size());

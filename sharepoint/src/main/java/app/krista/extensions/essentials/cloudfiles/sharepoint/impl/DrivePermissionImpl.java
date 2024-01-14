@@ -1,10 +1,11 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.Request;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -18,12 +19,14 @@ public class DrivePermissionImpl implements FileService {
 
     private final DriveItem driveItem;
     private final DriveItem driveMetaData;
-    private final GraphServiceClientProvider clientProvider;
+    private final GraphServiceClient<Request> graphClient;
+    private final FileSearchUtilityService fileSearchUtilityService;
 
-    public DrivePermissionImpl(DriveItem driveItem, GraphServiceClientProvider clientProvider) {
+    public DrivePermissionImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService) {
         this.driveItem = driveItem;
-        this.clientProvider = clientProvider;
-        this.driveMetaData = FileSearchUtilityService.getDriveMetaData(driveItem, clientProvider);
+        this.graphClient = graphClient;
+        this.fileSearchUtilityService = fileSearchUtilityService;
+        this.driveMetaData = this.fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
     }
 
     @Override

@@ -1,11 +1,11 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
+import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
  * @author Vaibhav Choudhary
  */
 
+@Service
 public class FileSearchUtilityService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchUtilityService.class);
@@ -28,10 +29,9 @@ public class FileSearchUtilityService {
     public FileSearchUtilityService() {
     }
 
-    public static DriveItem getDriveMetaData(DriveItem driveItem, GraphServiceClientProvider clientProvider) {
+    public DriveItem getDriveMetaData(DriveItem driveItem, GraphServiceClient<Request> graphClient) {
         DriveItem driveMetaData = null;
         if (driveItem != null && driveItem.parentReference.driveId != null && driveItem.parentReference.id != null) {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
             try {
                 driveMetaData = graphClient.drives(driveItem.parentReference.driveId).

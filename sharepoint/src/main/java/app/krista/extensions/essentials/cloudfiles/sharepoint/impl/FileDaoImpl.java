@@ -83,7 +83,7 @@ public class FileDaoImpl implements FileDao {
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
-                    fileSearchImpl.extractDrivePermissionsFromSearchResults(resultPage, page, filePath);
+                    fileSearchImpl.extractDrivePermissionsFromSearchResults(resultPage, page, filePath, graphClient);
                 }
                 if (resultPage.size() > 0) {
                     return resultPage.get(0);

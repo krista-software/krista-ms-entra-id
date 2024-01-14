@@ -43,6 +43,11 @@ public class OperationsManagementDao {
     public Map<String, Object> deleteFile(String target) {
         Map<String, Object> payload = new HashMap<>();
         try {
+            if(target == null || target.isEmpty()){
+                payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
+                payload.put(Constants.SUCCESS, false);
+            }
+            target = managementUtilityService.getUpdatedFilePath(target);
             DriveItem driveItem = managementUtilityService.checkIfFileExist(target, payload);
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 target = DriveUtil.getRelativePath(target);
@@ -72,8 +77,8 @@ public class OperationsManagementDao {
 
     private void validateAndRenameFile(File renameFile, String targetFileName, Map<String, Object> payload) {
         if (renameFile != null) {
-            if (!renameFile.extension.isBlank() && (FileUtil.getBaseName(targetFileName).get(1).equalsIgnoreCase(null) ||
-                    FileUtil.getBaseName(targetFileName).get(1).isEmpty())) {
+            if (!renameFile.extension.isBlank() && (FileUtil.getBaseName(targetFileName).get(1) == null ||
+                            FileUtil.getBaseName(targetFileName).get(1).isEmpty())) {
                 setFileExtensionNotAvailableMessage(payload);
             } else {
                 DriveItem drive = managementUtilityService.checkIfFileExist(renameFile.absolutePath, payload);
@@ -93,12 +98,8 @@ public class OperationsManagementDao {
         DriveItem driveItem = new DriveItem();
         driveItem.name = targetFileName;
         String relativePath = DriveUtil.getRelativePath(renameFile.absolutePath);
-        provider.getUserRequestBuilder(null, null)
-                .drives(drive.parentReference.driveId)
-                .root()
-                .itemWithPath(relativePath)
-                .buildRequest()
-                .patch(driveItem);
+        provider.getUserRequestBuilder(null, null).drives(drive.parentReference.driveId).root()
+                .itemWithPath(relativePath).buildRequest().patch(driveItem);
 
         setFileRenamedSuccessfullyMessage(payload);
     }
