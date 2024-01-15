@@ -279,10 +279,6 @@ public class Constants {
 
     public static final String VALUE = "value";
 
-    public static final String MESSAGE_ID = "messageId";
-
-    public static final String MAIL_RECEIVED = "mailReceived";
-
     public static final String SUBSCRIPTION_ID = "subscriptionId";
 
     public static final String LIFECYCLE_EVENT = "lifecycleEvent";
@@ -307,6 +303,33 @@ public class Constants {
 
     public static final String FAILED_TO_CREATE_SUBSCRIPTION  = "Failed to create subscription for sites, Please try again letter.";
 
+    public static final String MICROSOFT_GRAPH_DRIVE_ITEM = "#microsoft.graph.driveItem";
+
+    public static final String CLIENT_ID = "clientId";
+
+    public static final String CLIENT_SECRET = "clientSecret";
+
+    public static final String TENANT_ID = "tenantId";
+
+    public static final String EMAIL = "email";
+
+    public static final int OK = 200;
+
+    public static final int CREATED_RES = 201;
+
+    public static final int ACCEPTED = 202;
+
+    public static final int NO_CONTENT = 204;
+
+    public static final int CONFLICT = 409;
+
+    public static final int UNAUTHORIZED = 401;
+
+    public static final int BAD_REQUEST = 400;
+
+    public static final int INTERNAL_SERVER_ERROR = 500;
+
+    public static final String FOLDER_NOT_FOUND = "Folder Not Found";
 
 
     private Constants() {

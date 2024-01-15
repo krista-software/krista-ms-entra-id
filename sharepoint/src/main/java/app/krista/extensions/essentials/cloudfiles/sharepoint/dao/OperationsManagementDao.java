@@ -1,7 +1,9 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -32,14 +34,22 @@ public class OperationsManagementDao {
 
     private final ManagementUtilityService managementUtilityService;
 
+    private final FileDaoImpl fileDao;
+
+
     @Inject
     public OperationsManagementDao(GraphServiceClientProviderFactory factory,
-                                   ManagementUtilityService managementUtilityService) {
+                                   ManagementUtilityService managementUtilityService, FileDaoImpl fileDao) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
+        this.fileDao = fileDao;
     }
 
 
+    /**
+     * Deletes a file at the specified path, handling path validation, file existence checks, and potential errors.
+     * @return A Map containing status and result details, including success/failure indicators and error messages.
+     */
     public Map<String, Object> deleteFile(String target) {
         Map<String, Object> payload = new HashMap<>();
         try {
@@ -65,18 +75,23 @@ public class OperationsManagementDao {
         return payload;
     }
 
-    public Map<String, Object> renameFile(File renameFile, String targetFileName) {
+    /**
+     * Renames a file to the specified target name, handling validation and potential errors.
+     * @return A Map containing status and result details, including success/failure indicators and error messages.
+     */
+    public Map<String, Object> renameFile(String sourcePath, String targetFileName) {
         Map<String, Object> payload = new HashMap<>();
         try {
-            validateAndRenameFile(renameFile, targetFileName, payload);
+            validateAndRenameFile(sourcePath, targetFileName, payload);
         } catch (Exception cause) {
             handleRenameFileException(cause, payload);
         }
         return payload;
     }
 
-    private void validateAndRenameFile(File renameFile, String targetFileName, Map<String, Object> payload) {
-        if (renameFile != null) {
+    private void validateAndRenameFile(String sourcePath, String targetFileName, Map<String, Object> payload) {
+        if (sourcePath != null) {
+            File renameFile = CatalogTypes.fromFile(fileDao.getFileByAbsolutePath(sourcePath));
             if (!renameFile.extension.isBlank() && (FileUtil.getBaseName(targetFileName).get(1) == null ||
                             FileUtil.getBaseName(targetFileName).get(1).isEmpty())) {
                 setFileExtensionNotAvailableMessage(payload);

@@ -12,15 +12,15 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.HandleFileIsCh
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 
 import javax.inject.Inject;
 import java.util.Map;
 
-@Field.Text(value = SharePointAttributes.CLIENT_ID)
-@Field.Text(value = SharePointAttributes.CLIENT_SECRET, isSecured = true)
-@Field.Text(value = SharePointAttributes.TENANT_ID, isSecured = true)
-@Field.Text(value = SharePointAttributes.EMAIL)
-@Field.Boolean(value = SharePointAttributes.ALLOW_GROUP_ALERT, required = false)
+@Field.Text(value = Constants.CLIENT_ID)
+@Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
+@Field.Text(value = Constants.TENANT_ID, isSecured = true)
+@Field.Text(value = Constants.EMAIL)
 @Extension(version = "2.0.0-rc1")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {

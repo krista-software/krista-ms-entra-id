@@ -60,6 +60,10 @@ public class FileTransferService {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
+    /**
+     * Copies a file from the source path to the target path, handling potential replacements, folder creation, and errors.
+     * @return A Map containing status and result details, including success/failure indicators and error messages.
+     */
     public Map<String, Object> copyFile(String source, String target, Boolean replace, Boolean createFolder) {
         Map<String, Object> payload = new HashMap<>();
         try {
@@ -185,6 +189,10 @@ public class FileTransferService {
         }
     }
 
+    /**
+     * Moves a file from the source path to the target path, handling path validation, file existence checks, target folder validation, and potential errors.
+     * @return A Map containing status and result details, including success/failure indicators and error messages.
+     */
     public Map<String, Object> moveFile(String source, String target) {
         Map<String, Object> payload = new HashMap<>();
         try {

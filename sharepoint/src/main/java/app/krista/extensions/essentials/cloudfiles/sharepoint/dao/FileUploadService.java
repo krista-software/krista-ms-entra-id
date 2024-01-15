@@ -47,6 +47,10 @@ public class FileUploadService {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
+    /**
+     * Uploads files to the specified target path, handling validation and potential errors.
+     * @return A Map containing status and result details, including success/failure indicators and error messages.
+     */
     public Map<String, Object> uploadFiles(app.krista.model.base.File kristaFile, String targetPath) {
         Map<String, Object> payload = new HashMap<>();
         try {

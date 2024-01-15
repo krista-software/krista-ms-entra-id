@@ -102,22 +102,22 @@ public class RestClient {
     public Response handleResponse(Response response) {
         int statusCode = response.code();
 
-        if (statusCode == 200 || statusCode == 201 || statusCode == 204) {
+        if (statusCode == Constants.OK || statusCode == Constants.CREATED_RES || statusCode == Constants.NO_CONTENT) {
             System.out.println(STATUS_CODE_IS + response.code() + REQUEST_IS_SUCCESS);
             return response;
-        } else if (statusCode == 202) {
+        } else if (statusCode == Constants.ACCEPTED) {
             System.out.println(STATUS_CODE_IS + response.code() + REQUEST_IS_ACCEPTED);
             return response;
-        } else if (statusCode == 409) {
+        } else if (statusCode == Constants.CONFLICT) {
             System.out.println(STATUS_CODE_IS + response.code() + CONFLICT_OCCURS);
             return response;
-        } else if (statusCode == 401) {
+        } else if (statusCode == Constants.UNAUTHORIZED) {
             System.out.println(STATUS_CODE_IS + response.code() + YOU_ARE_NOT_AUTHORIZED);
             throw new IllegalArgumentException(YOU_ARE_NOT_AUTHORIZED);
-        } else if (statusCode == 400) {
+        } else if (statusCode == Constants.BAD_REQUEST) {
             System.out.println(STATUS_CODE_IS + response.code() + BAD_REQUEST);
             throw new IllegalArgumentException(ONE_OR_MORE_INPUT_PARAMETER_IS_INVALID);
-        } else if (statusCode == 500) {
+        } else if (statusCode == Constants.INTERNAL_SERVER_ERROR) {
             System.out.println(STATUS_CODE_IS + response.code() + INTERNAL_SERVER_ERROR);
             throw new IllegalArgumentException(ONE_OR_MORE_FIELD_PROVIDED_ARE_INVALID);
         }

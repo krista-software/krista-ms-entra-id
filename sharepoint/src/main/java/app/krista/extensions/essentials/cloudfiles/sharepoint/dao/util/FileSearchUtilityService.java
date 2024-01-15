@@ -65,7 +65,7 @@ public class FileSearchUtilityService {
         if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains(".aspx")) {
             return driveItem.webUrl;
         } else if (driveMetaData != null && driveMetaData.webUrl != null && driveItem != null) {
-            if(driveMetaData.webUrl.contains(driveMetaData.name)){
+            if (driveMetaData.webUrl.contains(driveMetaData.name)) {
                 return driveMetaData.webUrl;
             }
             return driveMetaData.webUrl + (driveItem.name != null ? "/" + driveItem.name : "");

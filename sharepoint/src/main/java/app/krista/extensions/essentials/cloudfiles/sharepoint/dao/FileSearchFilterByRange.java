@@ -48,6 +48,10 @@ public class FileSearchFilterByRange {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
+    /**
+     * Retrieves files modified within a specified date range, handling validation, potential errors, and returning matching files.
+     * @return A FreeForm object containing the list of matching files or error messages.
+     */
     public FreeForm getFilesByModificationDate(DateRange modificationDateRange, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
@@ -99,6 +103,10 @@ public class FileSearchFilterByRange {
         return resultPage;
     }
 
+    /**
+     * Retrieves files within a specified size range, handling validation, potential errors, and returning matching files.
+     * @return A FreeForm object containing the list of matching files or error messages.
+     */
     public FreeForm getFilesBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {

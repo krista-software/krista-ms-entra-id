@@ -143,7 +143,7 @@ public class ManagementUtilityService {
     public String getUpdatedFilePath(String path) {
         String domainName = fileSearchImpl.getDomainName();
         String siteDomainPath = fileSearchImpl.getDomainPath(domainName, true);
-        if(!path.startsWith(File.separator)){
+        if (!path.startsWith(File.separator)) {
             path = File.separator + path;
         }
         return fileSearchImpl.handleAbsolutePath(path, siteDomainPath);

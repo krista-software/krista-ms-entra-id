@@ -36,7 +36,10 @@ public class FileVersionSearchDao {
         this.managementUtilityService = managementUtilityService;
     }
 
-
+    /**
+     * Retrieves the version history of a file at the specified path, with optional search and since parameters, handling path validation, file existence checks, and potential errors.
+     * @return A Map containing status and result details, including success/failure indicators, version history information, or error messages.
+     */
     public Map<String, Object> getVersionHistory(String sourcePath, String search, Long since) {
         Map<String, Object> payload = new HashMap<>();
         try {

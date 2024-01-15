@@ -44,6 +44,10 @@ public class FileDownloadService {
         this.managementUtilityService = managementUtilityService;
     }
 
+    /**
+     * Downloads files from the specified path, supporting link generation and Krista file format, with path validation, download mode handling, and error management.
+     * @return A Map containing status and result details, including success/failure indicators, download links or files, and error messages.
+     */
     public Map<String, Object> downloadFiles(Boolean downloadAsLink, Boolean downloadAsKristaFile, String relativePath) {
         Map<String, Object> payload = new HashMap<>();
         try {

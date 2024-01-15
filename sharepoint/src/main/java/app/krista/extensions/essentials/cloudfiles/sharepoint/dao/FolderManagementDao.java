@@ -51,7 +51,10 @@ public class FolderManagementDao {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
-    @NotNull
+    /**
+     * Retrieves a list of folders at the specified path, optionally filtered by search criteria, handling path validation, folder existence checks, and potential errors.
+     * @return A FreeForm object containing the list of folders or error messages.
+     */
     public FreeForm getListOfFolders(String relativePath, String search, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {

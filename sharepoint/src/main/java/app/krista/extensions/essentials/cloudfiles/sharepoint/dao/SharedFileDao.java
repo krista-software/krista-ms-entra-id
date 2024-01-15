@@ -45,7 +45,10 @@ public class SharedFileDao {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
-
+    /**
+     * Shares a file with specified users and permissions, handling path validation, file existence checks, sharing link creation, permission granting, and potential errors.
+     * @return A Map containing status and result details, including success/failure indicators, shared file information, or error messages.
+     */
     public Map<String, Object> shareFile(String source, List<Map<String, Object>> share) {
         Map<String, Object> payload = new HashMap<>();
         try {

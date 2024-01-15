@@ -29,7 +29,7 @@ public class OperationsArea {
             description = "Creates a new list in the specified SharePoint site.",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> createList(
@@ -71,7 +71,7 @@ public class OperationsArea {
             description = "Updates an existing SharePoint list with the provided display name and description.",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Success'")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> updateList(
@@ -88,7 +88,7 @@ public class OperationsArea {
             description = "Updates the display name of an existing SharePoint site.",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> updateSite(

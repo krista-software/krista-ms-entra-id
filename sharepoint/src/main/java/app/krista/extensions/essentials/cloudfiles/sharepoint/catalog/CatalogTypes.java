@@ -46,7 +46,7 @@ public final class CatalogTypes {
         try {
             return MediaClient.create().download(MediaClient.createMediaUrl(file.getMediaId()), file.getFileName());
         } catch (IOException cause) {
-            LOGGER.error(" {} : {} "+Constants.ERROR_MESSAGE , cause.getMessage());
+            LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
             throw new IllegalArgumentException(cause);
         }
     }

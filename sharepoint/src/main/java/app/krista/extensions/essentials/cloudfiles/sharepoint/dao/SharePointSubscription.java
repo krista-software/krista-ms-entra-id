@@ -66,30 +66,23 @@ public class SharePointSubscription {
      */
     public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
-            //Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://d8d1-103-97-240-165.ngrok-free.app") : routingUrl);
             Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
-            System.out.print(" Subscription " + subscription.notificationUrl + "-" + subscription.lifecycleNotificationUrl + "-" + subscription.resource);
 
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
                 for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
-                    System.out.println(" old notificationUrl " + Objects.requireNonNull(oldSubscription.notificationUrl));
-                    System.out.println(" subscription notificationUrl " + subscription.notificationUrl);
                     if (Objects.requireNonNull(oldSubscription.notificationUrl).equals(subscription.notificationUrl)) {
-                        System.out.println(" Came inside ");
                         return;
                     }
                 }
                 SubscriptionCollectionRequestBuilder nextPage = collectionPage.getNextPage();
                 if (nextPage != null) {
-                    System.out.println(" nextPage " + nextPage);
                     collectionPage = nextPage.buildRequest().get();
                 } else {
                     break;
                 }
             }
             provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
-            System.out.println(" Group Subscription Created ");
         } catch (ClientException | ParseException cause) {
             throw new RuntimeException(cause);
         }

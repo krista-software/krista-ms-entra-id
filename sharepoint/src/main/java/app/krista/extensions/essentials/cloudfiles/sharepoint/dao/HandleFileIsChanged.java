@@ -1,5 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import java.util.LinkedList;
+import com.microsoft.graph.options.Option;
+import com.microsoft.graph.options.QueryOption;
 import app.krista.extension.executor.Invoker;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
@@ -12,11 +15,14 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissi
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.models.DriveItemDeltaParameterSet;
 import com.microsoft.graph.models.SearchQuery;
 import com.microsoft.graph.models.SearchRequest;
+import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
@@ -53,6 +59,10 @@ public class HandleFileIsChanged {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
+    /**
+     * Retrieves information about changes made to a file at the specified path, handling path validation, potential errors, and returning file change details.
+     * @return A Map containing status and result details, including success/failure indicators, file change information, or error messages.
+     */
     public Map<String, Object> getChangeFileEvent(String source, String search) {
         System.out.println(" getChangeFileEvent started " + source + " " + search + " " + routingUrl);
         Map<String, Object> payload = new HashMap<>();
@@ -78,54 +88,37 @@ public class HandleFileIsChanged {
     private Map<String, Object> getWhichChangesMadeInFile(String absolutPath, String search, GraphServiceClient<Request> graphClient,
                                                           Map<String, Object> payload, String source) {
         try {
-            DriveItemDeltaCollectionPage page = FileChangeResourceUtil.getFileChangeResource(absolutPath);
             DriveItem deltaDriveItem = getDriveItemThroughAbsolutePath(absolutPath);
+            DriveItemDeltaCollectionPage deltaCollectionPage = FileChangeResourceUtil.getFileChangeResource(absolutPath);
             DriveItem notificationDriveItem = null;
-            if (page == null) {
-                page = getDeltaQueryThroughDriveItemAndAbsolutePath(deltaDriveItem, graphClient);
 
-                if (page != null && page.getCurrentPage() != null) {
-                    for (DriveItem newDrive : page.getCurrentPage()) {
-                        if (isSearchAvailable(search, newDrive)) {
-                            notificationDriveItem = newDrive;
-                            break;
-                        } else {
-                            notificationDriveItem = newDrive;
-                        }
-                    }
-                }
-            } else {
-                if (page != null && page.getCurrentPage() != null) {
-                    page = getDeltaQueryThroughDriveItemAndAbsolutePath(deltaDriveItem, graphClient);
+            DriveItemDeltaCollectionPage page = getDeltaQueryThroughDriveItemAndAbsolutePath(deltaDriveItem, graphClient);
 
-                    for (DriveItem newDrive : page.getCurrentPage()) {
-                        if (isSearchAvailable(search, newDrive)) {
-                            notificationDriveItem = newDrive;
-                            break;
-                        } else {
-                            notificationDriveItem = newDrive;
-                        }
-                    }
+            for (DriveItem newDrive : page.getCurrentPage()) {
+                if (isSearchAvailable(search, newDrive)) {
+                    notificationDriveItem = newDrive;
+                    break;
+                } else {
+                    notificationDriveItem = newDrive;
                 }
             }
 
+            // handle in case event notification is already sent
             List<DriveItem> newDriveItemList = getFileByAbsolutePath(absolutPath, graphClient);
             if (notificationDriveItem != null) {
-                if (notificationDriveItem.id != null && notificationDriveItem.deleted != null) {
-                    payload.put("File", CatalogTypes.fromFile(new DrivePermissionImpl(new DriveItem(), graphClient, fileSearchUtilityService)));
-                    payload.put("Event", Constants.DELETED);
+
+                if (notificationDriveItem.deleted != null && notificationDriveItem.deleted.state.equals("deleted")) {
+                    payload.put(Constants.FILE, CatalogTypes.fromFile(new DrivePermissionImpl(new DriveItem(), graphClient, fileSearchUtilityService)));
+                    payload.put(Constants.EVENT, Constants.DELETED);
                     return payload;
                 }
 
                 List<DriveItem> driveItemList = FileChangeResourceUtil.getOldFileChangeResource(source);
-                if(driveItemList == null){
-                    driveItemList = getFileByAbsolutePath(absolutPath, graphClient);
-                }
                 boolean flag = false;
                 if (driveItemList != null) {
                     for (DriveItem driveItem : driveItemList) {
                         if (driveItem.id != null && driveItem.id.equals(notificationDriveItem.id)
-                                && notificationDriveItem.oDataType.equals("#microsoft.graph.driveItem")) {
+                                && notificationDriveItem.oDataType.equals(Constants.MICROSOFT_GRAPH_DRIVE_ITEM)) {
                             addUpdatedFile(notificationDriveItem, payload, graphClient);
                             flag = false;
                             break;
@@ -133,40 +126,36 @@ public class HandleFileIsChanged {
                         flag = true;
                     }
                 }
-                if (!flag) {
-                    for (DriveItem oldDriveItem : driveItemList) {
-                        boolean isFileDeleted = true;
-
-                        for (DriveItem newDriveItem : newDriveItemList) {
-                            if (oldDriveItem.id != null && oldDriveItem.id.equals(newDriveItem.id)) {
-                                isFileDeleted = false;
-                                break;
-                            }
-                        }
-
-                        if (isFileDeleted) {
-                            flag = false;
-                            payload.put("File", CatalogTypes.fromFile(new DrivePermissionImpl(oldDriveItem, graphClient, fileSearchUtilityService)));
-                            payload.put("Event", Constants.DELETED);
-                            break;  // No need to continue checking other items
-                        }
-                    }
-                }
-                if (flag && notificationDriveItem.id != null && notificationDriveItem.oDataType.equals("#microsoft.graph.driveItem")) {
+                if (flag && notificationDriveItem.id != null && notificationDriveItem.oDataType.equals(Constants.MICROSOFT_GRAPH_DRIVE_ITEM)) {
                     addCreatedFile(notificationDriveItem, payload, graphClient);
                 }
             }
-
+            FileChangeResourceUtil.addFileMetaData(absolutPath, deltaCollectionPage);
             FileChangeResourceUtil.addOldFileMetaData(source, newDriveItemList);
-            FileChangeResourceUtil.addFileMetaData(absolutPath, page);
         } catch (Exception cause) {
             throw new IllegalArgumentException();
         }
         return payload;
     }
 
+    private DriveItemDeltaCollectionPage getNewNotificationThroughDriveId(DriveItem deltaDriveItem, GraphServiceClient<Request> graphClient, DriveItemDeltaCollectionPage deltaCollectionPage) {
+        DriveItemDeltaCollectionPage newDeltaCollectionPage = null;
+        try {
+            String token = DriveUtil.getTokenExtractor(deltaCollectionPage.deltaLink);
+
+            newDeltaCollectionPage = graphClient
+                    .drives(deltaDriveItem.parentReference.id).items(deltaDriveItem.id)
+                    .delta(DriveItemDeltaParameterSet.newBuilder().withToken(token).build())
+                    .buildRequest()
+                    .get();
+        } catch (Exception cause) {
+            System.out.println(" Exception " + cause);
+        }
+        return newDeltaCollectionPage;
+    }
+
     private boolean isSearchAvailable(String search, DriveItem newDrive) {
-        return search != null && newDrive != null && newDrive.name != null && newDrive.name.equals(search);
+        return search != null && newDrive != null && newDrive.name != null && newDrive.name.contains(search);
     }
 
     private DriveItemDeltaCollectionPage getDeltaQueryThroughDriveItemAndAbsolutePath(DriveItem driveItem, GraphServiceClient<Request> graphClient) {
@@ -179,7 +168,7 @@ public class HandleFileIsChanged {
     }
 
     public List<DriveItem> getFileByAbsolutePath(String filePath, GraphServiceClient<Request> graphClient) {
-        LOGGER.info("Searching for files with filePath: {}", filePath);
+        LOGGER.info("Searching for files with filePath: {} ", filePath);
         List<DriveItem> resultPage = new ArrayList<>();  // Initialize the result page
         if (filePath != null) {
             filePath = filePath.replace(Constants.WHITE_SPACE, " ");
@@ -192,7 +181,7 @@ public class HandleFileIsChanged {
                     fileSearchImpl.extractDriveItemListFromSearchResults(resultPage, page);
                 }
             } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
+                LOGGER.error("Error during file search: {} ", cause.getMessage(), cause);
                 throw new IllegalArgumentException(cause.getMessage(), cause);
             }
         }

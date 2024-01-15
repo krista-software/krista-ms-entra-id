@@ -42,8 +42,6 @@ public final class AuthenticationResource {
     private final EventHandler eventHandler;
     private final AuthorizationContext context;
     private final AuthorizationListener authorizationListener;
-    private static final Set<String> triggeredMailIds = new LinkedHashSet<>();
-    private static final int MESSAGE_ID_CAPACITY = 1000;
     private final NotificationProcessQueue notificationProcessQueue;
 
 
@@ -130,7 +128,6 @@ public final class AuthenticationResource {
         }
     }
 
-    /* SharePoint Mail Subscription Start */
     @POST
     @Path("/sharePointNotification")
     @Consumes(MediaType.TEXT_PLAIN)
@@ -142,14 +139,11 @@ public final class AuthenticationResource {
     @Path("/sharePointNotification")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response subscriptionNotification(@NotNull JsonObject notification) {
-        System.out.println(" subscriptionNotification JsonObject "+notification);
         JsonArray array = notification.get(Constants.VALUE).getAsJsonArray();
-        System.out.println("subscriptionNotification JsonObject "+array.size());
         for (int i = 0; i < array.size(); i++) {
             FreeForm freeForm = new FreeForm();
             freeForm.put(Constants.SHAREPOINT_FILE_ID,Constants.SWITCH, true);
             eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
-            System.out.println(" Method calling done ");
         }
         return Response.status(200).build();
     }
@@ -169,5 +163,4 @@ public final class AuthenticationResource {
         return Response.status(202).build();
     }
 
-    /* SharePoint Mail Subscription End */
 }

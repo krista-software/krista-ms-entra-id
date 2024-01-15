@@ -44,7 +44,10 @@ public class FilePermissionSearchDao {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
-
+    /**
+     * Searches for files with a specified permission, handling potential errors and returning matching files.
+     * @return A FreeForm object containing the list of files with the specified permission or error messages.
+     */
     public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with permission: {} ", permission);
         FreeForm payload = new FreeForm();

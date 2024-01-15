@@ -35,7 +35,7 @@ public class SharePointRequestAuthenticator implements RequestAuthenticator {
 
     @Override
     public Set<String> getSupportedProtocols() {
-        return Set.of();
+        return Collections.emptySet();
     }
 
     @Override
@@ -48,9 +48,8 @@ public class SharePointRequestAuthenticator implements RequestAuthenticator {
                 String state = String.valueOf(queryParameters.get(Constants.STATE).get(0));
                 String[] parts = state.split(Constants.HASH);
                 return parts[0];
-            } else {
-                return null;
             }
+            return null;
         } catch (RuntimeException | IOException cause) {
             return null;
         }
@@ -63,7 +62,7 @@ public class SharePointRequestAuthenticator implements RequestAuthenticator {
 
     @Override
     public Map<String, NamedField> getAttributeFields() {
-        return Map.of();
+        return Collections.emptyMap();
     }
 
     @Override

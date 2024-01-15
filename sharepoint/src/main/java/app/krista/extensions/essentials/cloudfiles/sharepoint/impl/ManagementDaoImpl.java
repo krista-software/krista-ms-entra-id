@@ -1,10 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.*;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
-import app.krista.model.base.DateRange;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import org.jvnet.hk2.annotations.Service;
@@ -120,9 +118,9 @@ public class ManagementDaoImpl {
         }
     }
 
-    public Map<String, Object> renameFile(File renameFile, String targetFileName) {
+    public Map<String, Object> renameFile(String sourcePath, String targetFileName) {
         try {
-            return operationsManagementDao.renameFile(renameFile, targetFileName);
+            return operationsManagementDao.renameFile(sourcePath, targetFileName);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
@@ -155,22 +153,6 @@ public class ManagementDaoImpl {
     public Map<String, Object> uploadFileAsTxt(String fileContent, String target) {
         try {
             return driveTextFileService.uploadTxtFile(fileContent, target);
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            throw new IllegalArgumentException(cause.getMessage(), cause);
-        }
-    }
-
-    public FreeForm getFileByDateRange(DateRange modificationDateRange, boolean useEmail, String accountID) {
-        try {
-            return fileSearchFilterByRange.getFilesByModificationDate(modificationDateRange, useEmail, accountID);
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            throw new IllegalArgumentException(cause.getMessage(), cause);
-        }
-    }
-
-    public FreeForm getFileBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
-        try {
-            return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize, useEmail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

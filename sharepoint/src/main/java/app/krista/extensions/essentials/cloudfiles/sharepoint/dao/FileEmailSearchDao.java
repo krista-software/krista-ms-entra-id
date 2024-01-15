@@ -41,6 +41,10 @@ public class FileEmailSearchDao {
         this.fileSearchImpl = fileSearchImpl;
     }
 
+    /**
+     * Searches for files associated with a given email or user, handling potential errors and returning matching files.
+     * @return A FreeForm object containing the list of matching files or error messages.
+     */
     public FreeForm getSearchByMail(String email, String user, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with filePath: {} {} ", email, user);
         FreeForm payload = new FreeForm();

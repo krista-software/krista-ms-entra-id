@@ -49,7 +49,7 @@ public class FilePermissionDaoUtil {
                     for (IdentitySet identitySet : permission.grantedToIdentities) {
                         if (identitySet != null && matchesEmailForIdentitySet(identitySet, sharePointAttributes.getMailId())) {
                             permissionResponse = permission.roles.get(0);
-                        } 
+                        }
                     }
                 }
             }
@@ -57,7 +57,6 @@ public class FilePermissionDaoUtil {
         return permissionResponse; // Default to null if not found
     }
 
-    // Helper methods for readability and potential reuse:
 
     private static boolean matchesEmail(DirectoryObject user, String email) {
         return user != null && ((User) user).mail != null &&
@@ -107,8 +106,6 @@ public class FilePermissionDaoUtil {
                     return "write"; // Adjust the role name if needed
                 }
             }
-
-            // Check viewers: There is no such API
         } catch (Exception cause) {
             throw new IllegalArgumentException();
         }

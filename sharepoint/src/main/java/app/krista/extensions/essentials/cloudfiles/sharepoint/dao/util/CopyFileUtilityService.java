@@ -85,7 +85,7 @@ public class CopyFileUtilityService {
     public DriveItem checkRootTargetFolderExist(String target, Map<String, Object> response) {
         if (target != null) {
             try {
-                DriveItem driveItem = managementUtilityService.getRootFolderByAbsolutePath(target,true);
+                DriveItem driveItem = managementUtilityService.getRootFolderByAbsolutePath(target, true);
                 boolean isFolderExist = driveItem != null && driveItem.parentReference != null;
                 response.put(Constants.IS_FOLDER_EXIST, isFolderExist);
                 return isFolderExist ? driveItem : new DriveItem();
@@ -101,14 +101,14 @@ public class CopyFileUtilityService {
 
     public void handleFolderExistenceCheckException(Exception cause, Map<String, Object> response) {
         response.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
-                .contains("itemNotFound") ? "Folder Not Found" : cause.getMessage());
+                .contains("itemNotFound") ? Constants.FOLDER_NOT_FOUND : cause.getMessage());
         response.put(Constants.IS_FOLDER_EXIST, false);
     }
 
     public void handleCopyFileException(Exception cause, Map<String, Object> payload) {
         LOGGER.error(" Error : " + cause.getMessage());
         payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
-                .contains("itemNotFound") ? "File Not Found" : Constants.PROVIDE_VALID_TARGET_PATH);
+                .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : Constants.PROVIDE_VALID_TARGET_PATH);
         payload.put(Constants.SUCCESS, false);
     }
 

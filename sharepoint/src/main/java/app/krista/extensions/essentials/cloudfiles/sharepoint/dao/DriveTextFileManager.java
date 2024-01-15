@@ -48,6 +48,10 @@ public class DriveTextFileManager {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
+    /**
+     * Reads the contents of a TXT file at the specified path, handling path validation, file existence checks, and potential errors.
+     * @return A Map containing status and result details, including success/failure indicators, file contents, or error messages.
+     */
     public Map<String, Object> readTxtFile(String source) {
         Map<String, Object> payload = new HashMap<>();
         try {
@@ -94,6 +98,11 @@ public class DriveTextFileManager {
 
     }
 
+
+    /**
+     * Uploads a TXT file with specified content to the target path, handling path validation, folder existence checks, potential errors, and file creation.
+     * @return A Map containing status and result details, including success/failure indicators and error messages.
+     */
     public Map<String, Object> uploadTxtFile(String fileContent, String target) {
         Map<String, Object> payload = new HashMap<>();
         try {

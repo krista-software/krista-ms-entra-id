@@ -41,7 +41,10 @@ public class FilePermissionDao {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
-
+    /**
+     * Retrieves shared permissions for a file at the specified path, handling path validation, potential errors, and returning shared permission details.
+     * @return A FreeForm object containing shared permission information or error messages.
+     */
     public FreeForm getSharedPermission(String filePath, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with filePath: {} ", filePath);
         FreeForm payload = new FreeForm();

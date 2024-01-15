@@ -10,6 +10,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.util.EventHandler;
 import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
+import app.krista.model.base.DateRange;
 import app.krista.model.base.FreeForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,17 +35,14 @@ public class SharepointArea {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
-    private final SharePointSubscription sharePointSubscription;
 
     @Inject
     public SharepointArea(SharepointAreaImpl sharepointAreaImpl, EventHandler eventHandler,
-                          RequestContext requestContext, AuthorizationContext authorizationContext,
-                          SharePointSubscription sharePointSubscription) {
+                          RequestContext requestContext, AuthorizationContext authorizationContext) {
         this.sharepointAreaImpl = sharepointAreaImpl;
         this.eventHandler = eventHandler;
         this.requestContext = requestContext;
         this.authorizationContext = authorizationContext;
-        this.sharePointSubscription = sharePointSubscription;
     }
 
     @CatalogRequest(
@@ -119,12 +117,51 @@ public class SharepointArea {
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String searchByMail(
             @Field.Text(name = "Email", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String email,
-            @Field.PickOne(name = "User", values = {"Created By","Modified By"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String user) {
+            @Field.PickOne(name = "User", values = {"Created By", "Modified By"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String user) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSearchByMail(email, user, useEmail, accountID);
+            eventHandler.handleEvent(taskId, freeForm);
+        });
+        return taskId;
+    }
+
+    @CatalogRequest(
+            id = "localDomainRequest_36159d86-8ae9-4b4c-80a9-2dfc9aa330e5",
+            name = "fetch By File Size Range",
+            description = "Accepts File Size , Returns Task ID",
+            area = "Sharepoint",
+            type = CatalogRequest.Type.QUERY_SYSTEM)
+    @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public String fetchByFileSizeRange(
+            @Field(name = "From Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double fromSize,
+            @Field(name = "To Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double toSize) {
+        final String taskId = UUID.randomUUID().toString();
+        boolean useEmail = !requestContext.invokeAsUser();
+        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
+        executorService.submit(() -> {
+            FreeForm freeForm = sharepointAreaImpl.getFileBySizeRange(fromSize, toSize, useEmail, accountID);
+            eventHandler.handleEvent(taskId, freeForm);
+        });
+        return taskId;
+    }
+
+    @CatalogRequest(
+            id = "localDomainRequest_040b6201-84a2-40ea-9b3f-f98530b5d302",
+            name = "fetch File By Modification Date Range",
+            description = "Accepts Modification Date Range and returns Task ID",
+            area = "Sharepoint",
+            type = CatalogRequest.Type.QUERY_SYSTEM)
+    @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public String fetchFileByModificationDateRange(
+            @Field.DateRange(name = "Modification Date Range", required = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = true, allowFuture = true, defaultTimeSpan = 1, attributes = {}, options = {}) DateRange modificationDateRange) {
+        final String taskId = UUID.randomUUID().toString();
+        boolean useEmail = !requestContext.invokeAsUser();
+        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
+        executorService.submit(() -> {
+            FreeForm freeForm = sharepointAreaImpl.getFileByDateRange(modificationDateRange, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;

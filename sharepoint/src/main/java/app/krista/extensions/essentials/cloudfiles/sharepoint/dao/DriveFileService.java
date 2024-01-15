@@ -55,6 +55,10 @@ public class DriveFileService {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
+    /**
+     * Retrieves file information for the specified path, handling path validation, file existence checks, and potential errors.
+     * @return A FreeForm object containing file details or error messages.
+     */
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
@@ -314,7 +318,10 @@ public class DriveFileService {
         return List.of("", "");
     }
 
-
+    /**
+     * Retrieves a list of files at the specified path, optionally filtered by search criteria, handling path validation, file existence checks, and potential errors.
+     * @return A FreeForm object containing the list of files or error messages.
+     */
     @NotNull
     public FreeForm getListOfFiles(String relativePath, String search, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
