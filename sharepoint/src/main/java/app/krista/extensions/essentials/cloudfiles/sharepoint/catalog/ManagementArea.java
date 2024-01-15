@@ -379,9 +379,6 @@ public class ManagementArea {
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
             @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted","Shared"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
             @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search) {
-        if(source != null && source.equals("/Kristology/Shared Documents/Archive/Videos/2021 Krista Overview Commercial")){
-            return null;
-        }
         Map<String, Object> fileStatus = managementDao.whenAFileIsChanged(source,search);
         if (eventName.equalsIgnoreCase(Constants.FILE_RECEIVED) && fileStatus.get(Constants.EVENT).equals(event)) {
             return fileStatus;

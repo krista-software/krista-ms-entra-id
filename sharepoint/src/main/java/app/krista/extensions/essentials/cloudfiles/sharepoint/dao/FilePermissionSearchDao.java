@@ -2,6 +2,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveSharedPermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -59,8 +60,8 @@ public class FilePermissionSearchDao {
                 }
 
                 if (resultPage.size() > 0) {
-                    ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(CatalogTypes::fromFile)
-                            .collect(Collectors.toList()), true, Constants.FILE_FOUND, payload);
+                    List<File> fileEntity = resultPage.stream().map(CatalogTypes::fromFile).filter(file -> hasPermission(file,permission)).collect(Collectors.toList());
+                    ResponseUtil.listOfFileEntityResponse(fileEntity, true, Constants.FILE_FOUND, payload);
                 } else {
                     ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
                 }
@@ -70,6 +71,10 @@ public class FilePermissionSearchDao {
             }
         }
         return payload;
+    }
+
+    private boolean hasPermission(File fileEntity, String permission) {
+        return fileEntity.permissions != null && fileEntity.permissions.equals(permission);
     }
 
     public LinkedList<SearchRequest> buildSearchRequestListWithAbsolutePath() {
@@ -103,7 +108,7 @@ public class FilePermissionSearchDao {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
                                 if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
-                                    files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, permission, fileSearchUtilityService));
+                                    files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, fileSearchUtilityService));
                                 }
                             }
                         }
@@ -120,7 +125,7 @@ public class FilePermissionSearchDao {
         query.queryString = domainName + " AND NOT path:\"" + siteDomainPath + "\"";
         requests.query = query;
         requests.from = 0;
-        requests.size = 25;
+        requests.size = 10;
     }
 
 

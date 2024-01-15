@@ -89,7 +89,7 @@ public class FilePermissionDao {
                                 DriveItem driveItem = (DriveItem) hits.resource;
                                 if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")
                                         && driveItem.webUrl.contains(filePath)) {
-                                    files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, null, fileSearchUtilityService));
+                                    files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes , fileSearchUtilityService));
                                 }
                             }
                         }

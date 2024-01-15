@@ -32,8 +32,8 @@ public class NotificationProcessQueue {
             String subscriptionId = array.get(i).getAsJsonObject().get(Constants.SUBSCRIPTION_ID).getAsString();
             String lifecycleEvent = array.get(i).getAsJsonObject().get(Constants.LIFECYCLE_EVENT).getAsString();
             if (lifecycleEvent.equalsIgnoreCase(Constants.SUBSCRIPTION_REMOVED)) {
-                //SharePointSubscription.createSubscription(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE), providerFactory.create());
-                SharePointSubscription.createSubscription(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).contains("https://extension.local.eng.krista.app") ? invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).replace("https://extension.local.eng.krista.app","https://d8d1-103-97-240-165.ngrok-free.app") : invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE), providerFactory.create());
+                SharePointSubscription.createSharePointSubscriptionForAllSites(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE), providerFactory.create());
+                //SharePointSubscription.createSharePointSubscriptionForAllSites(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).contains("https://extension.local.eng.krista.app") ? invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).replace("https://extension.local.eng.krista.app","https://d8d1-103-97-240-165.ngrok-free.app") : invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE), providerFactory.create());
             } else if (lifecycleEvent.equalsIgnoreCase(Constants.REAUTHORIZATION_REQUIRED)) {
                 SharePointSubscription.renewSubscription(providerFactory.create(), subscriptionId);
             }

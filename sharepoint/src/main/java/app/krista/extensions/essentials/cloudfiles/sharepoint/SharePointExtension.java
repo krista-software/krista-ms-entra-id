@@ -67,10 +67,7 @@ public class SharePointExtension {
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
         }
-        //if (attributes.getAllowGroupAlert()) {
-        SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(attributes));
-        //}
-        // FileChangeResourceUtil.addFileMetaData(routingUrl , fileIsChanged.createFileChangeResource()));
+        SharePointSubscription.createSharePointSubscriptionForAllSites(routingUrl, clientProviderFactory.create(attributes));
     }
 
     @InvokerRequest(InvokerRequest.Type.TEST_CONNECTION)
@@ -79,9 +76,6 @@ public class SharePointExtension {
             clientProviderFactory.create(sharePointAttributes)
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
-        }
-        if (sharePointAttributes.getAllowGroupAlert()) {
-            SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create());
         }
     }
 

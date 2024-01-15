@@ -47,19 +47,6 @@ public class SharepointArea {
         this.sharePointSubscription = sharePointSubscription;
     }
 
-
-    @CatalogRequest(
-            id = "localDomainRequest_061067f1-f446-4216-865c-92852702680e",
-            name = "Create Subscription",
-            description = "Creates a SharePoint notification subscription to monitor updates, deletions, or new file creations.This subscription is designed to trigger events when changes occur in the specified SharePoint site.",
-            area = "Sharepoint",
-            type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    public Map<String, Object> createSubscription() {
-        return sharePointSubscription.createSharePointSubscriptionForAllSites();
-    }
-
     @CatalogRequest(
             id = "localDomainRequest_db82d4fb-90d2-4da3-ab33-10ee1ff73d66",
             name = "Get Shared Permission",

@@ -203,7 +203,9 @@ public class Constants {
 
     public static final String CHANGETYPE = "updated";
 
-    public static final String SITE_RESOURCE = "/sites/kristasoft.sharepoint.com,371e158f-e040-4d03-ac50-571c5b53dbd6,281ed155-9843-4233-9808-918fbef08f89/lists/7d7ec388-6996-4133-8162-c00279599937";
+    public static final String SITE_RESOURCE = "/sites/";
+
+    public static final String LIST_RESOURCE = "/lists/";
 
     public static final String GROUP_RESOURCE = "/groups/2f85131a-5592-47ee-958d-a92e995be064";
 

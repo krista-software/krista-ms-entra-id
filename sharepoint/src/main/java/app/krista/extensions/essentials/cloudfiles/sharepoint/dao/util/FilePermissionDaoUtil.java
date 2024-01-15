@@ -18,7 +18,7 @@ public class FilePermissionDaoUtil {
 
     // Permission For File Entity
     public static String getPermissions(PermissionCollectionPage permissionCollectionPage, SharePointAttributes sharePointAttributes,
-                                        GraphServiceClient<Request> graphServiceClient, String permissionRole) {
+                                        GraphServiceClient<Request> graphServiceClient) {
 
         String permissionResponse = null;
 
@@ -33,9 +33,7 @@ public class FilePermissionDaoUtil {
 
                             if (group != null) {
                                 permissionResponse = checkUserMembership(graphServiceClient, group, sharePointAttributes.getMailId());
-                                if (permissionResponse != null && permissionRole == null) {
-                                    return permissionResponse; // Early return if found
-                                } else if (permissionResponse != null && permissionRole != null && permissionRole.equals(permissionResponse)) {
+                                if (permissionResponse != null) {
                                     return permissionResponse; // Early return if found
                                 }
                             }
@@ -49,13 +47,9 @@ public class FilePermissionDaoUtil {
                 // 2. Check for permissions granted directly to the user:
                 if (permission.grantedToIdentities != null) {
                     for (IdentitySet identitySet : permission.grantedToIdentities) {
-                        if (identitySet != null && matchesEmailForIdentitySet(identitySet, sharePointAttributes.getMailId()) &&
-                                permissionRole == null) {
+                        if (identitySet != null && matchesEmailForIdentitySet(identitySet, sharePointAttributes.getMailId())) {
                             permissionResponse = permission.roles.get(0);
-                        } else if (identitySet != null && matchesEmailForIdentitySet(identitySet, sharePointAttributes.getMailId()) &&
-                                permissionRole != null && permissionRole.equals(permission.roles.get(0))) {
-                            permissionResponse = permission.roles.get(0);
-                        }
+                        } 
                     }
                 }
             }
@@ -91,9 +85,8 @@ public class FilePermissionDaoUtil {
                 }
             }
         } catch (Exception cause) {
-            throw new IllegalArgumentException();
+            return null;
         }
-
         return null; // Group not found
     }
 
@@ -130,8 +123,12 @@ public class FilePermissionDaoUtil {
             List<Map<String, Object>> mapList = new ArrayList<>();
             while (permissionCollectionPage != null && !permissionCollectionPage.getCurrentPage().isEmpty()) {
                 if (permissionCollectionPage.additionalDataManager() != null) {
+                    List<Map<String, Object>> result = new ArrayList<>();
                     for (Permission permission : permissionCollectionPage.getCurrentPage()) {
-                        findUsersInMap(mapList, permission, graphClient);
+                        findOwnersInMap(mapList, permission, graphClient, result);
+                    }
+                    for (Permission permission : permissionCollectionPage.getCurrentPage()) {
+                        findUsersInMap(mapList, permission, graphClient, result);
                     }
                 }
                 if (permissionCollectionPage.getNextPage() != null) {
@@ -146,18 +143,22 @@ public class FilePermissionDaoUtil {
         }
     }
 
-    private static List<Map<String, Object>> findUsersInMap(List<Map<String, Object>> mapList, Permission permission,
-                                                            GraphServiceClient<Request> graphClient) {
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        if (permission.grantedTo != null) {
-            addOwnersAndMembers(result, mapList, permission.grantedTo.user.displayName, graphClient);
-        } else if (permission.grantedToIdentities != null) {
+    private static List<Map<String, Object>> findUsersInMap(List<Map<String, Object>> mapList, Permission permission, GraphServiceClient<Request> graphClient, List<Map<String, Object>> result) {
+        if (permission.grantedToIdentities != null) {
             for (IdentitySet identitySet : permission.grantedToIdentities) {
                 if (identitySet.user != null) {
                     result.add(findOrCreateUser(mapList, String.valueOf(identitySet.user.additionalDataManager().get("email")), permission.roles.get(0)));
                 }
             }
+        }
+        return result;
+    }
+
+
+    private static List<Map<String, Object>> findOwnersInMap(List<Map<String, Object>> mapList, Permission permission,
+                                                             GraphServiceClient<Request> graphClient, List<Map<String, Object>> result) {
+        if (permission.grantedTo != null) {
+            addOwnersAndMembers(result, mapList, permission.grantedTo.user.displayName, graphClient);
         }
         return result;
     }
