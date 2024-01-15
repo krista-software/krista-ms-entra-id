@@ -3,7 +3,6 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FilePermissionDaoUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.DriveItem;
@@ -93,8 +92,8 @@ public class DriveSharedPermissionImpl implements FileService {
 
     @Override
     public String getPermissions() {
-        return driveMetaData != null && driveItem != null  && driveMetaData.permissions != null ?
-                FilePermissionDaoUtil.getPermissions(driveMetaData.permissions,sharePointAttributes,graphClient,permissionRole) : null;
+        return driveMetaData != null && driveItem != null && driveMetaData.permissions != null ?
+                FilePermissionDaoUtil.getPermissions(driveMetaData.permissions, sharePointAttributes, graphClient, permissionRole) : null;
     }
 
     @Override
@@ -110,7 +109,7 @@ public class DriveSharedPermissionImpl implements FileService {
     @Override
     public List<Map<String, Object>> getSharedWith() {
         return driveMetaData != null && driveMetaData.permissions != null ?
-                FilePermissionDaoUtil.getSharedWithPermissions(driveMetaData.permissions,graphClient) : null;
+                FilePermissionDaoUtil.getSharedWithPermissions(driveMetaData.permissions, graphClient) : null;
     }
 
     @Override

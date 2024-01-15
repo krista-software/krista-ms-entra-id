@@ -4,6 +4,7 @@ import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SharepointAreaImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.util.EventHandler;
@@ -33,38 +34,30 @@ public class SharepointArea {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
+    private final SharePointSubscription sharePointSubscription;
 
     @Inject
     public SharepointArea(SharepointAreaImpl sharepointAreaImpl, EventHandler eventHandler,
-                          RequestContext requestContext, AuthorizationContext authorizationContext) {
+                          RequestContext requestContext, AuthorizationContext authorizationContext,
+                          SharePointSubscription sharePointSubscription) {
         this.sharepointAreaImpl = sharepointAreaImpl;
         this.eventHandler = eventHandler;
         this.requestContext = requestContext;
         this.authorizationContext = authorizationContext;
+        this.sharePointSubscription = sharePointSubscription;
     }
 
 
     @CatalogRequest(
-            id = "localDomainRequest_940bb32f-25ac-499b-b52f-816c8600ec49",
-            name = "Get Response",
-            description = "Accept task ID as input and return List of Files",
+            id = "localDomainRequest_061067f1-f446-4216-865c-92852702680e",
+            name = "Create Subscription",
+            description = "Creates a SharePoint notification subscription to monitor updates, deletions, or new file creations.This subscription is designed to trigger events when changes occur in the specified SharePoint site.",
             area = "Sharepoint",
-            type = CatalogRequest.Type.WAIT_FOR_EVENT)
-    @Field.Desc(name = "Files", type = "[ Entity(File) ]", required = false)
+            type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    public Map<String, Object> getResponse(
-            @Field(name = "eventName", type = "Text") String eventName,
-            @Field(name = "eventData", type = "FreeForm") FreeForm eventData,
-            @Field.Text(name = "Task ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String taskID) {
-        if (eventName.equals(taskID)) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(Constants.FILES, eventData.get(Constants.FILES));
-            map.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
-            map.put(Constants.SUCCESS, eventData.get(Constants.SUCCESS));
-            return map;
-        }
-        throw new IllegalStateException("Invalid Input");
+    public Map<String, Object> createSubscription() {
+        return sharePointSubscription.createSharePointSubscriptionForAllSites();
     }
 
     @CatalogRequest(
@@ -107,5 +100,47 @@ public class SharepointArea {
         return taskId;
     }
 
+    @CatalogRequest(
+            id = "localDomainRequest_940bb32f-25ac-499b-b52f-816c8600ec49",
+            name = "Get Response",
+            description = "Accept task ID as input and return List of Files",
+            area = "Sharepoint",
+            type = CatalogRequest.Type.WAIT_FOR_EVENT)
+    @Field.Desc(name = "Files", type = "[ Entity(File) ]", required = false)
+    @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public Map<String, Object> getResponse(
+            @Field(name = "eventName", type = "Text") String eventName,
+            @Field(name = "eventData", type = "FreeForm") FreeForm eventData,
+            @Field.Text(name = "Task ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String taskID) {
+        if (eventName.equals(taskID)) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(Constants.FILES, eventData.get(Constants.FILES));
+            map.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
+            map.put(Constants.SUCCESS, eventData.get(Constants.SUCCESS));
+            return map;
+        }
+        throw new IllegalStateException("Invalid Input");
+    }
+
+    @CatalogRequest(
+            id = "localDomainRequest_b14e9456-34df-4011-a120-91c6597723a0",
+            name = "Search By Mail",
+            description = "Searches for files in SharePoint based on the email addresses of the users who created and last modified the files.",
+            area = "Sharepoint",
+            type = CatalogRequest.Type.QUERY_SYSTEM)
+    @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public String searchByMail(
+            @Field.Text(name = "Email", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String email,
+            @Field.PickOne(name = "User", values = {"Created By","Modified By"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String user) {
+        final String taskId = UUID.randomUUID().toString();
+        boolean useEmail = !requestContext.invokeAsUser();
+        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
+        executorService.submit(() -> {
+            FreeForm freeForm = sharepointAreaImpl.getSearchByMail(email, user, useEmail, accountID);
+            eventHandler.handleEvent(taskId, freeForm);
+        });
+        return taskId;
+    }
 
 }

@@ -117,10 +117,11 @@ public class FilePermissionSearchDao {
         String domainName = fileSearchImpl.getDomainName();
         String siteDomainPath = fileSearchImpl.getDomainPath(domainName, false);
         SearchQuery query = new SearchQuery();
-        query.queryString = "" + domainName + " AND NOT path:\"" + siteDomainPath + "\"";
+        query.queryString = domainName + " AND NOT path:\"" + siteDomainPath + "\"";
         requests.query = query;
         requests.from = 0;
         requests.size = 25;
     }
+
 
 }

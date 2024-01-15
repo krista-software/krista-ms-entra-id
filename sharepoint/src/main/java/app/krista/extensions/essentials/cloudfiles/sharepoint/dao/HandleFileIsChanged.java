@@ -109,6 +109,7 @@ public class HandleFileIsChanged {
                 }
             }
 
+            List<DriveItem> newDriveItemList = getFileByAbsolutePath(absolutPath, graphClient);
             if (notificationDriveItem != null) {
                 if (notificationDriveItem.id != null && notificationDriveItem.deleted != null) {
                     payload.put("File", CatalogTypes.fromFile(new DrivePermissionImpl(new DriveItem(), graphClient, fileSearchUtilityService)));
@@ -117,7 +118,10 @@ public class HandleFileIsChanged {
                 }
 
                 List<DriveItem> driveItemList = FileChangeResourceUtil.getOldFileChangeResource(source);
-                Boolean flag = false;
+                if(driveItemList == null){
+                    driveItemList = getFileByAbsolutePath(absolutPath, graphClient);
+                }
+                boolean flag = false;
                 if (driveItemList != null) {
                     for (DriveItem driveItem : driveItemList) {
                         if (driveItem.id != null && driveItem.id.equals(notificationDriveItem.id)
@@ -128,14 +132,33 @@ public class HandleFileIsChanged {
                         }
                         flag = true;
                     }
-                    if (flag && notificationDriveItem.id != null && notificationDriveItem.oDataType.equals("#microsoft.graph.driveItem")) {
-                        addCreatedFile(notificationDriveItem, payload, graphClient);
+                }
+                if (!flag) {
+                    for (DriveItem oldDriveItem : driveItemList) {
+                        boolean isFileDeleted = true;
+
+                        for (DriveItem newDriveItem : newDriveItemList) {
+                            if (oldDriveItem.id != null && oldDriveItem.id.equals(newDriveItem.id)) {
+                                isFileDeleted = false;
+                                break;
+                            }
+                        }
+
+                        if (isFileDeleted) {
+                            flag = false;
+                            payload.put("File", CatalogTypes.fromFile(new DrivePermissionImpl(oldDriveItem, graphClient, fileSearchUtilityService)));
+                            payload.put("Event", Constants.DELETED);
+                            break;  // No need to continue checking other items
+                        }
                     }
                 }
-                List<DriveItem> newDriveItemList = getFileByAbsolutePath(absolutPath, graphClient);
-                FileChangeResourceUtil.addOldFileMetaData(source, newDriveItemList);
-                FileChangeResourceUtil.addFileMetaData(absolutPath, page);
+                if (flag && notificationDriveItem.id != null && notificationDriveItem.oDataType.equals("#microsoft.graph.driveItem")) {
+                    addCreatedFile(notificationDriveItem, payload, graphClient);
+                }
             }
+
+            FileChangeResourceUtil.addOldFileMetaData(source, newDriveItemList);
+            FileChangeResourceUtil.addFileMetaData(absolutPath, page);
         } catch (Exception cause) {
             throw new IllegalArgumentException();
         }

@@ -11,14 +11,15 @@ import javax.inject.Inject;
 public class SharepointAreaImpl {
 
     private final FilePermissionDao filePermissionDao;
-
     private final FilePermissionSearchDao filePermissionSearchDao;
+    private final FileEmailSearchDao fileEmailSearchDao;
 
     @Inject
     public SharepointAreaImpl(FilePermissionDao filePermissionDao,
-                              FilePermissionSearchDao filePermissionSearchDao) {
+                              FilePermissionSearchDao filePermissionSearchDao, FileEmailSearchDao fileEmailSearchDao) {
         this.filePermissionDao = filePermissionDao;
         this.filePermissionSearchDao = filePermissionSearchDao;
+        this.fileEmailSearchDao = fileEmailSearchDao;
     }
 
     public FreeForm getSharedPermission(String sourcePath, boolean useEmail, String accountID) {
@@ -36,4 +37,14 @@ public class SharepointAreaImpl {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
+
+    public FreeForm getSearchByMail(String email, String user, boolean useEmail, String accountID) {
+        try {
+            return fileEmailSearchDao.getSearchByMail(email, user, useEmail, accountID);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            throw new IllegalArgumentException(cause.getMessage(), cause);
+        }
+    }
+
+
 }

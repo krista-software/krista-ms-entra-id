@@ -24,20 +24,8 @@ public class FilePermissionDaoUtil {
 
         if (permissionCollectionPage != null && !permissionCollectionPage.getCurrentPage().isEmpty()) {
             for (Permission permission : permissionCollectionPage.getCurrentPage()) {
-                // 1. Check for permissions granted directly to the user:
-                if (permission.grantedToIdentities != null) {
-                    for (IdentitySet identitySet : permission.grantedToIdentities) {
-                        if (identitySet != null && matchesEmailForIdentitySet(identitySet, sharePointAttributes.getMailId()) &&
-                                permissionRole == null) {
-                            permissionResponse = permission.roles.get(0);
-                        } else if (identitySet != null && matchesEmailForIdentitySet(identitySet, sharePointAttributes.getMailId()) &&
-                                permissionRole != null && permissionRole.equals(permission.roles.get(0))) {
-                            permissionResponse = permission.roles.get(0);
-                        }
-                    }
-                }
-                // 2. Handle permissions granted to groups:
-                else if (permission.grantedTo != null && permission.grantedTo.user != null) {
+                // 1. Handle permissions granted to groups:
+                if (permission.grantedTo != null && permission.grantedTo.user != null) {
                     String siteName = extractSiteName(permission.grantedTo.user.displayName);
                     if (siteName != null) {
                         try {
@@ -53,6 +41,20 @@ public class FilePermissionDaoUtil {
                             }
                         } catch (Exception cause) {
                             return permissionResponse;
+                        }
+                    }
+                }
+            }
+            for (Permission permission : permissionCollectionPage.getCurrentPage()) {
+                // 2. Check for permissions granted directly to the user:
+                if (permission.grantedToIdentities != null) {
+                    for (IdentitySet identitySet : permission.grantedToIdentities) {
+                        if (identitySet != null && matchesEmailForIdentitySet(identitySet, sharePointAttributes.getMailId()) &&
+                                permissionRole == null) {
+                            permissionResponse = permission.roles.get(0);
+                        } else if (identitySet != null && matchesEmailForIdentitySet(identitySet, sharePointAttributes.getMailId()) &&
+                                permissionRole != null && permissionRole.equals(permission.roles.get(0))) {
+                            permissionResponse = permission.roles.get(0);
                         }
                     }
                 }

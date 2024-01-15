@@ -1,13 +1,20 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.ManagementArea;
+import app.krista.extension.executor.Invoker;
+import app.krista.extension.request.RoutingInfo;
+import app.krista.extension.request.protos.http.HttpProtocol;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.core.ClientException;
+import com.microsoft.graph.models.List;
+import com.microsoft.graph.models.Site;
 import com.microsoft.graph.models.Subscription;
-import com.microsoft.graph.requests.SubscriptionCollectionPage;
-import com.microsoft.graph.requests.SubscriptionCollectionRequestBuilder;
+import com.microsoft.graph.options.QueryOption;
+import com.microsoft.graph.requests.*;
 import com.microsoft.graph.serializer.OffsetDateTimeSerializer;
+import okhttp3.Request;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +22,46 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 public class SharePointSubscription {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharePointSubscription.class);
+    private final GraphServiceClientProvider provider;
+    private final Invoker invoker;
 
-    private SharePointSubscription() {
+
+    private SharePointSubscription(GraphServiceClientProviderFactory providerFactory, Invoker invoker) {
+        this.provider = providerFactory.create();
+        this.invoker = invoker;
+    }
+
+
+    public Map<String, Object> createSharePointSubscriptionForAllSites() {
+        Map<String, Object> payload = new HashMap<>();
+        try {
+            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
+            LinkedList<QueryOption> requestOptions = new LinkedList<>();
+            requestOptions.add(new QueryOption("search", "*"));
+            SiteCollectionPage sites = graphClient.sites().buildRequest(requestOptions).get();
+
+            for (Site site : sites.getCurrentPage()) {
+                try {
+                    graphClient.sites(site.id).buildRequest().get();    // To check if site exist or not
+                    ListCollectionPage listCollectionPage = graphClient.sites(site.id).lists().buildRequest().get();
+                    if (listCollectionPage != null) {
+                        for (List list : listCollectionPage.getCurrentPage()) {
+                            //createSubscription(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).contains("https://extension.local.eng.krista.app") ? invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).replace("https://extension.local.eng.krista.app", "https://d8d1-103-97-240-165.ngrok-free.app") : invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE), provider, site.id , list.id);
+                        }
+                    }
+                } catch (Exception cause) {
+                    continue;
+                }
+            }
+        } catch (Exception cause) {
+            ResponseUtil.successResponse(false, Constants.FAILED_TO_CREATE_SUBSCRIPTION, payload);
+        }
+        return payload;
     }
 
     /**
@@ -35,13 +74,13 @@ public class SharePointSubscription {
         try {
             Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://d8d1-103-97-240-165.ngrok-free.app") : routingUrl);
             //Subscription subscription = setSubscriptionParameters(routingUrl);
-            System.out.print(" Subscription "+subscription.notificationUrl+"-"+subscription.lifecycleNotificationUrl+"-"+subscription.resource);
+            System.out.print(" Subscription " + subscription.notificationUrl + "-" + subscription.lifecycleNotificationUrl + "-" + subscription.resource);
 
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
                 for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
-                    System.out.println(" old notificationUrl "+Objects.requireNonNull(oldSubscription.notificationUrl));
-                    System.out.println(" subscription notificationUrl "+subscription.notificationUrl);
+                    System.out.println(" old notificationUrl " + Objects.requireNonNull(oldSubscription.notificationUrl));
+                    System.out.println(" subscription notificationUrl " + subscription.notificationUrl);
                     if (Objects.requireNonNull(oldSubscription.notificationUrl).equals(subscription.notificationUrl)) {
                         System.out.println(" Came inside ");
                         return;
@@ -49,7 +88,7 @@ public class SharePointSubscription {
                 }
                 SubscriptionCollectionRequestBuilder nextPage = collectionPage.getNextPage();
                 if (nextPage != null) {
-                    System.out.println(" nextPage "+nextPage);
+                    System.out.println(" nextPage " + nextPage);
                     collectionPage = nextPage.buildRequest().get();
                 } else {
                     break;
@@ -100,5 +139,6 @@ public class SharePointSubscription {
             throw new RuntimeException(cause);
         }
     }
+
 
 }

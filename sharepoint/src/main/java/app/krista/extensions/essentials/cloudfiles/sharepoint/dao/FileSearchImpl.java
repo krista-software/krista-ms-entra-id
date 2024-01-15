@@ -83,7 +83,7 @@ public class FileSearchImpl {
         } else if ("Name".equals(selector) || "Base Name".equalsIgnoreCase(selector)) {
             query.queryString = "isDocument=true AND fileName:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Size".equalsIgnoreCase(selector)) {
-            query.queryString = "isDocument=true AND Size >= 1 Size <= "+name+" AND NOT path:\"" + personalDrivePath + "\"";
+            query.queryString = "isDocument=true AND Size >= 1 Size <= " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else {
             query.queryString = "isDocument=true AND " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         }
@@ -239,6 +239,32 @@ public class FileSearchImpl {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
                                 files.add(driveItem);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void extractDrivePermissionsForSearchByMail(List<DrivePermissionImpl> resultPage, SearchEntityQueryCollectionPage page,
+                                                       GraphServiceClient<Request> graphClient, String email, String user) {
+        for (SearchResponse driveInPage : page.getCurrentPage()) {
+            if (driveInPage.hitsContainers != null) {
+                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
+                    if (hitContainer.hits != null) {
+                        for (SearchHit hits : hitContainer.hits) {
+                            if (hits != null && hits.resource instanceof DriveItem) {
+                                DriveItem driveItem = (DriveItem) hits.resource;
+                                if (driveItem.webUrl != null && user.equals(Constants.CREATED_BY) && driveItem.createdBy != null
+                                        && driveItem.createdBy.user.additionalDataManager().get("email") != null
+                                        && driveItem.createdBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
+                                    resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null
+                                        && driveItem.lastModifiedBy.user.additionalDataManager().get("email") != null
+                                        && driveItem.lastModifiedBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
+                                    resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                }
                             }
                         }
                     }

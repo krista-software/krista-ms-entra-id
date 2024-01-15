@@ -2,16 +2,17 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import com.microsoft.graph.models.DriveItem;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Utility class for common operations related to Microsoft Graph Drive and File handling.
@@ -155,6 +156,31 @@ public class DriveUtil {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateFormat.setTimeZone(TimeZone.getTimeZone("IST"));
         return dateFormat.format(date);
+    }
+
+    public static String getTokenExtractor(String url) {
+        String token = null;
+        try {
+            URI uri = new URI(url);
+            String query = uri.getQuery();
+
+            Map<String, String> queryParams = new HashMap<>();
+            if (query != null) {
+                String[] pairs = query.split("&");
+                for (String pair : pairs) {
+                    String[] parts = pair.split("=");
+                    String key = parts[0];
+                    String value = parts.length > 1 ? parts[1] : null;
+                    queryParams.put(key, value);
+                }
+            }
+
+            token = queryParams.get("token");
+            System.out.println("Token: " + token);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException();
+        }
+        return token;
     }
 
 }

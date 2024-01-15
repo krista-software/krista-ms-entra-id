@@ -10,7 +10,6 @@ import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.HandleFileIsChanged;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileChangeResourceUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 
@@ -35,14 +34,14 @@ public class SharePointExtension {
     @Inject
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
                                GraphServiceClientProviderFactory clientProviderFactory,
-                               SharePointAttributeStore sharePointAttributeStore,HandleFileIsChanged fileIsChanged) {
+                               SharePointAttributeStore sharePointAttributeStore, HandleFileIsChanged fileIsChanged) {
         this(invoker, sharePointAttributes, clientProviderFactory,
-                new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes),fileIsChanged);
+                new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes), fileIsChanged);
     }
 
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
                                GraphServiceClientProviderFactory clientProviderFactory,
-                               SharePointRequestAuthenticator requestAuthenticator,HandleFileIsChanged fileIsChanged) {
+                               SharePointRequestAuthenticator requestAuthenticator, HandleFileIsChanged fileIsChanged) {
         this.routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
         this.sharePointAttributes = sharePointAttributes;
         this.clientProviderFactory = clientProviderFactory;
@@ -69,7 +68,7 @@ public class SharePointExtension {
                     .me().drive().root().children().buildRequest().get();
         }
         //if (attributes.getAllowGroupAlert()) {
-            SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(attributes));
+        SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(attributes));
         //}
         // FileChangeResourceUtil.addFileMetaData(routingUrl , fileIsChanged.createFileChangeResource()));
     }

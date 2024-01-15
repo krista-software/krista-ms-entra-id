@@ -297,6 +297,14 @@ public class Constants {
 
     public static final String SWITCH = "Switch";
 
+    public static final String FAILED_TO_GET_BY_MAILID = "Failed to get file from this mail Id, Please try again later.";
+
+    public static final String MAILID_CANNOT_BE_EMPTY = "E-Mail Id Cannot be null or empty";
+
+    public static final String CREATED_BY  = "Created By";
+
+    public static final String FAILED_TO_CREATE_SUBSCRIPTION  = "Failed to create subscription for sites, Please try again letter.";
+
 
 
     private Constants() {
