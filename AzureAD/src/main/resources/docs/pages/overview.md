@@ -10,3 +10,5 @@
   * Obtain the Client ID and Client Secret.
   * Grant the Admin level consent.
 
+### Limitation
+* If the invoker remains unused for a period exceeding 90 days, re-authentication will be necessary.

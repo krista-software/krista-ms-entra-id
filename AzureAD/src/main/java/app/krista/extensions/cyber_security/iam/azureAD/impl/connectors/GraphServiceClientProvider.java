@@ -7,6 +7,7 @@ import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
 import app.krista.model.field.NamedValuedField;
+import com.google.gson.JsonObject;
 import com.microsoft.aad.msal4j.*;
 import com.microsoft.graph.authentication.IAuthenticationProvider;
 import com.microsoft.graph.core.ClientException;
@@ -84,6 +85,8 @@ public class GraphServiceClientProvider {
             ConfidentialClientApplication confidentialClientApplication = ConfidentialClientApplication.builder
                     (azureADAttributes.getClientId(), clientCredential).authority(authority).build();
             IAuthenticationResult authenticationResult = confidentialClientApplication.acquireToken(refreshTokenParameters).get();
+            final String cachedTokenContent = confidentialClientApplication.tokenCache().serialize();
+            updateRefreshToken(userId, Constants.GSON.fromJson(cachedTokenContent, JsonObject.class));
             return GraphServiceClient.builder()
                     .authenticationProvider(new GraphServiceClientAuthenticationProvider(authenticationResult.accessToken()))
                     .buildClient();
@@ -93,6 +96,15 @@ public class GraphServiceClientProvider {
             Thread.currentThread().interrupt();
             throw createMustAuthorizationException(userId, true);
         }
+    }
+
+    private void updateRefreshToken(String userId, JsonObject jsonTokenCache) {
+        JsonObject refreshToken = jsonTokenCache.get("RefreshToken").getAsJsonObject();
+        String firstKey = refreshToken.keySet().iterator().next();
+        JsonObject tokenData = refreshToken.getAsJsonObject(firstKey);
+        String secret = tokenData.get("secret").getAsString();
+        refreshTokenStore.put(userId, secret);
+        System.out.println("Updated Refresh Token.");
     }
 
     public UserRequestBuilder getUserRequestBuilder() {
