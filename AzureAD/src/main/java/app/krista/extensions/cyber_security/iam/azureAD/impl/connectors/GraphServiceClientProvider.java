@@ -7,16 +7,18 @@ import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
 import app.krista.model.field.NamedValuedField;
+import com.google.gson.JsonObject;
 import com.microsoft.aad.msal4j.*;
 import com.microsoft.graph.authentication.IAuthenticationProvider;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.UserRequestBuilder;
 import okhttp3.Request;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -28,11 +30,13 @@ public class GraphServiceClientProvider {
     public static final String REQUIRED_SCOPE = Constants.REQUIRED_SCOPE;
     public static final String SCOPE_SEPARATOR = " ";
     public static final String AUTHORITY = "https://login.microsoftonline.com/";
+    private static final Logger LOG =LogManager.getLogger(GraphServiceClientProvider.class.getName());
     private final RefreshTokenStore refreshTokenStore;
     private final AzureADAttributes azureADAttributes;
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
     private final String authContextId;
+
 
     @Inject
     public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, AzureADAttributes azureADAttributes, RequestContext requestContext, AuthorizationContext authorizationContext) {
@@ -84,6 +88,8 @@ public class GraphServiceClientProvider {
             ConfidentialClientApplication confidentialClientApplication = ConfidentialClientApplication.builder
                     (azureADAttributes.getClientId(), clientCredential).authority(authority).build();
             IAuthenticationResult authenticationResult = confidentialClientApplication.acquireToken(refreshTokenParameters).get();
+            final String cachedTokenContent = confidentialClientApplication.tokenCache().serialize();
+            updateRefreshToken(userId, Constants.GSON.fromJson(cachedTokenContent, JsonObject.class));
             return GraphServiceClient.builder()
                     .authenticationProvider(new GraphServiceClientAuthenticationProvider(authenticationResult.accessToken()))
                     .buildClient();
@@ -93,6 +99,15 @@ public class GraphServiceClientProvider {
             Thread.currentThread().interrupt();
             throw createMustAuthorizationException(userId, true);
         }
+    }
+
+    private void updateRefreshToken(String userId, JsonObject jsonTokenCache) {
+        JsonObject refreshToken = jsonTokenCache.get("RefreshToken").getAsJsonObject();
+        String firstKey = refreshToken.keySet().iterator().next();
+        JsonObject tokenData = refreshToken.getAsJsonObject(firstKey);
+        String secret = tokenData.get("secret").getAsString();
+        refreshTokenStore.put(userId, secret);
+        LOG.info("Refresh token updated");
     }
 
     public UserRequestBuilder getUserRequestBuilder() {
