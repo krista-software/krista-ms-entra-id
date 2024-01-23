@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
         name = "Cloud Files",
         ecosystemId = "catEntryEcosystem_84b53163-327b-4b1b-8c96-9334d292f9f5",
         ecosystemName = "Essentials",
-        ecosystemVersion = "0182fa3a-9c4d-4773-a794-8accc262bdd2")
+        ecosystemVersion = "fcbe44a3-40b8-45bd-866e-f28f13cee132")
 public class SharepointArea {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharepointArea.class);
