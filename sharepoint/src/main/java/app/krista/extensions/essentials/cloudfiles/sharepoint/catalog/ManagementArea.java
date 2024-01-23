@@ -322,7 +322,7 @@ public class ManagementArea {
     }
 
     @CatalogRequest(
-            id = "localDomainRequest_15e1db59-62a4-41a7-a136-cc92f3eb3b2f",
+            id = "localDomainRequest_d6ab2648-df6b-4429-aeef-a56c75fde191",
             name = "When a File is Changed",
             description = "Monitors the Cloud Storage for changes. When a change arrives and the affected files/folders match the source path and event type, the event will be triggered.",
             area = "Management",
