@@ -10,6 +10,7 @@ import app.krista.extension.impl.anno.*;
         ecosystemName = "Essentials",
         ecosystemVersion ="a8626fe2-4d91-4667-b6ae-4f60bb914ccf")
 @Entity(name = "File", id = "localDomainEntity_292c2a1d-0d6c-4307-a4d1-04176dd5a315", primaryKey = "Absolute Path", options = {})
+@Searchable
 public class File {
 
     @Searchable

@@ -219,7 +219,7 @@ public class Constants {
 
     public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "To Download file Please Click on URL";
 
-    public static final String DOWNLOAD_LINK = "Download Link";
+    public static final String DOWNLOAD_LINK = "Link";
 
     public static final String FILE_SIZE_IS_GREATER_THAN_30MB = "File Size is Greater than 30MB, Please Download file By URL";
 

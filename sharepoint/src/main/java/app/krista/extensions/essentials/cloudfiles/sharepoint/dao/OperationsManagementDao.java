@@ -6,6 +6,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Managemen
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
@@ -34,12 +35,12 @@ public class OperationsManagementDao {
 
     private final ManagementUtilityService managementUtilityService;
 
-    private final FileDaoImpl fileDao;
+    private final FileDao fileDao;
 
 
     @Inject
     public OperationsManagementDao(GraphServiceClientProviderFactory factory,
-                                   ManagementUtilityService managementUtilityService, FileDaoImpl fileDao) {
+                                   ManagementUtilityService managementUtilityService, FileDao fileDao) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileDao = fileDao;
