@@ -31,7 +31,7 @@
 
 
 * Go to **Extensions** > **SharePoint** , and get into Setup page Tab.
-  ![SetupPage](../_media/setup4.jpg)  
+  ![SetupPage](../_media/setup3.jpg)  
 
 
 * Now you can use **Client Id** , **Client Secret**, **Tenant Id** and **Email** as Setup Parameters which you have Obtained previously.
@@ -42,7 +42,7 @@
     * **Tenant Id** : "your_tenant_id".
     * **Email** : "sharepoint.testmail@contoso.com".
     
-  ![SetupPage](../_media/setup3.jpg)
+  ![SetupPage](../_media/setup4.jpg)
 
 
 * Once you are authorized, you can see if the connection is established by clicking test connection on setup page.
