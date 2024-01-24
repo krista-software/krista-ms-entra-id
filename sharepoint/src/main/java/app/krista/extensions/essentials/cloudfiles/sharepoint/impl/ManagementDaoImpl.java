@@ -72,7 +72,8 @@ public class ManagementDaoImpl {
 
     public Map<String, Object> downloadFileAsLink(String source) {
         try {
-            return fileDownloadService.downloadFiles(true, false, source);
+            // return "<a href =" + fileDownloadService.downloadFiles(true, false, source) + ">Click here to download " ;
+           return fileDownloadService.downloadFiles(true, false, source);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

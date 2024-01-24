@@ -6,15 +6,16 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 ## Management Area
 
-> #### Note :
+> #### Notes :
 >  - Specify the SharePoint site name in the path.
->  - The path should start with "/Sites/ListName" and include the folder.
+>  - The path should start with /Sites/ListName and include the folder.
 >  - In the File Entity Response, the absolute path retrieved includes the complete file path.
+>  - If we include only "Documents" in the absolute path instead of "Shared Documents" or use the complete absolute path, it will still function.
 
 
 #### 1. Copy
 
-- **Description**: Copy the provide file represented by the entity to the target location and Replace file or create folder in path if selected 'Yes' .
+- **Description**: Copy the provide file represented by the entity to the target location and Replace file or create folder in path if selected Yes.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                              |
@@ -29,11 +30,11 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                         |
-|--------------------|--------------------|-------------------------------------|
-| File               | Entity             | Test.xlsx                           |
-| Message            | Text               | "File has been copied successfully" |
-| Success            | Yes/No             | Yes                                 |
+| **Parameter Name** | **Parameter Type** | **Example**                            |
+|--------------------|--------------------|----------------------------------------|
+| File               | Entity             | {name : "ABC", extension:".txt" , ...} |
+| Message            | Text               | File has been copied successfully      |
+| Success            | Yes/No             | Yes                                    |
 
 #### 2. Delete
 
@@ -47,10 +48,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                 |
-|--------------------|--------------------|-----------------------------|
-| Message            | Text               | "File Deleted successfully" |
-| Success            | Yes/No             | Yes                         |
+| **Parameter Name** | **Parameter Type** | **Example**               |
+|--------------------|--------------------|---------------------------|
+| Message            | Text               | File Deleted successfully |
+| Success            | Yes/No             | Yes                       |
 
 #### 3. Download as Link
 
@@ -63,11 +64,11 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                            |
-|--------------------|--------------------|----------------------------------------|
-| Download Link      | Text               | {link}                                 |
-| Message            | Text               | "To Download file Please Click on URL" |
-| Success            | Yes/No             | Yes                                    |
+| **Parameter Name** | **Parameter Type** | **Example**                          |
+|--------------------|--------------------|--------------------------------------|
+| Download Link      | Text               | {link}                               |
+| Message            | Text               | To Download file Please Click on URL |
+| Success            | Yes/No             | Yes                                  |
 
 #### 4. Download as Krista File
 
@@ -83,11 +84,11 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**       |
-|--------------------|--------------------|-------------------|
-| Krista File        | Krista File        | File              |
-| Message            | Text               | "File Downloaded" |
-| Success            | Yes/No             | Yes               |
+| **Parameter Name** | **Parameter Type** | **Example**     |
+|--------------------|--------------------|-----------------|
+| Krista File        | Krista File        | File            |
+| Message            | Text               | File Downloaded |
+| Success            | Yes/No             | Yes             |
 
 #### 5. Get Info
 
@@ -118,7 +119,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | Yes           | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->  - This task ID is exclusively supported for 'Get Info' catalog requests.
+>  - This **Task ID** is exclusively supported for Get Info catalog requests.
 
 - **Output**:
 
@@ -134,7 +135,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Last Modified File Id          | Text               | bdcqwveb84yt4y43y84yt284 |
 | Last Modified File Name        | Text               | Extension                |
 | Last Modified File Create Date | Date               | 03/04/2023               |
-| Message                        | Text               | "File Information"       |
+| Message                        | Text               | File Information         |
 | Success                        | Yes/No             | Yes                      |
 
 
@@ -148,15 +149,15 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | Yes           | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->  - This task ID is exclusively supported for 'List Files & List Folders' catalog requests.
+>  - This task ID is exclusively supported for List Files & List Folders catalog requests.
 
 - **Output**:
 
-| **Parameter Name**             | **Parameter Type** | **Example**                              |
-|--------------------------------|--------------------|------------------------------------------|
-| Files                          | List&lt;Entity>    | [{name : "ABC", extension:".txt" , ...}] |
-| Message                        | Text               | "File Information"                       |
-| Success                        | Yes/No             | Yes                                      |
+| **Parameter Name** | **Parameter Type** | **Example**                              |
+|--------------------|--------------------|------------------------------------------|
+| Files              | List&lt;Entity>    | [{name : "ABC", extension:".txt" , ...}] |
+| Message            | Text               | File Information                         |
+| Success            | Yes/No             | Yes                                      |
 
 
 #### 8. List Files
@@ -167,7 +168,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                        |
 |--------------------|--------------------|---------------|------------------------------------|
 | Source Path        | Text               | Yes           | /siteName /Shared Documents/folder |
-| Search             | Text               | No            | "Put.json"                         |
+| Search             | Text               | No            | Put.json                           |
 
 
 - **Output**:
@@ -209,7 +210,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**                            |
 |--------------------|--------------------|----------------------------------------|
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-| Message            | Text               | "File Moved"                           |
+| Message            | Text               | File Moved                             |
 | Success            | Yes/No             | Yes                                    |
 
 
@@ -230,7 +231,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**  |
 |--------------------|--------------------|--------------|
 | Content            | Paragraph          | Text Content |
-| Message            | Text               | " "          |
+| Message            | Text               |              |
 | Success            | Yes/No             | Yes          |
 
 
@@ -246,10 +247,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                            |
-|--------------------|--------------------|----------------------------------------|
-| Message            | Text               | " "                                    |
-| Success            | Yes/No             | Yes                                    |
+| **Parameter Name** | **Parameter Type** | **Example**                        |
+|--------------------|--------------------|------------------------------------|
+| Message            | Text               |                                    |
+| Success            | Yes/No             | Yes                                |
 
 #### 13. Share File
 
@@ -266,7 +267,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**                            |
 |--------------------|--------------------|----------------------------------------|
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-| Message            | Text               | "File has been shared successfully"    |
+| Message            | Text               | File has been shared successfully      |
 | Success            | Yes/No             | Yes                                    |
 
 
@@ -288,7 +289,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**                            |
 |--------------------|--------------------|----------------------------------------|
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-| Message            | Text               | "File Uploaded Successfully"           |
+| Message            | Text               | File Uploaded Successfully             |
 | Success            | Yes/No             | Yes                                    |
 
 
@@ -297,10 +298,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Uploads the file content to the cloud storage at the given target location as a plain text file.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                      |
-|--------------------|--------------------|---------------|--------------------------------------------------|
-| File Content       | Text               | Yes           | "Demo File Content"                              |
-| Target             | Text               | Yes           | /siteName /Shared Documents/folder/fileName.txt  |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                     |
+|--------------------|--------------------|---------------|-------------------------------------------------|
+| File Content       | Text               | Yes           | Demo File Content                               |
+| Target             | Text               | Yes           | /siteName /Shared Documents/folder/fileName.txt |
 
 
 - **Output**:
@@ -308,7 +309,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**                            |
 |--------------------|--------------------|----------------------------------------|
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-| Message            | Text               | "File Uploaded Successfully"           |
+| Message            | Text               | File Uploaded Successfully             |
 | Success            | Yes/No             | Yes                                    |
 
 
@@ -325,11 +326,11 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type**     | **Example**                                 |
-|--------------------|------------------------|---------------------------------------------|
-| Result             | List&lt;Multi field>   | [{Path: Text, Date: Date, Update: Created}] |
-| Message            | Text                   | "File Content"                              |
-| Success            | Yes/No                 | Yes                                         |
+| **Parameter Name** | **Parameter Type**   | **Example**                                 |
+|--------------------|----------------------|---------------------------------------------|
+| Result             | List&lt;Multi field> | [{Path: Text, Date: Date, Update: Created}] |
+| Message            | Text                 | File Content                                |
+| Success            | Yes/No               | Yes                                         |
 
 > #### Note :
 >   - Changes Since Supports For SharePoint Folders and File.
@@ -356,7 +357,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 > #### Note :
 >   - File Entity in response does not contain Permission and Shared With & it's for Update & Create.
 >   - Initially, upon creating a subscription, the system provides notifications for updates. Subsequently, you will receive notifications for both new creations and updates.
->   - Searching with "Contains ChildFolder" implies seeking instances where the provided path includes any subfolders.
+>   - Searching with Contains ChildFolder implies seeking instances where the provided path includes any subfolders.
 
 ## SharePoint Area
 
@@ -467,11 +468,11 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 - **Output**:
 
-| **Parameter Name**             | **Parameter Type**  | **Example**                              |
-|--------------------------------|---------------------|------------------------------------------|
-| Files                          | List&lt;Entity>     | [{name : "ABC", extension:".txt" , ...}] |
-| Message                        | Text                | "File Information"                       |
-| Success                        | Yes/No              | Yes                                      |
+| **Parameter Name** | **Parameter Type** | **Example**                              |
+|--------------------|--------------------|------------------------------------------|
+| Files              | List&lt;Entity>    | [{name : "ABC", extension:".txt" , ...}] |
+| Message            | Text               | File Information                         |
+| Success            | Yes/No             | Yes                                      |
 
 
 ## Operation Area
@@ -483,17 +484,17 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
 |--------------------|--------------------|---------------|-------------|
-| Site Name          | Text               | Yes           | Site Name   |
-| List Name          | Text               | Yes           | List Name   |
+| Site Name          | Text               | Yes           | Test 123    | 
+| List Name          | Text               | Yes           | ABC         |
 
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                            |
-|--------------------|--------------------|----------------------------------------|
-| File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-| Message            | Text               | "List created successfully"            |
-| Success            | Yes/No             | Yes                                    |
+| **Parameter Name** | **Parameter Type** | **Example**                         |
+|--------------------|--------------------|-------------------------------------|
+| File               | Entity             | {name : "ABC", extension:"" , ...}  |
+| Message            | Text               | List created successfully           |
+| Success            | Yes/No             | Yes                                 |
 
 #### 2. Delete List
 
@@ -502,16 +503,16 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
 |--------------------|--------------------|---------------|-------------|
-| Site Name          | Text               | Yes           | Site Name   |
-| List Name          | Text               | Yes           | List Name   |
+| Site Name          | Text               | Yes           | Test 123    |
+| List Name          | Text               | Yes           | ABC         |
 
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                              |
-|--------------------|--------------------|------------------------------------------|
-| Message            | Text               | " 'ListName' List deleted successfully " |
-| Success            | Yes/No             | Yes                                      |
+| **Parameter Name** | **Parameter Type** | **Example**                        |
+|--------------------|--------------------|------------------------------------|
+| Message            | Text               | ListName List deleted successfully |
+| Success            | Yes/No             | Yes                                |
 
 #### 3. Delete Site
 
@@ -520,14 +521,14 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
 |--------------------|--------------------|---------------|-------------|
-| Site Name          | Text               | Yes           | Site Name   |
+| Site Name          | Text               | Yes           | Test 123    |
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                              |
-|--------------------|--------------------|------------------------------------------|
-| Message            | Text               | " 'Site name' Site deleted successfully" |
-| Success            | Yes/No             | Yes                                      |
+| **Parameter Name** | **Parameter Type** | **Example**                         |
+|--------------------|--------------------|-------------------------------------|
+| Message            | Text               | Site name Site deleted successfully |
+| Success            | Yes/No             | Yes                                 |
 
 > #### Note :
 >   - Delete Site Supports For SharePoint Site and Group.
@@ -537,12 +538,12 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Updates an existing SharePoint list with the provided display name and description.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**              |
-|--------------------|--------------------|---------------|--------------------------|
-| Site Name          | Text               | Yes           | Site Name                |
-| List Name          | Text               | Yes           | List Name                |
-| Display Name       | Text               | Yes           | Updated List Name        |
-| Description        | Text               | Yes           | Updated List Description |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**          |
+|--------------------|--------------------|---------------|----------------------|
+| Site Name          | Text               | Yes           | Test 123             |
+| List Name          | Text               | Yes           | ABC                  |
+| Display Name       | Text               | Yes           | ABC 123              |
+| Description        | Text               | Yes           | ABC 123 Description  |
 
 
 - **Output**:
@@ -550,7 +551,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**                            |
 |--------------------|--------------------|----------------------------------------|
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-| Message            | Text               | "List modified successfully"           |
+| Message            | Text               | List modified successfully             |
 | Success            | Yes/No             | Yes                                    |
 
 #### 5. Update Site
@@ -558,10 +559,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Updates the display name of an existing SharePoint site.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**       |
-|--------------------|--------------------|---------------|-------------------|
-| Site Name          | Text               | Yes           | Site Name         |
-| Updated Site Name  | Text               | Yes           | Updated Site Name |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
+|--------------------|--------------------|---------------|-------------|
+| Site Name          | Text               | Yes           | Test 123    |
+| Updated Site Name  | Text               | Yes           | Test 124    |
 
 
 - **Output**:
@@ -569,7 +570,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**                            |
 |--------------------|--------------------|----------------------------------------|
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-| Message            | Text               | "Site updated successfully"            |
+| Message            | Text               | Site updated successfully              |
 | Success            | Yes/No             | Yes                                    |
 
 
@@ -587,14 +588,14 @@ Krista SharePoint Extension supports the following Entity Request:
 - **Description**: Create Group in SharePoint Site.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**    |
-|--------------------|--------------------|---------------|----------------|
-| Site Name          | Text               | Yes           | Site Name      |
-| Site E-Mail        | Text               | Yes           | Mail base name |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
+|--------------------|--------------------|---------------|-------------|
+| Site Name          | Text               | Yes           | Test 123    |
+| Site E-Mail        | Text               | Yes           | Test123     |
 
 > #### Note :
->   - In the 'Create Group' function, which is implemented under the File Entity, we use the variable 'Name' for the site name and 'Base Name' for the Mail ID, allowing user input.
->   - The 'Create Group' function in File Entity only supports SharePoint Groups and not individual sites, as group are also considered site.
+>   - In the Create Group function, which is implemented under the File Entity, we use the variable Name for the site name and Base Name for the Mail ID, allowing user input.
+>   - The Create Group function in File Entity only supports SharePoint Groups and not individual sites, as group are also considered site.
 
 
 - **Output**:
@@ -620,13 +621,13 @@ Krista SharePoint Extension supports the following Entity Request:
 | Modified By        | Text                                         | No            | John Doe                        |
 
 > #### Note :
->  - Files Can also be search using Relative path, For Example : "/siteName/list Name/file"
->  - Entity Search Using "Permission" is not Supported.
->  - Response of Entity search does not support "Permission" and "Shared With".
->  - "Tags" are not Supported in SharePoint Files Extension.
->  - "Parent Folder" search are not Supported in SharePoint Files Extension.
->  - "Size" search are not Supported in SharePoint Files Extension & for same have added catalog.
->  - "Is Folder" search are not supported in SharePoint Files Extension.
+>  - Files Can also be search using Relative path, For Example : /siteName/list Name/file
+>  - Entity Search Using Permission is not Supported.
+>  - Response of Entity search does not support Permission and Shared With.
+>  - Tags are not Supported in SharePoint Files Extension.
+>  - Parent Folder search are not Supported in SharePoint Files Extension.
+>  - Size search are not Supported in SharePoint Files Extension & for same have added catalog.
+>  - Is Folder search are not supported in SharePoint Files Extension.
 
 * Output:
 
