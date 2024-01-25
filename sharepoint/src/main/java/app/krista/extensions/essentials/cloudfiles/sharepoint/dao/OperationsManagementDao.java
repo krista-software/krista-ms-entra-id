@@ -94,7 +94,7 @@ public class OperationsManagementDao {
         if (sourcePath != null) {
             File renameFile = CatalogTypes.fromFile(fileDao.getFileByAbsolutePath(sourcePath));
             if (!renameFile.extension.isBlank() && (FileUtil.getBaseName(targetFileName).get(1) == null ||
-                            FileUtil.getBaseName(targetFileName).get(1).isEmpty())) {
+                    FileUtil.getBaseName(targetFileName).get(1).isEmpty())) {
                 setFileExtensionNotAvailableMessage(payload);
             } else {
                 DriveItem drive = managementUtilityService.checkIfFileExist(renameFile.absolutePath, payload);

@@ -2,7 +2,6 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.List;
 import com.microsoft.graph.models.Site;
@@ -19,7 +18,9 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.Objects;
 
 @Service
 public class SharePointSubscription {
@@ -29,31 +30,28 @@ public class SharePointSubscription {
     private SharePointSubscription() {
     }
 
-    public static Map<String, Object> createSharePointSubscriptionForAllSites(String routingUrl, GraphServiceClientProvider provider) {
-        Map<String, Object> payload = new HashMap<>();
+    public static void createSharePointSubscriptionForAllSites(String routingUrl, GraphServiceClientProvider provider) {
         try {
-            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
             LinkedList<QueryOption> requestOptions = new LinkedList<>();
             requestOptions.add(new QueryOption("search", "*"));
-            SiteCollectionPage sites = graphClient.sites().buildRequest(requestOptions).get();
+            SiteCollectionPage sites = provider.getGraphServiceClientForAdmin().sites().buildRequest(requestOptions).get();
 
             for (Site site : sites.getCurrentPage()) {
                 try {
-                    graphClient.sites(site.id).buildRequest().get();    // To check if site exist or not
-                    ListCollectionPage listCollectionPage = graphClient.sites(site.id).lists().buildRequest().get();
+                    provider.getGraphServiceClientForAdmin().sites(site.id).buildRequest().get();    // To check if site exist or not
+                    ListCollectionPage listCollectionPage = provider.getGraphServiceClientForAdmin().sites(site.id).lists().buildRequest().get();
                     if (listCollectionPage != null) {
                         for (List list : listCollectionPage.getCurrentPage()) {
-                            createSubscription(routingUrl, provider, site.id , list.id);
+                            createSubscription(routingUrl, provider, site.id, list.id);
                         }
                     }
                 } catch (Exception cause) {
-                    continue;
+                    System.out.println(" Error Description : " + cause.getMessage() +" Site Name : "+site.displayName);
                 }
             }
         } catch (Exception cause) {
-            ResponseUtil.successResponse(false, Constants.FAILED_TO_CREATE_SUBSCRIPTION, payload);
+            System.out.println(" Error Description : " + cause.getMessage());
         }
-        return payload;
     }
 
     /**
@@ -66,12 +64,13 @@ public class SharePointSubscription {
      */
     public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
-            Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://d8d1-103-97-240-165.ngrok-free.app") : routingUrl,siteId, listId);
+            //Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
 
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
                 for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
-                    if (Objects.requireNonNull(oldSubscription.notificationUrl).equals(subscription.notificationUrl)) {
+                    if (Objects.requireNonNull(oldSubscription.resource).equals(subscription.resource)) {
                         return;
                     }
                 }
@@ -102,8 +101,8 @@ public class SharePointSubscription {
         subscription.changeType = Constants.CHANGETYPE;
         subscription.notificationUrl = routingUrl + Constants.REST_SHAREPOINT_MAIL_NOTIFICATION;
         subscription.lifecycleNotificationUrl = routingUrl + Constants.REST_SHAREPOINT_LIFECYCLE_NOTIFICATION;
-        subscription.resource = Constants.SITE_RESOURCE+siteId+Constants.LIST_RESOURCE+listId;
-        long threeDaysInMillis = System.currentTimeMillis() + (86000 * 1000 * 28);
+        subscription.resource = Constants.SITE_RESOURCE + siteId + Constants.LIST_RESOURCE + listId;
+        long threeDaysInMillis = System.currentTimeMillis() + (86000 * 1000 * 28L);
         Date date = new Date(threeDaysInMillis);
         DateFormat dateFormat = new SimpleDateFormat(Constants.YYYY_MM_DD_T_HH_MM_SS_SSSSSSS_Z);
         subscription.expirationDateTime = OffsetDateTimeSerializer.deserialize(dateFormat.format(date));
@@ -119,7 +118,7 @@ public class SharePointSubscription {
     public static void renewSubscription(GraphServiceClientProvider provider, String subscriptionId) {
         try {
             Subscription subscription = new Subscription();
-            long threeDaysInMillis = System.currentTimeMillis() + (86000 * 1000 * 28);
+            long threeDaysInMillis = System.currentTimeMillis() + (86000 * 1000 * 28L);
             Date date = new Date(threeDaysInMillis);
             DateFormat dateFormat = new SimpleDateFormat(Constants.YYYY_MM_DD_T_HH_MM_SS_SSSSSSS_Z);
             subscription.expirationDateTime = OffsetDateTimeSerializer.deserialize(dateFormat.format(date));

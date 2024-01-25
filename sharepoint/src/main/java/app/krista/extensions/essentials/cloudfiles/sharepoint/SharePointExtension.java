@@ -29,24 +29,22 @@ public class SharePointExtension {
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
     private final SharePointRequestAuthenticator requestAuthenticator;
-    private final HandleFileIsChanged fileIsChanged;
 
     @Inject
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
                                GraphServiceClientProviderFactory clientProviderFactory,
-                               SharePointAttributeStore sharePointAttributeStore, HandleFileIsChanged fileIsChanged) {
+                               SharePointAttributeStore sharePointAttributeStore) {
         this(invoker, sharePointAttributes, clientProviderFactory,
-                new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes), fileIsChanged);
+                new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes));
     }
 
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
                                GraphServiceClientProviderFactory clientProviderFactory,
-                               SharePointRequestAuthenticator requestAuthenticator, HandleFileIsChanged fileIsChanged) {
+                               SharePointRequestAuthenticator requestAuthenticator) {
         this.routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
         this.sharePointAttributes = sharePointAttributes;
         this.clientProviderFactory = clientProviderFactory;
         this.requestAuthenticator = requestAuthenticator;
-        this.fileIsChanged = fileIsChanged;
     }
 
     @InvokerRequest(InvokerRequest.Type.AUTHENTICATOR)
