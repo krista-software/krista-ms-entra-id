@@ -72,7 +72,7 @@ public class SharePointAttributes {
     }
 
     public String getCallbackUrl() {
-        return routingUrl + Constants.REST_SHAREPOINT_CALLBACK;
+        return  "http://localhost:4400/extension/api/zZETNS0AAbzWEOvMRblz4g_e_e/rest/sharepoint/callback";
     }
 
     public synchronized OAuth20Service getOAuth20Service() {

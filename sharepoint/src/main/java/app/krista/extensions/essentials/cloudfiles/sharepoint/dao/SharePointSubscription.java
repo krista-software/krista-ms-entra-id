@@ -7,9 +7,11 @@ import com.microsoft.graph.models.List;
 import com.microsoft.graph.models.Site;
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.options.QueryOption;
-import com.microsoft.graph.requests.*;
+import com.microsoft.graph.requests.ListCollectionPage;
+import com.microsoft.graph.requests.SiteCollectionPage;
+import com.microsoft.graph.requests.SubscriptionCollectionPage;
+import com.microsoft.graph.requests.SubscriptionCollectionRequestBuilder;
 import com.microsoft.graph.serializer.OffsetDateTimeSerializer;
-import okhttp3.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -17,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -46,7 +50,7 @@ public class SharePointSubscription {
                         }
                     }
                 } catch (Exception cause) {
-                    System.out.println(" Error Description : " + cause.getMessage() +" Site Name : "+site.displayName);
+                    System.out.println(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
                 }
             }
         } catch (Exception cause) {
@@ -64,7 +68,7 @@ public class SharePointSubscription {
      */
     public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
-            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://d8d1-103-97-240-165.ngrok-free.app") : routingUrl,siteId, listId);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://d8d1-103-97-240-165.ngrok-free.app") : routingUrl, siteId, listId);
             //Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
 
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
