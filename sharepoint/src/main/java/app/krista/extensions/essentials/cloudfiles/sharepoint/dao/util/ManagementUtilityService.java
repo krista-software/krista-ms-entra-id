@@ -6,7 +6,9 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.models.EntityType;
 import com.microsoft.graph.models.SearchRequest;
+import com.microsoft.graph.models.SortProperty;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
@@ -87,7 +90,7 @@ public class ManagementUtilityService {
             filePath = fileSearchImpl.handleAbsolutePath(filePath, siteDomainPath);
             DriveItem driveItem = new DriveItem();  // Initialize the result page
             try {
-                LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
+                LinkedList<SearchRequest> requestsList = buildSearchRequestList(filePath);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -147,5 +150,20 @@ public class ManagementUtilityService {
             path = File.separator + path;
         }
         return fileSearchImpl.handleAbsolutePath(path, siteDomainPath);
+    }
+
+    public LinkedList<SearchRequest> buildSearchRequestList(String filePath) {
+        LinkedList<SearchRequest> requestsList = new LinkedList<>();
+        SearchRequest requests = buildSearchRequest();
+        fileSearchImpl.buildSearchRequestForRest(filePath, requests);
+        requestsList.add(requests);
+        return requestsList;
+    }
+
+    public SearchRequest buildSearchRequest() {
+        SearchRequest requests = new SearchRequest();
+        requests.entityTypes = Arrays.asList(EntityType.LIST, EntityType.LIST_ITEM,
+                EntityType.DRIVE, EntityType.DRIVE_ITEM);
+        return requests;
     }
 }
