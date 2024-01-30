@@ -514,9 +514,9 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | ListName List deleted successfully |
 | Success            | Yes/No             | Yes                                |
 
-#### 3. Delete Site
+#### 3. Delete Group
 
-- **Description**: Deletes a SharePoint Site & Group with the specified name.
+- **Description**: Deletes a SharePoint Group with the specified name.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -530,8 +530,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | Site name Site deleted successfully |
 | Success            | Yes/No             | Yes                                 |
 
-> #### Note :
->   - Delete Site Supports For SharePoint Site and Group.
+
 
 #### 4. Update List
 
@@ -554,9 +553,9 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | List modified successfully             |
 | Success            | Yes/No             | Yes                                    |
 
-#### 5. Update Site
+#### 5. Update Group
 
-- **Description**: Updates the display name of an existing SharePoint site.
+- **Description**: Updates the display name of an existing SharePoint group.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
