@@ -15,7 +15,7 @@
 * To authorize yourself you are required to follow these steps:
    * Go to the Details page of the extension and copy the Routing id from there. After that, append **"/rest/sharepoint/callback"** at the end of the routing id (This is you redirect URI). Now add this URI in Authorized redirect URI in credentials of your registered app in azure portal.
      ![Routing Id Reference](../_media/routing_id.png)
-     ![Authorized redirect uri Reference](../_media/redirectUrl.png)
+     ![Callback](../_media/callback.png)
    * Run one of the request of the extension through conversation in the client. Once you run the request in the client, an authentication will appear. Click on that tab and authorize yourself using the same account which is used to register your application in azure portal.
 
 
