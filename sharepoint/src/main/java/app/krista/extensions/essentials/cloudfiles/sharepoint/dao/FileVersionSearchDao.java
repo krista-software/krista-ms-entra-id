@@ -64,7 +64,7 @@ public class FileVersionSearchDao {
     private void getVersionHistoryByDriveItem(DriveItem driveItem, Map<String, Object> payload, Long since,
                                               GraphServiceClient<Request> graphClient) {
         try {
-            DriveItemVersionCollectionPage versions = graphClient.me().drives(driveItem.parentReference.driveId)
+            DriveItemVersionCollectionPage versions = graphClient.drives(driveItem.parentReference.driveId)
                     .items(driveItem.id).versions().buildRequest().get();
 
             List<Map<String, Object>> obj1 = new ArrayList<>();
