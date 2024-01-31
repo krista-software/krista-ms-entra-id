@@ -6,6 +6,7 @@ import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SharepointAreaImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.util.EventHandler;
 import app.krista.ksdk.context.AuthorizationContext;
@@ -34,12 +35,12 @@ public class SharepointArea {
     private final EventHandler eventHandler;
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
-    private final FileDaoImpl fileDaoImpl;
+    private final FileDao fileDaoImpl;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public SharepointArea(SharepointAreaImpl sharepointAreaImpl, EventHandler eventHandler,
-                          RequestContext requestContext, AuthorizationContext authorizationContext, FileDaoImpl fileDaoImpl) {
+                          RequestContext requestContext, AuthorizationContext authorizationContext, FileDao fileDaoImpl) {
         this.sharepointAreaImpl = sharepointAreaImpl;
         this.eventHandler = eventHandler;
         this.requestContext = requestContext;

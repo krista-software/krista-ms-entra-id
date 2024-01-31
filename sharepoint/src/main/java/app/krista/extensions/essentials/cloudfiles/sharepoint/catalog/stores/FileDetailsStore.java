@@ -29,6 +29,7 @@ public class FileDetailsStore implements EntityStore<File> {
     @Override
     public File create(Map<String, Object> map) throws IOException {
         //return CatalogTypes.fromFile(fileDao.createGroup(map));
+        // This method is going to be convert into catalog request, For testing purpose this line commented.
         return null;
     }
 
