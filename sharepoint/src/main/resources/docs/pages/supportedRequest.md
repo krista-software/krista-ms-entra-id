@@ -276,13 +276,14 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Upload the content of the file from the media server to the cloud storage at target path. If Target path does not include a file name, the file name of the uploaded file is use. Produced File Entity represent the file in the cloud storage.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                 |
-|--------------------|--------------------|---------------|---------------------------------------------|
-| Krista File        | File               | Yes           | Test.pdf                                    |
-| Target Path        | Text               | Yes           | /siteName /Shared Documents/folder/fileName |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                        |
+|--------------------|--------------------|---------------|------------------------------------|
+| Krista File        | File               | Yes           | Test.pdf                           |
+| Target Path        | Text               | Yes           | /siteName /Shared Documents/folder |
 
 > #### Note :
 >  - Upload File Supports file size up to 50 MB.
+>  - Target Path should be a path to a folder.
 
 - **Output**:
 
