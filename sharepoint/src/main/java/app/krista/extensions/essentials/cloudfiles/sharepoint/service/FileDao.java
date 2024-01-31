@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface FileDao {
 
-    GroupImpl createGroup(Map<String, Object> map);
+  //  GroupImpl createGroup(Map<String, Object> map);
 
     List<DriveImpl> getFilesByFilter(String name, String selector, long pageIndex, int pageSize);
 
