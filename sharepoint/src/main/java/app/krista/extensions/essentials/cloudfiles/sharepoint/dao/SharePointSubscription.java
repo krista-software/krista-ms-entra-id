@@ -49,7 +49,7 @@ public class SharePointSubscription {
                             createSubscription(routingUrl, provider, site.id, list.id);
                         }
                     }
-                } catch (Exception cause) {
+                } catch (IllegalStateException cause) {
                     LOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
                 }
             }
