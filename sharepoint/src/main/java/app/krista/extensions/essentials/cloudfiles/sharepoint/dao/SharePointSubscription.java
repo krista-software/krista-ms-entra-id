@@ -50,7 +50,7 @@ public class SharePointSubscription {
                         }
                     }
                 } catch (Exception cause) {
-                    System.out.println(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
+                    LOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
                 }
             }
         } catch (Exception cause) {
