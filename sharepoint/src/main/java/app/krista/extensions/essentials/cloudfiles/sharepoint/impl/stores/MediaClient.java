@@ -28,7 +28,7 @@ public class MediaClient {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public MediaClient() {
-        String mediaUrl = "http://localhost:8081";
+        String mediaUrl = "http://platform:9991";
         webTarget = ClientBuilder.newBuilder()
                 .register(MultiPartFeature.class).build()
                 .target(mediaUrl);

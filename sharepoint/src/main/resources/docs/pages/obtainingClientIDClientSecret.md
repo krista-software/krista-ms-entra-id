@@ -23,9 +23,7 @@ For the SharePoint Extension, you would need to obtain Client ID, Tenant ID, and
 
 
 * **Register an application** page is displayed. Enter the relevant details on this application page. Enter the **Name** that would be display name. Select the **Supported account types**. Out of the available options, select accounts in the single tenant only (first option). Under Redirect URI, select the Web platform. Add the authorized redirect URI corresponding to your SharePoint extension. Click **Register**.
-  * Go to the Details page of the extension and copy the Routing id from there. After that, append **"/rest/sharepoint/callback"** at the end of the routing id (This is you redirect URI). Now add this URI in Authorized redirect URI in credentials of your registered app in azure portal.
-      ![Routing Id Reference](../_media/routing_id.png)
-      ![Register](../_media/register.png)
+  ![Register](../_media/register.png)
 
 
 * After registration, in **Overview**, under **Essentials**, you will find the Client ID and Tenant ID.
@@ -45,7 +43,6 @@ For the SharePoint Extension, you would need to obtain Client ID, Tenant ID, and
 
 
 * Start typing permission name and select the following permissions after you see.
-  * Group.Create (Need Admin Permission)
   * Group.ReadWrite.All (Need Admin Permission)
   * GroupMember.Read.All (Need Admin Permission)
   * offline_access
@@ -54,10 +51,18 @@ For the SharePoint Extension, you would need to obtain Client ID, Tenant ID, and
   * User.Read
   * Sites.Manage.All
   * Sites.Read.All
-  * Sites.ReadWrite.All
+
+
+* Select **Application Permissions**.
+
+  ![Delegated Permissions](../_media/applicationPermissions.jpg)
+
+* Start typing permission name and select the following permissions after you see.
+  * Group.Create (Need Admin Permission)
+  * Sites.ReadWrite.All (Need Admin Permission)
+
 
   ![Select Permission](../_media/selectPermissions.png)
-
 
 * Select **Certificates & secrets**, go to **Client secrets** tab, and click **New client secret**.
   ![Certificates & Secrets](../_media/certificates&Secrets.png)

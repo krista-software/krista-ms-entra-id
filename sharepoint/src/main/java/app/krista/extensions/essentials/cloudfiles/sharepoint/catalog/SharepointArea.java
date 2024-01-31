@@ -4,8 +4,9 @@ import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SharepointAreaImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.util.EventHandler;
 import app.krista.ksdk.context.AuthorizationContext;
@@ -26,23 +27,25 @@ import java.util.concurrent.Executors;
         name = "Cloud Files",
         ecosystemId = "catEntryEcosystem_84b53163-327b-4b1b-8c96-9334d292f9f5",
         ecosystemName = "Essentials",
-        ecosystemVersion = "0182fa3a-9c4d-4773-a794-8accc262bdd2")
+        ecosystemVersion = "fcbe44a3-40b8-45bd-866e-f28f13cee132")
 public class SharepointArea {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharepointArea.class);
     private final SharepointAreaImpl sharepointAreaImpl;
     private final EventHandler eventHandler;
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
+    private final FileDao fileDaoImpl;
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public SharepointArea(SharepointAreaImpl sharepointAreaImpl, EventHandler eventHandler,
-                          RequestContext requestContext, AuthorizationContext authorizationContext) {
+                          RequestContext requestContext, AuthorizationContext authorizationContext, FileDao fileDaoImpl) {
         this.sharepointAreaImpl = sharepointAreaImpl;
         this.eventHandler = eventHandler;
         this.requestContext = requestContext;
         this.authorizationContext = authorizationContext;
+        this.fileDaoImpl = fileDaoImpl;
     }
 
     @CatalogRequest(
@@ -165,6 +168,21 @@ public class SharepointArea {
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
+    }
+
+    @CatalogRequest(
+            id = "localDomainRequest_8ca7ad64-b226-401e-9520-e36bb40c0a8d",
+            name = "Create Group",
+            description = "Create group at Sharepoint .",
+            area = "Sharepoint",
+            type = CatalogRequest.Type.CHANGE_SYSTEM)
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Desc(name = "File", type = "Entity", required = false)
+    public Map<String, Object> createGroup(
+            @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
+            @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {
+        return fileDaoImpl.createGroup(groupName, mailNickName);
     }
 
 }

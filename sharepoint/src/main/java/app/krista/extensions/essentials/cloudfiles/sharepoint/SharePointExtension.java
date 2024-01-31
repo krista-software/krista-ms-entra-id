@@ -21,7 +21,7 @@ import java.util.Map;
 @Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
 @Field.Text(value = Constants.TENANT_ID, isSecured = true)
 @Field.Text(value = Constants.EMAIL)
-@Extension(version = "2.0.0-rc1")
+@Extension(version = "2.0.0-rc2")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {
 
@@ -29,24 +29,22 @@ public class SharePointExtension {
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
     private final SharePointRequestAuthenticator requestAuthenticator;
-    private final HandleFileIsChanged fileIsChanged;
 
     @Inject
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
                                GraphServiceClientProviderFactory clientProviderFactory,
-                               SharePointAttributeStore sharePointAttributeStore, HandleFileIsChanged fileIsChanged) {
+                               SharePointAttributeStore sharePointAttributeStore) {
         this(invoker, sharePointAttributes, clientProviderFactory,
-                new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes), fileIsChanged);
+                new SharePointRequestAuthenticator(sharePointAttributeStore, sharePointAttributes));
     }
 
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
                                GraphServiceClientProviderFactory clientProviderFactory,
-                               SharePointRequestAuthenticator requestAuthenticator, HandleFileIsChanged fileIsChanged) {
+                               SharePointRequestAuthenticator requestAuthenticator) {
         this.routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
         this.sharePointAttributes = sharePointAttributes;
         this.clientProviderFactory = clientProviderFactory;
         this.requestAuthenticator = requestAuthenticator;
-        this.fileIsChanged = fileIsChanged;
     }
 
     @InvokerRequest(InvokerRequest.Type.AUTHENTICATOR)
@@ -67,7 +65,7 @@ public class SharePointExtension {
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
         }
-        SharePointSubscription.createSharePointSubscriptionForAllSites(routingUrl, clientProviderFactory.create(attributes));
+        //SharePointSubscription.createSharePointSubscriptionForAllSites(routingUrl, clientProviderFactory.create(attributes));
     }
 
     @InvokerRequest(InvokerRequest.Type.TEST_CONNECTION)

@@ -13,7 +13,7 @@ import java.util.Map;
         name = "Cloud Files",
         ecosystemId = "catEntryEcosystem_84b53163-327b-4b1b-8c96-9334d292f9f5",
         ecosystemName = "Essentials",
-        ecosystemVersion = "e98212bc-0743-48d2-8684-f5db3f77ae53")
+        ecosystemVersion = "fcbe44a3-40b8-45bd-866e-f28f13cee132")
 public class OperationsArea {
 
     private final OperationsAreaImpl operationsAreaImpl;

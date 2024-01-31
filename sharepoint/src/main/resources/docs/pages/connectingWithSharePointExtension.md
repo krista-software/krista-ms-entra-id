@@ -15,7 +15,7 @@
 * To authorize yourself you are required to follow these steps:
    * Go to the Details page of the extension and copy the Routing id from there. After that, append **"/rest/sharepoint/callback"** at the end of the routing id (This is you redirect URI). Now add this URI in Authorized redirect URI in credentials of your registered app in azure portal.
      ![Routing Id Reference](../_media/routing_id.png)
-     ![Authorized redirect uri Reference](../_media/redirectUrl.png)
+     ![Callback](../_media/callback.png)
    * Run one of the request of the extension through conversation in the client. Once you run the request in the client, an authentication will appear. Click on that tab and authorize yourself using the same account which is used to register your application in azure portal.
 
 
@@ -31,21 +31,21 @@
 
 
 * Go to **Extensions** > **SharePoint** , and get into Setup page Tab.
-  ![SetupPage](../_media/setup4.jpg)  
+  ![SetupPage](../_media/setup3.jpg)  
 
 
 * Now you can use **Client Id** , **Client Secret**, **Tenant Id** and **Email** as Setup Parameters which you have Obtained previously.
   * Go to Setup Page and add parameters as below Example used for a Microsoft OAuth 2.0 Setup:
 
-    * **Client Id** : "4uhu24givb35y39b399bv39".
-    * **Client Secret** : "your_client_secret".
-    * **Tenant Id** : "your_tenant_id".
-    * **Email** : "sharepoint.testmail@contoso.com".
+    * **Client Id** : 4uhu24givb35y39b399bv3
+    * **Client Secret** : your_client_secret
+    * **Tenant Id** : your_tenant_id
+    * **Email** : sharepoint.testmail@contoso.com
     
-  ![SetupPage](../_media/setup3.jpg)
+  ![SetupPage](../_media/setup4.jpg)
 
 
-* Once you are authorized, you can see if the connection is established by clicking test connection on setup page.
+* Click **Test Connection** on the **Setup page**, to see that connection is established after you are authorized.
 
 
 * After the connection is established, you are good to go with the requests of the extension.

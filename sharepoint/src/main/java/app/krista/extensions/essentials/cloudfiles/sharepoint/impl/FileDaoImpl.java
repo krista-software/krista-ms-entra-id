@@ -51,16 +51,18 @@ public class FileDaoImpl implements FileDao {
      * This method retrieves the Graph client and calls the `FileCreateService`'s `createGroup` method
      * to handle the group creation logic with dedicated functionality.
      *
-     * @param map A map containing information necessary for group creation, such as name and base name.
+     * @param groupName,@param mailNickName A map containing information necessary for group creation, such as name and base name.
      * @return A GroupImpl object representing the newly created group, or null if creation fails.
      * @throws GraphServiceException If an error occurs during group creation.
      */
-    @Override
-    public GroupImpl createGroup(Map<String, Object> map) {
-        LOGGER.info("Creating group with details: {}", map);
+
+    public Map<String,Object> createGroup(String groupName,String mailNickName) {
+        LOGGER.info("Creating group with details: {}", groupName, mailNickName);
         FileCreateService fileCreateService = new FileCreateService(clientProvider.
                 getUserRequestBuilder(null, null));
-        return fileCreateService.createGroup(map);
+       // return fileCreateService.createGroup(groupName,mailNickName);
+        // This implementation is going to be updaated in next upcoming branch
+        return null;
     }
 
     /**
