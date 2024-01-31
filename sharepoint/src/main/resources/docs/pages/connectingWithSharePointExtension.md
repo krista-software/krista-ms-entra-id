@@ -37,15 +37,15 @@
 * Now you can use **Client Id** , **Client Secret**, **Tenant Id** and **Email** as Setup Parameters which you have Obtained previously.
   * Go to Setup Page and add parameters as below Example used for a Microsoft OAuth 2.0 Setup:
 
-    * **Client Id** : "4uhu24givb35y39b399bv39".
-    * **Client Secret** : "your_client_secret".
-    * **Tenant Id** : "your_tenant_id".
-    * **Email** : "sharepoint.testmail@contoso.com".
+    * **Client Id** : 4uhu24givb35y39b399bv3
+    * **Client Secret** : your_client_secret
+    * **Tenant Id** : your_tenant_id
+    * **Email** : sharepoint.testmail@contoso.com
     
   ![SetupPage](../_media/setup4.jpg)
 
 
-* Once you are authorized, you can see if the connection is established by clicking test connection on setup page.
+* Click **Test Connection** on the **Setup page**, to see that connection is established after you are authorized.
 
 
 * After the connection is established, you are good to go with the requests of the extension.

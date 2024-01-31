@@ -6,4 +6,4 @@
 
 ### Prerequisite
 
-* You must have the appropriate access and privileges to obtain the Client ID and Client Secret from the Azure Portal.
+You must have the appropriate access and privileges to obtain the Client ID and Client Secret from the Azure Portal.
