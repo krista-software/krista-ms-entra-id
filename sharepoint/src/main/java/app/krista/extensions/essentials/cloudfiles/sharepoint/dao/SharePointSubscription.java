@@ -54,7 +54,7 @@ public class SharePointSubscription {
                 }
             }
         } catch (Exception cause) {
-            System.out.println(" Error Description : " + cause.getMessage());
+            LOGGER.info(" Error Description : " + cause.getMessage());
         }
     }
 
