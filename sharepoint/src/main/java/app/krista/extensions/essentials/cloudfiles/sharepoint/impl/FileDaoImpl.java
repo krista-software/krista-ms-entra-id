@@ -61,6 +61,7 @@ public class FileDaoImpl implements FileDao {
         FileCreateService fileCreateService = new FileCreateService(clientProvider.
                 getUserRequestBuilder(null, null));
        // return fileCreateService.createGroup(groupName,mailNickName);
+        // This implementation is going to be updaated in next upcoming branch
         return null;
     }
 
