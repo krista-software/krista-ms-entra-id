@@ -52,7 +52,7 @@ public class ManagementArea {
             description = "Copy the provide file represented by the entity to the target location",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> copy(
@@ -82,7 +82,7 @@ public class ManagementArea {
             description = "Retrieves the File from the cloud storage and provides a reference as Krista File based on provided source location.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.File(name = "Krista File" , multipleFileUpload = false, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.File(name = "Krista File", multipleFileUpload = false, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> downloadAsFile(
@@ -159,7 +159,7 @@ public class ManagementArea {
             description = "Accept task ID as input and return List of Files",
             area = "Management",
             type = CatalogRequest.Type.WAIT_FOR_EVENT)
-    @Field.Desc(name = "Files", type = "[ Entity(File) ]",required = false)
+    @Field.Desc(name = "Files", type = "[ Entity(File) ]", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> getResult(
@@ -223,7 +223,7 @@ public class ManagementArea {
             description = "Move a file on the drive from source to target where both denote a full file path.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> move(
@@ -242,7 +242,7 @@ public class ManagementArea {
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> read(
-            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source)  {
+            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source) {
         return managementDao.readTxtFile(source);
     }
 
@@ -256,7 +256,7 @@ public class ManagementArea {
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> rename(
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
-            @Field.Text(name = "Target File Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String targetFileName)  {
+            @Field.Text(name = "Target File Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String targetFileName) {
         return managementDao.renameFile(source, targetFileName);
     }
 
@@ -266,12 +266,12 @@ public class ManagementArea {
             description = "Share the file denoted by source with the given users identified by their email address applying the provided Permissions",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> shareFile(
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
-            @Field.Desc(name = "Share", type = "[ { User: Email, Permissions: PickOne(Read|Write|Read and Write|Own) } ]",required = true) List<Map<String, Object>> share) {
+            @Field.Desc(name = "Share", type = "[ { User: Email, Permissions: PickOne(Read|Write|Read and Write|Own) } ]", required = true) List<Map<String, Object>> share) {
         return managementDao.shareFile(source, share);
     }
 
@@ -281,11 +281,11 @@ public class ManagementArea {
             description = "Upload the content of the file from the media server to the cloud storage at target path.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> write(
-            @Field.File(name = "Krista File" , multipleFileUpload = false, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) app.krista.model.base.File kristaFile,
+            @Field.File(name = "Krista File", multipleFileUpload = false, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) app.krista.model.base.File kristaFile,
             @Field.Text(name = "Target Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String targetPath) {
         return managementDao.uploadFile(kristaFile, targetPath);
     }
@@ -296,7 +296,7 @@ public class ManagementArea {
             description = "Uploads the file content to the cloud storage at the given target location as a plain text file.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> writeText(
@@ -311,12 +311,12 @@ public class ManagementArea {
             description = "This endpoint produces a list of recent updates within a specified folder since a given date. The updates include information about the path, file status (e.g., Created, Updated, Deleted), and can be filtered using an optional regex in the search variable.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "Result", type = "[ { Path: Text, Date: Date, Update: PickOne(Created|Updated|Deleted) } ]",required = false)
+    @Field.Desc(name = "Result", type = "[ { Path: Text, Date: Date, Update: PickOne(Created|Updated|Deleted) } ]", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> changesSince(
             @Field.Text(name = "Source Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String sourcePath,
-            @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search,
+            @Field.Text(name = "Search", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search,
             @Field.Date(name = "Since", required = true, includeTimeOfDay = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = false, allowFuture = false, defaultTimeSpan = 1, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Long since) {
         return managementDao.getVersionHistory(sourcePath, search, since);
     }
@@ -327,13 +327,13 @@ public class ManagementArea {
             description = "Monitors the Cloud Storage for changes. When a change arrives and the affected files/folders match the source path and event type, the event will be triggered.",
             area = "Management",
             type = CatalogRequest.Type.WAIT_FOR_EVENT)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
-    @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted","Shared"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
+    @Field.PickOne(name = "Event", values = {"Created", "Updated", "Deleted", "Shared"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> whenAFileIsChanged(
             @Field(name = "eventName", type = "Text") String eventName,
             @Field(name = "eventData", type = "FreeForm") FreeForm eventData,
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
-            @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted","Shared"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
+            @Field.PickOne(name = "Event", values = {"Created", "Updated", "Deleted", "Shared"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
             @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search) {
         Map<String, Object> fileStatus = managementDao.whenAFileIsChanged(source, search);
         if (eventName.equalsIgnoreCase(Constants.FILE_RECEIVED) && fileStatus.get(Constants.EVENT).equals(event)) {

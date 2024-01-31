@@ -322,7 +322,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|---------------|------------------------------------|
 | Source Path        | Text               | Yes           | /siteName /Shared Documents/folder |
 | Since              | Date               | Yes           | 2023-12-29 T03 \: 54 \: 26Z        |
-| Search             | Text               | No            | WeeklyDemo.txt                     |
+| Search             | Text               | Yes           | WeeklyDemo.txt                     |
 
 - **Output**:
 
