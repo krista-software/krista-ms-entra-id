@@ -324,6 +324,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Since              | Date               | Yes           | 2023-12-29 T03 \: 54 \: 26Z        |
 | Search             | Text               | Yes           | WeeklyDemo.txt                     |
 
+- **Observation**: It works for files having version history.
+
 - **Output**:
 
 | **Parameter Name** | **Parameter Type**   | **Example**                                 |
