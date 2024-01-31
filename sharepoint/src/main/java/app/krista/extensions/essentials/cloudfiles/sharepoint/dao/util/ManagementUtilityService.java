@@ -148,5 +148,4 @@ public class ManagementUtilityService {
         }
         return fileSearchImpl.handleAbsolutePath(path, siteDomainPath);
     }
-
 }
