@@ -1,10 +1,10 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.JavaFileHandleHelper;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
@@ -37,15 +37,20 @@ public class FileDownloadService {
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
 
+    private final JavaFileHandleHelper javaFileHandleHelper;
+
+
     @Inject
     public FileDownloadService(GraphServiceClientProviderFactory factory,
-                               ManagementUtilityService managementUtilityService) {
+                               ManagementUtilityService managementUtilityService, JavaFileHandleHelper javaFileHandleHelper) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
+        this.javaFileHandleHelper = javaFileHandleHelper;
     }
 
     /**
      * Downloads files from the specified path, supporting link generation and Krista file format, with path validation, download mode handling, and error management.
+     *
      * @return A Map containing status and result details, including success/failure indicators, download links or files, and error messages.
      */
     public Map<String, Object> downloadFiles(Boolean downloadAsLink, Boolean downloadAsKristaFile, String absolutePath) {
@@ -53,14 +58,13 @@ public class FileDownloadService {
         try {
             if (absolutePath != null && FileUtil.hasFileExtension(absolutePath)) {
                 absolutePath = managementUtilityService.getUpdatedFilePath(absolutePath);
-                System.out.println(" updated "+ absolutePath);
                 List<File> files = new ArrayList<>();
                 DriveItem driveItem = managementUtilityService.checkIfFileExist(absolutePath, payload);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                 String relativePath = DriveUtil.getRelativePath(absolutePath);
+                    String relativePath = DriveUtil.getRelativePath(absolutePath);
                     downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink,
-                            downloadAsKristaFile, files, payload,absolutePath);
+                            downloadAsKristaFile, files, payload, absolutePath);
                     handleDownloadResult(payload);
                 } else {
                     setInvalidPathMessage(payload);
@@ -102,7 +106,7 @@ public class FileDownloadService {
     }
 
     private void downloadByDriveIDByPath(String driveID, String path, Boolean downloadAsLink,
-                                         Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload,String absolutePath) {
+                                         Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload, String absolutePath) {
         try {
             DriveItem driveItem = (driveID != null) ? provider.getUserRequestBuilder(null, null)
                     .drives(driveID).root().itemWithPath(path).buildRequest().get()
@@ -110,7 +114,7 @@ public class FileDownloadService {
                     .buildRequest().get();
             if (driveItem != null && driveItem.folder == null) {
                 if (downloadAsLink != null && downloadAsLink) {
-                    handleDownloadLink(payload, driveItem,absolutePath);
+                    handleDownloadLink(payload, driveItem, absolutePath);
                 } else if (downloadAsKristaFile != null && downloadAsKristaFile && driveItem.size != null &&
                         driveItem.size > (1024 * 1024 * 30)) {
                     handleDownloadAsKristaFile(payload, driveItem);
@@ -123,10 +127,10 @@ public class FileDownloadService {
         }
     }
 
-    private void handleDownloadLink(Map<String, Object> payload, DriveItem driveItem,String path) {
+    private void handleDownloadLink(Map<String, Object> payload, DriveItem driveItem, String path) {
         payload.put(Constants.SUCCESS, true);
         payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
-        payload.put(Constants.DOWNLOAD_LINK,  "<a href =" +driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString()+ ">"+path);
+        payload.put(Constants.DOWNLOAD_LINK, "<a href =" + driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString() + ">" + path);
     }
 
     private void handleDownloadAsKristaFile(Map<String, Object> payload, DriveItem driveItem) {
@@ -147,10 +151,10 @@ public class FileDownloadService {
             InputStream inputStream = provider.getUserRequestBuilder(null, null)
                     .drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
             java.io.File content = DriveUtil.getFileFromInputStream(inputStream, driveItem.name);
-            app.krista.model.base.File kristaFile = CatalogTypes.toFile(content.getName(), content);
+            app.krista.model.base.File kristaFile = javaFileHandleHelper.convertJavaFileToKristaFile(content);
             payload.put(Constants.KRISTA_FILE, kristaFile);
             payload.put(Constants.SUCCESS, true);
-            payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
+            payload.put(Constants.MESSAGE, "File downloaded successfully");
         }
     }
 
