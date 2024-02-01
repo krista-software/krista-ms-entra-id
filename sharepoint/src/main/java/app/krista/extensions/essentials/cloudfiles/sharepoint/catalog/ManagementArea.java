@@ -96,11 +96,11 @@ public class ManagementArea {
             description = "Retrieves the File from the cloud storage as a hyperlink based on provided source location.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Text(name = "Link", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field(name = "Link", type = "RichText", required = false, attributes = {@Attribute(name = "visualWidth", value = "L")}, options = {})
     public Map<String, Object> downloadAsLink(
-            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source) {
+            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source){
         return managementDao.downloadFileAsLink(source);
     }
 
