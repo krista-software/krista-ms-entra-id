@@ -43,7 +43,6 @@ public class JavaFileHandleHelper {
 
         final File input = new File(file.getFileName());
         return convertInputStreamToFile(inputFileHandle.getContent(), input);
-
     }
 
     public File convertInputStreamToFile(InputStream inputStream, File input) throws IOException {
@@ -55,7 +54,6 @@ public class JavaFileHandleHelper {
                 outputStream.write(buffer, 0, bytesRead);
             }
         }
-
         return input;
     }
 }

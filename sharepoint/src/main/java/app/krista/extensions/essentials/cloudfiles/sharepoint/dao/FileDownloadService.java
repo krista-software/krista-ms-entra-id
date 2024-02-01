@@ -36,7 +36,6 @@ public class FileDownloadService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileDownloadService.class);
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
-
     private final JavaFileHandleHelper javaFileHandleHelper;
 
 
