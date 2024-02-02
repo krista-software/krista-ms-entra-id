@@ -53,14 +53,14 @@ public class FileCreateService {
             if (createdGroup.id != null) {
                 payload.put(Constants.FILE, CatalogTypes.fromFile(new GroupImpl(createdGroup, null)));
                 payload.put(Constants.SUCCESS, true);
-                payload.put(Constants.MESSAGE, "Group created successfully");
+                payload.put(Constants.MESSAGE, Constants.GROUP_CREATED);
             } else {
                 payload.put(Constants.SUCCESS, false);
                 payload.put(Constants.MESSAGE, Constants.FAILED_LIST_CREATION);
             }
             return payload;
         } catch (GraphServiceException cause) {
-            LOGGER.error("Error creating group", cause.getMessage());
+            LOGGER.error("Error occurred while creating the group. Details: {}", cause.getMessage());
             throw new IllegalArgumentException("Error : " + cause.getMessage());
         }
     }

@@ -71,7 +71,7 @@ public class FileDownloadService {
             } else {
                 setInvalidPathMessage(payload);
             }
-        } catch (Exception cause) {
+        } catch (IllegalStateException cause) {
             handleDownloadFilesException(cause, payload);
         }
         return payload;

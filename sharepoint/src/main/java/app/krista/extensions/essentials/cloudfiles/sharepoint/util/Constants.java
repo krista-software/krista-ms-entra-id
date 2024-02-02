@@ -331,6 +331,9 @@ public class Constants {
 
     public static final String FOLDER_NOT_FOUND = "Folder Not Found";
 
+    public static final String GROUP_CREATED = "Group created successfully";
+
+
 
     private Constants() {
     }
