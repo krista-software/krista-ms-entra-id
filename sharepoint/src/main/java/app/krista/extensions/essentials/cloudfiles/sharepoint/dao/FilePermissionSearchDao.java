@@ -62,7 +62,7 @@ public class FilePermissionSearchDao {
                     extractDriveFromSearchResultsUsingPath(resultPage, page, permission, graphClient);
                 }
 
-                if (resultPage.size() > 0) {
+                if (!resultPage.isEmpty()) {
                     List<File> fileEntity = resultPage.stream().map(CatalogTypes::fromFile).filter(file -> hasPermission(file,permission)).collect(Collectors.toList());
                     ResponseUtil.listOfFileEntityResponse(fileEntity, true, Constants.FILE_FOUND, payload);
                 } else {
@@ -130,6 +130,4 @@ public class FilePermissionSearchDao {
         requests.from = 0;
         requests.size = 10;
     }
-
-
 }
