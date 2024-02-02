@@ -478,6 +478,56 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Success            | Yes/No             | Yes                                  |
 
 
+#### 7. Create Group
+
+- **Description**: Create Group in SharePoint Site.
+- **Input Parameters**:
+
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
+|--------------------|--------------------|---------------|-------------|
+| Group Name         | Text               | Yes           | Test 123    |
+| Mail Nick Name     | Text               | Yes           | Test123     |
+
+
+- **Output**:
+
+| **Parameter Name** | **Parameter Type** | **Example**                            |
+|--------------------|--------------------|----------------------------------------|
+| File               | Entity             | {name : "ABC", extension:".txt" , ...} |
+
+
+* Search By File
+  * Description: Returns list of File Details.
+  * Input Parameters:
+
+| **Parameter Name** | **Parameter Type**                           | **Mandatory** | **Example**                     |
+|--------------------|----------------------------------------------|---------------|---------------------------------|
+| Name               | Text                                         | No            | Sample.xlsx                     |
+| Base Name          | Text                                         | No            | Sample                          |
+| Extension          | Text                                         | No            | xlsx                            |
+| Absolute Path      | Text                                         | No            | /siteName/Shared Documents/file |
+| Owner              | Text                                         | No            | John Doe                        |
+| Created            | Date                                         | No            | 2023-12-29 T03 \: 43 \: 26Z     |
+| Modified           | Date                                         | No            | 2023-12-29 T03 \: 54 \: 26Z     |
+| Modified By        | Text                                         | No            | John Doe                        |
+
+> #### Note :
+>  - Files can also be searched by using relative path. For example, you can use this -- /siteName/list Name/file
+>  - Tags are not supported in SharePoint Files Extension.
+>  - Parent Folder search are not supported in SharePoint Files Extension.
+>  - Size search are not supported in SharePoint Files Extension & for same have added catalog.
+>  - Is Folder search are not supported in SharePoint Files Extension.
+
+* Output:
+
+| **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------|
+| File               | List&lt;Entity>    |
+
+#### Note :
+After creating a group, it may take a minimum of 2 hours for the changes to be reflected. Consequently, please wait for this period before attempting to use the "Delete" or "Update" group methods.
+
+
 ## Operation Area
 
 #### 1. Create List
@@ -574,68 +624,4 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : ABC, extension:.txt , ...} |
 | Message            | Text               | Group updated successfully         |
 | Success            | Yes/No             | Yes                                |
-
-
-## Entity Request
-
-Krista SharePoint Extension supports the following Entity Request:
-
-### File
-
-> #### Note :
->   - File Entity Supports For SharePoint Files and Folders.
-
-#### 1. Create Group
-
-- **Description**: Create Group in SharePoint Site.
-- **Input Parameters**:
-
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
-|--------------------|--------------------|---------------|-------------|
-| Site Name          | Text               | Yes           | Test 123    |
-| Site E-Mail        | Text               | Yes           | Test123     |
-
-> #### Note :
->   - In the Create Group function, which is implemented under the File Entity, we use the variable Name for the site name and Base Name for the Mail ID, allowing user input.
->   - The Create Group function in File Entity only supports SharePoint Groups and not individual sites, as group are also considered site.
-
-
-- **Output**:
-
-| **Parameter Name** | **Parameter Type** | **Example**                            |
-|--------------------|--------------------|----------------------------------------|
-| File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-
-
-* Search By File
-    * Description: Returns list of File Details.
-    * Input Parameters:
-
-| **Parameter Name** | **Parameter Type**                           | **Mandatory** | **Example**                     |
-|--------------------|----------------------------------------------|---------------|---------------------------------|
-| Name               | Text                                         | No            | Sample.xlsx                     |
-| Base Name          | Text                                         | No            | Sample                          |
-| Extension          | Text                                         | No            | xlsx                            |
-| Absolute Path      | Text                                         | No            | /siteName/Shared Documents/file |
-| Owner              | Text                                         | No            | John Doe                        |
-| Created            | Date                                         | No            | 2023-12-29 T03 \: 43 \: 26Z     |
-| Modified           | Date                                         | No            | 2023-12-29 T03 \: 54 \: 26Z     |
-| Modified By        | Text                                         | No            | John Doe                        |
-
-> #### Note :
->  - Files can also be searched by using relative path. For example, you can use this -- /siteName/list Name/file
->  - Entity Search Using Permission is not Supported.
->  - Response of Entity search does not support Permission and Shared With.
->  - Tags are not supported in SharePoint Files Extension.
->  - Parent Folder search are not supported in SharePoint Files Extension.
->  - Size search are not supported in SharePoint Files Extension & for same have added catalog.
->  - Is Folder search are not supported in SharePoint Files Extension.
-
-* Output:
-
-| **Parameter Name** | **Parameter Type** |
-|--------------------|--------------------|
-| File               | List&lt;Entity>    |
-
-
 

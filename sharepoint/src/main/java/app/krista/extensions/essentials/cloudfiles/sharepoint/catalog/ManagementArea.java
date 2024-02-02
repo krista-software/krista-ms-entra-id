@@ -31,10 +31,10 @@ public class ManagementArea {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagementArea.class);
     private final EventHandler eventHandler;
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final ManagementDaoImpl managementDao;
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public ManagementArea(EventHandler eventHandler,
@@ -84,7 +84,7 @@ public class ManagementArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.File(name = "Krista File", multipleFileUpload = false, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field(name = "Message", type = "RichText", required = false, attributes = {@Attribute(name = "visualWidth", value = "L")}, options = {})
     public Map<String, Object> downloadAsFile(
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source) {
         return managementDao.downloadFileAsFile(source);
@@ -100,14 +100,14 @@ public class ManagementArea {
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field(name = "Link", type = "RichText", required = false, attributes = {@Attribute(name = "visualWidth", value = "L")}, options = {})
     public Map<String, Object> downloadAsLink(
-            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source){
+            @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source) {
         return managementDao.downloadFileAsLink(source);
     }
 
     @CatalogRequest(
             id = "localDomainRequest_8d92b36c-792d-4cfe-b63d-c1dededbf075",
             name = "Get Info",
-            description = "Accepts Source of File and return Task ID which will futher used in Get Info Result",
+            description = "Accepts Source of File and return Task ID which will further used in Get Info Result",
             area = "Management",
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})

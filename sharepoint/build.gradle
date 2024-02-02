@@ -64,8 +64,8 @@ configurations {
 }
 
 dependencies {
-    annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.94'
-    compileOnly 'app.krista:krista-apis:1.0.94' // defines the Krista Service APIs
+    annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.92'
+    compileOnly 'app.krista:krista-apis:1.0.92' // defines the Krista Service APIs
     compileOnly 'org.glassfish.hk2:hk2-api:3.0.3' // used to define scope of objects
     implementation 'com.microsoft.graph:microsoft-graph:5.41.0'
     implementation 'com.microsoft.graph:microsoft-graph-auth:0.3.0'
@@ -134,14 +134,3 @@ jar {
     duplicatesStrategy = "exclude"
 }
 
-task upgradeJarToKrista(type: Exec) {
-    String jar_file_name = jar.archiveBaseName.get()+"-"+version.toString()+ ".jar"
-    def file_name = "$projectDir/build/libs/$jar_file_name"
-    workingDir '/usr/bin'
-    commandLine 'python3', "$projectDir/upgrade_extension_jar_to_krista.py", "-config_file=$projectDir/extension_workspace_config.json", "-jar_file=${file_name}"
-}
-
-task executeSmokeTest(type: Exec) {
-    workingDir '/usr/bin'
-    commandLine 'python3', "$projectDir/execute_conversation.py", "-config_file=$projectDir/extension_workspace_config.json"
-}
