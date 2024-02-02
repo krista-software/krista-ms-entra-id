@@ -124,25 +124,25 @@ public class FileUtilTest {
         assertEquals(IOException.class, exception.getCause().getClass());
     }
 
-//    @Test
-//    public void testCreateTxtFile() {
-//        String fileName = "testFile.txt";
-//        String fileContent = "This is a test file content.";
-//
-//        File createdFile = null;
-//        try {
-//            createdFile = FileUtil.createTxtFile(fileName, fileContent);
-//
-//            assertTrue(createdFile.exists());
-//            assertTrue(createdFile.isFile());
-//
-//        } catch (IOException e) {
-//            fail("IOException occurred: " + e.getMessage());
-//        } finally {
-//            if (createdFile != null && createdFile.exists()) {
-//                assertTrue(createdFile.delete());
-//            }
-//        }
-//    }
+   @Test
+    public void testCreateTxtFile() {
+        String fileName = "testFile.txt";
+        String fileContent = "This is a test file content.";
+
+        File createdFile = null;
+        try {
+            createdFile = FileUtil.createTxtFile(fileName, fileContent);
+
+            assertTrue(createdFile.exists());
+            assertTrue(createdFile.isFile());
+
+        } catch (IOException e) {
+            fail("IOException occurred: " + e.getMessage());
+        } finally {
+            if (createdFile != null && createdFile.exists()) {
+                assertTrue(createdFile.delete());
+            }
+        }
+    }
 
 }
