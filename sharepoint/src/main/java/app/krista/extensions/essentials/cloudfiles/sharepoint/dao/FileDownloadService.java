@@ -154,7 +154,7 @@ public class FileDownloadService {
             app.krista.model.base.File kristaFile = javaFileHandleHelper.convertJavaFileToKristaFile(content);
             payload.put(Constants.KRISTA_FILE, kristaFile);
             payload.put(Constants.SUCCESS, true);
-            payload.put(Constants.MESSAGE, "File downloaded successfully");
+            payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
         }
     }
 

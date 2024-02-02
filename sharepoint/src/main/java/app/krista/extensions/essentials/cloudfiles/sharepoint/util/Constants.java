@@ -217,7 +217,7 @@ public class Constants {
 
     public static final String FILE_FOUND = "File Found";
 
-    public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "To Download file Please Click on URL";
+    public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "File Downloaded Successfully";
 
     public static final String DOWNLOAD_LINK = "Link";
 

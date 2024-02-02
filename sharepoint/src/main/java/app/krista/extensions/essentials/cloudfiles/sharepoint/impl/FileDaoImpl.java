@@ -70,7 +70,7 @@ public class FileDaoImpl implements FileDao {
      */
 
     public Map<String, Object> createGroup(String groupName, String mailNickName) {
-        LOGGER.info("Creating group with details: {}", groupName, mailNickName);
+        LOGGER.info("Creating group with details: {} {}", groupName, mailNickName);
         FileCreateService fileCreateService = new FileCreateService(clientProvider.
                 getUserRequestBuilder(null, null));
         return fileCreateService.createGroup(groupName, mailNickName);
