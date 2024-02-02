@@ -18,6 +18,7 @@
 * KE-1420 [https://antbrains.atlassian.net/browse/KE-1420]  Not able to delete site using "Delete Site" request.
 * KE-1410 [https://antbrains.atlassian.net/browse/KE-1410]  Not able to update site using "Update Site" request.
 * KE-1433 [https://antbrains.atlassian.net/browse/KE-1433]  Not able to download file using the "Download as File" request.
+* KE-1434 [https://antbrains.atlassian.net/browse/KE-1434]   All request are not working in "management area"
 
   
 ## Known Issues
