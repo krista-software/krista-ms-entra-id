@@ -12,8 +12,12 @@ import java.io.*;
 @Service
 public class JavaFileHandleHelper {
     private static final Logger logger = LoggerFactory.getLogger(JavaFileHandleHelper.class);
+    private final FileRepository repository;
+
     @Inject
-    private FileRepository repository;
+    public JavaFileHandleHelper(FileRepository repository) {
+        this.repository = repository;
+    }
 
 
     public app.krista.model.base.File convertJavaFileToKristaFile(File file) throws IOException {
