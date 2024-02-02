@@ -9,6 +9,11 @@
 
 ## Resolved Bugs
 
+* KE-1399 [https://antbrains.atlassian.net/browse/KE-1399]  The document needs to be updated with the below point.
+* KE-1411 [https://antbrains.atlassian.net/browse/KE-1411]  Not able to fetch information using the "Get info" request.
+* KE-1432 [https://antbrains.atlassian.net/browse/KE-1411]  Not able to delete file using the "Delete" request.
+* KE-1430 [https://antbrains.atlassian.net/browse/KE-1430]  SharePoint: Not able to fetch data using the "Changes Since" request.
+* KE-1408 [https://antbrains.atlassian.net/browse/KE-1408]  SharePoint: Not able to upload file using "Write" request.
 * KE-1407 [https://antbrains.atlassian.net/browse/KE-1407]  Unable to "Create Group" using entity request.
 * KE-1420 [https://antbrains.atlassian.net/browse/KE-1420]  Not able to delete site using "Delete Site" request.
 * KE-1410 [https://antbrains.atlassian.net/browse/KE-1410]  Not able to update site using "Update Site" request.
