@@ -33,7 +33,7 @@ import java.util.*;
 public class FileDaoImpl implements FileDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileDaoImpl.class);
-    protected static List<DriveImpl> cachedFiles = new ArrayList<>();
+    private static List<DriveImpl> cachedFiles = new ArrayList<>();
     private final GraphServiceClientProvider clientProvider;
     private final FileSearchImpl fileSearchImpl;
 

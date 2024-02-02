@@ -115,7 +115,7 @@ public class FileDownloadService {
                 if (downloadAsLink != null && downloadAsLink) {
                     handleDownloadLink(payload, driveItem, absolutePath);
                 } else if (downloadAsKristaFile != null && downloadAsKristaFile && driveItem.size != null &&
-                        driveItem.size > (1024 * 1024 * 30)) {
+                        driveItem.size > (1024 * 1024 * 30L)) {
                     handleDownloadAsKristaFile(payload, driveItem);
                 } else {
                     handleDownload(payload, driveItem);
