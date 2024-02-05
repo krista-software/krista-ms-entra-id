@@ -107,7 +107,7 @@ public class ManagementArea {
     @CatalogRequest(
             id = "localDomainRequest_8d92b36c-792d-4cfe-b63d-c1dededbf075",
             name = "Get Info",
-            description = "Accepts Source of File and return Task ID which will further used in Get Info Result",
+            description = "Accepts the source of the file and returns a Task ID, which will be further used to retrieve result information.",
             area = "Management",
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
