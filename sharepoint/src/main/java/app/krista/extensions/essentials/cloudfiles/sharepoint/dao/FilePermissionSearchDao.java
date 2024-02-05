@@ -77,7 +77,7 @@ public class FilePermissionSearchDao {
     }
 
     private boolean hasPermission(File fileEntity, String permission) {
-        return fileEntity.permissions != null && fileEntity.permissions.equals(permission);
+        return fileEntity.permissions != null && fileEntity.permissions.equalsIgnoreCase(permission);
     }
 
     public LinkedList<SearchRequest> buildSearchRequestListWithAbsolutePath() {
