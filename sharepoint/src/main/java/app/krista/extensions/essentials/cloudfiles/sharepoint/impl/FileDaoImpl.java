@@ -9,7 +9,6 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.File;
 import com.microsoft.graph.models.SearchRequest;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.PermissionCollectionPage;
@@ -34,10 +33,9 @@ import java.util.*;
 public class FileDaoImpl implements FileDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileDaoImpl.class);
+    private static List<DriveImpl> cachedFiles = new ArrayList<>();
     private final GraphServiceClientProvider clientProvider;
-
     private final FileSearchImpl fileSearchImpl;
-    protected static List<DriveImpl> cachedFiles = new ArrayList<>();
 
     @Inject
     public FileDaoImpl(GraphServiceClientProviderFactory clientProviderFactory, FileSearchImpl fileSearchImpl) {
@@ -45,6 +43,21 @@ public class FileDaoImpl implements FileDao {
         this.fileSearchImpl = fileSearchImpl;
     }
 
+    /**
+     * Retrieves a list of shared permissions from a PermissionCollectionPage, including SharePoint attributes.
+     *
+     * @param permissionCollectionPage The PermissionCollectionPage containing the permissions to process.
+     * @return A list of maps, where each map represents a shared permission and its details. The maps contain keys for:
+     * - "email": The email address of the user or group with the permission.
+     * - "roles": A list of permission roles (e.g., "write", "read").
+     * - "link": The sharing link URL (if applicable).
+     * - "sharepointAttributes": A map containing SharePoint-specific attributes (if applicable).
+     * - ... Other permission details ...
+     */
+    public static List<Map<String, Object>> getSharedWithPermissions(PermissionCollectionPage permissionCollectionPage) {
+        LOGGER.info("Getting shared permissions for PermissionCollectionPage and SharePointAttributes.");
+        return new FilePermissionService().getSharedWithPermissions(permissionCollectionPage);
+    }
 
     /**
      * Creates a new group using the {@link FileCreateService}.
@@ -56,13 +69,11 @@ public class FileDaoImpl implements FileDao {
      * @throws GraphServiceException If an error occurs during group creation.
      */
 
-    public Map<String,Object> createGroup(String groupName,String mailNickName) {
-        LOGGER.info("Creating group with details: {}", groupName, mailNickName);
+    public Map<String, Object> createGroup(String groupName, String mailNickName) {
+        LOGGER.info("Creating group with details: {} {}", groupName, mailNickName);
         FileCreateService fileCreateService = new FileCreateService(clientProvider.
                 getUserRequestBuilder(null, null));
-       // return fileCreateService.createGroup(groupName,mailNickName);
-        // This implementation is going to be updaated in next upcoming branch
-        return null;
+        return fileCreateService.createGroup(groupName, mailNickName);
     }
 
     /**
@@ -99,23 +110,6 @@ public class FileDaoImpl implements FileDao {
         } else {
             return null;
         }
-    }
-
-
-    /**
-     * Retrieves a list of shared permissions from a PermissionCollectionPage, including SharePoint attributes.
-     *
-     * @param permissionCollectionPage The PermissionCollectionPage containing the permissions to process.
-     * @return A list of maps, where each map represents a shared permission and its details. The maps contain keys for:
-     * - "email": The email address of the user or group with the permission.
-     * - "roles": A list of permission roles (e.g., "write", "read").
-     * - "link": The sharing link URL (if applicable).
-     * - "sharepointAttributes": A map containing SharePoint-specific attributes (if applicable).
-     * - ... Other permission details ...
-     */
-    public static List<Map<String, Object>> getSharedWithPermissions(PermissionCollectionPage permissionCollectionPage) {
-        LOGGER.info("Getting shared permissions for PermissionCollectionPage and SharePointAttributes.");
-        return new FilePermissionService().getSharedWithPermissions(permissionCollectionPage);
     }
 
     /**

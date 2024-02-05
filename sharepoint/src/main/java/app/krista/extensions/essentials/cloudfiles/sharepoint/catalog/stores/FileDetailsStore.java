@@ -4,10 +4,13 @@ import app.krista.extension.executor.SearchCondition;
 import app.krista.extension.executor.SearchQuery;
 import app.krista.extension.util.EntityStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.ManagementArea;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import org.jvnet.hk2.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -21,6 +24,8 @@ public class FileDetailsStore implements EntityStore<File> {
 
     private final FileDao fileDao;
 
+    private static final Logger lOGGER = LoggerFactory.getLogger(FileDetailsStore.class);
+
     @Inject
     public FileDetailsStore(FileDao fileDao) {
         this.fileDao = fileDao;
@@ -28,9 +33,8 @@ public class FileDetailsStore implements EntityStore<File> {
 
     @Override
     public File create(Map<String, Object> map) throws IOException {
-        //return CatalogTypes.fromFile(fileDao.createGroup(map));
-        // This method is going to be convert into catalog request, For testing purpose this line commented.
-        return null;
+        lOGGER.info("This request is not supported");
+        return new File();
     }
 
     @Override

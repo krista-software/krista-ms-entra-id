@@ -134,14 +134,3 @@ jar {
     duplicatesStrategy = "exclude"
 }
 
-task upgradeJarToKrista(type: Exec) {
-    String jar_file_name = jar.archiveBaseName.get()+"-"+version.toString()+ ".jar"
-    def file_name = "$projectDir/build/libs/$jar_file_name"
-    workingDir '/usr/bin'
-    commandLine 'python3', "$projectDir/upgrade_extension_jar_to_krista.py", "-config_file=$projectDir/extension_workspace_config.json", "-jar_file=${file_name}"
-}
-
-task executeSmokeTest(type: Exec) {
-    workingDir '/usr/bin'
-    commandLine 'python3', "$projectDir/execute_conversation.py", "-config_file=$projectDir/extension_workspace_config.json"
-}

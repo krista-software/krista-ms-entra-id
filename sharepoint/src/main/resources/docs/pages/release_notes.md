@@ -14,6 +14,12 @@
 * KE-1432 [https://antbrains.atlassian.net/browse/KE-1411]  Not able to delete file using the "Delete" request.
 * KE-1430 [https://antbrains.atlassian.net/browse/KE-1430]  SharePoint: Not able to fetch data using the "Changes Since" request.
 * KE-1408 [https://antbrains.atlassian.net/browse/KE-1408]  SharePoint: Not able to upload file using "Write" request.
+* KE-1407 [https://antbrains.atlassian.net/browse/KE-1407]  Unable to "Create Group" using entity request.
+* KE-1420 [https://antbrains.atlassian.net/browse/KE-1420]  Not able to delete site using "Delete Site" request.
+* KE-1410 [https://antbrains.atlassian.net/browse/KE-1410]  Not able to update site using "Update Site" request.
+* KE-1433 [https://antbrains.atlassian.net/browse/KE-1433]  Not able to download file using the "Download as File" request.
+* KE-1434 [https://antbrains.atlassian.net/browse/KE-1434]   All request are not working in "management area"
+
   
 ## Known Issues
 

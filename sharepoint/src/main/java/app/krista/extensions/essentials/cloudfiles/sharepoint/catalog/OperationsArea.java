@@ -52,18 +52,20 @@ public class OperationsArea {
         return operationsAreaImpl.deleteList(siteName, listName);
     }
 
+
     @CatalogRequest(
             id = "localDomainRequest_99f0f63d-263d-4c8e-9e6a-e4eb7092fbd3",
-            name = "Delete Site",
-            description = "Deletes a SharePoint Site/Group with the specified name.",
+            name = "Delete Group",
+            description = "Deletes a SharePoint Group with the specified name.",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    public Map<String, Object> deleteSite(
-            @Field.Text(name = "Site Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String siteName) {
-        return operationsAreaImpl.deleteSite(siteName);
+    public Map<String, Object> deleteGroup(
+            @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName) {
+        return operationsAreaImpl.deleteSite(groupName);
     }
+
 
     @CatalogRequest(
             id = "localDomainRequest_b6c09a0b-4693-4e8a-b9b3-0b6c47c5ad4b",
@@ -82,19 +84,20 @@ public class OperationsArea {
         return operationsAreaImpl.updateList(siteName, listName, displayName, description);
     }
 
+
     @CatalogRequest(
             id = "localDomainRequest_92dede25-2e0e-47c4-beee-5dba787b0435",
-            name = "Update Site",
-            description = "Updates the display name of an existing SharePoint site.",
+            name = "Update Group",
+            description = "Updates the display name of an existing SharePoint group.",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity(File)", required = false)
+    @Field.Desc(name = "File", type = "Entity", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    public Map<String, Object> updateSite(
-            @Field.Text(name = "Site Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String siteName,
-            @Field.Text(name = "New Site Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String newSiteName) {
-        return operationsAreaImpl.updateSite(siteName, newSiteName);
+    public Map<String, Object> updateGroup(
+            @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
+            @Field.Text(name = "New Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String newGroupName) {
+        return operationsAreaImpl.updateSite(groupName, newGroupName);
     }
 
 }

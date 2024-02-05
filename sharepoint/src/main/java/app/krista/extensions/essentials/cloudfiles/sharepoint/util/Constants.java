@@ -217,7 +217,7 @@ public class Constants {
 
     public static final String FILE_FOUND = "File Found";
 
-    public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "To Download file Please Click on URL";
+    public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "File Downloaded Successfully";
 
     public static final String DOWNLOAD_LINK = "Link";
 
@@ -330,6 +330,9 @@ public class Constants {
     public static final int INTERNAL_SERVER_ERROR = 500;
 
     public static final String FOLDER_NOT_FOUND = "Folder Not Found";
+
+    public static final String GROUP_CREATED = "Group created successfully";
+
 
 
     private Constants() {
