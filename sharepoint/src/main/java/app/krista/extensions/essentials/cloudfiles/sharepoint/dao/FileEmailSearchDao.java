@@ -64,7 +64,7 @@ public class FileEmailSearchDao {
                     index++;
                     from = (index * size) + 1;
                     page = getSearchResult(graphClient, email, from, size);
-                } while (moreResultsAvailable(page));
+                } while (ResponseUtil.moreResultsAvailable(page));
             }
             if (!resultPage.isEmpty()) {
                 List<File> fileDetails = resultPage.stream().map(CatalogTypes::fromFile).collect(Collectors.toList());
@@ -77,11 +77,6 @@ public class FileEmailSearchDao {
             ResponseUtil.getInfoResponse(false, Constants.FAILED_TO_GET_BY_MAILID, payload);
         }
         return payload;
-    }
-
-    private boolean moreResultsAvailable(SearchEntityQueryCollectionPage page) {
-        List<SearchHitsContainer> hitsContainers = page.getCurrentPage().get(0).hitsContainers;
-        return hitsContainers != null && !Objects.requireNonNull(hitsContainers).isEmpty() && Boolean.TRUE.equals(hitsContainers.get(0).moreResultsAvailable);
     }
 
     private SearchEntityQueryCollectionPage getSearchResult(GraphServiceClient<Request> graphClient, String email, int from, int size) {
