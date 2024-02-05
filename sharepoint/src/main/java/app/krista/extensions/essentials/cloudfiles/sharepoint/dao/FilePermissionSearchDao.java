@@ -128,7 +128,7 @@ public class FilePermissionSearchDao {
         query.queryString = domainName + " AND NOT path:\"" + siteDomainPath + "\"";
         requests.query = query;
         requests.from = 0;
-        requests.size = 10;
+        requests.size =500;
     }
 
 
