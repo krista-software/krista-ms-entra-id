@@ -14,6 +14,8 @@
 * KE-1432 [https://antbrains.atlassian.net/browse/KE-1411]  Not able to delete file using the "Delete" request.
 * KE-1430 [https://antbrains.atlassian.net/browse/KE-1430]  SharePoint: Not able to fetch data using the "Changes Since" request.
 * KE-1408 [https://antbrains.atlassian.net/browse/KE-1408]  SharePoint: Not able to upload file using "Write" request.
+* KE-1412 [https://antbrains.atlassian.net/browse/KE-1412]  After running the "Search By Permission" request, an empty entity response is returned.
+* KE-1429 [https://antbrains.atlassian.net/browse/KE-1429]  Unable to fetch file information via email using the "Search By Mail" request.
   
 ## Known Issues
 
