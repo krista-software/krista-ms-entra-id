@@ -76,13 +76,14 @@ public class SharepointArea {
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String searchByPermission(
-            @Field.PickOne(name = "Permission", values = {"Read", "Write", "Read & Write"}, required = true, attributes
-                    = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission) {
+            @Field.PickOne(name = "Permission", values = {"Read","Write","Read & Write"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission,
+            @Field(name = "Page", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2 '")}, options = {}) Double page,
+            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size){
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = sharepointAreaImpl.getSearchByPermission(permission, useEmail, accountID);
+            FreeForm freeForm = sharepointAreaImpl.getSearchByPermission(permission, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;

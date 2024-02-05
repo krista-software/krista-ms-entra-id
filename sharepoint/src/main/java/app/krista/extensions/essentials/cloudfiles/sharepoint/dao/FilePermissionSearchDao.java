@@ -46,27 +46,23 @@ public class FilePermissionSearchDao {
 
     /**
      * Searches for files with a specified permission, handling potential errors and returning matching files.
+     *
      * @return A FreeForm object containing the list of files with the specified permission or error messages.
      */
-    public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID) {
+    public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID, Double pageIndex, Double pageSize) {
         LOGGER.info("Searching for files with permission: {} ", permission);
         FreeForm payload = new FreeForm();
         if (permission != null) {
             List<DriveSharedPermissionImpl> resultPage = new ArrayList<>();  // Initialize the result page
             try {
-                int index = 0;
-                int from = 0;
-                int size = 500;
+                int from = pageIndex != null && pageIndex >= 0 ? pageIndex.intValue() : 0;
+                int size = pageSize != null && pageSize <= 500 ? pageSize.intValue() : 500;
+
                 GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(useEmail, accountID);
                 SearchEntityQueryCollectionPage page = getSearchResult(graphClient, from, size);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
-                    do {
-                        extractDriveFromSearchResultsUsingPath(resultPage, page, graphClient);
-                        index++;
-                        from = (index * size) + 1;
-                        page = getSearchResult(graphClient, from, size);
-                    } while (ResponseUtil.moreResultsAvailable(page));
+                    extractDriveFromSearchResultsUsingPath(resultPage, page, graphClient);
                 }
 
                 if (!resultPage.isEmpty()) {
