@@ -114,7 +114,7 @@ public class FileSearchFilterByRange {
             }
 
             List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload, useEmail, accountID);
-            if (drivePermissions != null && drivePermissions.size() > 0) {
+            if (drivePermissions != null && !drivePermissions.isEmpty()) {
                 ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_SIZE_RANGE, payload);
@@ -205,7 +205,7 @@ public class FileSearchFilterByRange {
         String domainName = fileSearchImpl.getDomainName();
         String personalDrivePath = fileSearchImpl.getDomainPath(domainName, false);
         SearchQuery query = new SearchQuery();
-        query.queryString = "isDocument=true AND LastModifiedTime >= " + fromDate + " AND LastModifiedTime <= " + toDate + " AND NOT path:\"" + personalDrivePath + "\"";
+        query.queryString = "LastModifiedTime >= " + fromDate + " AND LastModifiedTime <= " + toDate + " AND NOT path:\"" + personalDrivePath + "\"";
         requests.query = query;
         requests.from = 0;
         requests.size = 500;
