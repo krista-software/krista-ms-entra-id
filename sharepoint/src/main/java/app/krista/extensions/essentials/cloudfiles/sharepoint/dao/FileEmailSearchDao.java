@@ -48,7 +48,7 @@ public class FileEmailSearchDao {
            return ResponseUtil.getInfoResponse(false, Constants.MAILID_CANNOT_BE_EMPTY, payload);
         }
         if (!ResponseUtil.isValidEmail(email)) {
-            return ResponseUtil.getInfoResponse(false, "Please provide a valid email", payload);
+            return ResponseUtil.getInfoResponse(false, Constants.INVALID_EMAIL, payload);
         }
         List<DrivePermissionImpl> resultPage = new ArrayList<>();  // Initialize the result page
         try {

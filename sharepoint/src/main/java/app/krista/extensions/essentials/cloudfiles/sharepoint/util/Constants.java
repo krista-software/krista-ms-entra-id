@@ -299,6 +299,8 @@ public class Constants {
 
     public static final String MAILID_CANNOT_BE_EMPTY = "E-Mail Id Cannot be null or empty";
 
+    public static final String INVALID_EMAIL=  "Please provide a valid email";
+
     public static final String CREATED_BY  = "Created By";
 
     public static final String FAILED_TO_CREATE_SUBSCRIPTION  = "Failed to create subscription for sites, Please try again letter.";
