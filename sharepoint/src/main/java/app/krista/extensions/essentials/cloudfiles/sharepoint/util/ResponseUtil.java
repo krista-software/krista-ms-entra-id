@@ -8,6 +8,8 @@ import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ResponseUtil {
 
@@ -53,9 +55,10 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, "Switch", Success);
     }
 
-    public static void getInfoResponse(boolean Success, String message, FreeForm payload) {
+    public static FreeForm getInfoResponse(boolean Success, String message, FreeForm payload) {
         payload.put(Constants.MESSAGE, "Text", message);
         payload.put(Constants.SUCCESS, "Switch", Success);
+        return payload;
     }
 
     public static void addFileSize(long size, FreeForm payload) {
@@ -81,4 +84,16 @@ public class ResponseUtil {
         List<SearchHitsContainer> hitsContainers = page.getCurrentPage().get(0).hitsContainers;
         return hitsContainers != null && !Objects.requireNonNull(hitsContainers).isEmpty() && Boolean.TRUE.equals(hitsContainers.get(0).moreResultsAvailable);
     }
+
+
+    public static boolean isValidEmail(String email) {
+        String EMAIL_REGEX =
+                "/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$/";
+
+        Pattern EMAIL_PATTERN =
+                Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = EMAIL_PATTERN.matcher(email);
+        return matcher.matches();
+    }
+
 }
