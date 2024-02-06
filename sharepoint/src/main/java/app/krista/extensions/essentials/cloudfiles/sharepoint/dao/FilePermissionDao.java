@@ -19,8 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +44,7 @@ public class FilePermissionDao {
 
     /**
      * Retrieves shared permissions for a file at the specified path, handling path validation, potential errors, and returning shared permission details.
+     *
      * @return A FreeForm object containing shared permission information or error messages.
      */
     public FreeForm getSharedPermission(String filePath, boolean useEmail, String accountID) {
@@ -64,11 +66,11 @@ public class FilePermissionDao {
                     ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(CatalogTypes::fromFile)
                             .collect(Collectors.toList()), true, Constants.FILE_FOUND, payload);
                 } else {
-                    ResponseUtil.getInfoResponse(false , Constants.PROVIDE_VALID_SOURCE_PATH,  payload);
+                    ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
                 }
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.error("Error during file search: {} {} ", cause.getMessage(), cause);
-                ResponseUtil.getInfoResponse(false , Constants.FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY,  payload);
+                ResponseUtil.getInfoResponse(false, Constants.FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY, payload);
             }
         }
         return payload;
@@ -90,9 +92,8 @@ public class FilePermissionDao {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
-                                if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")
-                                        && driveItem.webUrl.contains(filePath)) {
-                                    files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes , fileSearchUtilityService));
+                                if (driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
+                                    files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, fileSearchUtilityService));
                                 }
                             }
                         }
@@ -107,12 +108,16 @@ public class FilePermissionDao {
         String siteDomainPath = fileSearchImpl.getDomainPath(domainName, true);
         filePath = fileSearchImpl.handleAbsolutePath(filePath, siteDomainPath);
         SearchQuery query = new SearchQuery();
-        query.queryString = "path:\"" + filePath + "\"";
+        query.queryString = prepareSearchQuery(filePath);
         requests.query = query;
         requests.from = 0;
         requests.size = 25;
     }
 
-
-
+    private String prepareSearchQuery(String path) {
+        String searchString = path.substring(path.lastIndexOf("/") + 1);
+        String folderPath = path.substring(0, path.lastIndexOf("/"));
+        String parentFolder = folderPath.substring(folderPath.lastIndexOf("/") + 1);
+        return searchString + " AND path:\"" + folderPath.substring(0, folderPath.lastIndexOf("/") + 1) + "\" AND ParentLink:/" + parentFolder;
+    }
 }
