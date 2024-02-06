@@ -60,7 +60,7 @@ public class FilePermissionDao {
                     extractDriveFromSearchResultsUsingPath(resultPage, page, filePath, graphClient);
                 }
 
-                if (resultPage.size() > 0) {
+                if (!resultPage.isEmpty()) {
                     ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(CatalogTypes::fromFile)
                             .collect(Collectors.toList()), true, Constants.FILE_FOUND, payload);
                 } else {

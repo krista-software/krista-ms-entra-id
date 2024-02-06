@@ -46,24 +46,27 @@ public class FilePermissionSearchDao {
 
     /**
      * Searches for files with a specified permission, handling potential errors and returning matching files.
+     *
      * @return A FreeForm object containing the list of files with the specified permission or error messages.
      */
-    public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID) {
+    public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID, Double pageIndex, Double pageSize) {
         LOGGER.info("Searching for files with permission: {} ", permission);
         FreeForm payload = new FreeForm();
         if (permission != null) {
             List<DriveSharedPermissionImpl> resultPage = new ArrayList<>();  // Initialize the result page
             try {
+                int from = pageIndex != null && pageIndex >= 0 ? pageIndex.intValue() : 0;
+                int size = pageSize != null && pageSize <= 500 ? pageSize.intValue() : 500;
+
                 GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(useEmail, accountID);
-                LinkedList<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath();
-                SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
+                SearchEntityQueryCollectionPage page = getSearchResult(graphClient, from, size);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
-                    extractDriveFromSearchResultsUsingPath(resultPage, page, permission, graphClient);
+                    extractDriveFromSearchResultsUsingPath(resultPage, page, graphClient);
                 }
 
                 if (!resultPage.isEmpty()) {
-                    List<File> fileEntity = resultPage.stream().map(CatalogTypes::fromFile).filter(file -> hasPermission(file,permission)).collect(Collectors.toList());
+                    List<File> fileEntity = resultPage.stream().map(CatalogTypes::fromFile).filter(file -> hasPermission(file, permission)).collect(Collectors.toList());
                     ResponseUtil.listOfFileEntityResponse(fileEntity, true, Constants.FILE_FOUND, payload);
                 } else {
                     ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
@@ -76,14 +79,19 @@ public class FilePermissionSearchDao {
         return payload;
     }
 
-    private boolean hasPermission(File fileEntity, String permission) {
-        return fileEntity.permissions != null && fileEntity.permissions.equals(permission);
+    private SearchEntityQueryCollectionPage getSearchResult(GraphServiceClient<Request> graphClient, int from, int size) {
+        LinkedList<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath(from, size);
+        return fileSearchImpl.buildSearchQuery(graphClient, requestsList);
     }
 
-    public LinkedList<SearchRequest> buildSearchRequestListWithAbsolutePath() {
+    private boolean hasPermission(File fileEntity, String permission) {
+        return fileEntity.permissions != null && fileEntity.permissions.equalsIgnoreCase(permission);
+    }
+
+    public LinkedList<SearchRequest> buildSearchRequestListWithAbsolutePath(int from, int size) {
         LinkedList<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
-        buildSearchRequestForRest(requests);
+        buildSearchRequestForRest(requests, from, size);
         requestsList.add(requests);
         return requestsList;
     }
@@ -102,7 +110,7 @@ public class FilePermissionSearchDao {
         return requests;
     }
 
-    public void extractDriveFromSearchResultsUsingPath(List<DriveSharedPermissionImpl> files, SearchEntityQueryCollectionPage page, String permission, GraphServiceClient<Request> graphClient) {
+    public void extractDriveFromSearchResultsUsingPath(List<DriveSharedPermissionImpl> files, SearchEntityQueryCollectionPage page, GraphServiceClient<Request> graphClient) {
         for (SearchResponse driveInPage : page.getCurrentPage()) {
             if (driveInPage.hitsContainers != null) {
                 for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
@@ -110,7 +118,7 @@ public class FilePermissionSearchDao {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
-                                if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
+                                if (driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
                                     files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, fileSearchUtilityService));
                                 }
                             }
@@ -121,13 +129,13 @@ public class FilePermissionSearchDao {
         }
     }
 
-    public void buildSearchRequestForRest(SearchRequest requests) {
+    public void buildSearchRequestForRest(SearchRequest requests, int from, int size) {
         String domainName = fileSearchImpl.getDomainName();
         String siteDomainPath = fileSearchImpl.getDomainPath(domainName, false);
         SearchQuery query = new SearchQuery();
         query.queryString = domainName + " AND NOT path:\"" + siteDomainPath + "\"";
         requests.query = query;
-        requests.from = 0;
-        requests.size = 10;
+        requests.from = from;
+        requests.size = size;
     }
 }

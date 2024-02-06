@@ -33,9 +33,9 @@ public class SharepointAreaImpl {
         }
     }
 
-    public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID) {
+    public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID, Double page, Double size) {
         try {
-            return filePermissionSearchDao.getSearchByPermission(permission, useEmail, accountID);
+            return filePermissionSearchDao.getSearchByPermission(permission, useEmail, accountID, page, size);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

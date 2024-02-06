@@ -2,9 +2,12 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.model.base.FreeForm;
+import com.microsoft.graph.models.SearchHitsContainer;
+import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ResponseUtil {
 
@@ -74,4 +77,8 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, eventData.get(Constants.SUCCESS));
     }
 
+    public static boolean moreResultsAvailable(SearchEntityQueryCollectionPage page) {
+        List<SearchHitsContainer> hitsContainers = page.getCurrentPage().get(0).hitsContainers;
+        return hitsContainers != null && !Objects.requireNonNull(hitsContainers).isEmpty() && Boolean.TRUE.equals(hitsContainers.get(0).moreResultsAvailable);
+    }
 }

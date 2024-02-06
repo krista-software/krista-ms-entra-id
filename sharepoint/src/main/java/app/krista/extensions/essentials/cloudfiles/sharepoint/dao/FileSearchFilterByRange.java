@@ -41,8 +41,7 @@ public class FileSearchFilterByRange {
 
 
     @Inject
-    public FileSearchFilterByRange(GraphServiceClientProviderFactory factory, FileSearchImpl fileSearchImpl,
-                                   FileSearchUtilityService fileSearchUtilityService) {
+    public FileSearchFilterByRange(GraphServiceClientProviderFactory factory, FileSearchImpl fileSearchImpl, FileSearchUtilityService fileSearchUtilityService) {
         this.clientProvider = factory.create();
         this.fileSearchImpl = fileSearchImpl;
         this.fileSearchUtilityService = fileSearchUtilityService;
@@ -50,6 +49,7 @@ public class FileSearchFilterByRange {
 
     /**
      * Retrieves files modified within a specified date range, handling validation, potential errors, and returning matching files.
+     *
      * @return A FreeForm object containing the list of matching files or error messages.
      */
     public FreeForm getFilesByModificationDate(DateRange modificationDateRange, boolean useEmail, String accountID) {
@@ -68,8 +68,7 @@ public class FileSearchFilterByRange {
 
             List<DrivePermissionImpl> drivePermissions = getFileByDateRange(fromDate, toDate, payload, useEmail, accountID);
             if (drivePermissions != null) {
-                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile)
-                        .collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_DATE_RANGE, payload);
                 return payload;
@@ -82,8 +81,7 @@ public class FileSearchFilterByRange {
         return payload;
     }
 
-    public List<DrivePermissionImpl> getFileByDateRange(String fromDate, String toDate, FreeForm payload,
-                                                        boolean useEmail, String accountID) {
+    public List<DrivePermissionImpl> getFileByDateRange(String fromDate, String toDate, FreeForm payload, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with File Range: {} {}", fromDate, toDate);
         List<DrivePermissionImpl> resultPage = new ArrayList<>();
         try {
@@ -105,6 +103,7 @@ public class FileSearchFilterByRange {
 
     /**
      * Retrieves files within a specified size range, handling validation, potential errors, and returning matching files.
+     *
      * @return A FreeForm object containing the list of matching files or error messages.
      */
     public FreeForm getFilesBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
@@ -116,8 +115,7 @@ public class FileSearchFilterByRange {
 
             List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload, useEmail, accountID);
             if (drivePermissions != null && drivePermissions.size() > 0) {
-                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile)
-                        .collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_SIZE_RANGE, payload);
                 return payload;
@@ -137,11 +135,10 @@ public class FileSearchFilterByRange {
     private boolean isValidDoubleRange(Double fromSize, Double toSize) {
         int from = (int) Math.round(fromSize);
         int to = (int) Math.round(toSize);
-        return from != 0 && to != 0 && from != to && from < to;
+        return from != 0 && to != 0 && from < to;
     }
 
-    public List<DrivePermissionImpl> getFileBySizeRange(Double fromSize, Double toSize, FreeForm payload,
-                                                        boolean useEmail, String accountID) {
+    public List<DrivePermissionImpl> getFileBySizeRange(Double fromSize, Double toSize, FreeForm payload, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with File Range: {} {}", fromSize, toSize);
         List<DrivePermissionImpl> resultPage = new ArrayList<>();
         if (fromSize != null && toSize != null && fromSize != 0 && toSize != 0 && toSize > fromSize) {
@@ -183,8 +180,7 @@ public class FileSearchFilterByRange {
 
     public SearchRequest buildSearchRequest() {
         SearchRequest requests = new SearchRequest();
-        requests.entityTypes = Arrays.asList(EntityType.SITE, EntityType.LIST,
-                EntityType.DRIVE, EntityType.DRIVE_ITEM);
+        requests.entityTypes = Arrays.asList(EntityType.SITE, EntityType.LIST, EntityType.DRIVE, EntityType.DRIVE_ITEM);
 
         LinkedList<SortProperty> sortProperties = new LinkedList<>();
         SortProperty sort = new SortProperty();
