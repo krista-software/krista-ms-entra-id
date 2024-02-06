@@ -195,7 +195,7 @@ public class FileSearchFilterByRange {
         SearchQuery query = new SearchQuery();
         int from = (int) Math.round(fromSize);
         int to = (int) Math.round(toSize);
-        query.queryString = "isDocument=true AND Size >= " + from + " AND size <= " + to + "";
+        query.queryString = "size >= " + from + " AND size <= " + to;
         requests.query = query;
         requests.from = 0;
         requests.size = 500;
