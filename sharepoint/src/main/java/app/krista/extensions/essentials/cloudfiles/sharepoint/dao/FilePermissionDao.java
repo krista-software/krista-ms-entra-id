@@ -111,13 +111,25 @@ public class FilePermissionDao {
         query.queryString = prepareSearchQuery(filePath);
         requests.query = query;
         requests.from = 0;
-        requests.size = 25;
+        requests.size = 500;
     }
 
     private String prepareSearchQuery(String path) {
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
         String searchString = path.substring(path.lastIndexOf("/") + 1);
-        String folderPath = path.substring(0, path.lastIndexOf("/"));
-        String parentFolder = folderPath.substring(folderPath.lastIndexOf("/") + 1);
-        return searchString + " AND path:\"" + folderPath.substring(0, folderPath.lastIndexOf("/") + 1) + "\" AND ParentLink:/" + parentFolder;
+        if (searchString.contains(".")) {
+            String folderPath = path.substring(0, path.lastIndexOf("/"));
+            String parentFolder = folderPath.substring(folderPath.lastIndexOf("/") + 1);
+            return searchString + " AND path:\"" + folderPath.substring(0, folderPath.lastIndexOf("/") + 1) + "\" AND ParentLink:/" + parentFolder;
+        } else {
+            int lastSlashIndex = path.lastIndexOf("/");
+            String parentFolder = path.substring(lastSlashIndex + 1);
+            String folderPath = path.substring(0, lastSlashIndex);
+            return "path:\"" + folderPath + "\" AND ParentLink:/" + parentFolder;
+        }
     }
+
 }
