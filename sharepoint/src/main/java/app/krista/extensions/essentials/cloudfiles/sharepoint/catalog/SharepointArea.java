@@ -158,7 +158,7 @@ public class SharepointArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Desc(name = "File", type = "Entity(File)", required = false)
+    @Field.Desc(name = "File", type = "Entity", required = false)
     public Map<String, Object> createGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
             @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {
