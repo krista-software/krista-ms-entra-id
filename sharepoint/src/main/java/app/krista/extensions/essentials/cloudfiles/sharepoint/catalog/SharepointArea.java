@@ -12,8 +12,6 @@ import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
 import app.krista.model.base.DateRange;
 import app.krista.model.base.FreeForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -29,7 +27,6 @@ import java.util.concurrent.Executors;
         ecosystemVersion = "fcbe44a3-40b8-45bd-866e-f28f13cee132")
 public class SharepointArea {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SharepointArea.class);
     private final SharepointAreaImpl sharepointAreaImpl;
     private final EventHandler eventHandler;
     private final RequestContext requestContext;
