@@ -18,9 +18,11 @@
 * KE-1420 [https://antbrains.atlassian.net/browse/KE-1420]  Not able to delete site using "Delete Site" request.
 * KE-1410 [https://antbrains.atlassian.net/browse/KE-1410]  Not able to update site using "Update Site" request.
 * KE-1433 [https://antbrains.atlassian.net/browse/KE-1433]  Not able to download file using the "Download as File" request.
-* KE-1434 [https://antbrains.atlassian.net/browse/KE-1434]   All request are not working in "management area"
+* KE-1434 [https://antbrains.atlassian.net/browse/KE-1434]  All request are not working in "management area"
 * KE-1412 [https://antbrains.atlassian.net/browse/KE-1412]  After running the "Search By Permission" request, an empty entity response is returned.
 * KE-1429 [https://antbrains.atlassian.net/browse/KE-1429]  Unable to fetch file information via email using the "Search By Mail" request.
+* KE-1428 [https://antbrains.atlassian.net/browse/KE-1428]  SharePoint: Not able to get below file format information using "Get Shared Permission" request.
+* KE-1422 [https://antbrains.atlassian.net/browse/KE-1422]  SharePoint: Not able to fetch data from the new group or site using "Fetch File By Range" request.
   
 ## Known Issues
 
