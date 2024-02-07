@@ -1,7 +1,9 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 import app.krista.model.base.FreeForm;
+import com.microsoft.graph.models.Group;
 import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 
@@ -96,4 +98,12 @@ public class ResponseUtil {
         return matcher.matches();
     }
 
+    public static Map<String, Object> nonSuccessResponce(Map<String, Object> payload) {
+        payload.put(Constants.FILE, new File());
+        payload.put(Constants.SUCCESS,false);
+        payload.put(Constants.MESSAGE,Constants.GROUP_NAME_EXIST);
+        return payload;
+    }
 }
+
+

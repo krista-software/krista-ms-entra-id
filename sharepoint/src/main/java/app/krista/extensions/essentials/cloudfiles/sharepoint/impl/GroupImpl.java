@@ -22,6 +22,7 @@ public class GroupImpl implements FileService {
         this.exception = exception;
     }
 
+
     @Override
     public String getName() {
         return group.displayName;

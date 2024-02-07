@@ -178,7 +178,7 @@ public class FileTransferService {
                     .buildRequest().get();
 
             payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, graphClient, source, target, fileSearchUtilityService)));
-            payload.put(Constants.MESSAGE, Constants.FILE_COPIED_SUCCESSFULLY);
+            payload.put(Constants.MESSAGE, Constants.FILE_MOVED_SUCCESSFULLY);
             payload.put(Constants.SUCCESS, true);
         } else if (statusResponse.code() == Constants.HTTP_STATUS_CONFLICT) {
             payload.put(Constants.MESSAGE, Constants.FILE_WITH_THIS_NAME_ALREADY_EXISTS);

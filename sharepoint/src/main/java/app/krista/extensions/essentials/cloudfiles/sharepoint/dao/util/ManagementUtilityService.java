@@ -52,7 +52,6 @@ public class ManagementUtilityService {
                 GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
                 driveItem = getFileByAbsolutePath(sourcePath, graphClient);
                 boolean isValidFile = driveItem != null && driveItem.parentReference != null;
-
                 if (isValidFile) {
                     payload.put(Constants.SUCCESS, true);
                     return driveItem;
@@ -93,11 +92,7 @@ public class ManagementUtilityService {
                 if (page != null && !page.getCurrentPage().isEmpty()) {
                     driveItem = fileSearchImpl.findDriveItemByFilePath(page, filePath, driveItem, false);
                 }
-                if (driveItem != null) {
-                    return driveItem;
-                } else {
-                    return null;
-                }
+                return driveItem;
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
                 throw new IllegalArgumentException(cause.getMessage(), cause);

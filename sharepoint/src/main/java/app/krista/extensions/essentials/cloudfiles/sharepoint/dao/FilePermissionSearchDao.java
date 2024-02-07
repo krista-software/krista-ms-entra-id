@@ -66,7 +66,8 @@ public class FilePermissionSearchDao {
                 }
 
                 if (!resultPage.isEmpty()) {
-                    List<File> fileEntity = resultPage.stream().map(CatalogTypes::fromFile).filter(file -> hasPermission(file, permission)).collect(Collectors.toList());
+                    List<File> fileEntity = resultPage.stream().map(CatalogTypes::fromFile).
+                            filter(file -> hasPermission(file, permission)).collect(Collectors.toList());
                     ResponseUtil.listOfFileEntityResponse(fileEntity, true, Constants.FILE_FOUND, payload);
                 } else {
                     ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);

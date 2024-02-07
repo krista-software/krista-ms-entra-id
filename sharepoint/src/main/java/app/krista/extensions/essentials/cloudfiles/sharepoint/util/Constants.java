@@ -151,6 +151,8 @@ public class Constants {
 
     public static final String FAILED_LIST_CREATION = "Failed to create list. Please try again later.";
 
+    public static final String GROUP_NAME_EXIST = "This group name is already in use. Please choose another unique group name";
+
     public static final String FAILED_TO_MODIFY_LIST = "Failed to modify list. Please try again later.";
 
     public static final String FAILED_TO_UPDATE_SITE = "Failed to update site. Please try again later.";
@@ -174,6 +176,8 @@ public class Constants {
     public static final String PLEASE_SPECIFY_REPLACE_OR_CREATE = "Please Specify Whether to Replace or Create";
 
     public static final String FILE_COPIED_SUCCESSFULLY = "File has been copied successfully";
+
+    public static final String FILE_MOVED_SUCCESSFULLY = "File has been moved successfully";
 
     public static final String PERMISSIONS = "Permissions";
 

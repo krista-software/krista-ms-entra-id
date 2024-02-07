@@ -4,7 +4,6 @@ import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SharepointAreaImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -76,9 +75,9 @@ public class SharepointArea {
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String searchByPermission(
-            @Field.PickOne(name = "Permission", values = {"Read","Write","Read & Write"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission,
+            @Field.PickOne(name = "Permission", values = {"Read", "Write", "Read & Write"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission,
             @Field(name = "Page", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2 '")}, options = {}) Double page,
-            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size){
+            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
@@ -179,7 +178,7 @@ public class SharepointArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Desc(name = "File", type = "Entity", required = false)
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
     public Map<String, Object> createGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
             @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {
