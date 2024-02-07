@@ -1,6 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.*;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileEmailSearchDao;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionDao;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchFilterByRange;
 import app.krista.model.base.DateRange;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
@@ -12,34 +14,25 @@ import javax.inject.Inject;
 public class SharepointAreaImpl {
 
     private final FilePermissionDao filePermissionDao;
-    private final FilePermissionSearchDao filePermissionSearchDao;
     private final FileEmailSearchDao fileEmailSearchDao;
     private final FileSearchFilterByRange fileSearchFilterByRange;
 
     @Inject
     public SharepointAreaImpl(FilePermissionDao filePermissionDao,
-                              FilePermissionSearchDao filePermissionSearchDao, FileEmailSearchDao fileEmailSearchDao, FileSearchFilterByRange fileSearchFilterByRange) {
+                              FileEmailSearchDao fileEmailSearchDao, FileSearchFilterByRange fileSearchFilterByRange) {
         this.filePermissionDao = filePermissionDao;
-        this.filePermissionSearchDao = filePermissionSearchDao;
         this.fileEmailSearchDao = fileEmailSearchDao;
         this.fileSearchFilterByRange = fileSearchFilterByRange;
     }
 
     public FreeForm getSharedPermission(String sourcePath, boolean useEmail, String accountID) {
         try {
-            return filePermissionDao.getSharedPermission(sourcePath,useEmail,accountID);
+            return filePermissionDao.getSharedPermission(sourcePath, useEmail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
-    public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID, Double page, Double size) {
-        try {
-            return filePermissionSearchDao.getSearchByPermission(permission, useEmail, accountID, page, size);
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            throw new IllegalArgumentException(cause.getMessage(), cause);
-        }
-    }
 
     public FreeForm getSearchByMail(String email, String user, boolean useEmail, String accountID) {
         try {
