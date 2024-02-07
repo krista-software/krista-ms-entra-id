@@ -151,14 +151,14 @@ public class SharepointArea {
     }
 
     @CatalogRequest(
-            id = "localDomainRequest_8ca7ad64-b226-401e-9520-e36bb40c0a8d",
+            id = "localDomainRequest_0b7b9859-e010-4ddf-8533-f7b06083936e",
             name = "Create Group",
-            description = "Create group at Sharepoint .",
+            description = "Create Group in Sharepoint",
             area = "Sharepoint",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Desc(name = "File", type = "Entity", required = false)
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> createGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
             @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {
