@@ -4,7 +4,6 @@ import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SharepointAreaImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -76,9 +75,9 @@ public class SharepointArea {
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String searchByPermission(
-            @Field.PickOne(name = "Permission", values = {"Read","Write","Read & Write"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission,
+            @Field.PickOne(name = "Permission", values = {"Read", "Write", "Read & Write"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission,
             @Field(name = "Page", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2 '")}, options = {}) Double page,
-            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size){
+            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
@@ -141,12 +140,14 @@ public class SharepointArea {
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String fetchByFileSizeRange(
             @Field(name = "From Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double fromSize,
-            @Field(name = "To Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double toSize) {
+            @Field(name = "To Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double toSize,
+            @Field(name = "Page", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2'")}, options = {}) Double page,
+            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = sharepointAreaImpl.getFileBySizeRange(fromSize, toSize, useEmail, accountID);
+            FreeForm freeForm = sharepointAreaImpl.getFileBySizeRange(fromSize, toSize, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -160,12 +161,14 @@ public class SharepointArea {
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String fetchFileByModificationDateRange(
-            @Field.DateRange(name = "Modification Date Range", required = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = true, allowFuture = true, defaultTimeSpan = 1, attributes = {}, options = {}) DateRange modificationDateRange) {
+            @Field.DateRange(name = "Modification Date Range", required = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = true, allowFuture = true, defaultTimeSpan = 1, attributes = {}, options = {}) DateRange modificationDateRange,
+            @Field(name = "Page", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2'")}, options = {}) Double page,
+            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = sharepointAreaImpl.getFileByDateRange(modificationDateRange, useEmail, accountID);
+            FreeForm freeForm = sharepointAreaImpl.getFileByDateRange(modificationDateRange, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;

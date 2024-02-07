@@ -373,7 +373,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|---------------|-------------|
 | From Size          | Number             | Yes           | 123         |
 | To Size            | Number             | Yes           | 3423        |
-
+| Page               | Number             | No            | 1           |
+| Size               | Number             | No            | 500         |
 
 - **Output**:
 
@@ -383,7 +384,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 >   - File Size should be specified in bytes for conducting size range searches.
-
+>   - Size can be maximum of 500.
 
 #### 2. Fetch File By Modification Date Range
 
@@ -393,12 +394,18 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name**      | **Parameter Type** | **Mandatory** | **Example**             |
 |-------------------------|--------------------|---------------|-------------------------|
 | Modification Date Range | DateRange          | Yes           | 01/01/2023 - 02/04/2023 |
+| Page                    | Number             | No            | 1                       |
+| Size                    | Number             | No            | 500                     |
+
 
 - **Output**:
 
 | **Parameter Name** | **Parameter Type** | **Example**              |
 |--------------------|--------------------|--------------------------|
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
+
+> #### Note :
+>   - Size can be maximum of 500.
 
 #### 3. Get Shared Permission
 
@@ -417,6 +424,9 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 >   - The File Entity in the response of Get Shared Permission catalog offers information on permissions specific to SharePoint Groups. It's essential to note that this functionality is limited to SharePoint Groups and does not encompass Sites.
+
+> #### Limitation :
+>   - Results for somewhat matching folders can be displayed.
 
 #### 4. Search By Mail
 

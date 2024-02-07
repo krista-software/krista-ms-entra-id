@@ -1,6 +1,9 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.*;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileEmailSearchDao;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionDao;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionSearchDao;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchFilterByRange;
 import app.krista.model.base.DateRange;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
@@ -27,7 +30,7 @@ public class SharepointAreaImpl {
 
     public FreeForm getSharedPermission(String sourcePath, boolean useEmail, String accountID) {
         try {
-            return filePermissionDao.getSharedPermission(sourcePath,useEmail,accountID);
+            return filePermissionDao.getSharedPermission(sourcePath, useEmail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
@@ -49,17 +52,17 @@ public class SharepointAreaImpl {
         }
     }
 
-    public FreeForm getFileByDateRange(DateRange modificationDateRange, boolean useEmail, String accountID) {
+    public FreeForm getFileByDateRange(DateRange modificationDateRange, boolean useEmail, String accountID, Double page, Double size) {
         try {
-            return fileSearchFilterByRange.getFilesByModificationDate(modificationDateRange, useEmail, accountID);
+            return fileSearchFilterByRange.getFilesByModificationDate(modificationDateRange, useEmail, accountID, page, size);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
-    public FreeForm getFileBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
+    public FreeForm getFileBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID, Double page, Double size) {
         try {
-            return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize, useEmail, accountID);
+            return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize, useEmail, accountID, page, size);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
