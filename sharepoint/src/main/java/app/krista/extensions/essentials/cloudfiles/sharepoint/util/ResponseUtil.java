@@ -1,17 +1,14 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 import app.krista.model.base.FreeForm;
-import com.microsoft.graph.models.Group;
 import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
+import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ResponseUtil {
 
@@ -89,19 +86,13 @@ public class ResponseUtil {
 
 
     public static boolean isValidEmail(String email) {
-        String EMAIL_REGEX =
-                "/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$/";
-
-        Pattern EMAIL_PATTERN =
-                Pattern.compile(EMAIL_REGEX);
-        Matcher matcher = EMAIL_PATTERN.matcher(email);
-        return matcher.matches();
+        return EmailValidator.getInstance().isValid(email);
     }
 
     public static Map<String, Object> nonSuccessResponce(Map<String, Object> payload) {
         payload.put(Constants.FILE, new File());
-        payload.put(Constants.SUCCESS,false);
-        payload.put(Constants.MESSAGE,Constants.GROUP_NAME_EXIST);
+        payload.put(Constants.SUCCESS, false);
+        payload.put(Constants.MESSAGE, Constants.GROUP_NAME_EXIST);
         return payload;
     }
 }

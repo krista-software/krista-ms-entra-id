@@ -52,6 +52,7 @@ public class ManagementUtilityService {
                 GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
                 driveItem = getFileByAbsolutePath(sourcePath, graphClient);
                 boolean isValidFile = driveItem != null && driveItem.parentReference != null;
+                System.out.println(" is valid  file "+ isValidFile);
                 if (isValidFile) {
                     payload.put(Constants.SUCCESS, true);
                     return driveItem;

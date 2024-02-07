@@ -7,11 +7,9 @@ import com.microsoft.graph.models.List;
 import com.microsoft.graph.models.Site;
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.options.QueryOption;
-import com.microsoft.graph.requests.ListCollectionPage;
-import com.microsoft.graph.requests.SiteCollectionPage;
-import com.microsoft.graph.requests.SubscriptionCollectionPage;
-import com.microsoft.graph.requests.SubscriptionCollectionRequestBuilder;
+import com.microsoft.graph.requests.*;
 import com.microsoft.graph.serializer.OffsetDateTimeSerializer;
+import okhttp3.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -19,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -49,12 +45,12 @@ public class SharePointSubscription {
                             createSubscription(routingUrl, provider, site.id, list.id);
                         }
                     }
-                } catch (IllegalStateException cause) {
-                    LOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
+                } catch (Exception cause) {
+                    System.out.println(" Error Description : " + cause.getMessage() +" Site Name : "+site.displayName);
                 }
             }
         } catch (Exception cause) {
-            LOGGER.info(" Error Description : " + cause.getMessage());
+            System.out.println(" Error Description : " + cause.getMessage());
         }
     }
 
@@ -69,7 +65,6 @@ public class SharePointSubscription {
     public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
             Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
-
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
                 for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
