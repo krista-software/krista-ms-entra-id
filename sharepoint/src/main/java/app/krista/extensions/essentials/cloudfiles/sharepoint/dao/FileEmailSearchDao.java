@@ -45,8 +45,10 @@ public class FileEmailSearchDao {
         LOGGER.info("Searching for files with filePath: {} {} ", email, user);
         FreeForm payload = new FreeForm();
         if (email == null || email.isEmpty()) {
-            ResponseUtil.getInfoResponse(false, Constants.MAILID_CANNOT_BE_EMPTY, payload);
-            return payload;
+           return ResponseUtil.getInfoResponse(false, Constants.MAILID_CANNOT_BE_EMPTY, payload);
+        }
+        if (!ResponseUtil.isValidEmail(email)) {
+            return ResponseUtil.getInfoResponse(false, Constants.INVALID_EMAIL, payload);
         }
         List<DrivePermissionImpl> resultPage = new ArrayList<>();  // Initialize the result page
         try {

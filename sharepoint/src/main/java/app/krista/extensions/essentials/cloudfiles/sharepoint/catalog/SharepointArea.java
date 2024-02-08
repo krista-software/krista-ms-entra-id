@@ -64,26 +64,6 @@ public class SharepointArea {
         return taskId;
     }
 
-    @CatalogRequest(
-            id = "localDomainRequest_b40ef456-730e-4306-9aff-c202f661aa6f",
-            name = "Search By Permission",
-            description = "Retrieve a list of files based on different permission levels such as read, write, and owner access.",
-            area = "Sharepoint",
-            type = CatalogRequest.Type.QUERY_SYSTEM)
-    @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    public String searchByPermission(
-            @Field.PickOne(name = "Permission", values = {"Read", "Write", "Read & Write"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission,
-            @Field(name = "Page", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2 '")}, options = {}) Double page,
-            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
-        final String taskId = UUID.randomUUID().toString();
-        boolean useEmail = !requestContext.invokeAsUser();
-        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        executorService.submit(() -> {
-            FreeForm freeForm = sharepointAreaImpl.getSearchByPermission(permission, useEmail, accountID, page, size);
-            eventHandler.handleEvent(taskId, freeForm);
-        });
-        return taskId;
-    }
 
     @CatalogRequest(
             id = "localDomainRequest_940bb32f-25ac-499b-b52f-816c8600ec49",

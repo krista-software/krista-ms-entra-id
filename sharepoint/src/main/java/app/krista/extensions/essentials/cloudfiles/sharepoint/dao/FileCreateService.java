@@ -3,6 +3,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.Group;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -61,7 +62,7 @@ public class FileCreateService {
             return payload;
         } catch (GraphServiceException cause) {
             LOGGER.error("Error occurred while creating the group. Details: {}", cause.getMessage());
-            throw new IllegalArgumentException("Error : " + cause.getMessage());
+            return ResponseUtil.nonSuccessResponce(payload);
         }
     }
 

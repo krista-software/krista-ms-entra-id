@@ -13,9 +13,12 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubs
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.model.base.FreeForm;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Field.Text(value = Constants.CLIENT_ID)
 @Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
@@ -29,6 +32,7 @@ public class SharePointExtension {
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
     private final SharePointRequestAuthenticator requestAuthenticator;
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
@@ -65,7 +69,9 @@ public class SharePointExtension {
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
         }
-        //SharePointSubscription.createSharePointSubscriptionForAllSites(routingUrl, clientProviderFactory.create(attributes));
+        executorService.submit(() -> {
+            SharePointSubscription.createSharePointSubscriptionForAllSites(routingUrl, clientProviderFactory.create(attributes));
+        });
     }
 
     @InvokerRequest(InvokerRequest.Type.TEST_CONNECTION)

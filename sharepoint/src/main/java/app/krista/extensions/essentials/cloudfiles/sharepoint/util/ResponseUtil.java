@@ -4,6 +4,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.F
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
+import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.List;
 import java.util.Map;
@@ -53,9 +54,10 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, "Switch", Success);
     }
 
-    public static void getInfoResponse(boolean Success, String message, FreeForm payload) {
+    public static FreeForm getInfoResponse(boolean Success, String message, FreeForm payload) {
         payload.put(Constants.MESSAGE, "Text", message);
         payload.put(Constants.SUCCESS, "Switch", Success);
+        return payload;
     }
 
     public static void addFileSize(long size, FreeForm payload) {
@@ -81,4 +83,18 @@ public class ResponseUtil {
         List<SearchHitsContainer> hitsContainers = page.getCurrentPage().get(0).hitsContainers;
         return hitsContainers != null && !Objects.requireNonNull(hitsContainers).isEmpty() && Boolean.TRUE.equals(hitsContainers.get(0).moreResultsAvailable);
     }
+
+
+    public static boolean isValidEmail(String email) {
+        return EmailValidator.getInstance().isValid(email);
+    }
+
+    public static Map<String, Object> nonSuccessResponce(Map<String, Object> payload) {
+        payload.put(Constants.FILE, new File());
+        payload.put(Constants.SUCCESS, false);
+        payload.put(Constants.MESSAGE, Constants.GROUP_NAME_EXIST);
+        return payload;
+    }
 }
+
+

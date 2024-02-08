@@ -443,25 +443,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 > #### Note :
 >   - File Search operates within the constraints of data associated with SharePoint Sites and Groups, emphasizing criteria linked to either the Created By or Modified By email addresses.
 
-#### 5. Search By Permission
 
-- **Description**: It retrieves a list of users who have been granted access to a specific file, including those with shared access and those with permission to interact with the file. The response includes details on permissions specific to sharePoint groups.
-- **Input Parameters**:
-
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                   |
-|--------------------|--------------------|---------------|-------------------------------|
-| Permission         | Pick one           | Yes           | Read / Write / Read and Write |
-
-- **Output**:
-
-| **Parameter Name** | **Parameter Type** | **Example**              |
-|--------------------|--------------------|--------------------------|
-| Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
-
-> #### Note :
->   - File Search based on permission roles has size limitations in its scope.
-
-#### 6. Get Response
+#### 5. Get Response
 
 - **Description**: Accept task ID as input and return List of Files.
 - **Input Parameters**:
@@ -480,6 +463,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Files              | List&lt;Entity>    | [{name : ABC, extension:.txt , ...}] |
 | Message            | Text               | File Information                     |
 | Success            | Yes/No             | Yes                                  |
+
 
 
 
@@ -623,3 +607,5 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** |
 |--------------------|--------------------|
 | File               | List&lt;Entity>    |
+
+

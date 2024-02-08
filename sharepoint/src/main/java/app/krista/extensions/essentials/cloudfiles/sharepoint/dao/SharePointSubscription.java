@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -29,7 +27,7 @@ import java.util.Objects;
 @Service
 public class SharePointSubscription {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SharePointSubscription.class);
+    private static final Logger lOGGER = LoggerFactory.getLogger(SharePointSubscription.class);
 
     private SharePointSubscription() {
     }
@@ -46,15 +44,16 @@ public class SharePointSubscription {
                     ListCollectionPage listCollectionPage = provider.getGraphServiceClientForAdmin().sites(site.id).lists().buildRequest().get();
                     if (listCollectionPage != null) {
                         for (List list : listCollectionPage.getCurrentPage()) {
+                            System.out.println(" Site " + site.displayName + "  " + site.id + " list " + list.id);
                             createSubscription(routingUrl, provider, site.id, list.id);
                         }
                     }
-                } catch (IllegalStateException cause) {
-                    LOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
+                } catch (Exception cause) {
+                    lOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
                 }
             }
         } catch (Exception cause) {
-            LOGGER.info(" Error Description : " + cause.getMessage());
+            lOGGER.info(" Error Description : " + cause.getMessage());
         }
     }
 
@@ -68,7 +67,8 @@ public class SharePointSubscription {
      */
     public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
-            Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
+           // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://2bff-125-19-87-178.ngrok-free.app") : routingUrl,siteId, listId);
 
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
@@ -85,6 +85,7 @@ public class SharePointSubscription {
                 }
             }
             provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
+            System.out.println(" New Subscription has been created ");
         } catch (ClientException | ParseException cause) {
             throw new RuntimeException(cause);
         }
