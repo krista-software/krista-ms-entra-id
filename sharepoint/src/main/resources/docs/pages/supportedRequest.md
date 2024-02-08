@@ -425,7 +425,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 >   - Give path of the file you want to get the shared permission.
 
 > #### Limitation :
->   - Folders with somewhat matching names can be displayed in the results.
+>   - Folders with partially similar names may appear in the search results.
 
 #### 4. Search By Mail
 
@@ -492,7 +492,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 1. Create List
 
-- **Description**: Creates a new list in the specified SharePoint site.
+- **Description**: This request is used to create a new list within the designated sharePoint site.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -510,7 +510,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 2. Delete List
 
-- **Description**: Deletes a SharePoint list identified by its site name and list name.
+- **Description**: This request is used to remove sharepoint list based on its Site name and List name.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -527,7 +527,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 3. Create Group
 
-- **Description**: Create Group in SharePoint Site.
+- **Description**: This request is used to create group in sharePoint site.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -541,14 +541,14 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|----------------------------------------|
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
 
-#### Note :
+> #### Note :
+>   - After creating a group, it may take a minimum of 2 hours for the changes to be reflected. Consequently, please wait for
+      this period before attempting to use the "Delete" or "Update" group methods.
 
-After creating a group, it may take a minimum of 2 hours for the changes to be reflected. Consequently, please wait for
-this period before attempting to use the "Delete" or "Update" group methods.
 
 #### 4. Delete Group
 
-- **Description**: Deletes a SharePoint Group with the specified name.
+- **Description**: This request is used to delete a sharePoint group with the specified name.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -564,7 +564,7 @@ this period before attempting to use the "Delete" or "Update" group methods.
 
 #### 5. Update List
 
-- **Description**: Updates an existing SharePoint list with the provided display name and description.
+- **Description**: This request updates an existing sharePoint list with the provided display name and description.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**          |
@@ -584,7 +584,7 @@ this period before attempting to use the "Delete" or "Update" group methods.
 
 #### 6. Update Group
 
-- **Description**: Updates the display name of an existing SharePoint group.
+- **Description**: this request updates the display name of an existing sharePoint group.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -604,7 +604,7 @@ this period before attempting to use the "Delete" or "Update" group methods.
 
 #### Search By File
 
-- **Description**: Returns list of File Details.
+- **Description**: This request returns list of file details.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type**                           | **Mandatory** | **Example**                     |
