@@ -362,7 +362,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 1. Fetch By File Size Range
 
-- **Description**: This request accepts File Size ad returns Task ID.
+- **Description**: This request facilitates searching by file size range and returns the corresponding Task ID.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -379,12 +379,12 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - File Size should be specified in bytes for conducting size range searches.
->   - The maximum limit for the output of a list of files is 500.
+>   - Specify File Size in "bytes" when conducting size range searches.
+>   - The output limit for a list of files is capped at 500.
 
 #### 2. Fetch File By Modification Date Range
 
-- **Description**: This request accepts File Modification date , Returns Task ID.
+- **Description**: This request takes File Modification date as input and returns the corresponding Task ID.
 - **Input Parameters**:
 
 | **Parameter Name**      | **Parameter Type** | **Mandatory** | **Example**             |
@@ -400,12 +400,11 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - he maximum limit for the output of a list of files is 500.
+>   - The output limit for a list of files is capped at 500.
 
 #### 3. Get Shared Permission
 
-- **Description**: Retrieve a list of users who have been granted access to a specific file, including those with shared
-  access and those who possess permission to interact with the file.
+- **Description**: Obtain a list of users with granted access to a specific file, encompassing both those with shared access and those authorized to interact with the file.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                      |
@@ -419,18 +418,15 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - The File Entity in the response of Get Shared Permission catalog offers information on permissions specific to
-      SharePoint Groups. It's essential to note that this functionality is limited to SharePoint Groups and does not
-      encompass Sites.
->   - Give path of the file you want to get the shared permission.
+>   - The File Entity within the response of the Get Shared Permission catalog provides details on permissions associated with SharePoint Groups. Please be aware that this feature is restricted to SharePoint Groups and does not cover Sites.
+>   - Specify the file path for which you intend to retrieve shared permissions.
 
 > #### Limitation :
->   - Folders with partially similar names may appear in the search results.
+>   - This request functions exclusively with file paths. If a folder path is provided, the results will include folders with identical names even if they exist within the parent folder. For example, if there are two folders, "Test" and "Test Data," within the "Shared Folder," providing the path for "Test" will also return results for "Test Data."
 
 #### 4. Search By Mail
 
-- **Description**: Searches for files in SharePoint based on the email addresses of the users who created and last
-  modified the files.
+- **Description**: Conducts a search for files in SharePoint using the email addresses of users who created and last modified the files.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**               |
@@ -445,8 +441,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - File Search operates on data constraints associated with SharePoint Sites and Groups, focusing on criteria related
-      to either the Created By or Modified By email addresses.
+>   - File Search operates within the constraints of data associated with SharePoint Sites and Groups, emphasizing criteria linked to either the Created By or Modified By email addresses.
 
 #### 5. Search By Permission
 
@@ -492,7 +487,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 1. Create List
 
-- **Description**: This request is used to create a new list within the designated sharePoint site.
+- **Description**: This request is used to initiate the creation of a new list within the specified SharePoint site.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -510,7 +505,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 2. Delete List
 
-- **Description**: This request is used to remove sharepoint list based on its Site name and List name.
+- **Description**: This request is used to delete a SharePoint list based on its Site name and List name.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -527,7 +522,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 3. Create Group
 
-- **Description**: This request is used to create group in sharePoint site.
+- **Description**: This request is used to create group in sharePoint.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -542,8 +537,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
 
 > #### Note :
->   - After creating a group, it may take a minimum of 2 hours for the changes to be reflected. Consequently, please wait for
-      this period before attempting to use the "Delete" or "Update" group methods.
+>   - After creating a group, allow a minimum of 2 hours for the changes to take effect. Therefore, it is advisable to wait for this period before attempting to utilize the "Delete" or "Update" group methods.
 
 
 #### 4. Delete Group
@@ -584,7 +578,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 6. Update Group
 
-- **Description**: this request updates the display name of an existing sharePoint group.
+- **Description**: This request updates the display name of an existing sharePoint group.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
