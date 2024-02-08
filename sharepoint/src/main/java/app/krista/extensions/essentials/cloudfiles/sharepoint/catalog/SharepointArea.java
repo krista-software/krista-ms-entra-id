@@ -136,10 +136,10 @@ public class SharepointArea {
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String fetchByFileSizeRange(
-            @Field(name = "From Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double fromSize,
-            @Field(name = "To Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double toSize,
-            @Field(name = "Page", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2'")}, options = {}) Double page,
-            @Field(name = "Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
+            @Field(name = "From Size", type = "Number", attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double fromSize,
+            @Field(name = "To Size", type = "Number", attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Double toSize,
+            @Field(name = "Page", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2'")}, options = {}) Double page,
+            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
@@ -158,9 +158,9 @@ public class SharepointArea {
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String fetchFileByModificationDateRange(
-            @Field.DateRange(name = "Modification Date Range", required = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = true, allowFuture = true, defaultTimeSpan = 1, attributes = {}, options = {})  DateRange modificationDateRange,
-            @Field(name = "Page", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2'")}, options = {}) Double page,
-            @Field(name = "Size", type = "Number", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
+            @Field.DateRange(name = "Modification Date Range", required = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = true, allowFuture = true, defaultTimeSpan = 1, attributes = {}, options = {}) DateRange modificationDateRange,
+            @Field(name = "Page", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'i.e 0, 1, 2'")}, options = {}) Double page,
+            @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "toolTip", value = "'Max size limit is 500'")}, options = {}) Double size) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
