@@ -12,7 +12,6 @@ import com.microsoft.graph.requests.SiteCollectionPage;
 import com.microsoft.graph.requests.SubscriptionCollectionPage;
 import com.microsoft.graph.requests.SubscriptionCollectionRequestBuilder;
 import com.microsoft.graph.serializer.OffsetDateTimeSerializer;
-import okhttp3.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -45,11 +44,12 @@ public class SharePointSubscription {
                     ListCollectionPage listCollectionPage = provider.getGraphServiceClientForAdmin().sites(site.id).lists().buildRequest().get();
                     if (listCollectionPage != null) {
                         for (List list : listCollectionPage.getCurrentPage()) {
+                            System.out.println(" Site " + site.displayName + "  " + site.id + " list " + list.id);
                             createSubscription(routingUrl, provider, site.id, list.id);
                         }
                     }
                 } catch (Exception cause) {
-                    lOGGER.info(" Error Description : " + cause.getMessage() +" Site Name : "+site.displayName);
+                    lOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
                 }
             }
         } catch (Exception cause) {
@@ -67,7 +67,9 @@ public class SharePointSubscription {
      */
     public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
-            Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
+           // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://2bff-125-19-87-178.ngrok-free.app") : routingUrl,siteId, listId);
+
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
                 for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
@@ -83,6 +85,7 @@ public class SharePointSubscription {
                 }
             }
             provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
+            System.out.println(" New Subscription has been created ");
         } catch (ClientException | ParseException cause) {
             throw new RuntimeException(cause);
         }

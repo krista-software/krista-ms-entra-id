@@ -460,27 +460,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Success            | Yes/No             | Yes                                  |
 
 
-#### 6. Create Group
-
-- **Description**: Create Group in SharePoint Site.
-- **Input Parameters**:
-
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
-|--------------------|--------------------|---------------|-------------|
-| Group Name         | Text               | Yes           | Test 123    |
-| Mail Nick Name     | Text               | Yes           | Test123     |
-
-
-- **Output**:
-
-| **Parameter Name** | **Parameter Type** | **Example**                            |
-|--------------------|--------------------|----------------------------------------|
-| File               | Entity             | {name : "ABC", extension:".txt" , ...} |
-
-
-
-#### Note :
-After creating a group, it may take a minimum of 2 hours for the changes to be reflected. Consequently, please wait for this period before attempting to use the "Delete" or "Update" group methods.
 
 
 ## Operation Area
@@ -580,6 +559,30 @@ After creating a group, it may take a minimum of 2 hours for the changes to be r
 | Message            | Text               | Group updated successfully         |
 | Success            | Yes/No             | Yes                                |
 
+
+#### 6. Create Group
+
+- **Description**: Create Group in SharePoint Site.
+- **Input Parameters**:
+
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
+|--------------------|--------------------|---------------|-------------|
+| Group Name         | Text               | Yes           | Test 123    |
+| Mail Nick Name     | Text               | Yes           | Test123     |
+
+
+- **Output**:
+
+| **Parameter Name** | **Parameter Type** | **Example**                            |
+|--------------------|--------------------|----------------------------------------|
+| File               | Entity             | {name : "ABC", extension:".txt" , ...} |
+
+
+
+#### Note :
+After creating a group, it may take a minimum of 2 hours for the changes to be reflected. Consequently, please wait for this period before attempting to use the "Delete" or "Update" group methods.
+
+
 ## Entity Requests 
 
 #### Search By File
@@ -610,3 +613,5 @@ After creating a group, it may take a minimum of 2 hours for the changes to be r
 | **Parameter Name** | **Parameter Type** |
 |--------------------|--------------------|
 | File               | List&lt;Entity>    |
+
+

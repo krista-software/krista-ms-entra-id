@@ -5,6 +5,7 @@ import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.OperationsAreaImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -18,9 +19,12 @@ public class OperationsArea {
 
     private final OperationsAreaImpl operationsAreaImpl;
 
+    private final FileDao fileDaoImpl;
+
     @Inject
-    public OperationsArea(OperationsAreaImpl operationsAreaImpl) {
+    public OperationsArea(OperationsAreaImpl operationsAreaImpl, FileDao fileDaoImpl) {
         this.operationsAreaImpl = operationsAreaImpl;
+        this.fileDaoImpl = fileDaoImpl;
     }
 
     @CatalogRequest(
@@ -99,5 +103,21 @@ public class OperationsArea {
             @Field.Text(name = "New Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String newGroupName) {
         return operationsAreaImpl.updateSite(groupName, newGroupName);
     }
+
+    @CatalogRequest(
+            id = "localDomainRequest_afae0291-8c64-4db5-96dc-e360557f88a3",
+            name = "Create Group",
+            description = "Create group in Sharepoint",
+            area = "Operations",
+            type = CatalogRequest.Type.CHANGE_SYSTEM)
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
+    public Map<String, Object> createGroup(
+            @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
+            @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {
+        return fileDaoImpl.createGroup(groupName, mailNickName);
+    }
+
 
 }

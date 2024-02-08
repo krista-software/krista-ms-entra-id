@@ -98,7 +98,7 @@ public class FileDaoImpl implements FileDao {
                 if (page != null && !page.getCurrentPage().isEmpty()) {
                     fileSearchImpl.extractDrivePermissionsFromSearchResults(resultPage, page, filePath, graphClient);
                 }
-                if (resultPage.size() > 0) {
+                if (!resultPage.isEmpty()) {
                     return resultPage.get(0);
                 } else {
                     return null;

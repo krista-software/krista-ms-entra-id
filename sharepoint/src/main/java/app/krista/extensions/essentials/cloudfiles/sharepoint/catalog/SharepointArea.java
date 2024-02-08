@@ -150,19 +150,5 @@ public class SharepointArea {
         return taskId;
     }
 
-    @CatalogRequest(
-            id = "localDomainRequest_0b7b9859-e010-4ddf-8533-f7b06083936e",
-            name = "Create Group",
-            description = "Create Group in Sharepoint",
-            area = "Sharepoint",
-            type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Desc(name = "File", type = "Entity", required = false)
-    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    public Map<String, Object> createGroup(
-            @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
-            @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {
-        return fileDaoImpl.createGroup(groupName, mailNickName);
-    }
 
 }
