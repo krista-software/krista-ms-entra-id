@@ -424,6 +424,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 >   - The File Entity in the response of Get Shared Permission catalog offers information on permissions specific to SharePoint Groups. It's essential to note that this functionality is limited to SharePoint Groups and does not encompass Sites.
+>   - Give path of the file you want to get the shared permission.
 
 > #### Limitation :
 >   - Results for somewhat matching folders can be displayed.
