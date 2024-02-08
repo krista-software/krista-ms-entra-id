@@ -427,7 +427,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 >   - Give path of the file you want to get the shared permission.
 
 > #### Limitation :
->   - Results for somewhat matching folders can be displayed.
+>   - Folders with somewhat matching names can be displayed in the results.
 
 #### 4. Search By Mail
 
