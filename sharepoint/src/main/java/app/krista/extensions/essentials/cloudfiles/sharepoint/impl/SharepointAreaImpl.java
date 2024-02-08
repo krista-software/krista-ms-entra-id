@@ -3,6 +3,10 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileEmailSearchDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchFilterByRange;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileEmailSearchDao;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionDao;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionSearchDao;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchFilterByRange;
 import app.krista.model.base.DateRange;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
@@ -14,13 +18,15 @@ import javax.inject.Inject;
 public class SharepointAreaImpl {
 
     private final FilePermissionDao filePermissionDao;
+    private final FilePermissionSearchDao filePermissionSearchDao;
     private final FileEmailSearchDao fileEmailSearchDao;
     private final FileSearchFilterByRange fileSearchFilterByRange;
 
     @Inject
     public SharepointAreaImpl(FilePermissionDao filePermissionDao,
-                              FileEmailSearchDao fileEmailSearchDao, FileSearchFilterByRange fileSearchFilterByRange) {
+                              FilePermissionSearchDao filePermissionSearchDao, FileEmailSearchDao fileEmailSearchDao, FileSearchFilterByRange fileSearchFilterByRange) {
         this.filePermissionDao = filePermissionDao;
+        this.filePermissionSearchDao = filePermissionSearchDao;
         this.fileEmailSearchDao = fileEmailSearchDao;
         this.fileSearchFilterByRange = fileSearchFilterByRange;
     }
@@ -33,6 +39,13 @@ public class SharepointAreaImpl {
         }
     }
 
+    public FreeForm getSearchByPermission(String permission, boolean useEmail, String accountID, Double page, Double size) {
+        try {
+            return filePermissionSearchDao.getSearchByPermission(permission, useEmail, accountID, page, size);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            throw new IllegalArgumentException(cause.getMessage(), cause);
+        }
+    }
 
     public FreeForm getSearchByMail(String email, String user, boolean useEmail, String accountID) {
         try {
@@ -42,17 +55,17 @@ public class SharepointAreaImpl {
         }
     }
 
-    public FreeForm getFileByDateRange(DateRange modificationDateRange, boolean useEmail, String accountID) {
+    public FreeForm getFileByDateRange(DateRange modificationDateRange, boolean useEmail, String accountID, Double page, Double size) {
         try {
-            return fileSearchFilterByRange.getFilesByModificationDate(modificationDateRange, useEmail, accountID);
+            return fileSearchFilterByRange.getFilesByModificationDate(modificationDateRange, useEmail, accountID, page, size);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
-    public FreeForm getFileBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID) {
+    public FreeForm getFileBySizeRange(Double fromSize, Double toSize, boolean useEmail, String accountID, Double page, Double size) {
         try {
-            return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize, useEmail, accountID);
+            return fileSearchFilterByRange.getFilesBySizeRange(fromSize, toSize, useEmail, accountID, page, size);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

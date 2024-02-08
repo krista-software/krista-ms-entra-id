@@ -5,7 +5,6 @@ import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.OperationsAreaImpl;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -19,12 +18,9 @@ public class OperationsArea {
 
     private final OperationsAreaImpl operationsAreaImpl;
 
-    private final FileDao fileDaoImpl;
-
     @Inject
-    public OperationsArea(OperationsAreaImpl operationsAreaImpl, FileDao fileDaoImpl) {
+    public OperationsArea(OperationsAreaImpl operationsAreaImpl) {
         this.operationsAreaImpl = operationsAreaImpl;
-        this.fileDaoImpl = fileDaoImpl;
     }
 
     @CatalogRequest(
@@ -56,7 +52,6 @@ public class OperationsArea {
         return operationsAreaImpl.deleteList(siteName, listName);
     }
 
-
     @CatalogRequest(
             id = "localDomainRequest_99f0f63d-263d-4c8e-9e6a-e4eb7092fbd3",
             name = "Delete Group",
@@ -69,7 +64,6 @@ public class OperationsArea {
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName) {
         return operationsAreaImpl.deleteSite(groupName);
     }
-
 
     @CatalogRequest(
             id = "localDomainRequest_b6c09a0b-4693-4e8a-b9b3-0b6c47c5ad4b",
@@ -88,7 +82,6 @@ public class OperationsArea {
         return operationsAreaImpl.updateList(siteName, listName, displayName, description);
     }
 
-
     @CatalogRequest(
             id = "localDomainRequest_92dede25-2e0e-47c4-beee-5dba787b0435",
             name = "Update Group",
@@ -105,7 +98,7 @@ public class OperationsArea {
     }
 
     @CatalogRequest(
-            id = "localDomainRequest_afae0291-8c64-4db5-96dc-e360557f88a3",
+            id = "localDomainRequest_ce9dcc9f-7be5-42e5-8d97-05304c122097",
             name = "Create Group",
             description = "Create group in Sharepoint",
             area = "Operations",
@@ -116,8 +109,6 @@ public class OperationsArea {
     public Map<String, Object> createGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
             @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {
-        return fileDaoImpl.createGroup(groupName, mailNickName);
+        return operationsAreaImpl.createGroup(groupName, mailNickName);
     }
-
-
 }
