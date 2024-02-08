@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileCreateService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -57,23 +56,6 @@ public class FileDaoImpl implements FileDao {
     public static List<Map<String, Object>> getSharedWithPermissions(PermissionCollectionPage permissionCollectionPage) {
         LOGGER.info("Getting shared permissions for PermissionCollectionPage and SharePointAttributes.");
         return new FilePermissionService().getSharedWithPermissions(permissionCollectionPage);
-    }
-
-    /**
-     * Creates a new group using the {@link FileCreateService}.
-     * This method retrieves the Graph client and calls the `FileCreateService`'s `createGroup` method
-     * to handle the group creation logic with dedicated functionality.
-     *
-     * @param groupName,@param mailNickName A map containing information necessary for group creation, such as name and base name.
-     * @return A GroupImpl object representing the newly created group, or null if creation fails.
-     * @throws GraphServiceException If an error occurs during group creation.
-     */
-
-    public Map<String, Object> createGroup(String groupName, String mailNickName) {
-        LOGGER.info("Creating group with details: {} {}", groupName, mailNickName);
-        FileCreateService fileCreateService = new FileCreateService(clientProvider.
-                getUserRequestBuilder(null, null));
-        return fileCreateService.createGroup(groupName, mailNickName);
     }
 
     /**
