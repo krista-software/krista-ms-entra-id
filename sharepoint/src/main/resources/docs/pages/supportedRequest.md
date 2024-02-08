@@ -362,7 +362,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 1. Fetch By File Size Range
 
-- **Description**: This request facilitates searching by file size range and returns the corresponding Task ID.
+- **Description**: This request is used to search files within sharePoint based on specified file size ranges. It returns the corresponding Task ID for the matched files.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -384,7 +384,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 2. Fetch File By Modification Date Range
 
-- **Description**: This request takes File Modification date as input and returns the corresponding Task ID.
+- **Description**: This request retrieve files by specifying a range of modification dates. It returns the corresponding Task ID for the matched files.
 - **Input Parameters**:
 
 | **Parameter Name**      | **Parameter Type** | **Mandatory** | **Example**             |
@@ -445,7 +445,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 5. Search By Permission
 
-- **Description**: Retrieve a list of files based on different permission levels such as read, write, and owner access.
+- **Description**: It retrieves a list of users who have been granted access to a specific file, including those with shared access and those with permission to interact with the file. The response includes details on permissions specific to sharePoint groups.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                   |
@@ -522,8 +522,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 3. Create Group
 
-- **Description**: This request is used to create group in sharePoint.
-- **Input Parameters**:
+- **Description**: The create group request is utilized to establish a new group within the sharePoint environment. 
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
 |--------------------|--------------------|---------------|-------------|
@@ -542,7 +541,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 4. Delete Group
 
-- **Description**: This request is used to delete a sharePoint group with the specified name.
+- **Description**: This request is utilized to delete group within the sharePoint environment by using group name.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
