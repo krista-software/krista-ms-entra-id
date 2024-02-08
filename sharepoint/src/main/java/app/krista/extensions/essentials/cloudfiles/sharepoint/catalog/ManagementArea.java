@@ -11,8 +11,6 @@ import app.krista.extensions.util.EventHandler;
 import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
 import app.krista.model.base.FreeForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -29,7 +27,6 @@ import java.util.concurrent.Executors;
         ecosystemVersion = "dbcdd7cf-a461-402f-9459-3bc205bf6dce")
 public class ManagementArea {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementArea.class);
     private final EventHandler eventHandler;
     private final ManagementDaoImpl managementDao;
     private final RequestContext requestContext;

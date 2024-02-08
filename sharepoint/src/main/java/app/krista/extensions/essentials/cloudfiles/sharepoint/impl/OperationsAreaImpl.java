@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileCreateService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaListImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaSiteImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -73,6 +74,22 @@ public class OperationsAreaImpl {
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
+    }
+
+    /**
+     * Creates a new group using the {@link FileCreateService}.
+     * This method retrieves the Graph client and calls the `FileCreateService`'s `createGroup` method
+     * to handle the group creation logic with dedicated functionality.
+     *
+     * @param groupName,@param mailNickName A map containing information necessary for group creation, such as name and base name.
+     * @return A GroupImpl object representing the newly created group, or null if creation fails.
+     * @throws GraphServiceException If an error occurs during group creation.
+     */
+
+    public Map<String, Object> createGroup(String groupName, String mailNickName) {
+        FileCreateService fileCreateService = new FileCreateService(clientProvider.
+                getUserRequestBuilder(null, null));
+        return fileCreateService.createGroup(groupName, mailNickName);
     }
 
 }
