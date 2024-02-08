@@ -320,7 +320,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Since              | Date               | Yes           | 2023-12-29 T03 \: 54 \: 26Z        |
 | Search             | Text               | Yes           | WeeklyDemo.txt                     |
 
-- **Observation**: It works for files having version history.
+- **Note**: It works for files having version history.
 
 - **Output**:
 
@@ -362,7 +362,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 1. Fetch By File Size Range
 
-- **Description**: Accepts File Size , Returns Task ID.
+- **Description**: This request accepts File Size ad returns Task ID.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -380,11 +380,11 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 >   - File Size should be specified in bytes for conducting size range searches.
->   - Size can be maximum of 500.
+>   - The maximum limit for the output of a list of files is 500.
 
 #### 2. Fetch File By Modification Date Range
 
-- **Description**: Accepts File Modification date , Returns Task ID.
+- **Description**: This request accepts File Modification date , Returns Task ID.
 - **Input Parameters**:
 
 | **Parameter Name**      | **Parameter Type** | **Mandatory** | **Example**             |
@@ -400,7 +400,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - Size can be maximum of 500.
+>   - he maximum limit for the output of a list of files is 500.
 
 #### 3. Get Shared Permission
 
@@ -486,10 +486,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File Information                     |
 | Success            | Yes/No             | Yes                                  |
 
-#### Note :
 
-After creating a group, it may take a minimum of 2 hours for the changes to be reflected. Consequently, please wait for
-this period before attempting to use the "Delete" or "Update" group methods.
 
 ## Operation Area
 
@@ -528,7 +525,7 @@ this period before attempting to use the "Delete" or "Update" group methods.
 | Message            | Text               | ListName List deleted successfully |
 | Success            | Yes/No             | Yes                                |
 
-#### 7. Create Group
+#### 3. Create Group
 
 - **Description**: Create Group in SharePoint Site.
 - **Input Parameters**:
@@ -544,7 +541,12 @@ this period before attempting to use the "Delete" or "Update" group methods.
 |--------------------|--------------------|----------------------------------------|
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
 
-#### 3. Delete Group
+#### Note :
+
+After creating a group, it may take a minimum of 2 hours for the changes to be reflected. Consequently, please wait for
+this period before attempting to use the "Delete" or "Update" group methods.
+
+#### 4. Delete Group
 
 - **Description**: Deletes a SharePoint Group with the specified name.
 - **Input Parameters**:
@@ -560,7 +562,7 @@ this period before attempting to use the "Delete" or "Update" group methods.
 | Message            | Text               | Group deleted successfully |
 | Success            | Yes/No             | Yes                        |
 
-#### 4. Update List
+#### 5. Update List
 
 - **Description**: Updates an existing SharePoint list with the provided display name and description.
 - **Input Parameters**:
@@ -580,7 +582,7 @@ this period before attempting to use the "Delete" or "Update" group methods.
 | Message            | Text               | List modified successfully         |
 | Success            | Yes/No             | Yes                                |
 
-#### 5. Update Group
+#### 6. Update Group
 
 - **Description**: Updates the display name of an existing SharePoint group.
 - **Input Parameters**:
