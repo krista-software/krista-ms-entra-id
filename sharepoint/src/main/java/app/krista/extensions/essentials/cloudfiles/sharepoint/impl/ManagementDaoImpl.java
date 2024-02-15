@@ -31,14 +31,16 @@ public class ManagementDaoImpl {
     private final FileVersionSearchDao fileVersionSearchDao;
     private final HandleFileIsChanged handleFileIsChanged;
 
+    private final SearchFileExecutor searchFileExecutor;
+
 
     @Inject
     public ManagementDaoImpl(GraphServiceClientProviderFactory factory, DriveFileService fileManagementDao,
                              FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
                              SharedFileDao sharedFileDao, FileTransferService copyFileDao, FileDownloadService fileDownloadService,
                              FileUploadService fileUploadService, DriveTextFileManager driveTextFileService,
-                             FileSearchFilterByRange fileSearchFilterByRange,FileVersionSearchDao fileVersionSearchDao,
-                             HandleFileIsChanged handleFileIsChanged) {
+                             FileSearchFilterByRange fileSearchFilterByRange, FileVersionSearchDao fileVersionSearchDao,
+                             HandleFileIsChanged handleFileIsChanged, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.fileManagementDao = fileManagementDao;
         this.folderManagementDao = folderManagementDao;
@@ -51,6 +53,7 @@ public class ManagementDaoImpl {
         this.fileSearchFilterByRange = fileSearchFilterByRange;
         this.fileVersionSearchDao = fileVersionSearchDao;
         this.handleFileIsChanged = handleFileIsChanged;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
 
@@ -64,7 +67,7 @@ public class ManagementDaoImpl {
 
     public Map<String, Object> deleteFile(String target) {
         try {
-            return operationsManagementDao.deleteFile(target);
+          return operationsManagementDao.deleteFile(target);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

@@ -59,7 +59,11 @@ public class FileDownloadService {
                 absolutePath = managementUtilityService.getUpdatedFilePath(absolutePath);
                 List<File> files = new ArrayList<>();
                 DriveItem driveItem = managementUtilityService.checkIfFileExist(absolutePath, payload);
-
+ /*
+  Map<String, Object> payload = new HashMap<>();
+        searchFileExecutor.getFileInfo(target,payload,true);
+        DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
+  */
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     String relativePath = DriveUtil.getRelativePath(absolutePath);
                     downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink,

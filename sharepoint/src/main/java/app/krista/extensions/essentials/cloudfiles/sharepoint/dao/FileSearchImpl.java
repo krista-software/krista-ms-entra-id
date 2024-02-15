@@ -134,8 +134,8 @@ public class FileSearchImpl {
         SearchQuery query = new SearchQuery();
         query.queryString = "path:\"" + filePath + "\"";
         requests.query = query;
-        requests.from = 0;
-        requests.size = 25;
+//        requests.from = 0;
+//        requests.size = 25;
     }
 
     public SearchEntityQueryCollectionPage buildSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {
@@ -195,6 +195,8 @@ public class FileSearchImpl {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem drive = (DriveItem) hits.resource;
+                                assert drive.parentReference != null;
+                                String driveId=drive.parentReference.driveId;
                                 if (drive.webUrl != null && drive.webUrl.equals(filePath) && !rootFolder) {
                                     driveItem = (DriveItem) hits.resource;
                                     break;

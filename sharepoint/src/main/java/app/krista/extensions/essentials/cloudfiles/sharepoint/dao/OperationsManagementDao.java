@@ -3,14 +3,12 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
-import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -37,13 +35,16 @@ public class OperationsManagementDao {
 
     private final FileDao fileDao;
 
+    private final SearchFileExecutor searchFileExecutor;
+
 
     @Inject
     public OperationsManagementDao(GraphServiceClientProviderFactory factory,
-                                   ManagementUtilityService managementUtilityService, FileDao fileDao) {
+                                   ManagementUtilityService managementUtilityService, FileDao fileDao, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileDao = fileDao;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
 
@@ -53,28 +54,24 @@ public class OperationsManagementDao {
      */
     public Map<String, Object> deleteFile(String target) {
         Map<String, Object> payload = new HashMap<>();
-        try {
-            if(target == null || target.isEmpty()){
-                payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
-                payload.put(Constants.SUCCESS, false);
-            }
-            target = managementUtilityService.getUpdatedFilePath(target);
-            DriveItem driveItem = managementUtilityService.checkIfFileExist(target, payload);
-            if ((boolean) payload.get(Constants.SUCCESS)) {
-                target = DriveUtil.getRelativePath(target);
-                provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId)
-                        .root().itemWithPath(target).buildRequest().delete();
-                payload.put(Constants.MESSAGE, Constants.FILE_DELETED_SUCCESSFULLY);
-                payload.put(Constants.SUCCESS, true);
-            } else {
-                payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
-                payload.put(Constants.SUCCESS, false);
-            }
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            managementUtilityService.handleDeleteFileException(cause, payload);
+        searchFileExecutor.getFileInfo(target,payload,true);
+      //  DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
+        DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+
+
+        if ((boolean) payload.get(Constants.SUCCESS)) {
+            provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id)
+                    .buildRequest().delete();
+
+            payload.put(Constants.MESSAGE, Constants.FILE_DELETED_SUCCESSFULLY);
+            payload.put(Constants.SUCCESS, true);
+        } else {
+            payload.put(Constants.MESSAGE, "File not found");
+            payload.put(Constants.SUCCESS, false);
         }
         return payload;
     }
+
 
     /**
      * Renames a file to the specified target name, handling validation and potential errors.

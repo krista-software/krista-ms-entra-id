@@ -14,6 +14,7 @@ import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
 import org.jetbrains.annotations.NotNull;
+import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+@Service
 public class GraphServiceClientProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphServiceClientProvider.class);
