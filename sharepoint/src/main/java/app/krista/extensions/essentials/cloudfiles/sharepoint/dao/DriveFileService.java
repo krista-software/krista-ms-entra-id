@@ -46,13 +46,17 @@ public class DriveFileService {
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
 
+    private final SearchFileExecutor searchFileExecutor;
+
+
 
     @Inject
     public DriveFileService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
-                            FileSearchUtilityService fileSearchUtilityService) {
+                            FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -331,8 +335,10 @@ public class DriveFileService {
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload;
             }
-            relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
-            DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
+           //  relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
+  //           searchFileExecutor.getFileInfo(relativePath,payload,true,useEmail,accountID);
+   //         DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+           DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
             if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
                 String refinedRelativePath = DriveUtil.getRelativePath(relativePath);
                 getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath, files, useEmail, accountID, search, payload, relativePath);
@@ -366,7 +372,7 @@ public class DriveFileService {
         try {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
 
-            DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
+           DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
 
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload, absolutePath);

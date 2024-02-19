@@ -7,6 +7,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Managemen
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.JavaFileHandleHelper;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
@@ -38,13 +39,18 @@ public class FileUploadService {
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
+    private final SearchFileExecutor searchFileExecutor;
+
+    private final JavaFileHandleHelper javaFileHandleHelper;
 
     @Inject
     public FileUploadService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
-                             FileSearchUtilityService fileSearchUtilityService) {
+                             FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, JavaFileHandleHelper javaFileHandleHelper) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
+        this.javaFileHandleHelper = javaFileHandleHelper;
     }
 
     /**
@@ -64,12 +70,13 @@ public class FileUploadService {
     private void validateAndUploadFile(app.krista.model.base.File kristaFile, String targetPath,
                                        Map<String, Object> payload) {
         if (targetPath != null && !FileUtil.hasFileExtension(targetPath)) {
-            targetPath = managementUtilityService.getUpdatedFilePath(targetPath);
-            DriveItem drive = managementUtilityService.checkIfFileExist(targetPath, payload);
+     //       targetPath = managementUtilityService.getUpdatedFilePath(targetPath);
+            searchFileExecutor.getFileInfo(targetPath,payload,true);
+            DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 targetPath = DriveUtil.getRelativePath(targetPath);
-                uploadFileByPathByDriveID(drive.parentReference.driveId, targetPath, kristaFile, payload);
+                uploadFileByPathByDriveID(driveItem.parentReference.driveId, targetPath, kristaFile, payload,driveItem);
             } else {
                 setInvalidPathMessage(payload);
             }
@@ -90,13 +97,13 @@ public class FileUploadService {
     }
 
     private void uploadFileByPathByDriveID(String driveID, String targetPath, app.krista.model.base.File kristaFile,
-                                           Map<String, Object> payload) {
+                                           Map<String, Object> payload, DriveItem driveItem) {
         try {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
-            DriveItem driveItem = driveID != null ? graphClient.drives(driveID).root().itemWithPath(targetPath).buildRequest().get()
-                    : graphClient.drive().root().itemWithPath(targetPath).buildRequest().get();
+//            DriveItem driveItem = driveID != null ? graphClient.drives(driveID).root().itemWithPath(targetPath).buildRequest().get()
+//                    : graphClient.drive().root().itemWithPath(targetPath).buildRequest().get();
             if (driveItem != null && driveItem.folder != null && driveItem.id != null) {
-                java.io.File javaFile = CatalogTypes.fromFile(kristaFile);
+                java.io.File javaFile = javaFileHandleHelper.convertKristaFileToJavaFile(kristaFile);
                 DriveUtil.listValidator(List.of(javaFile), Constants.FAILED_TO_UPLOAD_FILE);
 
                 DriveItem uploadedDriveItem = driveID != null ? graphClient.drives(driveID).items(driveItem.id)

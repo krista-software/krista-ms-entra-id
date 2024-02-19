@@ -40,34 +40,41 @@ public class DriveTextFileManager {
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
 
+    private final SearchFileExecutor searchFileExecutor;
+
     @Inject
-    public DriveTextFileManager(GraphServiceClientProviderFactory factory,ManagementUtilityService managementUtilityService,
-                                FileSearchUtilityService fileSearchUtilityService) {
+    public DriveTextFileManager(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
+                                FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
      * Reads the contents of a TXT file at the specified path, handling path validation, file existence checks, and potential errors.
+     *
      * @return A Map containing status and result details, including success/failure indicators, file contents, or error messages.
      */
     public Map<String, Object> readTxtFile(String source) {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (source != null) {
-                source = managementUtilityService.getUpdatedFilePath(source);
-                DriveItem drive = managementUtilityService.checkIfFileExist(source, payload);
+                //source = managementUtilityService.getUpdatedFilePath(source);
+                searchFileExecutor.getFileInfo(source, payload, true);
+                DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+
+                //String path = DriveUtil.getRelativePath(source);
+                //    getFileInfo(driveItem.parentReference.driveId, path, payload);
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                    String path = DriveUtil.getRelativePath(source);
-                    getFileInfo(drive.parentReference.driveId, path, payload);
-                    if ((boolean) payload.get(Constants.SUCCESS)) {
-                        readTxtFileFromSource(payload);
-                    }
+                    readTxtFileFromSource(payload, driveItem);
                 } else {
-                    invalidFileName(payload);
+                    invalidPath(payload);
                 }
+            } else {
+                invalidFileName(payload);
             }
+
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
@@ -81,8 +88,8 @@ public class DriveTextFileManager {
         payload.put(Constants.SUCCESS, false);
     }
 
-    private void readTxtFileFromSource(Map<String, Object> payload) {
-        DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
+    private void readTxtFileFromSource(Map<String, Object> payload, DriveItem driveItem) {
+//        DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
         if (driveItem.name != null && FileUtil.getBaseName(driveItem.name).get(1) != null &&
                 FileUtil.getBaseName(driveItem.name).get(1).equalsIgnoreCase("txt")) {
 
@@ -101,26 +108,25 @@ public class DriveTextFileManager {
 
     /**
      * Uploads a TXT file with specified content to the target path, handling path validation, folder existence checks, potential errors, and file creation.
+     *
      * @return A Map containing status and result details, including success/failure indicators and error messages.
      */
     public Map<String, Object> uploadTxtFile(String fileContent, String target) {
         Map<String, Object> payload = new HashMap<>();
         try {
-            if (target != null && FileUtil.hasFileExtension(fileContent) && target.endsWith(".txt")) {
-                target = managementUtilityService.getUpdatedFilePath(target);
-                DriveItem drive = managementUtilityService.checkIfFileExist(DriveUtil.removeLastSegment(target), payload);
+            if (target != null && FileUtil.hasFileExtension(target) && target.endsWith(".txt")) {
+
+                String path = DriveUtil.getRelativePath(target);
+                String parentPath = FileUtil.getParentPath(path);
+                Map<String, Object> response = new HashMap<>();
+                searchFileExecutor.getFileInfo(parentPath, payload, true);
+
+                DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                    String path = DriveUtil.getRelativePath(target);
-                    String parentPath = FileUtil.getParentPath(path);
-                    Map<String, Object> response = new HashMap<>();
-                    getFileInfo(drive.parentReference.driveId, parentPath, response);
-                    if ((boolean) response.get(Constants.SUCCESS)) {
-                        DriveItem driveItem = (DriveItem) response.get(Constants.DRIVE_ITEM);
-                        if (driveItem.name != null && driveItem.folder != null) {
-                            uploadTxtFileFromTarget(path, fileContent, payload, driveItem);
-                        }
-                    } else {
-                        invalidPath(payload);
+//                        DriveItem driveItem = (DriveItem) response.get(Constants.DRIVE_ITEM);
+                    if (driveItem.name != null && driveItem.folder != null) {
+                        uploadTxtFileFromTarget(target, fileContent, payload, driveItem);
                     }
                 } else {
                     invalidPath(payload);
@@ -128,6 +134,7 @@ public class DriveTextFileManager {
             } else {
                 invalidPath(payload);
             }
+
         } catch (GraphServiceException | IllegalArgumentException | IOException cause) {
             LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
             failedToUploadTxtFile(payload);

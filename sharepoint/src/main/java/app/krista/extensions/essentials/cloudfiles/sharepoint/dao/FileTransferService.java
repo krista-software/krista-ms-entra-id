@@ -47,17 +47,20 @@ public class FileTransferService {
     private final CopyFileUtilityService copyFileUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
 
+    private final SearchFileExecutor searchFileExecutor;
+
     @Inject
     public FileTransferService(GraphServiceClientProviderFactory factory,
                                OperationsManagementDao operationsManagementDao,
                                ManagementUtilityService managementUtilityService,
                                CopyFileUtilityService copyFileUtilityService,
-                               FileSearchUtilityService fileSearchUtilityService) {
+                               FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.operationsManagementDao = operationsManagementDao;
         this.managementUtilityService = managementUtilityService;
         this.copyFileUtilityService = copyFileUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -197,14 +200,16 @@ public class FileTransferService {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (copyFileUtilityService.validateSourceAndTargetPathsForMove(source, target, payload)) {
-                source = managementUtilityService.getUpdatedFilePath(source);
-                DriveItem driveItemSource = managementUtilityService.checkIfFileExist(source, payload);
+             //   source = managementUtilityService.getUpdatedFilePath(source);
+                searchFileExecutor.getFileInfo(source,payload,true);
+                DriveItem driveItemSource = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                    target = managementUtilityService.getUpdatedFilePath(target);
-                    DriveItem driveItemTarget = validateTargetFolderAndGetDriveItem(target, payload);
+                   // target = managementUtilityService.getUpdatedFilePath(target);
+                    searchFileExecutor.getFileInfo(target,payload,true);
+                    DriveItem  driveItemTarget  = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);;
 
-                    if ((boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
+                    if ((boolean) payload.get(Constants.SUCCESS)) {
                         moveFileToTarget(driveItemSource, driveItemTarget, target, source, payload);
                     } else {
                         copyFileUtilityService.handleInvalidTargetPath(payload);

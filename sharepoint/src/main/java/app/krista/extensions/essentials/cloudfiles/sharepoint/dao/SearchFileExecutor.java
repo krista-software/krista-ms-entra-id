@@ -77,19 +77,14 @@ public class SearchFileExecutor {
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 target = DriveUtil.getRelativePath(filePath);
-                System.out.println("target " + target);
                 assert target != null;
                 DriveItem driveItem = provider.getUserRequestBuilder(null, null).drives(driveId)
                         .root().itemWithPath(target).buildRequest().get();
 
-                if(driveItem==null){
-                    payload.put(Constants.MESSAGE, "File not found");
-                    payload.put(Constants.SUCCESS, false);
-                    payload.put(Constants.DRIVE_ITEM, null);
-                }else {
-                    payload.put(Constants.MESSAGE, Constants.FILE_DELETED_SUCCESSFULLY);
-                    payload.put(Constants.SUCCESS, true);
-                    payload.put(Constants.DRIVE_ITEM, driveItem);
+                if (driveItem == null) {
+                    setPayloadValues(payload, false, null, "File not found");
+                } else {
+                    setPayloadValues(payload, true, driveItem, "File found");
                 }
 
             } else {
@@ -101,6 +96,11 @@ public class SearchFileExecutor {
         }
     }
 
+    private void setPayloadValues(Map<String, Object> payload, boolean success, DriveItem driveItem, String message) {
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+        payload.put(Constants.DRIVE_ITEM, driveItem);
+    }
 
     public String getUpdatedFilePath(String path) {
         String domainName = fileSearchImpl.getDomainName();
@@ -156,7 +156,7 @@ public class SearchFileExecutor {
         SearchQuery query = new SearchQuery();
         query.queryString = "path:\"" + filePath + "\"";
         requests.query = query;
-        requests.size = 1;
+        requests.size = 25;
     }
 
     public SearchRequest buildSearchRequest() {
@@ -188,9 +188,8 @@ public class SearchFileExecutor {
                 LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
                 throw new IllegalArgumentException(cause.getMessage(), cause);
             }
-        } else {
-            // set message return;
         }
+
     }
 
     public SearchEntityQueryCollectionPage buildSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {
@@ -212,7 +211,7 @@ public class SearchFileExecutor {
                                 DriveItem driveItem = (DriveItem) hits.resource;
                                 assert driveItem.parentReference != null;
                                 String driveId = driveItem.parentReference.driveId;
-                                payload.put("driveId", driveId);
+                                payload.put("DriveId", driveId);
                                 payload.put("DriveItem", driveItem);
                                 return;
                             }
@@ -222,28 +221,6 @@ public class SearchFileExecutor {
             }
         }
     }
-
-
-    /*
-    public void getFileInfo(String driveId, String path, Map<String, Object> response) {
-        try {
-            DriveItem driveItem = driveId != null
-                    ? getShareRootDriveItem(path,driveId)
-                    : getPersonalDriveItem(path);
-
-            response.put(Constants.DRIVE_ITEM, driveItem);
-            response.put(Constants.SUCCESS, true);
-            response.put(Constants.IS_FILE_EXIST, true);
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
-            response.put(Constants.IS_FILE_EXIST, false);
-            ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
-                    .contains(Constants.ITEM_NOT_FOUND)
-                    ? Constants.FILE_NOT_FOUND
-                    : Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH, response);
-        }
-    }
-     */
 
 }
 

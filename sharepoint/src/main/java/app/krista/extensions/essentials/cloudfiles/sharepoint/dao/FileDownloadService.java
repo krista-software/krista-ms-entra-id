@@ -38,13 +38,16 @@ public class FileDownloadService {
     private final ManagementUtilityService managementUtilityService;
     private final JavaFileHandleHelper javaFileHandleHelper;
 
+    private final SearchFileExecutor searchFileExecutor;
+
 
     @Inject
     public FileDownloadService(GraphServiceClientProviderFactory factory,
-                               ManagementUtilityService managementUtilityService, JavaFileHandleHelper javaFileHandleHelper) {
+                               ManagementUtilityService managementUtilityService, JavaFileHandleHelper javaFileHandleHelper, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.javaFileHandleHelper = javaFileHandleHelper;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -56,9 +59,11 @@ public class FileDownloadService {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (absolutePath != null && FileUtil.hasFileExtension(absolutePath)) {
-                absolutePath = managementUtilityService.getUpdatedFilePath(absolutePath);
+              //  absolutePath = managementUtilityService.getUpdatedFilePath(absolutePath);
                 List<File> files = new ArrayList<>();
-                DriveItem driveItem = managementUtilityService.checkIfFileExist(absolutePath, payload);
+                //DriveItem driveItem = managementUtilityService.checkIfFileExist(absolutePath, payload);
+                searchFileExecutor.getFileInfo(absolutePath,payload,true);
+                DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
  /*
   Map<String, Object> payload = new HashMap<>();
         searchFileExecutor.getFileInfo(target,payload,true);
@@ -67,7 +72,7 @@ public class FileDownloadService {
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     String relativePath = DriveUtil.getRelativePath(absolutePath);
                     downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink,
-                            downloadAsKristaFile, files, payload, absolutePath);
+                            downloadAsKristaFile, files, payload, absolutePath, driveItem);
                     handleDownloadResult(payload);
                 } else {
                     setInvalidPathMessage(payload);
@@ -109,12 +114,12 @@ public class FileDownloadService {
     }
 
     private void downloadByDriveIDByPath(String driveID, String path, Boolean downloadAsLink,
-                                         Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload, String absolutePath) {
+                                         Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload, String absolutePath,DriveItem driveItem) {
         try {
-            DriveItem driveItem = (driveID != null) ? provider.getUserRequestBuilder(null, null)
-                    .drives(driveID).root().itemWithPath(path).buildRequest().get()
-                    : provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path)
-                    .buildRequest().get();
+//            DriveItem driveItem = (driveID != null) ? provider.getUserRequestBuilder(null, null)
+//                    .drives(driveID).root().itemWithPath(path).buildRequest().get()
+//                    : provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path)
+//                    .buildRequest().get();
             if (driveItem != null && driveItem.folder == null) {
                 if (downloadAsLink != null && downloadAsLink) {
                     handleDownloadLink(payload, driveItem, absolutePath);

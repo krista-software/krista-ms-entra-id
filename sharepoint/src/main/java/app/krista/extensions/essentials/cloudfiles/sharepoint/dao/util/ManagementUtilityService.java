@@ -112,7 +112,7 @@ public class ManagementUtilityService {
         SearchQuery query = new SearchQuery();
         query.queryString = "path:\"" + filePath + "\"";
         requests.query = query;
-        requests.size = 1;
+        requests.size = 25;
     }
 
     public SearchRequest buildSearchRequest() {
