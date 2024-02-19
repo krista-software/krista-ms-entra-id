@@ -73,7 +73,7 @@ public class SearchFileExecutor {
             String driveIdPath = driveIdPath(target);
             String updatedTarget = getUpdatedFilePath(driveIdPath);
             checkIfFileExist(updatedTarget, payload);
-            String driveId = payload.get("driveId").toString();
+            String driveId = payload.get("DriveId").toString();
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 target = DriveUtil.getRelativePath(filePath);

@@ -73,14 +73,18 @@ public class FileTransferService {
             if (validateReplaceAndCreateFolderParameters(replace, createFolder, payload)) {
                 copyFileUtilityService.validateSourceAndTargetPaths(source, target, payload);
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                    source = managementUtilityService.getUpdatedFilePath(source);
-                    DriveItem driveItemSource = managementUtilityService.checkIfFileExist(source, payload);
+//                    source = managementUtilityService.getUpdatedFilePath(source);
+//                    DriveItem driveItemSource = managementUtilityService.checkIfFileExist(source, payload);
+                    searchFileExecutor.getFileInfo(source,payload,true);
+                    DriveItem driveItemSource = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                     if ((boolean) payload.get(Constants.SUCCESS)) {
-                        target = managementUtilityService.getUpdatedFilePath(target);
-                        DriveItem driveItemTarget = createOrCheckTargetItem(target, createFolder, payload, replace);
+//                        target = managementUtilityService.getUpdatedFilePath(target);
+//                        DriveItem driveItemTarget = createOrCheckTargetItem(target, createFolder, payload, replace);
+                        searchFileExecutor.getFileInfo(target,payload,true);
+                        DriveItem driveItemTarget = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
-                        if ((boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
+                        if ((boolean) payload.get(Constants.SUCCESS)) {
                             buildCopyFileRequest(driveItemSource, replace, driveItemTarget, payload, target, source);
                         }
                     }
