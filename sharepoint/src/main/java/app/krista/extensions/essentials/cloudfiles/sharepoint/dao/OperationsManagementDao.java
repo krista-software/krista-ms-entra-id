@@ -105,10 +105,9 @@ private void validateAndRenameFile(String sourcePath, String targetFileName, Map
     private void renameDriveItem(String targetFileName, DriveItem drive, Map<String, Object> payload) {
         DriveItem driveItem = new DriveItem();
         driveItem.name = targetFileName;
-       // String relativePath = DriveUtil.getRelativePath(renameFile.absolutePath);
-       DriveItem responce = provider.getUserRequestBuilder(null, null).drives(drive.parentReference.driveId).items(drive.id).buildRequest().patch(driveItem);
-//        provider.getUserRequestBuilder(null, null).drives(drive.parentReference.driveId).root()
-//                .itemWithPath(relativePath).buildRequest().patch(driveItem);
+        assert drive.parentReference != null;
+        assert drive.id != null;
+        provider.getUserRequestBuilder(null, null).drives(drive.parentReference.driveId).items(drive.id).buildRequest().patch(driveItem);
         setFileRenamedSuccessfullyMessage(payload);
     }
 
