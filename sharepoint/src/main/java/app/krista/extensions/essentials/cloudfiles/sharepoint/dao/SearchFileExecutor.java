@@ -110,19 +110,21 @@ public class SearchFileExecutor {
             String filePath = filePath(target);
             String driveIdPath = driveIdPath(target);
             String updatedTarget = getUpdatedFilePath(driveIdPath);
+
             checkIfFileExist(updatedTarget, payload);
             String driveId = payload.get(Constants.Drive_Id).toString();
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 target = DriveUtil.getRelativePath(filePath);
                 assert target != null;
-                DriveItem driveItem = provider.getUserRequestBuilder(null, null).drives(driveId)
+                DriveItem driveItem = provider.getUserRequestBuilder(null, null).
+                        drives(driveId)
                         .root().itemWithPath(target).buildRequest().get();
 
                 if (driveItem == null) {
-                    setPayloadValues(payload, false, driveItem, Constants.File_Not_Found);
+                    setPayloadValues(payload, false, driveItem, Constants.FILE_NOT_FOUND);
                 } else {
-                    setPayloadValues(payload, true, driveItem, Constants.FILE_DELETED_SUCCESSFULLY);
+                    setPayloadValues(payload, true, driveItem, Constants.FILE_FOUND);
                 }
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -130,6 +132,7 @@ public class SearchFileExecutor {
             managementUtilityService.handleFileNotFoundException(cause, payload);
         }
     }
+
 
     private void setPayloadValues(Map<String, Object> payload, boolean success, DriveItem driveItem, String message) {
         payload.put(Constants.MESSAGE, message);
@@ -159,10 +162,9 @@ public class SearchFileExecutor {
                     handleInvalidFile(payload);
                 }
             } catch (GraphServiceException | IllegalArgumentException cause) {
+                LOGGER.error(cause.getMessage());
                 handleFileExistenceCheckException(cause, payload);
             }
-        } else {
-            handleInvalidFile(payload);
         }
     }
 

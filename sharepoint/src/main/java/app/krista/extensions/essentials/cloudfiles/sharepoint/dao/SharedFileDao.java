@@ -67,6 +67,8 @@ public class SharedFileDao {
                 return handleInvalidPath(payload);
             }
 
+            assert Objects.requireNonNull(drive).parentReference != null;
+            assert drive.parentReference != null;
             String sharingLink = getSharingLink(drive.parentReference.driveId, getRelativePath(source), createLinkParameterSet());
             if (sharingLink != null) {
                 String encodedSharingUrl = getEncodedSharingURL(sharingLink);
@@ -83,6 +85,7 @@ public class SharedFileDao {
                 return payload;
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(cause.getMessage());
             handleGraphServiceException(cause, payload);
         }
         return payload;

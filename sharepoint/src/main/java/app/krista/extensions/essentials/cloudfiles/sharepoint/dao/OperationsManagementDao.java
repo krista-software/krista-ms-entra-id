@@ -5,6 +5,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
 import org.jvnet.hk2.annotations.Service;
@@ -59,20 +60,20 @@ public class OperationsManagementDao {
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 assert Objects.requireNonNull(driveItem).parentReference != null;
                 assert driveItem.id != null;
-                provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id)
+                provider.getUserRequestBuilder(null, null).
+                        drives(driveItem.parentReference.driveId).
+                        items(driveItem.id)
                         .buildRequest().delete();
-                payload.put(Constants.MESSAGE, Constants.FILE_DELETED_SUCCESSFULLY);
-                payload.put(Constants.SUCCESS, true);
+                ResponseUtil.errorResponse(true,Constants.FILE_DELETED_SUCCESSFULLY,payload);
             }
             if (payload.isEmpty()) {
-                payload.put(Constants.MESSAGE, Constants.FILE_NOT_DELETED_SUCCESSFULLY);
-                payload.put(Constants.SUCCESS, false);
+                ResponseUtil.errorResponse(false,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH,payload);
             }
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage(), cause);
-            throw new IllegalArgumentException(cause.getMessage(), cause);
         }
+        return Map.of();
     }
 
 

@@ -104,4 +104,44 @@ public class FileUtil {
                 : provider.getUserRequestBuilder(null, null).drive().items(itemId);
     }
 
+    public static String getRelativeFilePath(String filePath) {
+        int rootIndex = filePath.indexOf("/root:");
+        String pathAfterRoot = null;
+        if (rootIndex != -1) {
+            pathAfterRoot = filePath.substring(rootIndex + "/root:".length());
+
+            while (pathAfterRoot.startsWith("/")) {
+                pathAfterRoot = pathAfterRoot.substring(1);
+            }
+            return pathAfterRoot;
+        } else {
+            return pathAfterRoot;
+        }
+    }
+
+    public static boolean isPersonalDrive(String target) {
+        return target.startsWith(Constants.DRIVE_ROOT) || target.startsWith("/" + Constants.DRIVE_ROOT);
+    }
+
+    public static DriveItemRequestBuilder getRootUserRequestBuilder(GraphServiceClientProvider provider) {
+        return provider.getUserRequestBuilder(null, null).drive().root();
+    }
+
+    public static boolean checkDriveIDContains(String relativePath) {
+        return relativePath.matches(".*/drives/b![^/]+/root:/.*") || relativePath.matches(".*drives/b![^/]+/root:/.*");
+    }
+
+    public static List<String> getDriveIDAndPath(String relativePath) {
+
+        String[] stream = relativePath.trim().split("/");
+
+        String path = Arrays.stream(stream, 4, stream.length)
+                .collect(Collectors.joining("/"));
+
+        return List.of(stream[2], path);
+    }
+
+    public static DriveItemRequestBuilder getSharedUserRequestBuilder(GraphServiceClientProvider provider, String driveId) {
+        return provider.getUserRequestBuilder(null, null).drives(driveId).root();
+    }
 }

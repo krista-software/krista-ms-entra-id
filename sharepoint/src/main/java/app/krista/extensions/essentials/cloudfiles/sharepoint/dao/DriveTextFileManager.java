@@ -85,7 +85,6 @@ public class DriveTextFileManager {
     }
 
     private void readTxtFileFromSource(Map<String, Object> payload, DriveItem driveItem) {
-//        DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
         if (driveItem.name != null && FileUtil.getBaseName(driveItem.name).get(1) != null &&
                 FileUtil.getBaseName(driveItem.name).get(1).equalsIgnoreCase("txt")) {
 

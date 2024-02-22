@@ -2,6 +2,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.model.base.FreeForm;
+import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -111,6 +112,17 @@ public class ResponseUtil {
         payload.put("Krista File", kristaFile);
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);
+    }
+
+    public static void addDriveItemMessage(boolean isFileExist, boolean success, String message, Map<String, Object> payload) {
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.IS_FILE_EXIST, isFileExist);
+        payload.put(Constants.SUCCESS, success);
+    }
+
+    public static void addDriveItem(boolean isFileExist, DriveItem driveItem, Map<String, Object> payload) {
+        payload.put(Constants.DRIVE_ITEM, driveItem);
+        payload.put(Constants.IS_FILE_EXIST, isFileExist);
     }
 }
 

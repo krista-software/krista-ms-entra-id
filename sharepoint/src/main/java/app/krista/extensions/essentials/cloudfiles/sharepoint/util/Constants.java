@@ -18,6 +18,10 @@ public class Constants {
 
     public static final String IGNORED_EXCEPTION = "IGNORED EXCEPTION";
 
+    public static final String PLEASE_PROVIDE_VALID_TARGET_PATH = "Please, Provide Valid Target Path";
+
+    public static final String PLEASE_PROVIDE_VALID_FOLDER_PATH = "Please, Provide Valid Folder Path";
+
     public static final String SPACE = " ";
 
     public static final String UNAUTHORISED_USER = "Unauthorised user.";
@@ -32,9 +36,16 @@ public class Constants {
 
     public static final String TEXT = "Text";
 
+    public static final String ERROR_OCCURRED_DURING_COPYING_FILE = "Error occurred during copying file";
+
+    public static final String COPY_IN_PROGRESS = "Copy operation is in progress";
+
     public static final String HASH = "#";
 
     public static final String REQUIRED_SCOPE = "openid offline_access Mail.Send Mail.ReadWrite Mail.Send.Shared Mail.ReadWrite.Shared";
+
+    public static final String FILE_ALREADY_EXIST = "A file with this name already exists, Please choose a different file name";
+
 
     public static final String SCOPE_SEPARATOR = " ";
 
@@ -80,6 +91,8 @@ public class Constants {
 
     public static final String ID = "id";
 
+    public static final String FILE_HAS_BEEN_COPIED = "File has been copied successfully";
+
     public static final String PROVIDE_VALID_SOURCE_PATH = "Provide Valid source Path";
 
     public static final String PROVIDE_VALID_TARGET_PATH = "Provide Valid target Path";
@@ -88,8 +101,9 @@ public class Constants {
 
     public static final String FILE_NOT_FOUND = "File Not Found";
 
-    public static final String FILE_DELETED_SUCCESSFULLY = "File Deleted Successfully";
+    public static final String FILE_FOUND = "File found successfully";
 
+    public static final String ERROR_DURING_SERVICE = "Error occurred from microsoft graph service, please try again later";
 
     public static final String FILE_NOT_DELETED_SUCCESSFULLY = "File Not Deleted Successfully";
     public static final String FILE_UPLOADED_SUCCESSFULLY = "File Uploaded Successfully";
@@ -222,11 +236,7 @@ public class Constants {
     public static final String INVALID_INPUT_PROVIDED = "Invalid Input provided";
 
 
-    public static final String FILE_FOUND = "File Found";
-
-    public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "File Downloaded Successfully";
-
-    public static final  String File_Not_Found = "File Not Found";
+    public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "File downloaded successfully. Please click on the following URL to access the file";
 
     public static final String Drive_Id = "DriveId";
     public static final String DOWNLOAD_LINK = "Link";
@@ -346,7 +356,7 @@ public class Constants {
     public static final String FOLDER_NOT_FOUND = "Folder Not Found";
 
     public static final String GROUP_CREATED = "Group created successfully";
-    public static final String PLEASE_PROVIDE_VALID_SOURCE_PATH = "public static final String PLEASE_PROVIDE_VALID_SOURCE_PATH";
+    public static final String PLEASE_PROVIDE_VALID_SOURCE_PATH = "Please provide valid source path";
     public static final String DRIVE_ROOT = "drive/root:/";
 
     public static final String TO_DOWNLOAD_FILE_PLEASE_COPY_URL = "To Download file, click on the URL";
@@ -358,6 +368,7 @@ public class Constants {
     public static final String FILE_IS_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT = "Access to download this file is currently restricted. For assistance, contact your administrator or support.";
 
     public static final String ACCESS_DENIED = "accessDenied";
+    public static final String FILE_DELETED_SUCCESSFULLY = "File deleted successfully";
 
 
     private Constants() {

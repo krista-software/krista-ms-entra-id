@@ -64,16 +64,17 @@ public class FileDownloadService {
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     String relativePath = DriveUtil.getRelativePath(absolutePath);
+                    assert Objects.requireNonNull(driveItem).parentReference != null;
+                    assert driveItem.parentReference != null;
                     downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink,
                             downloadAsKristaFile, files, payload, absolutePath, driveItem);
                     handleDownloadResult(payload);
                 } else {
                     setInvalidPathMessage(payload);
                 }
-            } else {
-                setInvalidPathMessage(payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(cause.getMessage());
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
         return payload;
@@ -109,10 +110,6 @@ public class FileDownloadService {
     private void downloadByDriveIDByPath(String driveID, String path, Boolean downloadAsLink,
                                          Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload, String absolutePath, DriveItem driveItem) {
         try {
-//            DriveItem driveItem = (driveID != null) ? provider.getUserRequestBuilder(null, null)
-//                    .drives(driveID).root().itemWithPath(path).buildRequest().get()
-//                    : provider.getUserRequestBuilder(null, null).drive().root().itemWithPath(path)
-//                    .buildRequest().get();
             if (driveItem != null && driveItem.folder == null) {
                 if (downloadAsLink != null && downloadAsLink) {
                     handleDownloadLink(payload, driveItem, absolutePath);

@@ -193,7 +193,6 @@ public class FileSearchImpl {
                                 DriveItem drive = (DriveItem) hits.resource;
                                 assert drive.parentReference != null;
                                 String driveId = drive.parentReference.driveId;
-                                //System.out.println(" drive Id "+ driveId);
                                 if (drive.webUrl != null && drive.webUrl.equals(filePath) && !rootFolder) {
                                     driveItem = (DriveItem) hits.resource;
                                     break;

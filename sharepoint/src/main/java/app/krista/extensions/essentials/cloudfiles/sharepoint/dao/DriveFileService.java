@@ -9,7 +9,6 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
@@ -115,6 +114,7 @@ public class DriveFileService {
                 fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(cause.getMessage());
             handleErrorResponse("An error occurred. Please provide a valid path.", payload);
         }
         return payload;
@@ -377,16 +377,15 @@ public class DriveFileService {
                 return payload;
             }
             relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
-            // This commented code added intentionally for future implementation purpose
-            //           searchFileExecutor.getFileInfo(relativePath,payload,true,useEmail,accountID);
-            //         DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
             DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
             if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
                 String refinedRelativePath = getRelativePath(relativePath);
-                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath, files, useEmail, accountID, search, payload, relativePath);
+                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath,
+                        files, useEmail, accountID, search, payload, relativePath);
             }
-        } catch (GraphServiceException | IllegalArgumentException e) {
-            handleServiceException(e, payload);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(cause.getMessage());
+            handleServiceException(cause, payload);
         }
         return payload;
     }
