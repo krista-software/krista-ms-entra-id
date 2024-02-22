@@ -369,6 +369,7 @@ public class Constants {
 
     public static final String ACCESS_DENIED = "accessDenied";
     public static final String FILE_DELETED_SUCCESSFULLY = "File deleted successfully";
+    public static final Object PROVIDE_VALID_PATH_FILE_NOT_FOUND = "Please provide valid path, file was not found";
 
 
     private Constants() {

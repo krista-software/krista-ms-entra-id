@@ -160,12 +160,12 @@ public class DriveTextFileManager {
     }
 
     public void invalidPath(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE,"Please provide valid path, file was not found");
+        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH_FILE_NOT_FOUND);
         payload.put(Constants.SUCCESS, false);
     }
 
     public void invalidFileName(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, "Please provide valid path, file was not found");
+        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH_FILE_NOT_FOUND);
         payload.put(Constants.SUCCESS, false);
     }
 

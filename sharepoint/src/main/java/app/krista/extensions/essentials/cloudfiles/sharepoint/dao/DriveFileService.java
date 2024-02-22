@@ -47,7 +47,6 @@ public class DriveFileService {
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
-
     private final SearchFileExecutor searchFileExecutor;
 
 
@@ -144,7 +143,7 @@ public class DriveFileService {
             }
             return driveItem;
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
+            LOGGER.error(cause.getMessage(), cause);
             handleException(cause, payload);
             return new DriveItem();
         }
