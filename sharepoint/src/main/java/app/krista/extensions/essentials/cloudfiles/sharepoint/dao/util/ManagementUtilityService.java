@@ -100,6 +100,29 @@ public class ManagementUtilityService {
         }
     }
 
+    public DriveItem getFileByAbsolutePathForVersionHistory(String filePath, GraphServiceClient<Request> graphClient) {
+        LOGGER.info("Searching for files with filePath: {}", filePath);
+        if (filePath != null) {
+            String siteDomainPath = fileSearchImpl.getDomainPath(fileSearchImpl.getDomainName(), true);
+            filePath = fileSearchImpl.handleAbsolutePath(filePath, siteDomainPath);
+            DriveItem driveItem = new DriveItem();  // Initialize the result page
+            try {
+                LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
+                SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
+
+                if (page != null && !page.getCurrentPage().isEmpty()) {
+                    driveItem = fileSearchImpl.findDriveItemByFilePath(page, filePath, driveItem, false);
+                }
+                return driveItem;
+            } catch (GraphServiceException | IllegalArgumentException cause) {
+                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
+                throw new IllegalArgumentException(cause.getMessage(), cause);
+            }
+        } else {
+            return null;
+        }
+    }
+
     public LinkedList<SearchRequest> buildSearchRequestList(String filePath) {
         LinkedList<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
@@ -168,7 +191,13 @@ public class ManagementUtilityService {
 
     public void handleDeleteFileException(Exception cause, Map<String, Object> payload) {
         LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
-        payload.put(Constants.MESSAGE, Constants.INVALID_INPUT_PROVIDED);
+        payload.put(Constants.MESSAGE, "File not found for deletion");
+        payload.put(Constants.SUCCESS, false);
+    }
+
+    public void handleFileNotFoundException(Exception cause, Map<String, Object> payload) {
+        LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
+        payload.put(Constants.MESSAGE, "Please provide a correct path; the specified file or folder could not be located.");
         payload.put(Constants.SUCCESS, false);
     }
 
@@ -180,4 +209,5 @@ public class ManagementUtilityService {
         }
         return fileSearchImpl.handleAbsolutePath(path, siteDomainPath);
     }
+
 }

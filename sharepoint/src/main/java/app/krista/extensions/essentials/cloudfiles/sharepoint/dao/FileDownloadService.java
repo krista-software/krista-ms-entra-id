@@ -10,6 +10,8 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Service class for downloading files using Microsoft Graph API.
@@ -34,10 +33,10 @@ import java.util.Map;
 public class FileDownloadService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileDownloadService.class);
+    private static final String MICROSOFT_GRAPH_DOWNLOAD_URL = "@microsoft.graph.downloadUrl";
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
     private final JavaFileHandleHelper javaFileHandleHelper;
-
     private final SearchFileExecutor searchFileExecutor;
 
 
@@ -59,16 +58,10 @@ public class FileDownloadService {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (absolutePath != null && FileUtil.hasFileExtension(absolutePath)) {
-              //  absolutePath = managementUtilityService.getUpdatedFilePath(absolutePath);
                 List<File> files = new ArrayList<>();
-                //DriveItem driveItem = managementUtilityService.checkIfFileExist(absolutePath, payload);
-                searchFileExecutor.getFileInfo(absolutePath,payload,true);
-                DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
- /*
-  Map<String, Object> payload = new HashMap<>();
-        searchFileExecutor.getFileInfo(target,payload,true);
-        DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
-  */
+                searchFileExecutor.getFileInfo(absolutePath, payload, true);
+                DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     String relativePath = DriveUtil.getRelativePath(absolutePath);
                     downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink,
@@ -80,8 +73,8 @@ public class FileDownloadService {
             } else {
                 setInvalidPathMessage(payload);
             }
-        } catch (IllegalStateException cause) {
-            handleDownloadFilesException(cause, payload);
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            throw new IllegalArgumentException(cause.getMessage(), cause);
         }
         return payload;
     }
@@ -98,7 +91,7 @@ public class FileDownloadService {
     }
 
     private void setInvalidPathMessage(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
+        payload.put(Constants.MESSAGE, "Please provide a valid path, the file was not found");
         payload.put(Constants.SUCCESS, false);
     }
 
@@ -114,7 +107,7 @@ public class FileDownloadService {
     }
 
     private void downloadByDriveIDByPath(String driveID, String path, Boolean downloadAsLink,
-                                         Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload, String absolutePath,DriveItem driveItem) {
+                                         Boolean downloadAsKristaFile, List<File> files, Map<String, Object> payload, String absolutePath, DriveItem driveItem) {
         try {
 //            DriveItem driveItem = (driveID != null) ? provider.getUserRequestBuilder(null, null)
 //                    .drives(driveID).root().itemWithPath(path).buildRequest().get()
@@ -124,8 +117,8 @@ public class FileDownloadService {
                 if (downloadAsLink != null && downloadAsLink) {
                     handleDownloadLink(payload, driveItem, absolutePath);
                 } else if (downloadAsKristaFile != null && downloadAsKristaFile && driveItem.size != null &&
-                        driveItem.size > (1024 * 1024 * 30L)) {
-                    handleDownloadAsKristaFile(payload, driveItem);
+                        driveItem.size > (1024 * 1024 * 50L)) {
+                    handleDownloadAsKristaFile(payload, driveItem, path);
                 } else {
                     handleDownload(payload, driveItem);
                 }
@@ -135,18 +128,15 @@ public class FileDownloadService {
         }
     }
 
-
     private void handleDownloadLink(Map<String, Object> payload, DriveItem driveItem, String path) {
         payload.put(Constants.SUCCESS, true);
         payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
         payload.put(Constants.DOWNLOAD_LINK, "<a href =" + driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString() + ">" + path);
     }
 
-    private void handleDownloadAsKristaFile(Map<String, Object> payload, DriveItem driveItem) {
+    private void handleDownloadAsKristaFile(Map<String, Object> payload, DriveItem driveItem, String path) {
         payload.put(Constants.SUCCESS, true);
-        payload.put(Constants.MESSAGE, Constants.FILE_SIZE_IS_GREATER_THAN_30MB);
-        payload.put(Constants.DOWNLOAD_LINK, driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl")
-                .getAsString());
+        payload.put(Constants.MESSAGE, "File size is greater than 50MB, Please Download file by URL , use link to download file : " + " <a href =" + driveItem.additionalDataManager().get("@microsoft.graph.downloadUrl").getAsString() + ">" + path);
     }
 
     private void handleDownload(Map<String, Object> payload, DriveItem driveItem) throws IOException {
@@ -166,6 +156,5 @@ public class FileDownloadService {
             payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
         }
     }
-
 
 }

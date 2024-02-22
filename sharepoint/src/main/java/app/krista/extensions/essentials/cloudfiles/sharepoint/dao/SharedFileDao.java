@@ -7,7 +7,6 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
@@ -18,6 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.*;
@@ -37,12 +39,15 @@ public class SharedFileDao {
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
 
+    private final SearchFileExecutor searchFileExecutor;
+
     @Inject
     public SharedFileDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
-                         FileSearchUtilityService fileSearchUtilityService) {
+                         FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -55,13 +60,14 @@ public class SharedFileDao {
             if (isNullOrEmpty(source)) {
                 return handleInvalidPath(payload);
             }
-            source = managementUtilityService.getUpdatedFilePath(source);
-            DriveItem drive = managementUtilityService.checkIfFileExist(source, payload);
+            searchFileExecutor.getFileInfo(source,payload,true);
+            DriveItem drive = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+
             if (!(boolean) payload.get(Constants.SUCCESS)) {
                 return handleInvalidPath(payload);
             }
 
-            String sharingLink = getSharingLink(drive.parentReference.driveId, DriveUtil.getRelativePath(source), createLinkParameterSet());
+            String sharingLink = getSharingLink(drive.parentReference.driveId, getRelativePath(source), createLinkParameterSet());
             if (sharingLink != null) {
                 String encodedSharingUrl = getEncodedSharingURL(sharingLink);
                 Map<String, List<String>> usersWithPermission = getUsersWithPermissionMap(share);
@@ -71,7 +77,7 @@ public class SharedFileDao {
                 }
 
                 GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
-                DriveItem driveItem = getFileInfo(drive.parentReference.driveId, DriveUtil.getRelativePath(source), graphClient);
+                DriveItem driveItem = getFileInfo(drive.parentReference.driveId, getRelativePath(source), graphClient);
                 payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, graphClient, source, null, fileSearchUtilityService)));
                 payload.put(Constants.MESSAGE, Constants.FILE_SHARED_SUCCESS);
                 return payload;
@@ -81,6 +87,7 @@ public class SharedFileDao {
         }
         return payload;
     }
+
 
     private DriveItemCreateLinkParameterSet createLinkParameterSet() {
         return DriveItemCreateLinkParameterSet.newBuilder()
@@ -107,7 +114,7 @@ public class SharedFileDao {
 
     private Map<String, Object> handleInvalidPath(Map<String, Object> payload) {
         payload.put(Constants.SUCCESS, false);
-        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
+        payload.put(Constants.MESSAGE, "Please provide valid path, file was not found");
         return payload;
     }
 
@@ -168,6 +175,43 @@ public class SharedFileDao {
 
     private boolean isNullOrEmpty(String value) {
         return value == null || value.isEmpty();
+    }
+
+
+    public static String getRelativePath(String fullUrl) {
+        try {
+            String escapedUrl = fullUrl.replace(" ", "%20");  // Escape spaces
+            URI uri = new URI(escapedUrl);
+            String path = uri.getPath();
+
+            String[] pathSegments = path.split(java.io.File.separator.equals("\\") ? "\\\\" : java.io.File.separator);
+
+            // Find the index of the last "Documents" segment, regardless of case:
+            int startIndex = -1;
+            for (int i = pathSegments.length - 1; i >= 0; i--) {
+                if (pathSegments[i].equalsIgnoreCase(Constants.DOCUMENTS) ||
+                        pathSegments[i].equalsIgnoreCase(Constants.SHARED_DOCUMENTS)) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            if (startIndex != -1) {
+                startIndex++;  // Start after "Documents"
+                StringBuilder dynamicPath = new StringBuilder(java.io.File.separator);
+                for (int i = startIndex; i < pathSegments.length; i++) {
+                    dynamicPath.append(pathSegments[i]);
+                    if (i < pathSegments.length - 1) {
+                        dynamicPath.append(File.separator);
+                    }
+                }
+                return dynamicPath.toString();
+            } else {
+                return null;  // Handle cases where "Documents" is not found
+            }
+        } catch (URISyntaxException e) {
+            return null;
+        }
     }
 
 }

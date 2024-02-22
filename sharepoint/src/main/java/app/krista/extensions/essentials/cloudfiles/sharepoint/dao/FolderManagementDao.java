@@ -22,6 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -65,14 +68,14 @@ public class FolderManagementDao {
             relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
             DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
             if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
-                relativePath = DriveUtil.getRelativePath(relativePath);
+                relativePath = getRelativePath(relativePath);
                 getRootFilesByDriveIDPath(driveItem.parentReference.driveId, relativePath, files, useEmail, accountID, search, payload);
             } else {
-                ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
+                ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
-                    .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage(), payload);
+                    .contains("itemNotFound") ? Constants.INVALID_FOLDER_PATH : cause.getMessage(), payload);
         }
         return payload;
     }
@@ -104,7 +107,7 @@ public class FolderManagementDao {
                     }
                 }
             } else {
-                ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
+                ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
@@ -135,5 +138,43 @@ public class FolderManagementDao {
         }
         return driveItem;
     }
+
+
+    public static String getRelativePath(String fullUrl) {
+        try {
+            String escapedUrl = fullUrl.replace(" ", "%20");  // Escape spaces
+            URI uri = new URI(escapedUrl);
+            String path = uri.getPath();
+
+            String[] pathSegments = path.split(java.io.File.separator.equals("\\") ? "\\\\" : java.io.File.separator);
+
+            // Find the index of the last "Documents" segment, regardless of case:
+            int startIndex = -1;
+            for (int i = pathSegments.length - 1; i >= 0; i--) {
+                if (pathSegments[i].equalsIgnoreCase(Constants.DOCUMENTS) ||
+                        pathSegments[i].equalsIgnoreCase(Constants.SHARED_DOCUMENTS)) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            if (startIndex != -1) {
+                startIndex++;  // Start after "Documents"
+                StringBuilder dynamicPath = new StringBuilder(java.io.File.separator);
+                for (int i = startIndex; i < pathSegments.length; i++) {
+                    dynamicPath.append(pathSegments[i]);
+                    if (i < pathSegments.length - 1) {
+                        dynamicPath.append(File.separator);
+                    }
+                }
+                return dynamicPath.toString();
+            } else {
+                return null;  // Handle cases where "Documents" is not found
+            }
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
+
 
 }

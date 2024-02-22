@@ -65,25 +65,27 @@ public class FileTransferService {
 
     /**
      * Copies a file from the source path to the target path, handling potential replacements, folder creation, and errors.
+     *
      * @return A Map containing status and result details, including success/failure indicators and error messages.
      */
     public Map<String, Object> copyFile(String source, String target, Boolean replace, Boolean createFolder) {
         Map<String, Object> payload = new HashMap<>();
+        DriveItem driveItemTarget=null;
         try {
             if (validateReplaceAndCreateFolderParameters(replace, createFolder, payload)) {
                 copyFileUtilityService.validateSourceAndTargetPaths(source, target, payload);
+
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-//                    source = managementUtilityService.getUpdatedFilePath(source);
-//                    DriveItem driveItemSource = managementUtilityService.checkIfFileExist(source, payload);
-                    searchFileExecutor.getFileInfo(source,payload,true);
+                    searchFileExecutor.getFileInfo(source, payload, true);
                     DriveItem driveItemSource = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                     if ((boolean) payload.get(Constants.SUCCESS)) {
-//                        target = managementUtilityService.getUpdatedFilePath(target);
-//                        DriveItem driveItemTarget = createOrCheckTargetItem(target, createFolder, payload, replace);
-                        searchFileExecutor.getFileInfo(target,payload,true);
-                        DriveItem driveItemTarget = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
-
+                        if (createFolder) {
+                            createOrCheckTargetItem(target,createFolder,payload,replace);
+                        } else {
+                            searchFileExecutor.getFileInfo(target, payload, true);
+                             driveItemTarget = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+                        }
                         if ((boolean) payload.get(Constants.SUCCESS)) {
                             buildCopyFileRequest(driveItemSource, replace, driveItemTarget, payload, target, source);
                         }
@@ -123,11 +125,9 @@ public class FileTransferService {
 
     private DriveItem createOrCheckTargetItem(String target, Boolean createFolder,
                                               Map<String, Object> payload, Boolean replace) {
-        DriveItem driveItemTarget;
+        DriveItem driveItemTarget = null;
         if (createFolder) {
             driveItemTarget = createFolderInPath(target, payload);
-        } else {
-            driveItemTarget = checkIfTargetFolderExist(target, payload);
         }
 
         if (!(boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
@@ -198,20 +198,19 @@ public class FileTransferService {
 
     /**
      * Moves a file from the source path to the target path, handling path validation, file existence checks, target folder validation, and potential errors.
+     *
      * @return A Map containing status and result details, including success/failure indicators and error messages.
      */
     public Map<String, Object> moveFile(String source, String target) {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (copyFileUtilityService.validateSourceAndTargetPathsForMove(source, target, payload)) {
-             //   source = managementUtilityService.getUpdatedFilePath(source);
-                searchFileExecutor.getFileInfo(source,payload,true);
+                searchFileExecutor.getFileInfo(source, payload, true);
                 DriveItem driveItemSource = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                   // target = managementUtilityService.getUpdatedFilePath(target);
-                    searchFileExecutor.getFileInfo(target,payload,true);
-                    DriveItem  driveItemTarget  = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);;
+                    searchFileExecutor.getFileInfo(target, payload, true);
+                    DriveItem driveItemTarget = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                     if ((boolean) payload.get(Constants.SUCCESS)) {
                         moveFileToTarget(driveItemSource, driveItemTarget, target, source, payload);
@@ -256,7 +255,7 @@ public class FileTransferService {
     private DriveItem createFolderInPath(String target, Map<String, Object> payload) {
         DriveItem driveItem = new DriveItem();
         try {
-            copyFileUtilityService.validateTargetPath(target, payload);
+        //    copyFileUtilityService.validateTargetPath(target, payload);
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 String absolutePathBuilder = DriveUtil.getRootUrl(target);
@@ -310,5 +309,4 @@ public class FileTransferService {
         payload.put("isFileExist", true);
         return driveItem;
     }
-
 }

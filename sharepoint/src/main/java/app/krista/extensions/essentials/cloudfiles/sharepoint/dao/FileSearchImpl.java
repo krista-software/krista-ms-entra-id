@@ -92,15 +92,11 @@ public class FileSearchImpl {
 
     public String handleAbsolutePath(String name, String siteDomainPath) {
         name = name.replace(Constants.WHITE_SPACE, " ");
-        if (name.startsWith(siteDomainPath)) {
-            if (!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
-                name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
-            }
-        } else {
+        if (!name.startsWith(siteDomainPath)) {
             name = siteDomainPath + name;
-            if (!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
-                name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
-            }
+        }
+        if (!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
+            name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
         }
         return name;
     }
@@ -196,7 +192,7 @@ public class FileSearchImpl {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem drive = (DriveItem) hits.resource;
                                 assert drive.parentReference != null;
-                                String driveId=drive.parentReference.driveId;
+                                String driveId = drive.parentReference.driveId;
                                 //System.out.println(" drive Id "+ driveId);
                                 if (drive.webUrl != null && drive.webUrl.equals(filePath) && !rootFolder) {
                                     driveItem = (DriveItem) hits.resource;

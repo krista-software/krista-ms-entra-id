@@ -1,12 +1,11 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
+import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -52,28 +51,32 @@ public class OperationsManagementDao {
      * @return A Map containing status and result details, including success/failure indicators and error messages.
      */
     public Map<String, Object> deleteFile(String target) {
-        Map<String, Object> payload = new HashMap<>();
-        searchFileExecutor.getFileInfo(target, payload, true);
-        //  DriveItem driveItem = (DriveItem) payload.get(Constants.DRIVE_ITEM);
-        DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            searchFileExecutor.getFileInfo(target, payload, true);
+            DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
-
-        if ((boolean) payload.get(Constants.SUCCESS)) {
-            assert Objects.requireNonNull(driveItem).parentReference != null;
-            assert driveItem.id != null;
-            provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id)
-                    .buildRequest().delete();
-
-            payload.put(Constants.MESSAGE, Constants.FILE_DELETED_SUCCESSFULLY);
-            payload.put(Constants.SUCCESS, true);
-        } else {
-            payload.put(Constants.MESSAGE, "File not found");
-            payload.put(Constants.SUCCESS, false);
+            if ((boolean) payload.get(Constants.SUCCESS)) {
+                assert Objects.requireNonNull(driveItem).parentReference != null;
+                assert driveItem.id != null;
+                provider.getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId).items(driveItem.id)
+                        .buildRequest().delete();
+                payload.put(Constants.MESSAGE, Constants.FILE_DELETED_SUCCESSFULLY);
+                payload.put(Constants.SUCCESS, true);
+            }
+            if (payload.isEmpty()) {
+                payload.put(Constants.MESSAGE, Constants.FILE_NOT_DELETED_SUCCESSFULLY);
+                payload.put(Constants.SUCCESS, false);
+            }
+            return payload;
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.info(cause.getMessage(), cause);
+            throw new IllegalArgumentException(cause.getMessage(), cause);
         }
-        return payload;
     }
 
-        /**
+
+    /**
      * Renames a file to the specified target name, handling validation and potential errors.
      *
      * @return A Map containing status and result details, including success/failure indicators and error messages.
@@ -88,18 +91,17 @@ public class OperationsManagementDao {
         return payload;
     }
 
-private void validateAndRenameFile(String sourcePath, String targetFileName, Map<String, Object> payload) {
+    private void validateAndRenameFile(String sourcePath, String targetFileName, Map<String, Object> payload) {
         if (sourcePath != null) {
-            searchFileExecutor.getFileInfo(sourcePath,payload,true);
+            searchFileExecutor.getFileInfo(sourcePath, payload, true);
             DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
             if (payload.get(Constants.SUCCESS) == Boolean.TRUE) {
-                renameDriveItem(targetFileName,driveItem,payload);
+                renameDriveItem(targetFileName, driveItem, payload);
             } else {
                 setFileNotFoundMessage(payload);
             }
         }
     }
-
 
 
     private void renameDriveItem(String targetFileName, DriveItem drive, Map<String, Object> payload) {
@@ -117,7 +119,7 @@ private void validateAndRenameFile(String sourcePath, String targetFileName, Map
     }
 
     private void setFileNotFoundMessage(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.FILE_NOT_FOUND);
+        payload.put(Constants.MESSAGE, "Please provide valid path, file was not found");
         payload.put(Constants.SUCCESS, false);
     }
 

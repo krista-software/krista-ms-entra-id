@@ -33,13 +33,16 @@ public class FilePermissionDao {
     private final SharePointAttributes sharePointAttributes;
     private final FileSearchUtilityService fileSearchUtilityService;
 
+    private final SearchFileExecutor searchFileExecutor;
+
     @Inject
     public FilePermissionDao(GraphServiceClientProviderFactory clientProviderFactory, FileSearchImpl fileSearchImpl,
-                             SharePointAttributes sharePointAttributes, FileSearchUtilityService fileSearchUtilityService) {
+                             SharePointAttributes sharePointAttributes, FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.clientProvider = clientProviderFactory.create();
         this.fileSearchImpl = fileSearchImpl;
         this.sharePointAttributes = sharePointAttributes;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -54,13 +57,9 @@ public class FilePermissionDao {
             filePath = filePath.replace(Constants.WHITE_SPACE, " ");
             List<DriveSharedPermissionImpl> resultPage = new ArrayList<>();  // Initialize the result page
             try {
-                GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(useEmail, accountID);
-                LinkedList<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath(filePath);
-                SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
-                if (page != null && !page.getCurrentPage().isEmpty()) {
-                    extractDriveFromSearchResultsUsingPath(resultPage, page, filePath, graphClient);
-                }
+              //  searchFileExecutor.getSharedFileInfo(filePath,payload,useEmail,accountID);
+                resultPage = (List<DriveSharedPermissionImpl>) payload.get("Page");
 
                 if (!resultPage.isEmpty()) {
                     ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(CatalogTypes::fromFile)
@@ -131,5 +130,6 @@ public class FilePermissionDao {
             return "path:\"" + folderPath + "\" AND ParentLink:/" + parentFolder;
         }
     }
+
 
 }

@@ -90,6 +90,8 @@ public class Constants {
 
     public static final String FILE_DELETED_SUCCESSFULLY = "File Deleted Successfully";
 
+
+    public static final String FILE_NOT_DELETED_SUCCESSFULLY = "File Not Deleted Successfully";
     public static final String FILE_UPLOADED_SUCCESSFULLY = "File Uploaded Successfully";
 
     public static final String PROVIDE_VALID_PATH = "Provide Valid Path";
@@ -193,7 +195,7 @@ public class Constants {
 
     public static final String NO_FILE_FOUND_IN_DATE_RANGE = "No File found within date range";
 
-    public static final String INVALID_FOLDER_PATH = "Invalid Folder Path";
+    public static final String INVALID_FOLDER_PATH = "Please provide a valid path, the folder was not found";
 
     public static final String SOURCE_OR_TARGET_PATHS_CANT_BE_NULL = "Source OR Target paths cannot be null or empty";
 
@@ -219,11 +221,17 @@ public class Constants {
 
     public static final String INVALID_INPUT_PROVIDED = "Invalid Input provided";
 
+
     public static final String FILE_FOUND = "File Found";
 
     public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "File Downloaded Successfully";
 
+    public static final  String File_Not_Found = "File Not Found";
+
+    public static final String Drive_Id = "DriveId";
     public static final String DOWNLOAD_LINK = "Link";
+
+    public static final String Drive_Item = "DriveItem";
 
     public static final String FILE_SIZE_IS_GREATER_THAN_30MB = "File Size is Greater than 30MB, Please Download file By URL";
 
@@ -338,9 +346,21 @@ public class Constants {
     public static final String FOLDER_NOT_FOUND = "Folder Not Found";
 
     public static final String GROUP_CREATED = "Group created successfully";
+    public static final String PLEASE_PROVIDE_VALID_SOURCE_PATH = "public static final String PLEASE_PROVIDE_VALID_SOURCE_PATH";
+    public static final String DRIVE_ROOT = "drive/root:/";
 
+    public static final String TO_DOWNLOAD_FILE_PLEASE_COPY_URL = "To Download file, click on the URL";
+
+    public static final String FILE_SIZE_IS_GREATER_THAN_50_MB_PLEASE_DOWNLOAD_FILE_BY_URL = "File size is greater than 50MB, Please Download file by URL";
+
+    public static final String PLEASE_PROVIDE_VALID_FILE_SOURCE_PATH = "Please, Provide Valid File Source Path";
+
+    public static final String FILE_IS_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT = "Access to download this file is currently restricted. For assistance, contact your administrator or support.";
+
+    public static final String ACCESS_DENIED = "accessDenied";
 
 
     private Constants() {
     }
 }
+

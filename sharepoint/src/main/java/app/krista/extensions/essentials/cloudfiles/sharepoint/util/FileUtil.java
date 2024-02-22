@@ -1,12 +1,17 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
+import com.microsoft.graph.requests.DriveItemRequestBuilder;
+
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Utility class with static methods for common file-related operations, string validation, and file creation.
@@ -91,6 +96,12 @@ public class FileUtil {
             subdomain = subdomain.substring(0, index); // Remove any trailing parts
         }
         return subdomain;
+    }
+
+    public static DriveItemRequestBuilder getUserRequestBuilderWithItemId(GraphServiceClientProvider provider, String driveId, String itemId) {
+        return driveId != null
+                ? provider.getUserRequestBuilder(null, null).drives(driveId).items(itemId)
+                : provider.getUserRequestBuilder(null, null).drive().items(itemId);
     }
 
 }

@@ -95,6 +95,23 @@ public class ResponseUtil {
         payload.put(Constants.MESSAGE, Constants.GROUP_NAME_EXIST);
         return payload;
     }
+
+    public static void errorResponse(boolean success, String message, Map<String, Object> payload) {
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+    }
+
+    public static void downloadAsLinkResponse(String downloadLink, boolean success, String message, Map<String, Object> payload) {
+        payload.put("Link", downloadLink);
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+    }
+
+    public static void downloadAsKristaFileResponse(app.krista.model.base.File kristaFile, boolean success, String message, Map<String, Object> payload) {
+        payload.put("Krista File", kristaFile);
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+    }
 }
 
 

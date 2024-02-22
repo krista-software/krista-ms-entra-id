@@ -60,12 +60,9 @@ public class DriveTextFileManager {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (source != null) {
-                //source = managementUtilityService.getUpdatedFilePath(source);
                 searchFileExecutor.getFileInfo(source, payload, true);
                 DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
-                //String path = DriveUtil.getRelativePath(source);
-                //    getFileInfo(driveItem.parentReference.driveId, path, payload);
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     readTxtFileFromSource(payload, driveItem);
                 } else {
@@ -74,7 +71,6 @@ public class DriveTextFileManager {
             } else {
                 invalidFileName(payload);
             }
-
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
@@ -124,7 +120,6 @@ public class DriveTextFileManager {
                 DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-//                        DriveItem driveItem = (DriveItem) response.get(Constants.DRIVE_ITEM);
                     if (driveItem.name != null && driveItem.folder != null) {
                         uploadTxtFileFromTarget(target, fileContent, payload, driveItem);
                     }
@@ -168,12 +163,12 @@ public class DriveTextFileManager {
     }
 
     public void invalidPath(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
+        payload.put(Constants.MESSAGE,"Please provide valid path, file was not found");
         payload.put(Constants.SUCCESS, false);
     }
 
     public void invalidFileName(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.INVALID_FILENAME);
+        payload.put(Constants.MESSAGE, "Please provide valid path, file was not found");
         payload.put(Constants.SUCCESS, false);
     }
 

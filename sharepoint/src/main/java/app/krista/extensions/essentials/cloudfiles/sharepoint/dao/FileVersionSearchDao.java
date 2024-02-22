@@ -29,11 +29,13 @@ public class FileVersionSearchDao {
     private final GraphServiceClientProvider clientProvider;
     private final ManagementUtilityService managementUtilityService;
 
+    private final SearchFileExecutor searchFileExecutor;
 
     @Inject
-    public FileVersionSearchDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService) {
+    public FileVersionSearchDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService, SearchFileExecutor searchFileExecutor) {
         this.clientProvider = factory.create();
         this.managementUtilityService = managementUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -47,7 +49,8 @@ public class FileVersionSearchDao {
             if (search != null && !search.isBlank()) {
                 sourcePath = sourcePath + "/" + search;
             }
-            DriveItem driveItem = managementUtilityService.getFileByAbsolutePath(sourcePath, graphClient);
+            searchFileExecutor.getFileInfo(sourcePath,payload,true);
+            DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
             if (driveItem == null || driveItem.parentReference == null || driveItem.parentReference.driveId == null) {
                 ResponseUtil.successResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);

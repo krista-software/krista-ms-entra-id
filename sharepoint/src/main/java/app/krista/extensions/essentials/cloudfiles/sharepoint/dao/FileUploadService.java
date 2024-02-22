@@ -70,7 +70,6 @@ public class FileUploadService {
     private void validateAndUploadFile(app.krista.model.base.File kristaFile, String targetPath,
                                        Map<String, Object> payload) {
         if (targetPath != null && !FileUtil.hasFileExtension(targetPath)) {
-     //       targetPath = managementUtilityService.getUpdatedFilePath(targetPath);
             searchFileExecutor.getFileInfo(targetPath,payload,true);
             DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
@@ -86,7 +85,7 @@ public class FileUploadService {
     }
 
     private void setInvalidPathMessage(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
+        payload.put(Constants.MESSAGE, "Please provide valid path, folder was not found");
         payload.put(Constants.SUCCESS, false);
     }
 

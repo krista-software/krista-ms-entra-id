@@ -24,6 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -49,7 +52,6 @@ public class DriveFileService {
     private final SearchFileExecutor searchFileExecutor;
 
 
-
     @Inject
     public DriveFileService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
                             FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
@@ -59,8 +61,45 @@ public class DriveFileService {
         this.searchFileExecutor = searchFileExecutor;
     }
 
+    public static String getRelativePath(String fullUrl) {
+        try {
+            String escapedUrl = fullUrl.replace(" ", "%20");  // Escape spaces
+            URI uri = new URI(escapedUrl);
+            String path = uri.getPath();
+
+            String[] pathSegments = path.split(java.io.File.separator.equals("\\") ? "\\\\" : java.io.File.separator);
+
+            // Find the index of the last "Documents" segment, regardless of case:
+            int startIndex = -1;
+            for (int i = pathSegments.length - 1; i >= 0; i--) {
+                if (pathSegments[i].equalsIgnoreCase(Constants.DOCUMENTS) ||
+                        pathSegments[i].equalsIgnoreCase(Constants.SHARED_DOCUMENTS)) {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            if (startIndex != -1) {
+                startIndex++;  // Start after "Documents"
+                StringBuilder dynamicPath = new StringBuilder(java.io.File.separator);
+                for (int i = startIndex; i < pathSegments.length; i++) {
+                    dynamicPath.append(pathSegments[i]);
+                    if (i < pathSegments.length - 1) {
+                        dynamicPath.append(File.separator);
+                    }
+                }
+                return dynamicPath.toString();
+            } else {
+                return null;  // Handle cases where "Documents" is not found
+            }
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
+
     /**
      * Retrieves file information for the specified path, handling path validation, file existence checks, and potential errors.
+     *
      * @return A FreeForm object containing file details or error messages.
      */
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
@@ -94,17 +133,18 @@ public class DriveFileService {
             DriveItem driveItem = getFileByAbsolutePath(sourcePath, useEmail, accountID);
             if (isInvalidDriveItem(driveItem, payload)) return new DriveItem();
 
-            sourcePath = DriveUtil.getRelativePath(sourcePath);
+            sourcePath = getRelativePath(sourcePath);
             DriveItem driveItemCollectionPage = getDriveItemCollectionPage(driveItem, sourcePath, useEmail, accountID);
 
             if (isFolderValid(driveItemCollectionPage)) {
-                ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);
+                ResponseUtil.addFileSize(driveItemCollectionPage.size != null ? driveItemCollectionPage.size : 0L, payload);
                 ResponseUtil.getInfoResponse(true, Constants.FILE_FOUND, payload);
             } else {
                 ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             }
             return driveItem;
         } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.info(cause.getMessage(), cause);
             handleException(cause, payload);
             return new DriveItem();
         }
@@ -230,7 +270,7 @@ public class DriveFileService {
 
     private void fetchFileInfo(String sourcePath, FreeForm payload, boolean useEmail, String accountID, DriveItem driveItem) {
         try {
-            sourcePath = DriveUtil.getRelativePath(sourcePath);
+            sourcePath = getRelativePath(sourcePath);
             DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID)
                     .drives(driveItem.parentReference.driveId)
                     .root()
@@ -324,6 +364,7 @@ public class DriveFileService {
 
     /**
      * Retrieves a list of files at the specified path, optionally filtered by search criteria, handling path validation, file existence checks, and potential errors.
+     *
      * @return A FreeForm object containing the list of files or error messages.
      */
     @NotNull
@@ -335,12 +376,13 @@ public class DriveFileService {
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload;
             }
-           //  relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
-  //           searchFileExecutor.getFileInfo(relativePath,payload,true,useEmail,accountID);
-   //         DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
-           DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
+            relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
+            // This commented code added intentionally for future implementation purpose
+            //           searchFileExecutor.getFileInfo(relativePath,payload,true,useEmail,accountID);
+            //         DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+            DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
             if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
-                String refinedRelativePath = DriveUtil.getRelativePath(relativePath);
+                String refinedRelativePath = getRelativePath(relativePath);
                 getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath, files, useEmail, accountID, search, payload, relativePath);
             }
         } catch (GraphServiceException | IllegalArgumentException e) {
@@ -372,7 +414,7 @@ public class DriveFileService {
         try {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
 
-           DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
+            DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
 
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload, absolutePath);
@@ -416,6 +458,5 @@ public class DriveFileService {
         return search != null && !search.isEmpty() && driveItem.name != null && driveItem.name.contains(search)
                 || search != null && search.isBlank();
     }
-
 
 }
