@@ -68,8 +68,6 @@ public class DriveTextFileManager {
                 } else {
                     invalidPath(payload);
                 }
-            } else {
-                invalidFileName(payload);
             }
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {

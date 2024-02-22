@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Service class for uploading files to Microsoft Graph using the Graph API.
@@ -75,6 +76,7 @@ public class FileUploadService {
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 targetPath = DriveUtil.getRelativePath(targetPath);
+                assert Objects.requireNonNull(driveItem).parentReference != null;
                 uploadFileByPathByDriveID(driveItem.parentReference.driveId, targetPath, kristaFile, payload,driveItem);
             } else {
                 setInvalidPathMessage(payload);

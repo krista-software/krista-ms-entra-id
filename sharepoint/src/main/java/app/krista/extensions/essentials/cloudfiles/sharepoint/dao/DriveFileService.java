@@ -104,7 +104,7 @@ public class DriveFileService {
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
-            if (sourcePath.equalsIgnoreCase(null) || sourcePath.trim().isEmpty()) { // Check for null or empty string
+            if (sourcePath.trim().isEmpty()) { // Check for null or empty string
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload; // Exit the method early
             }
@@ -286,6 +286,7 @@ public class DriveFileService {
                 payload.put(Constants.SUCCESS, false);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(cause.getMessage());
             handleErrorResponse("An error occurred while fetching file information.", payload);
         }
     }
@@ -372,7 +373,7 @@ public class DriveFileService {
         FreeForm payload = new FreeForm();
         try {
             List<FileService> files = new ArrayList<>();
-            if (relativePath.equalsIgnoreCase(null) || relativePath.trim().isEmpty()) {
+            if (relativePath.trim().isEmpty()) {
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload;
             }

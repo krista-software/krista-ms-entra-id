@@ -74,6 +74,7 @@ public class FolderManagementDao {
                 ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(cause.getMessage());
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
                     .contains("itemNotFound") ? Constants.INVALID_FOLDER_PATH : cause.getMessage(), payload);
         }
