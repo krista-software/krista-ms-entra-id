@@ -378,7 +378,7 @@ public class DriveFileService {
         FreeForm payload = new FreeForm();
         try {
             List<FileService> files = new ArrayList<>();
-            if (relativePath.trim().isEmpty()) {
+            if (isNullOrEmpty(relativePath)){
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload;
             }
@@ -394,6 +394,10 @@ public class DriveFileService {
             handleServiceException(cause, payload);
         }
         return payload;
+    }
+
+    private boolean isNullOrEmpty(String relativePath) {
+        return relativePath == null || relativePath.trim().isEmpty();
     }
 
     private void handleInvalidPathError(String message, FreeForm payload) {

@@ -381,43 +381,7 @@ public class FileTransferService {
             }
             Response copyResponse =  getRestClient(target.parentReference.driveId)
                     .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id));
-            // Response statusResponse, Map<String, Object> payload, DriveItem driveItemSource, String target, String source
-             processResponse(copyResponse, payload,source,targetPath,sourcePath);
-
+            processResponse(copyResponse, payload,source,targetPath,sourcePath);
         }
     }
-
-    private void prepareCopyResponse(Response response, Map<String, Object> payload) throws IOException {
-        if (response != null && response.code() == 202) {
-            try (Response statusResponse = getRestClient(null).get(response.header("Location"))) {
-                if (statusResponse.code() == 200) {
-                    final ResponseBody statusResponseBody = statusResponse.body();
-                    if (statusResponseBody != null) {
-                        String responseBodyString = statusResponseBody.string(); // Read the response body as a string
-                        JsonObject jsonObject = Constants.GSON.fromJson(responseBodyString, JsonObject.class);
-
-                        if (jsonObject.isJsonObject()) {
-                            String status = jsonObject.getAsJsonPrimitive("status").getAsString();
-                            if ("completed".equalsIgnoreCase(status)) {
-                                DriveItem driveItem = FileUtil
-                                        .getUserRequestBuilderWithItemId(provider
-                                                , null
-                                                , jsonObject.getAsJsonPrimitive("resourceId").getAsString().trim())
-                                        .buildRequest().expand(Constants.PERMISSIONS).get();
-                                payload.put(Constants.MESSAGE, Constants.FILE_MOVED_SUCCESSFULLY);
-                                payload.put(Constants.SUCCESS, true);
-                            } else if ("inProgress".equalsIgnoreCase(status)) {
-                                ResponseUtil.errorResponse(true, Constants.COPY_IN_PROGRESS, payload);
-                            } else if ("failed".equalsIgnoreCase(status)) {
-                                ResponseUtil.errorResponse(false, Constants.FILE_ALREADY_EXIST, payload);
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            ResponseUtil.errorResponse(false, Constants.ERROR_DURING_SERVICE, payload);
-        }
-    }
-
 }

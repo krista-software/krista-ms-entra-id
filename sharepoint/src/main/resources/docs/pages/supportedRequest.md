@@ -175,7 +175,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 9. List Folders
 
-- **Description**: Produces a non-recursive list of folders that is present within the folder denoted by the source
+- **Description**: Produces a non-recursive list of folders that is present within the folder denoted by the source.
   path.
 - **Input Parameters**:
 
@@ -231,7 +231,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 12. Rename
 
-- **Description**: Renames the file given at the Source File Path to the name Given.
+- **Description**: Renames the file given at the source file path to the name given.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                       |
@@ -318,7 +318,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|---------------|------------------------------------|
 | Source Path        | Text               | Yes           | /siteName /Shared Documents/folder |
 | Since              | Date               | Yes           | 2023-12-29 T03 \: 54 \: 26Z        |
-| Search             | Text               | Yes           | WeeklyDemo.txt                     |
+| Search             | Text               | No            | WeeklyDemo.txt                     |
 
 - **Note**: It works for files having version history.
 
