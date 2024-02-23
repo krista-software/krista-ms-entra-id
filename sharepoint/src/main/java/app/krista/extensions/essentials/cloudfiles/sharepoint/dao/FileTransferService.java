@@ -86,8 +86,6 @@ public class FileTransferService {
                         DriveItem driveItemTarget = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                         if ((boolean) payload.get(Constants.SUCCESS)) {
-                            assert driveItemSource != null;
-                            assert driveItemTarget != null;
                             buildCopyFileRequest(driveItemSource, replace, driveItemTarget, payload, target, source);
                         }
                     }

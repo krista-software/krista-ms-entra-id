@@ -144,7 +144,7 @@ public class SearchFileExecutor {
         payload.put(Constants.SUCCESS, false);
     }
 
-    public LinkedList<SearchRequest> buildSearchRequestList(String filePath) {
+    public LinkedList<SearchRequest> buildSearchRequestsFromFile(String filePath) {
         LinkedList<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
         buildSearchRequestForRest(filePath, requests);
@@ -178,7 +178,7 @@ public class SearchFileExecutor {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
             try {
-                LinkedList<SearchRequest> requestsList = buildSearchRequestList(filePath);
+                LinkedList<SearchRequest> requestsList = buildSearchRequestsFromFile(filePath);
                 SearchEntityQueryCollectionPage page = buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -259,7 +259,7 @@ public class SearchFileExecutor {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
             try {
-                LinkedList<SearchRequest> requestsList = buildSearchRequestList(filePath);
+                LinkedList<SearchRequest> requestsList = buildSearchRequestsFromFile(filePath);
                 SearchEntityQueryCollectionPage page = buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {

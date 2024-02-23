@@ -39,7 +39,6 @@ public class DriveTextFileManager {
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
-
     private final SearchFileExecutor searchFileExecutor;
 
     @Inject

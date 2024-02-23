@@ -143,39 +143,53 @@ public class FolderManagementDao {
 
     public static String getRelativePath(String fullUrl) {
         try {
-            String escapedUrl = fullUrl.replace(" ", "%20");  // Escape spaces
+            String escapedUrl = escapeSpaces(fullUrl);
             URI uri = new URI(escapedUrl);
             String path = uri.getPath();
 
-            String[] pathSegments = path.split(java.io.File.separator.equals("\\") ? "\\\\" : java.io.File.separator);
+            String[] pathSegments = getPathSegments(path);
 
-            // Find the index of the last "Documents" segment, regardless of case:
-            int startIndex = -1;
-            for (int i = pathSegments.length - 1; i >= 0; i--) {
-                if (pathSegments[i].equalsIgnoreCase(Constants.DOCUMENTS) ||
-                        pathSegments[i].equalsIgnoreCase(Constants.SHARED_DOCUMENTS)) {
-                    startIndex = i;
-                    break;
-                }
-            }
-
+            int startIndex = findDocumentsIndex(pathSegments);
             if (startIndex != -1) {
-                startIndex++;  // Start after "Documents"
-                StringBuilder dynamicPath = new StringBuilder(java.io.File.separator);
-                for (int i = startIndex; i < pathSegments.length; i++) {
-                    dynamicPath.append(pathSegments[i]);
-                    if (i < pathSegments.length - 1) {
-                        dynamicPath.append(File.separator);
-                    }
-                }
-                return dynamicPath.toString();
+                startIndex++;
+                return buildDynamicPath(pathSegments, startIndex);
             } else {
-                return null;  // Handle cases where "Documents" is not found
+                return null;
             }
         } catch (URISyntaxException e) {
             return null;
         }
     }
+
+    private static String escapeSpaces(String url) {
+        return url.replace(" ", "%20");
+    }
+
+    private static String[] getPathSegments(String path) {
+        return path.split(java.io.File.separator.equals("\\") ? "\\\\" : java.io.File.separator);
+    }
+
+    private static int findDocumentsIndex(String[] pathSegments) {
+        for (int i = pathSegments.length - 1; i >= 0; i--) {
+            if (pathSegments[i].equalsIgnoreCase(Constants.DOCUMENTS) ||
+                    pathSegments[i].equalsIgnoreCase(Constants.SHARED_DOCUMENTS)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static String buildDynamicPath(String[] pathSegments, int startIndex) {
+        StringBuilder dynamicPath = new StringBuilder(java.io.File.separator);
+        for (int i = startIndex; i < pathSegments.length; i++) {
+            dynamicPath.append(pathSegments[i]);
+            if (i < pathSegments.length - 1) {
+                dynamicPath.append(File.separator);
+            }
+        }
+        return dynamicPath.toString();
+    }
+
 
 
 }
