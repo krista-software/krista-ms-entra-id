@@ -59,43 +59,6 @@ public class DriveFileService {
         this.searchFileExecutor = searchFileExecutor;
     }
 
-    public static String getRelativePath(String fullUrl) {
-        try {
-            String escapedUrl = fullUrl.replace(" ", "%20");  // Escape spaces
-            URI uri = new URI(escapedUrl);
-            String path = uri.getPath();
-
-            String[] pathSegments = path.split(java.io.File.separator.equals("\\") ? "\\\\" : java.io.File.separator);
-
-            // Find the index of the last "Documents" segment, regardless of case:
-            int startIndex = -1;
-            for (int i = pathSegments.length - 1; i >= 0; i--) {
-                if (pathSegments[i].equalsIgnoreCase(Constants.DOCUMENTS) ||
-                        pathSegments[i].equalsIgnoreCase(Constants.SHARED_DOCUMENTS)) {
-                    startIndex = i;
-                    break;
-                }
-            }
-
-            if (startIndex != -1) {
-                startIndex++;  // Start after "Documents"
-                StringBuilder dynamicPath = new StringBuilder(java.io.File.separator);
-                for (int i = startIndex; i < pathSegments.length; i++) {
-                    dynamicPath.append(pathSegments[i]);
-                    if (i < pathSegments.length - 1) {
-                        dynamicPath.append(File.separator);
-                    }
-                }
-                return dynamicPath.toString();
-            } else {
-                LOGGER.error("No 'Documents' or 'Shared Documents' segment found in the path.");
-                throw new IllegalStateException("No Documents or Shared Documents segment found in the path");
-            }
-        } catch (URISyntaxException cause) {
-            LOGGER.error("Error parsing URI: {}", cause.getMessage());
-            return null;
-        }
-    }
 
     /**
      * Retrieves file information for the specified path, handling path validation, file existence checks, and potential errors.
@@ -134,7 +97,7 @@ public class DriveFileService {
             DriveItem driveItem = getFileByAbsolutePath(sourcePath, useEmail, accountID);
             if (isInvalidDriveItem(driveItem, payload)) return new DriveItem();
 
-            sourcePath = getRelativePath(sourcePath);
+            sourcePath = FolderManagementDao.getRelativePath(sourcePath);
             DriveItem driveItemCollectionPage = getDriveItemCollectionPage(driveItem, sourcePath, useEmail, accountID);
 
             if (isFolderValid(driveItemCollectionPage)) {
@@ -281,7 +244,7 @@ public class DriveFileService {
 
     private void fetchFileInfo(String sourcePath, FreeForm payload, boolean useEmail, String accountID, DriveItem driveItem) {
         try {
-            sourcePath = getRelativePath(sourcePath);
+            sourcePath = FolderManagementDao.getRelativePath(sourcePath);
             DriveItemCollectionPage page = driveItemCollectionPageProvider(sourcePath,payload,useEmail,accountID,driveItem);
 
             if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -385,7 +348,7 @@ public class DriveFileService {
             relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
             DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
             if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
-                String refinedRelativePath = getRelativePath(relativePath);
+                String refinedRelativePath = FolderManagementDao.getRelativePath(relativePath);
                 getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath,
                         files, useEmail, accountID, search, payload, relativePath);
             }
