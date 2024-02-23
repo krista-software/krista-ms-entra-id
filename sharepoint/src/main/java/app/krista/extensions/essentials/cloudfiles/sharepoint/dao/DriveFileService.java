@@ -176,6 +176,16 @@ public class DriveFileService {
                 .get();
     }
 
+    private DriveItemCollectionPage driveItemCollectionPageProvider(String sourcePath, FreeForm payload, boolean useEmail, String accountID, DriveItem driveItem) {
+        return provider.getUserRequestBuilder(useEmail, accountID)
+                .drives(driveItem.parentReference.driveId)
+                .root()
+                .itemWithPath(sourcePath)
+                .children()
+                .buildRequest()
+                .get();
+    }
+
     private void handleException(Exception cause, FreeForm payload) {
         ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
                 .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage(), payload);
@@ -272,13 +282,7 @@ public class DriveFileService {
     private void fetchFileInfo(String sourcePath, FreeForm payload, boolean useEmail, String accountID, DriveItem driveItem) {
         try {
             sourcePath = getRelativePath(sourcePath);
-            DriveItemCollectionPage page = provider.getUserRequestBuilder(useEmail, accountID)
-                    .drives(driveItem.parentReference.driveId)
-                    .root()
-                    .itemWithPath(sourcePath)
-                    .children()
-                    .buildRequest()
-                    .get();
+            DriveItemCollectionPage page = driveItemCollectionPageProvider(sourcePath,payload,useEmail,accountID,driveItem);
 
             if (page != null && !page.getCurrentPage().isEmpty()) {
                 processResponse(page, payload);
@@ -459,5 +463,4 @@ public class DriveFileService {
         return search != null && !search.isEmpty() && driveItem.name != null && driveItem.name.contains(search)
                 || search != null && search.isBlank();
     }
-
 }

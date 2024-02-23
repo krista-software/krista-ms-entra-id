@@ -72,15 +72,11 @@ public class DriveTextFileManager {
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
-            failedToReadTextFile(payload);
+            FileUtil.failedToReadTextFile(payload);
         }
         return payload;
     }
 
-    private void failedToReadTextFile(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
-        payload.put(Constants.SUCCESS, false);
-    }
 
     private void readTxtFileFromSource(Map<String, Object> payload, DriveItem driveItem) {
         if (driveItem.name != null && FileUtil.getBaseName(driveItem.name).get(1) != null &&

@@ -144,4 +144,9 @@ public class FileUtil {
     public static DriveItemRequestBuilder getSharedUserRequestBuilder(GraphServiceClientProvider provider, String driveId) {
         return provider.getUserRequestBuilder(null, null).drives(driveId).root();
     }
+
+    public static void failedToReadTextFile(Map<String, Object> payload) {
+        payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
+        payload.put(Constants.SUCCESS, false);
+    }
 }
