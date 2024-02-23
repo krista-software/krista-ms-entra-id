@@ -4,6 +4,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Managemen
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
+import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -15,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
@@ -221,6 +220,57 @@ public class SearchFileExecutor {
                 }
             }
         }
+    }
+
+
+    public SearchEntityQueryCollectionPage getSharedFileInfo(String target, FreeForm payload, boolean useEmail, String accountID) {
+        try {
+            if (target == null || target.isEmpty()) {
+                payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH);
+                payload.put(Constants.SUCCESS, false);
+                return null;
+            }
+            String driveIdPath = driveIdPath(target);
+            String updatedTarget = getUpdatedFilePath(driveIdPath);
+            return getSharedFileByAbsolutePath(updatedTarget, payload, useEmail, accountID);
+
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.info(cause.getMessage());
+            managementUtilityService.handleFileNotFoundException(cause, payload);
+        }
+        return null;
+    }
+
+
+    public SearchEntityQueryCollectionPage getSharedFileByAbsolutePath(String sourcePath, FreeForm payload, boolean useEmail, String accountID) {
+        if (sourcePath != null) {
+            try {
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
+                return getSharedFileByAbsolutePath(sourcePath, graphClient);
+            } catch (GraphServiceException | IllegalArgumentException cause) {
+                LOGGER.error(cause.getMessage());
+                handleFileExistenceCheckException(cause, payload);
+            }
+        }
+        return null;
+    }
+
+    public SearchEntityQueryCollectionPage getSharedFileByAbsolutePath(String filePath, GraphServiceClient<Request> graphClient) {
+        LOGGER.info("Searching for files with filePath: {}", filePath);
+        if (filePath != null) {
+            try {
+                LinkedList<SearchRequest> requestsList = buildSearchRequestList(filePath);
+                SearchEntityQueryCollectionPage page = buildSearchQuery(graphClient, requestsList);
+
+                if (page != null && !page.getCurrentPage().isEmpty()) {
+                    return page;
+                }
+            } catch (GraphServiceException | IllegalArgumentException cause) {
+                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
+                throw new IllegalArgumentException(cause.getMessage(), cause);
+            }
+        }
+        return null;
     }
 
 }
