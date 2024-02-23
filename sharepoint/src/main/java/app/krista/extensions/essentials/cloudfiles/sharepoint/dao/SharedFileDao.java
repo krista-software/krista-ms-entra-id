@@ -67,8 +67,6 @@ public class SharedFileDao {
                 return handleInvalidPath(payload);
             }
 
-            assert Objects.requireNonNull(drive).parentReference != null;
-            assert drive.parentReference != null;
             String sharingLink = getSharingLink(drive.parentReference.driveId, FolderManagementDao.getRelativePath(source), createLinkParameterSet());
             if (sharingLink != null) {
                 String encodedSharingUrl = getEncodedSharingURL(sharingLink);
