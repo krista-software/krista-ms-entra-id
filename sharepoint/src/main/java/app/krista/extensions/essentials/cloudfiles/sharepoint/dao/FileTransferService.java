@@ -272,7 +272,7 @@ public class FileTransferService {
                 }
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
+            LOGGER.error(cause.getMessage(), cause);
         }
         return null;
     }
