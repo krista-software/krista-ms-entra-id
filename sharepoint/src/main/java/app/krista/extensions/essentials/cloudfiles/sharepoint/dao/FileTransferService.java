@@ -308,44 +308,6 @@ public class FileTransferService {
         return driveItem;
     }
 
-    public void checkIfFileExist(String target, Map<String, Object> payload) {
-        try {
-            if (target != null) {
-                DriveItem driveItem;
-                ResponseUtil.addDriveItemMessage(false, false, Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH, payload);
-                if (FileUtil.isPersonalDrive(target)) {
-                    String path = FileUtil.getRelativeFilePath(target);
-                    driveItem = !path.isEmpty()
-                            ? FileUtil.getRootUserRequestBuilder(provider).itemWithPath(path).buildRequest().get()
-                            : FileUtil.getRootUserRequestBuilder(provider).buildRequest().get();
-                    if (driveItem != null) {
-                        ResponseUtil.addDriveItem(true, driveItem, payload);
-                    }
-                }
-                if (FileUtil.checkDriveIDContains(target)) {
-                    List<String> content = FileUtil.getDriveIDAndPath(target);
-                    driveItem = FileUtil.getSharedUserRequestBuilder(provider, content.get(0)).itemWithPath(content.get(1)).buildRequest().get();
-
-                    if (driveItem != null) {
-                        ResponseUtil.addDriveItem(true, driveItem, payload);
-                    }
-                }
-            } else {
-                ResponseUtil.addDriveItemMessage(false, false, Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH, payload);
-            }
-
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
-            ResponseUtil.addDriveItemMessage(false, false, Objects.requireNonNull(cause.getMessage())
-                    .contains(Constants.ITEM_NOT_FOUND)
-                    ? Constants.FILE_NOT_FOUND
-                    : Constants.PLEASE_PROVIDE_VALID_TARGET_PATH, payload);
-        }
-    }
-
-    private boolean checkIfRootFile(DriveItem driveItem) {
-        return driveItem.name != null && driveItem.name.equalsIgnoreCase("root");
-    }
 
     public void checkIfTargetFileExist(String target, Map<String, Object> response) {
         try {
