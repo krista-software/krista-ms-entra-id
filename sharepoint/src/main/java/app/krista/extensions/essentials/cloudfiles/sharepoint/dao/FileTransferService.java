@@ -75,29 +75,25 @@ public class FileTransferService {
     public Map<String, Object> copyFile(String source, String target, Boolean replace, Boolean createFolder) {
         Map<String, Object> payload = new HashMap<>();
         try {
-            checkIfFileExist(source, payload);
-            if ((boolean) payload.get(Constants.IS_FILE_EXIST)) {
-                if (checkIfRootFile((DriveItem) payload.get(Constants.DRIVE_ITEM))) {
-                    ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH, payload);
-                    return payload;
-                }
-                Map<String, Object> response = new HashMap<>();
-                if (createFolder) {
-                    createFolderInPath(target);
-                }
-                checkIfTargetFileExist(target, response);
-                if ((boolean) response.get(Constants.IS_FILE_EXIST)) {
-                    executeCopy((DriveItem) payload.get(Constants.DRIVE_ITEM), (DriveItem) response.get(Constants.DRIVE_ITEM), replace, payload,source,target);
-                    return payload;
+            if (validateReplaceAndCreateFolderParameters(replace, createFolder, payload)) {
+                copyFileUtilityService.validateSourceAndTargetPaths(source, target, payload);
+                if ((boolean) payload.get(Constants.SUCCESS)) {
+                    searchFileExecutor.getFileInfo(source, payload, true);
+                    DriveItem driveItemSource = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
-                } else {
-                    ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_VALID_TARGET_PATH, payload);
-                    return payload;
-                }
+                    if ((boolean) payload.get(Constants.SUCCESS)) {
+                        searchFileExecutor.getFileInfo(target, payload, true);
+                        DriveItem driveItemTarget = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
+                        if ((boolean) payload.get(Constants.SUCCESS)) {
+                            assert driveItemSource != null;
+                            assert driveItemTarget != null;
+                            buildCopyFileRequest(driveItemSource, replace, driveItemTarget, payload, target, source);
+                        }
+                    }
+                }
             }
-            return payload;
-        } catch (GraphServiceException | IOException | IllegalArgumentException cause) {
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage(), cause);
             ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
                     .contains(Constants.ITEM_NOT_FOUND)
