@@ -1,7 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import static org.junit.Assert.*;
+
 public class FileUtilTest {
     @Test
     public void testGetBaseNameAndExtension() {
@@ -33,6 +35,7 @@ public class FileUtilTest {
             assertEquals(testCase[2], result.get(1)); // Extension assertion
         }
     }
+
     @Test
     public void testGetParentPath() {
         String filePathWithShared = "shared/Teams/QA/03_Automation";
@@ -49,6 +52,7 @@ public class FileUtilTest {
         String emptyPath = "";
         assertThrows(IllegalArgumentException.class, () -> FileUtil.getParentPath(emptyPath));
     }
+
     @Test
     public void testGetUsersWithPermission() {
         List<Map<String, Object>> share = new ArrayList<>();
@@ -73,6 +77,7 @@ public class FileUtilTest {
         assertEquals("user2@example.com", usersWithWritePermission.get(0));
         assertEquals("user3@example.com", usersWithWritePermission.get(1));
     }
+
     @Test
     public void testReadFile() {
         String inputString = "This is a test string.\nWith multiple lines.\n";
@@ -85,6 +90,7 @@ public class FileUtilTest {
         }
         assertEquals(inputString, result);
     }
+
     @Test
     public void testReadFileWithIOException() {
         InputStream inputStream = new InputStream() {
@@ -98,6 +104,7 @@ public class FileUtilTest {
         });
         assertEquals(IOException.class, exception.getCause().getClass());
     }
+
     @Test
     public void testCreateTxtFile() {
         String fileName = "testFile.txt";

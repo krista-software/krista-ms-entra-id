@@ -88,9 +88,11 @@ public class DriveFileService {
                 }
                 return dynamicPath.toString();
             } else {
-                return null;  // Handle cases where "Documents" is not found
+                LOGGER.error("No 'Documents' or 'Shared Documents' segment found in the path.");
+                throw new IllegalStateException("No Documents or Shared Documents segment found in the path");
             }
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException cause) {
+            LOGGER.error("Error parsing URI: {}", cause.getMessage());
             return null;
         }
     }

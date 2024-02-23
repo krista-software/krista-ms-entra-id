@@ -30,12 +30,14 @@ import java.util.stream.Collectors;
 @Service
 public class GraphServiceClientProvider {
 
+    public static final String AUTHORIZATION_PROMPT = "Authorize yourself and click Validate Attributes before saving changes to proceed further";
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphServiceClientProvider.class);
     private final RefreshTokenStore refreshTokenStore;
     private final SharePointAttributes sharePointAttributes;
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
     private final String authContextId;
+
 
     @Inject
     public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, SharePointAttributes sharePointAttributes,
@@ -198,7 +200,8 @@ public class GraphServiceClientProvider {
         }
         return new MustAuthorizeException(reAuthentication ?
                 Constants.REFRESH_TOKEN_IS_NO_LONGER_VALID_PLEASE_REAUTHORIZE_YOURSELF :
-                Constants.YOU_ARE_NOT_AUTHORIZED_PLEASE_AUTHORIZE_YOURSELF, details);
+                AUTHORIZATION_PROMPT, details);
+
     }
 
     private String getUserId(boolean calledFromValidateAttributes, String accountID) {
