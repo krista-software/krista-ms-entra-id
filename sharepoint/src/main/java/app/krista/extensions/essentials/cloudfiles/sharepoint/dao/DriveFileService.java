@@ -68,7 +68,7 @@ public class DriveFileService {
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
-            if (sourcePath==null || sourcePath.trim().isEmpty()  ) {
+            if (sourcePath == null || sourcePath.trim().isEmpty()  ) {
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload; // Exit the method early
             }
@@ -98,8 +98,10 @@ public class DriveFileService {
             if (isInvalidDriveItem(driveItem, payload)) return new DriveItem();
 
             sourcePath = FolderManagementDao.getRelativePath(sourcePath);
-            assert driveItem != null;
-            DriveItem driveItemPage = getDriveItemCollectionPage(driveItem, sourcePath, useEmail, accountID);
+            DriveItem driveItemPage = null;
+            if (driveItem != null) {
+                driveItemPage = getDriveItemCollectionPage(driveItem, sourcePath, useEmail, accountID);
+            }
 
             if (isFolderValid(driveItemPage)) {
                 ResponseUtil.addFileSize(driveItemPage.size != null ? driveItemPage.size : 0L, payload);
