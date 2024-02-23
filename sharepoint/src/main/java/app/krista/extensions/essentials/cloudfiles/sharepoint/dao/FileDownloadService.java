@@ -64,8 +64,6 @@ public class FileDownloadService {
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     String relativePath = DriveUtil.getRelativePath(absolutePath);
-                    assert Objects.requireNonNull(driveItem).parentReference != null;
-                    assert driveItem.parentReference != null;
                     downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink,
                             downloadAsKristaFile, files, payload, absolutePath, driveItem);
                     handleDownloadResult(payload);
