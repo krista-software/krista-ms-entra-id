@@ -75,10 +75,10 @@ public class FileSearchImpl {
         } else if ("Modified By".equals(selector)) {
             query.queryString = "ModifiedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Created".equals(selector)) {
-            name = DriveUtil.DoubleToDateConversion(name);
+            name = DriveUtil.doubleToDateConversion(name);
             query.queryString = "Created = " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Modified".equals(selector)) {
-            name = DriveUtil.DoubleToDateConversion(name);
+            name = DriveUtil.doubleToDateConversion(name);
             query.queryString = "LastModifiedTime = " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Name".equals(selector) || "Base Name".equalsIgnoreCase(selector)) {
             query.queryString = "isDocument=true AND fileName:" + name + " AND NOT path:\"" + personalDrivePath + "\"";

@@ -111,10 +111,9 @@ public class DriveTextFileManager {
 
                 String path = DriveUtil.getRelativePath(target);
                 String parentPath = FileUtil.getParentPath(path);
-                Map<String, Object> response = new HashMap<>();
                 searchFileExecutor.getFileInfo(parentPath, payload, true);
-
-                DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+                DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ?
+                        (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     if (driveItem.name != null && driveItem.folder != null) {

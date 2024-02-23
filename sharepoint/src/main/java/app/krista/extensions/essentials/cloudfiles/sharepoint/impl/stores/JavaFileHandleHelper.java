@@ -61,7 +61,6 @@ public class JavaFileHandleHelper {
                 outputStream.write(buffer, 0, bytesRead);
             }
         }
-
         return input;
     }
     
