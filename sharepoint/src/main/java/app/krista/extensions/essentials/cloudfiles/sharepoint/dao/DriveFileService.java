@@ -105,7 +105,7 @@ public class DriveFileService {
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
-            if (sourcePath.trim().isEmpty()) { // Check for null or empty string
+            if (sourcePath==null || sourcePath.trim().isEmpty()  ) {
                 handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
                 return payload; // Exit the method early
             }
