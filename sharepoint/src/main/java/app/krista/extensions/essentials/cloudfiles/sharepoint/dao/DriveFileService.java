@@ -98,10 +98,11 @@ public class DriveFileService {
             if (isInvalidDriveItem(driveItem, payload)) return new DriveItem();
 
             sourcePath = FolderManagementDao.getRelativePath(sourcePath);
-            DriveItem driveItemCollectionPage = getDriveItemCollectionPage(driveItem, sourcePath, useEmail, accountID);
+            assert driveItem != null;
+            DriveItem driveItemPage = getDriveItemCollectionPage(driveItem, sourcePath, useEmail, accountID);
 
-            if (isFolderValid(driveItemCollectionPage)) {
-                ResponseUtil.addFileSize(driveItemCollectionPage.size != null ? driveItemCollectionPage.size : 0L, payload);
+            if (isFolderValid(driveItemPage)) {
+                ResponseUtil.addFileSize(driveItemPage.size != null ? driveItemPage.size : 0L, payload);
                 ResponseUtil.getInfoResponse(true, Constants.FILE_FOUND, payload);
             } else {
                 ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
