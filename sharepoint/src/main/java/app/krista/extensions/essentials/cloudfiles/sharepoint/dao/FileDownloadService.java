@@ -92,7 +92,7 @@ public class FileDownloadService {
     }
 
     private void setInvalidPathMessage(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, "Please provide a valid path, the file was not found");
+        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_PATH_FILE_NOT_FOUND);
         payload.put(Constants.SUCCESS, false);
     }
 
