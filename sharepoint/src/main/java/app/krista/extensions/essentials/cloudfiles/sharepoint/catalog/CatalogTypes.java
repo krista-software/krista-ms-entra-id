@@ -31,7 +31,6 @@ public final class CatalogTypes {
         fileDetails.modified = file.getModified();
         fileDetails.size = file.getSize();
         fileDetails.permissions = file.getPermissions();
-       // fileDetails.isFolder = file.getIsFolder();
         fileDetails.isFolder = file.getIsFolder() != null ? file.getIsFolder() : false;
         fileDetails.tags = file.getTags();
         fileDetails.sharedWith = file.getSharedWith();
