@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 
 public final class CatalogTypes {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CatalogTypes.class);
-
     private CatalogTypes() {
     }
 

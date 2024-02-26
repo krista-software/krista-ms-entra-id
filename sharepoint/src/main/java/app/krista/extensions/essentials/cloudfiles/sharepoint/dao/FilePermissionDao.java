@@ -19,7 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,32 +53,32 @@ public class FilePermissionDao {
     public FreeForm getSharedPermission(String filePath, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with filePath: {} ", filePath);
         FreeForm payload = new FreeForm();
-       // Map<String,Object> payload =new HashMap<>();
+        // Map<String,Object> payload =new HashMap<>();
         if (filePath != null) {
             filePath = filePath.replace(Constants.WHITE_SPACE, " ");
             List<DriveSharedPermissionImpl> resultPage = new ArrayList<>();
-             SearchEntityQueryCollectionPage page ;  // Initialize the result page
+            SearchEntityQueryCollectionPage page;  // Initialize the result page
             try {
 
 
-                 page = searchFileExecutor.getSharedFileInfo(filePath,payload,useEmail,accountID);
+                page = searchFileExecutor.getSharedFileInfo(filePath, payload, useEmail, accountID);
 
-                 if(page != null && !page.getCurrentPage().isEmpty()) {
-                     extractDriveFromSearchResultsUsingPath(resultPage, page, filePath, null);
-                 }
+                if (page != null && !page.getCurrentPage().isEmpty()) {
+                    extractDriveFromSearchResultsUsingPath(resultPage, page, filePath, null);
+                }
 
                 if (!resultPage.isEmpty()) {
                     ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(CatalogTypes::fromFile)
-                            .collect(Collectors.toList()), true, Constants.FILE_FOUND,(FreeForm) payload);
+                            .collect(Collectors.toList()), true, Constants.FILE_FOUND, payload);
                 } else {
-                    ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH,(FreeForm) payload);
+                    ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
                 }
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.error("Error during file search: {} {} ", cause.getMessage(), cause);
-                ResponseUtil.getInfoResponse(false, Constants.FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY, (FreeForm) payload);
+                ResponseUtil.getInfoResponse(false, Constants.FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY, payload);
             }
         }
-        return (FreeForm) payload;
+        return payload;
     }
 
     public LinkedList<SearchRequest> buildSearchRequestListWithAbsolutePath(String filePath) {
