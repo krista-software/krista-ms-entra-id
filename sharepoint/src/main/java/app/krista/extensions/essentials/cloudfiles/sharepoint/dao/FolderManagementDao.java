@@ -102,7 +102,7 @@ public class FolderManagementDao {
                     if (page.getNextPage() != null) {
                         page = page.getNextPage().buildRequest().get();
                     } else {
-                        ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile)
+                        ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile)
                                 .collect(Collectors.toList()), true, " ", payload);
                         break;
                     }

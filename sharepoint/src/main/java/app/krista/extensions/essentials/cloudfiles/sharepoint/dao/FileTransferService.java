@@ -2,6 +2,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.CopyFileUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
@@ -174,7 +175,7 @@ public class FileTransferService {
             DriveItem driveItem = graphClient.drives(driveItemSource.parentReference.driveId).items(driveItemSource.id)
                     .buildRequest().get();
 
-            payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, graphClient, source, target, fileSearchUtilityService)));
+            payload.put(Constants.FILE, File.fromFile(new FileImpl(driveItem, graphClient, source, target, fileSearchUtilityService)));
             payload.put(Constants.MESSAGE, Constants.FILE_MOVED_SUCCESSFULLY);
             payload.put(Constants.SUCCESS, true);
         } else if (statusResponse.code() == Constants.HTTP_STATUS_CONFLICT) {

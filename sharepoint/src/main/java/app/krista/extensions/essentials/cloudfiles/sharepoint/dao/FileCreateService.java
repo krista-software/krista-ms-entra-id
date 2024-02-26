@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
@@ -52,7 +53,7 @@ public class FileCreateService {
             Group createdGroup = graphClient.groups().buildRequest().post(groupToCreate);
 
             if (createdGroup.id != null) {
-                payload.put(Constants.FILE, CatalogTypes.fromFile(new GroupImpl(createdGroup, null)));
+                payload.put(Constants.FILE, File.fromFile(new GroupImpl(createdGroup, null)));
                 payload.put(Constants.SUCCESS, true);
                 payload.put(Constants.MESSAGE, Constants.GROUP_CREATED);
             } else {

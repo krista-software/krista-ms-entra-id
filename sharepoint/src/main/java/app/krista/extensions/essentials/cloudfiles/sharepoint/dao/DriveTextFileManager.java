@@ -111,7 +111,7 @@ public class DriveTextFileManager {
                         (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                    if (driveItem.name != null && driveItem.folder != null) {
+                    if (driveItem!= null && driveItem.name != null && driveItem.folder != null) {
                         uploadTxtFileFromTarget(target, fileContent, payload, driveItem);
                     }
                 } else {
@@ -138,7 +138,7 @@ public class DriveTextFileManager {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
             DriveItem uploadFile = graphClient.drives(driveItem.parentReference.driveId).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
             if (uploadFile != null) {
-                File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(uploadFile, graphClient, fileSearchUtilityService));
+                File fileEntity = File.fromFile(new DrivePermissionImpl(uploadFile, graphClient, fileSearchUtilityService));
                 payload.put(Constants.FILE, fileEntity);
                 payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
                 payload.put(Constants.SUCCESS, true);

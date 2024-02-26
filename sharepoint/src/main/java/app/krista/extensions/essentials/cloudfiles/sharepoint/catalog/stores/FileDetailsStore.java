@@ -39,7 +39,7 @@ public class FileDetailsStore implements EntityStore<File> {
 
     @Override
     public File get(String id) throws IOException {
-        return CatalogTypes.fromFile(fileDao.getFileByAbsolutePath(id));
+        return File.fromFile(fileDao.getFileByAbsolutePath(id));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class FileDetailsStore implements EntityStore<File> {
                     "Created".equalsIgnoreCase(selector) || "Modified".equalsIgnoreCase(selector) ||
                     "Base Name".equalsIgnoreCase(selector) || "Size".equalsIgnoreCase(selector)) {
                 fileDetails = fileDao.getFilesByFilter(matchPattern, selector, pageIndex, pageSize).stream()
-                        .map(CatalogTypes::fromFile).collect(Collectors.toList());
+                        .map(File::fromFile).collect(Collectors.toList());
             }
         }
         return fileDetails;

@@ -66,13 +66,12 @@ public class DriveUtil {
         try {
             String escapedUrl = fullUrl.replace(" ", "%20");  // Escape spaces
             URI uri = new URI(escapedUrl);
-            String path = uri.getPath();
-
-            return path;
+            return uri.getPath();
         } catch (URISyntaxException e) {
             return null;
         }
     }
+
 
     public static String removeLastSegment(String url) {
         if (url != null && !url.isEmpty()) {

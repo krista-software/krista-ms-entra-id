@@ -72,7 +72,7 @@ public class SearchFileExecutor {
             String driveIdPath = driveIdPath(target);
             String updatedTarget = getUpdatedFilePath(driveIdPath);
 
-            checkIfFileExist(updatedTarget, payload);
+            setPayloadIfFileValidOrNot(updatedTarget, payload);
             String driveId = payload.get(Constants.Drive_Id).toString();
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
@@ -110,7 +110,7 @@ public class SearchFileExecutor {
         return fileSearchImpl.handleAbsolutePath(path, siteDomainPath);
     }
 
-    public void checkIfFileExist(String sourcePath, Map<String, Object> payload) {
+    public void setPayloadIfFileValidOrNot(String sourcePath, Map<String, Object> payload) {
         if (sourcePath != null) {
             try {
                 GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);

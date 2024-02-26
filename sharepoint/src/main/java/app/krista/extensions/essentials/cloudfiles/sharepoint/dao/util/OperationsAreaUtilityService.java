@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.ListImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SiteImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -40,7 +41,7 @@ public class OperationsAreaUtilityService {
 
     public static void processResponse(List list, Map<String, Object> payload, String response) {
         if (list != null) {
-            payload.put(Constants.FILE, CatalogTypes.fromFile(new ListImpl(list)));
+            payload.put(Constants.FILE, File.fromFile(new ListImpl(list)));
             payload.put(Constants.SUCCESS, true);
             payload.put(Constants.MESSAGE, "List " + response + " successfully");
         } else {
@@ -74,7 +75,7 @@ public class OperationsAreaUtilityService {
         if (site != null) {
             payload.put(Constants.SUCCESS, true);
             payload.put(Constants.MESSAGE, Constants.SITE_UPDATED_SUCCESSFULLY);
-            payload.put(Constants.FILE, CatalogTypes.fromFile(new SiteImpl(site))); // Include updated site information
+            payload.put(Constants.FILE, File.fromFile(new SiteImpl(site))); // Include updated site information
         } else {
             payload.put(Constants.SUCCESS, false);
             payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_SITE);

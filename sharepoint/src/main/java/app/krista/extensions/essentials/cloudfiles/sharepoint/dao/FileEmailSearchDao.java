@@ -69,7 +69,7 @@ public class FileEmailSearchDao {
                 } while (ResponseUtil.moreResultsAvailable(page));
             }
             if (!resultPage.isEmpty()) {
-                List<File> fileDetails = resultPage.stream().map(CatalogTypes::fromFile).collect(Collectors.toList());
+                List<File> fileDetails = resultPage.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList());
                 ResponseUtil.listOfFileEntityResponse(fileDetails, true, Constants.FILE_FOUND, payload);
             } else {
                 ResponseUtil.getInfoResponse(false, Constants.FILE_NOT_FOUND, payload);

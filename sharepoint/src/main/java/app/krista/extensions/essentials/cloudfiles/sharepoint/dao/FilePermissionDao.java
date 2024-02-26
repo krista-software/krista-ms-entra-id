@@ -68,7 +68,7 @@ public class FilePermissionDao {
                 }
 
                 if (!resultPage.isEmpty()) {
-                    ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(CatalogTypes::fromFile)
+                    ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile)
                             .collect(Collectors.toList()), true, Constants.FILE_FOUND, payload);
                 } else {
                     ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);

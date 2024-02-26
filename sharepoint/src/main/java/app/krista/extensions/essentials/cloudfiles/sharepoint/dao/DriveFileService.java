@@ -390,7 +390,7 @@ public class DriveFileService {
                 iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload, absolutePath);
             } else {
                 files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
-                ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage()).contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
@@ -414,7 +414,7 @@ public class DriveFileService {
                 if (page.getNextPage() != null) {
                     page = page.getNextPage().buildRequest().get();
                 } else {
-                    ResponseUtil.listOfFileEntityResponse(files.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                    ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
                     break;
                 }
             }

@@ -72,7 +72,7 @@ public class FileSearchFilterByRange {
 
             List<DrivePermissionImpl> drivePermissions = getFileByDateRange(fromDate, toDate, payload, useEmail, accountID, from, size);
             if (drivePermissions != null) {
-                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_DATE_RANGE, payload);
                 return payload;
@@ -121,7 +121,7 @@ public class FileSearchFilterByRange {
 
             List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload, useEmail, accountID, from, size);
             if (drivePermissions != null && !drivePermissions.isEmpty()) {
-                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(CatalogTypes::fromFile).collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_SIZE_RANGE, payload);
                 return payload;

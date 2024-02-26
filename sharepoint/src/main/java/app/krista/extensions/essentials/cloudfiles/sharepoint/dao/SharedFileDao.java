@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
@@ -17,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -78,7 +78,7 @@ public class SharedFileDao {
 
                 GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
                 DriveItem driveItem = getFileInfo(drive.parentReference.driveId, FolderManagementDao.getRelativePath(source), graphClient);
-                payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, graphClient, source, null, fileSearchUtilityService)));
+                payload.put(Constants.FILE, app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File.fromFile(new FileImpl(driveItem, graphClient, source, null, fileSearchUtilityService)));
                 payload.put(Constants.MESSAGE, Constants.FILE_SHARED_SUCCESS);
                 return payload;
             }
