@@ -154,15 +154,4 @@ public class FileUtil {
         payload.put(Constants.SUCCESS, false);
     }
 
-    public static java.io.File fromFile(app.krista.model.base.File file) {
-        if (file == null) {
-            throw new IllegalArgumentException(Constants.NO_FILE_TO_PARSE);
-        }
-        try {
-            return MediaClient.create().download(MediaClient.createMediaUrl(file.getMediaId()), file.getFileName());
-        } catch (IOException cause) {
-            LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
-            throw new IllegalArgumentException(cause);
-        }
-    }
 }
