@@ -130,8 +130,8 @@ public class FileSearchImpl {
         SearchQuery query = new SearchQuery();
         query.queryString = "path:\"" + filePath + "\"";
         requests.query = query;
-//        requests.from = 0;
-//        requests.size = 25;
+        requests.from = 0;
+        requests.size = 25;
     }
 
     public SearchEntityQueryCollectionPage buildSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {

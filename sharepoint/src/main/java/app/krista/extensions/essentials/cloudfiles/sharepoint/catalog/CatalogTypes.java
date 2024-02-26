@@ -31,37 +31,12 @@ public final class CatalogTypes {
         fileDetails.modified = file.getModified();
         fileDetails.size = file.getSize();
         fileDetails.permissions = file.getPermissions();
-        fileDetails.isFolder = file.getIsFolder() != null ? file.getIsFolder() : false;
+        fileDetails.isFolder = file.getIsFolder() != null && file.getIsFolder();
         fileDetails.tags = file.getTags();
         fileDetails.sharedWith = file.getSharedWith();
         fileDetails.createdBy = file.getCreatedBy();
         fileDetails.modifiedBy = file.getModifiedBy();
         return fileDetails;
-    }
-
-    public static java.io.File fromFile(app.krista.model.base.File file) {
-        if (file == null) {
-            throw new IllegalArgumentException(Constants.NO_FILE_TO_PARSE);
-        }
-        try {
-            return MediaClient.create().download(MediaClient.createMediaUrl(file.getMediaId()), file.getFileName());
-        } catch (IOException cause) {
-            LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
-            throw new IllegalArgumentException(cause);
-        }
-    }
-
-    public static app.krista.model.base.File toFile(String fileName, java.io.File file) {
-        if (fileName == null || fileName.isBlank()) {
-            throw new IllegalArgumentException(Constants.FILE_NAME_IS_EMPTY);
-        } else if (file == null) {
-            throw new IllegalArgumentException(Constants.NO_FILE_TO_PARSE);
-        }
-        int lastDot = fileName.lastIndexOf('.');
-        String fileExtension = fileName.substring(lastDot + 1);
-        String mediaId = MediaClient.create().getMediaID(fileName);
-        MediaClient.create().upload(MediaClient.createMediaUrl(mediaId), file);
-        return new app.krista.model.base.File(file.length(), file.getName(), fileExtension, mediaId);
     }
 
 }

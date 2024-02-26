@@ -8,12 +8,10 @@ import app.krista.extension.impl.anno.InvokerRequest;
 import app.krista.extension.impl.anno.StaticResource;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.HandleFileIsChanged;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.model.base.FreeForm;
 
 import javax.inject.Inject;
 import java.util.Map;

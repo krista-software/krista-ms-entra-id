@@ -1,7 +1,11 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.MediaClient;
 import com.microsoft.graph.requests.DriveItemRequestBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URI;
@@ -18,6 +22,8 @@ import java.util.stream.Collectors;
  */
 
 public class FileUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
     private FileUtil() {
     }
@@ -148,5 +154,17 @@ public class FileUtil {
     public static void failedToReadTextFile(Map<String, Object> payload) {
         payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
         payload.put(Constants.SUCCESS, false);
+    }
+
+    public static java.io.File fromFile(app.krista.model.base.File file) {
+        if (file == null) {
+            throw new IllegalArgumentException(Constants.NO_FILE_TO_PARSE);
+        }
+        try {
+            return MediaClient.create().download(MediaClient.createMediaUrl(file.getMediaId()), file.getFileName());
+        } catch (IOException cause) {
+            LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
+            throw new IllegalArgumentException(cause);
+        }
     }
 }

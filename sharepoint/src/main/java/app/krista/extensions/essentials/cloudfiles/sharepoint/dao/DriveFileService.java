@@ -23,9 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -47,7 +44,6 @@ public class DriveFileService {
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
-    private final SearchFileExecutor searchFileExecutor;
 
 
     @Inject
@@ -56,7 +52,6 @@ public class DriveFileService {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
-        this.searchFileExecutor = searchFileExecutor;
     }
 
 
@@ -69,7 +64,7 @@ public class DriveFileService {
         FreeForm payload = new FreeForm();
         try {
             if (sourcePath == null || sourcePath.trim().isEmpty()  ) {
-                handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
+                handleInvalidPathError(payload);
                 return payload; // Exit the method early
             }
             sourcePath = managementUtilityService.getUpdatedFilePath(sourcePath);
@@ -345,7 +340,7 @@ public class DriveFileService {
         try {
             List<FileService> files = new ArrayList<>();
             if (isNullOrEmpty(relativePath)){
-                handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
+                handleInvalidPathError(payload);
                 return payload;
             }
             relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
@@ -366,8 +361,8 @@ public class DriveFileService {
         return relativePath == null || relativePath.trim().isEmpty();
     }
 
-    private void handleInvalidPathError(String message, FreeForm payload) {
-        ResponseUtil.getInfoResponse(false, message, payload);
+    private void handleInvalidPathError(FreeForm payload) {
+        ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
     }
 
     private DriveItem checkIfFileExistAndGetParentDriveId(String relativePath, FreeForm payload, boolean useEmail, String accountID) {
@@ -375,7 +370,7 @@ public class DriveFileService {
         if (payload.get(Constants.SUCCESS) == Boolean.TRUE) {
             return driveItem;
         } else {
-            handleInvalidPathError(Constants.INVALID_FOLDER_PATH, payload);
+            handleInvalidPathError(payload);
             return null;
         }
     }
