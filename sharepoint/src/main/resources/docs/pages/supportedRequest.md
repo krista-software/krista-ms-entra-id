@@ -342,7 +342,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                        |
 |--------------------|--------------------|---------------|------------------------------------|
 | Source             | Text               | Yes           | /siteName /Shared Documents/folder |
-| Event              | Pick One           | Yes           | {Created,Updated,Deleted}          |
+| Event              | Pick One           | No            | {Created,Updated,Deleted}          |
 | Search             | Text               | No            | ChildFolder                        |
 
 - **Output**:

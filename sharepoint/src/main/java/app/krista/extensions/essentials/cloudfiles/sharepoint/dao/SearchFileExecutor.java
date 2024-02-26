@@ -24,12 +24,9 @@ import java.util.Objects;
 @Service
 public class SearchFileExecutor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ManagementUtilityService.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchFileExecutor.class);
     private final FileSearchImpl fileSearchImpl;
-
     private final ManagementUtilityService managementUtilityService;
-
     private final GraphServiceClientProvider provider;
 
     @Inject
