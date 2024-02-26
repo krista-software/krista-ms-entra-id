@@ -1,8 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.MediaClient;
 import com.microsoft.graph.requests.DriveItemRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
