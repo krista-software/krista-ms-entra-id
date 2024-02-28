@@ -78,7 +78,7 @@ public class CopyFileUtilityService {
     }
 
     public void handleInvalidTargetPath(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, "Please provide a valid path, the file/folder was not found");
+        payload.put(Constants.MESSAGE, Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND);
         payload.put(Constants.SUCCESS, false);
     }
 

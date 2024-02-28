@@ -371,6 +371,11 @@ public class Constants {
     public static final String FILE_DELETED_SUCCESSFULLY = "File deleted successfully";
     public static final Object PROVIDE_VALID_PATH_FILE_NOT_FOUND = "Please provide valid path, file was not found";
 
+    public static final String PLEASE_PROVIDE_VALID_PATH_FOLDER_WAS_NOT_FOUND = "Please provide valid path, folder was not found";
+
+    public static final String PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND = "Please provide a valid path, the file/folder was not found";
+
+
 
     private Constants() {
     }

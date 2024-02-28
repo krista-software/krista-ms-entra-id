@@ -37,6 +37,7 @@ import java.util.Objects;
 public class FileUploadService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadService.class);
+
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
@@ -87,7 +88,7 @@ public class FileUploadService {
     }
 
     private void setInvalidPathMessage(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, "Please provide valid path, folder was not found");
+        payload.put(Constants.MESSAGE, Constants.PLEASE_PROVIDE_VALID_PATH_FOLDER_WAS_NOT_FOUND);
         payload.put(Constants.SUCCESS, false);
     }
 
