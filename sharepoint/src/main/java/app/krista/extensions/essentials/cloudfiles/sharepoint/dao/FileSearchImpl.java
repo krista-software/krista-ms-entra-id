@@ -245,29 +245,44 @@ public class FileSearchImpl {
         }
     }
 
+
     public void extractDrivePermissionsForSearchByMail(List<DrivePermissionImpl> resultPage, SearchEntityQueryCollectionPage page,
                                                        GraphServiceClient<Request> graphClient, String email, String user) {
-        for (SearchResponse driveInPage : page.getCurrentPage()) {
-            if (driveInPage.hitsContainers != null) {
-                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-                    if (hitContainer.hits != null) {
-                        for (SearchHit hits : hitContainer.hits) {
-                            if (hits != null && hits.resource instanceof DriveItem) {
-                                DriveItem driveItem = (DriveItem) hits.resource;
-                                if (driveItem.webUrl != null && user.equals(Constants.CREATED_BY) && driveItem.createdBy != null
-                                        && driveItem.createdBy.user.additionalDataManager().get("email") != null
-                                        && driveItem.createdBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
-                                    resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
-                                } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null
-                                        && driveItem.lastModifiedBy.user.additionalDataManager().get("email") != null
-                                        && driveItem.lastModifiedBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
-                                    resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+        try {
+            for (SearchResponse driveInPage : page.getCurrentPage()) {
+                if (driveInPage.hitsContainers != null) {
+                    for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
+                        if (hitContainer.hits != null) {
+                            for (SearchHit hits : hitContainer.hits) {
+                                try {
+                                    if (hits != null && hits.resource instanceof DriveItem) {
+                                        DriveItem driveItem = (DriveItem) hits.resource;
+                                        if (driveItem.webUrl != null && user.equals(Constants.CREATED_BY) && driveItem.createdBy != null
+                                                && driveItem.createdBy.user != null
+                                                && driveItem.createdBy.user.additionalDataManager() != null
+                                                && driveItem.createdBy.user.additionalDataManager().get("email") != null
+                                                && driveItem.createdBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
+                                            resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                            LOGGER.info("Added DrivePermission for created by user with email: " + email);
+                                        } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null
+                                                && driveItem.lastModifiedBy.user != null
+                                                && driveItem.lastModifiedBy.user.additionalDataManager() != null
+                                                && driveItem.lastModifiedBy.user.additionalDataManager().get("email") != null
+                                                && driveItem.lastModifiedBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
+                                            resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                            LOGGER.info("Added DrivePermission for modified by user with email: " + email);
+                                        }
+                                    }
+                                } catch (IllegalStateException cause) {
+                                    LOGGER.error("Error processing DriveItem: " + cause.getMessage());
                                 }
                             }
                         }
                     }
                 }
             }
+        } catch (RuntimeException cause) {
+            LOGGER.error("An unexpected error occurred: " + cause.getMessage());
         }
     }
 

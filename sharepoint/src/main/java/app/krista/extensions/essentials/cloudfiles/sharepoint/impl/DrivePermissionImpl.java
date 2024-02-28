@@ -83,6 +83,10 @@ public class DrivePermissionImpl implements FileService {
 
     @Override
     public String getPermissions() {
+    //    assert driveItem.permissions != null;
+        if (driveItem.permissions != null) {
+            return driveItem.permissions.toString();
+        }
         return null;
     }
 
@@ -93,7 +97,7 @@ public class DrivePermissionImpl implements FileService {
 
     @Override
     public Boolean getIsFolder() {
-        return driveMetaData.folder != null;
+        return driveMetaData != null && driveMetaData.folder != null;
     }
 
     @Override
