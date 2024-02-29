@@ -37,67 +37,71 @@ public class SearchFileExecutor {
         this.provider = provider;
     }
 
-    public void getFileInfo(String path, Map<String, Object> payload, boolean isSourcePath) {
+    public void getFileInfo(String path, Map<String, Object> payload, boolean isSourcePath, Boolean useMail, String accountID) {
         try {
             String relativeFilePath = FileUtil.relativeFilePath(path);
             String driveIdPath = FileUtil.driveIdPath(path);
             String updatedTarget = getUpdatedFilePath(driveIdPath);
 
-            if(isSourcePath){
-                payload.put(Constants.SOURCE_ROOT_PATH,driveIdPath.replace("%20", " "));
-            }else{
-                payload.put(Constants.TARGET_ROOT_PATH,driveIdPath.replace("%20", " "));
+            if (isSourcePath) {
+                payload.put(Constants.SOURCE_ROOT_PATH, driveIdPath.replace("%20", " "));
+            } else {
+                payload.put(Constants.TARGET_ROOT_PATH, driveIdPath.replace("%20", " "));
             }
-            setPayloadIfInitialPathValidOrNot(updatedTarget, payload);
-            String driveId = payload.get(Constants.DRIVE_ID) !=null ? payload.get(Constants.DRIVE_ID).toString() : null;
-            fetchFileDetailsByDriveID(driveId,relativeFilePath,isSourcePath,payload);
+            setPayloadIfInitialPathValidOrNot(updatedTarget, payload, useMail, accountID);
+            String driveId = payload.get(Constants.DRIVE_ID) != null ? payload.get(Constants.DRIVE_ID).toString() : null;
+            fetchFileDetailsByDriveID(driveId, relativeFilePath, isSourcePath, payload, useMail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage());
-            ResponseUtil.errorResponse(false,"Please provide a correct path; the specified file or folder could not be located.",payload);
+            ResponseUtil.errorResponse(false, "Please provide a correct path; the specified file or folder could not be located.", payload);
         }
     }
 
-    public void fetchFileDetailsByDriveID(String driveId, String relativeFilePath, boolean isSourcePath, Map<String, Object> payload) {
+    public void getFileInfo(String path, Map<String, Object> payload, boolean isSourcePath) {
+        getFileInfo(path, payload, isSourcePath, null, null);
+
+    }
+
+    public void fetchFileDetailsByDriveID(String driveId, String relativeFilePath, boolean isSourcePath, Map<String, Object> payload, Boolean useMail, String accountID) {
 
         if (driveId != null) {
-            String path = relativeFilePath !=  null ? DriveUtil.validatePath(relativeFilePath) : "/";
-            DriveItem driveItem = getDriveItem(driveId, path,payload);
+            String path = relativeFilePath != null ? DriveUtil.validatePath(relativeFilePath) : "/";
+            DriveItem driveItem = getDriveItem(driveId, path, payload, useMail, accountID);
             if (driveItem != null) {
-                if(isSourcePath){
+                if (isSourcePath) {
                     payload.put(Constants.SOURCE_RELATIVE_PATH, relativeFilePath);
-                    ResponseUtil.addSourceDriveItem(true,driveItem,payload);
-                }else {
+                    ResponseUtil.addSourceDriveItem(true, driveItem, payload);
+                } else {
                     payload.put(Constants.TARGET_RELATIVE_PATH, relativeFilePath);
-                    ResponseUtil.addTargetDriveItem(true,driveItem,payload);
+                    ResponseUtil.addTargetDriveItem(true, driveItem, payload);
                 }
-                payload.put(Constants.SUCCESS,true);
-            }
-            else{
-                if(isSourcePath){
+                payload.put(Constants.SUCCESS, true);
+            } else {
+                if (isSourcePath) {
                     payload.put(Constants.IS_SOURCE_FILE_EXIST, false);
-                }else {
+                } else {
                     payload.put(Constants.IS_TARGET_FILE_EXIST, false);
                 }
-                payload.put(Constants.SUCCESS,false);
+                payload.put(Constants.SUCCESS, false);
             }
-        }else{
+        } else {
             return;
         }
     }
 
     @Nullable
-    private DriveItem getDriveItem(String driveId, String path, Map<String, Object> payload) {
+    private DriveItem getDriveItem(String driveId, String path, Map<String, Object> payload, Boolean useMail, String accountID) {
         try {
-        return path != null ?
-                provider.getUserRequestBuilder(null, null).
-                drives(driveId)
-                .root().itemWithPath(path).buildRequest().get()
-                : provider.getUserRequestBuilder(null, null).
-                drives(driveId)
-                .root().buildRequest().get()
-                ;
+            return path != null ?
+                    provider.getUserRequestBuilder(useMail, accountID).
+                            drives(driveId)
+                            .root().itemWithPath(path).buildRequest().get()
+                    : provider.getUserRequestBuilder(useMail, accountID).
+                    drives(driveId)
+                    .root().buildRequest().get()
+                    ;
 
-    } catch (GraphServiceException | IllegalArgumentException cause) {
+        } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage());
             ResponseUtil.errorResponse(false, "Please provide a correct path; the specified file or folder could not be located.", payload);
         }
@@ -113,10 +117,10 @@ public class SearchFileExecutor {
         return fileSearchImpl.handleAbsolutePath(path, siteDomainPath);
     }
 
-    public void setPayloadIfInitialPathValidOrNot(String sourcePath, Map<String, Object> payload) {
+    public void setPayloadIfInitialPathValidOrNot(String sourcePath, Map<String, Object> payload, Boolean useMail, String accountID) {
         if (sourcePath != null) {
             try {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
+                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useMail, accountID);
                 getFileByAbsolutePath(sourcePath, graphClient, payload);
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.error(cause.getMessage());
@@ -190,13 +194,13 @@ public class SearchFileExecutor {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
-                                if(driveItem.parentReference != null && driveItem.parentReference.driveId != null){
+                                if (driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
                                     payload.put(Constants.DRIVE_ID, driveItem.parentReference.driveId);
                                     payload.put(Constants.DRIVE_ITEM, driveItem);
-                                    payload.put(Constants.SUCCESS,true);
+                                    payload.put(Constants.SUCCESS, true);
                                     return;
-                                }else{
-                                    ResponseUtil.errorResponse(false,Constants.FILE_FOUND,payload);
+                                } else {
+                                    ResponseUtil.errorResponse(false, Constants.FILE_FOUND, payload);
                                     return;
                                 }
                             }

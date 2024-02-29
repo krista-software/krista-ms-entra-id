@@ -68,7 +68,7 @@ public class FileTransferService {
                     String targetRelativeFilePath = FileUtil.relativeFilePath(target);
                     String targetDriveIdPath = FileUtil.driveIdPath(target);
                     String updatedTarget = searchFileExecutor.getUpdatedFilePath(targetDriveIdPath);
-                    searchFileExecutor.setPayloadIfInitialPathValidOrNot(updatedTarget, targetPayload);
+                    searchFileExecutor.setPayloadIfInitialPathValidOrNot(updatedTarget, targetPayload,null,null);
                     String targetDriveId = targetPayload.get(Constants.DRIVE_ID) !=null ? targetPayload.get(Constants.DRIVE_ID).toString() : null;
                     if (createFolder) {
                         createFolderInPath(targetDriveId,targetRelativeFilePath);
@@ -194,7 +194,7 @@ public class FileTransferService {
                 for (String folderName : stream) {
                     Map<String, Object> check = new HashMap<>();
                     relativePathBuilder.append("/").append(folderName);
-                    searchFileExecutor.fetchFileDetailsByDriveID(targetDriveId,relativePathBuilder.toString(),false, check);
+                    searchFileExecutor.fetchFileDetailsByDriveID(targetDriveId,relativePathBuilder.toString(),false, check,null,null);
                     if (!(boolean) check.get(Constants.IS_TARGET_FILE_EXIST)) {
                         String parentPath = FileUtil.getParentPath(relativePathBuilder.toString());
                         DriveItemRequestBuilder builder = FileUtil.getRootUserRequestBuilder(provider,targetDriveId);

@@ -43,6 +43,7 @@ public class DriveFileService {
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
+    private final SearchFileExecutor searchFileExecutor;
 
 
     @Inject
@@ -51,6 +52,7 @@ public class DriveFileService {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
 
@@ -61,14 +63,16 @@ public class DriveFileService {
      */
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
+        Map<String, Object> mapPayload = new HashMap<>();
         try {
             if (sourcePath == null || sourcePath.trim().isEmpty()) {
                 handleInvalidPathError(payload);
                 return payload; // Exit the method early
             }
-            sourcePath = managementUtilityService.getUpdatedFilePath(sourcePath);
-            DriveItem driveItem = checkIfFileExist(sourcePath, payload, useEmail, accountID);
-            if ((boolean) payload.get(Constants.SUCCESS)) {
+            searchFileExecutor.getFileInfo(sourcePath, mapPayload, true, useEmail, accountID);
+            if ((boolean) mapPayload.get(Constants.IS_SOURCE_FILE_EXIST)) {
+                DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
+                payload.put(Constants.SIZE, Constants.NUMBER, driveItem.size != null ? driveItem.size : 0);
                 fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -136,7 +140,7 @@ public class DriveFileService {
                 .get();
     }
 
-    private DriveItemCollectionPage driveItemCollectionPageProvider(String sourcePath, FreeForm payload, boolean useEmail, String accountID, DriveItem driveItem) {
+    private DriveItemCollectionPage driveItemCollectionPageProvider(String sourcePath, boolean useEmail, String accountID, DriveItem driveItem) {
         return provider.getUserRequestBuilder(useEmail, accountID)
                 .drives(driveItem.parentReference.driveId)
                 .root()
@@ -242,7 +246,7 @@ public class DriveFileService {
     private void fetchFileInfo(String sourcePath, FreeForm payload, boolean useEmail, String accountID, DriveItem driveItem) {
         try {
             sourcePath = FolderManagementDao.getRelativePath(sourcePath);
-            DriveItemCollectionPage page = driveItemCollectionPageProvider(sourcePath, payload, useEmail, accountID, driveItem);
+            DriveItemCollectionPage page = driveItemCollectionPageProvider(sourcePath, useEmail, accountID, driveItem);
 
             if (page != null && !page.getCurrentPage().isEmpty()) {
                 processResponse(page, payload);
@@ -273,7 +277,9 @@ public class DriveFileService {
                     if (driveInPage.folder != null) {
                         folderCount++;
                     }
-                    filesCount++;
+                    if (driveInPage.file != null) {
+                        filesCount++;
+                    }
                     newestFileCreateDate = Math.max(newestFileCreateDate, getFileDate(driveInPage.createdDateTime));
                     if (oldestFileCreatedate == 0L) {
                         oldestFileCreatedate = getFileDate(driveInPage.createdDateTime);
