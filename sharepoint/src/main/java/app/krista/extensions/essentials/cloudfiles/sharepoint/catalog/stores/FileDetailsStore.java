@@ -3,10 +3,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores;
 import app.krista.extension.executor.SearchCondition;
 import app.krista.extension.executor.SearchQuery;
 import app.krista.extension.util.EntityStore;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.ManagementArea;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -22,9 +19,8 @@ import java.util.stream.Collectors;
 @Service
 public class FileDetailsStore implements EntityStore<File> {
 
-    private final FileDao fileDao;
-
     private static final Logger lOGGER = LoggerFactory.getLogger(FileDetailsStore.class);
+    private final FileDao fileDao;
 
     @Inject
     public FileDetailsStore(FileDao fileDao) {

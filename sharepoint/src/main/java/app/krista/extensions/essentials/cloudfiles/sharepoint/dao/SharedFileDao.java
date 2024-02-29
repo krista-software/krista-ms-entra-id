@@ -1,7 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
@@ -18,8 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.*;
@@ -52,6 +48,7 @@ public class SharedFileDao {
 
     /**
      * Shares a file with specified users and permissions, handling path validation, file existence checks, sharing link creation, permission granting, and potential errors.
+     *
      * @return A Map containing status and result details, including success/failure indicators, shared file information, or error messages.
      */
     public Map<String, Object> shareFile(String source, List<Map<String, Object>> share) {
@@ -60,7 +57,7 @@ public class SharedFileDao {
             if (isNullOrEmpty(source)) {
                 return handleInvalidPath(payload);
             }
-            searchFileExecutor.getFileInfo(source,payload,true);
+            searchFileExecutor.getFileInfo(source, payload, true);
             DriveItem drive = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
             if (!(boolean) payload.get(Constants.SUCCESS)) {

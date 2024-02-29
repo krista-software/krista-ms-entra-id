@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
@@ -8,7 +7,6 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
@@ -16,7 +14,6 @@ import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.DriveItemCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
-import org.jetbrains.annotations.NotNull;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +44,7 @@ public class FolderManagementDao {
     private final FileSearchUtilityService fileSearchUtilityService;
 
     @Inject
-    public FolderManagementDao(GraphServiceClientProviderFactory factory,ManagementUtilityService managementUtilityService,
+    public FolderManagementDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
                                FileSearchUtilityService fileSearchUtilityService) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
@@ -56,6 +53,7 @@ public class FolderManagementDao {
 
     /**
      * Retrieves a list of folders at the specified path, optionally filtered by search criteria, handling path validation, folder existence checks, and potential errors.
+     *
      * @return A FreeForm object containing the list of folders or error messages.
      */
     public FreeForm getListOfFolders(String relativePath, String search, boolean useEmail, String accountID) {
@@ -189,7 +187,6 @@ public class FolderManagementDao {
         }
         return dynamicPath.toString();
     }
-
 
 
 }

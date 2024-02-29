@@ -1,12 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import java.util.LinkedList;
-import com.microsoft.graph.options.Option;
-import com.microsoft.graph.options.QueryOption;
 import app.krista.extension.executor.Invoker;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileChangeResourceUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
@@ -22,7 +18,6 @@ import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.models.DriveItemDeltaParameterSet;
 import com.microsoft.graph.models.SearchQuery;
 import com.microsoft.graph.models.SearchRequest;
-import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
@@ -61,6 +56,7 @@ public class HandleFileIsChanged {
 
     /**
      * Retrieves information about changes made to a file at the specified path, handling path validation, potential errors, and returning file change details.
+     *
      * @return A Map containing status and result details, including success/failure indicators, file change information, or error messages.
      */
     public Map<String, Object> getChangeFileEvent(String source, String search) {
