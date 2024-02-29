@@ -85,6 +85,9 @@ public class Constants {
 
     public static final String IS_FILE_EXIST = "isFileExist";
 
+    public static final String IS_SOURCE_FILE_EXIST = "isSourceFileExist";
+    public static final String IS_TARGET_FILE_EXIST = "isTargetFileExist";
+
     public static final String IS_FOLDER_EXIST = "isFolderExist";
 
     public static final String PARENT_REFERENCE = "parentReference";
@@ -136,6 +139,10 @@ public class Constants {
 
     public static final String DRIVE_ITEM = "DriveItem";
 
+
+    public static final String SOURCE_DRIVE_ITEM = "SourceDriveItem";
+
+    public static final String TARGET_DRIVE_ITEM = "TargetDriveItem";
     public static final String FILE_READ_SUCCESS = "File read successfully";
 
     public static final String INVALID_FILENAME = "Invalid FileName";
@@ -227,24 +234,16 @@ public class Constants {
 
     public static final String LIST_RESOURCE = "/lists/";
 
-    public static final String GROUP_RESOURCE = "/groups/2f85131a-5592-47ee-958d-a92e995be064";
-
-    public static final String NO_FILE_TO_PARSE = "No file to parse";
-
-    public static final String FILE_NAME_IS_EMPTY = "File name is empty";
-
-    public static final String INVALID_INPUT_PROVIDED = "Invalid Input provided";
-
-
     public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "File downloaded successfully. Please click on the following URL to access the file";
 
-    public static final String Drive_Id = "DriveId";
+    public static final String DRIVE_ID = "DriveId";
     public static final String DOWNLOAD_LINK = "Link";
+    public static final String SOURCE_RELATIVE_PATH = "Source Relative Path";
+    public static final String TARGET_RELATIVE_PATH = "Target Relative Path";
 
+    public static final String SOURCE_ROOT_PATH = "Source Root Path";
+    public static final String TARGET_ROOT_PATH = "Target Root Path";
     public static final String Drive_Item = "DriveItem";
-
-    public static final String FILE_SIZE_IS_GREATER_THAN_30MB = "File Size is Greater than 30MB, Please Download file By URL";
-
     public static final String KRISTA_FILE = "Krista File";
 
     public static final String ERROR_DOWNLOADING_FILES = "Error downloading files. Please try again later.";
@@ -369,7 +368,65 @@ public class Constants {
 
     public static final String ACCESS_DENIED = "accessDenied";
     public static final String FILE_DELETED_SUCCESSFULLY = "File deleted successfully";
-    public static final Object PROVIDE_VALID_PATH_FILE_NOT_FOUND = "Please provide valid path, file was not found";
+    public static final String PROVIDE_VALID_PATH_FILE_NOT_FOUND = "Please provide valid path, file was not found";
+
+
+
+    public static final String GTE = "gte";
+    public static final String LTE = "lte";
+    public static final String GT = "gt";
+    public static final String LT = "lt";
+    public static final String EQUALS = "equals";
+    public static final String STARTSWITH = "startswith";
+    public static final String ENDSWITH = "endswith";
+    public static final String CONTAINS = "contains";
+    public static final String NOTEQUALS = "notequals";
+    public static final String USER_AUTHENTICATED_SUCCESSFULLY_PLEASE_PROCEED_WITH_REQUEST = "User Authenticated Successfully. Please proceed with the request.";
+    public static final String RESULT = "Result";
+    public static final String NO_CHANGE = "No Change";
+    public static final String UPDATE = "Update";
+    public static final String PATH = "Path";
+    public static final String INVALID_FILE_NAME_OR_INVALID_FILE_EXTENSION = "Invalid File Extension, only files with txt extension are supported";
+    public static final String EMPTY_STRING = "";
+    public static final String NUMBER = "Number";
+    public static final String DATE = "Date";
+    public static final String SHARED = "shared";
+
+    public static final String OWN = "Own";
+    public static final String ONEDRIVE_FILE_ID = "onedriveFileId";
+    public static final String ME_ONEDRIVE_FOLDERS_ALERT_MESSAGES = "/me/drive/root";
+    public static final String REST_ONEDRIVE_LIFECYCLE_NOTIFICATION = "/rest/onedrive/lifecycleNotification";
+    public static final String REST_ONEDRIVE_MAIL_NOTIFICATION = "/rest/onedrive/onedriveNotification";
+    public static final String FILE_ID_UPLOADED_SUCCESSFULLY = "File uploaded successfully";
+    public static final String FOLDERS_FETCHED_SUCCESSFULLY = "Folders fetched successfully";
+    public static final String FILE_FETCHED_SUCCESSFULLY = "Files and Folders fetched successfully";
+    public static final String FOLDER_NAME_LIST_IS_EMPTY_OR_NULL = "Folder with given path and search parameter is empty";
+    public static final String FILE_NAME_LIST_IS_EMPTY_OR_NULL = "Files or Folder with given path and search parameter are empty";
+     public static final String FILE_SPECIFIC_FILE_NOT_FOUND = "File with this name does not exist or provided path is incorrect";
+    public static final String FOLDER_IS_EMPTY = "Folder with given path is empty";
+     public static final String FILE_HAS_BEEN_MOVED = "File has been moved successfully";
+      public static final String FILE_IS_TO_SHARE_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT = "Access to share this file or folder is currently restricted. For assistance, contact your administrator or support.";
+       public static final String AUTH_URL_QUERY_PARAMS = "&access_type=offline&approval_prompt=force&prompt=login";
+
+    public static final String ERROR_OCCURRED_DURING_UPLOADING_ATTACHMENT = "Error occurred during uploading attachment";
+    public static final String ERROR_OCCURRED_DURING_MOVING_FILE = "Error occurred during moving file";
+
+    public static final String REST_OUTLOOK_CALLBACK = "/rest/onedrive/callback";
+
+    public static final String PERMISSION = "Permission";
+    public static final String USER_EMAIL = "User Email";
+
+    public static final String FOLDERS = "Folders";
+    public static final String SIZE = "Size";
+    public static final String OLDEST_FILE = "Oldest File";
+    public static final String OLDEST_FILE_CREATE_DATE = "Oldest File Create Date";
+    public static final String NEWEST_FILE = "Newest File";
+    public static final String NEWEST_FILE_DATE = "Newest File Date";
+    public static final String LAST_MODIFIED_FILE_ID = "Last Modified File Id";
+    public static final String LAST_MODIFIED_FILE_NAME = "Last Modified File Name";
+    public static final String LAST_MODIFIED_FILE_CREATE_DATE = "Last Modified File Create Date";
+    public static final String ODATA_CONTEXT = "@odata.context";
+
 
     public static final String PLEASE_PROVIDE_VALID_PATH_FOLDER_WAS_NOT_FOUND = "Please provide valid path, folder was not found";
 

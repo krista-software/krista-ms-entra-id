@@ -10,8 +10,6 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,10 +58,10 @@ public class FileDownloadService {
             if (absolutePath != null && FileUtil.hasFileExtension(absolutePath)) {
                 List<File> files = new ArrayList<>();
                 searchFileExecutor.getFileInfo(absolutePath, payload, true);
-                DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                    String relativePath = DriveUtil.getRelativePath(absolutePath);
+                    String relativePath = DriveUtil.validatePath(absolutePath);
                     downloadByDriveIDByPath(driveItem.parentReference.driveId, relativePath, downloadAsLink,
                             downloadAsKristaFile, files, payload, absolutePath, driveItem);
                     handleDownloadResult(payload);

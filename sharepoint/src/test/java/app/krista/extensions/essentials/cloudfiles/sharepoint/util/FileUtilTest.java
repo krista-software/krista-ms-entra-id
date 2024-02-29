@@ -37,23 +37,6 @@ public class FileUtilTest {
     }
 
     @Test
-    public void testGetParentPath() {
-        String filePathWithShared = "shared/Teams/QA/03_Automation";
-        String expectedPathWithShared = "/Teams/QA";
-        assertEquals(expectedPathWithShared, FileUtil.getParentPath(filePathWithShared));
-        String filePathWithSlashShared = "shared/Teams/QA/03_Automation/another_folder";
-        String expectedPathWithSlashShared = "/Teams/QA/03_Automation";
-        assertEquals(expectedPathWithSlashShared, FileUtil.getParentPath(filePathWithSlashShared));
-        String filePathWithoutShared = "/drives/b!jxUeN0DgA02sUFccW1Pb1lXRHihDmDNCmAiRj77wj4mIw359lmkzQYFiwAJ5WZk3/root:/Teams/QA/03_Automation";
-        String expectedPathWithoutShared = "/drives/b!jxUeN0DgA02sUFccW1Pb1lXRHihDmDNCmAiRj77wj4mIw359lmkzQYFiwAJ5WZk3/root:/Teams/QA";
-        assertEquals(expectedPathWithoutShared, FileUtil.getParentPath(filePathWithoutShared));
-        String pathWithoutSlash = "samplepath";
-        assertThrows(IllegalArgumentException.class, () -> FileUtil.getParentPath(pathWithoutSlash));
-        String emptyPath = "";
-        assertThrows(IllegalArgumentException.class, () -> FileUtil.getParentPath(emptyPath));
-    }
-
-    @Test
     public void testGetUsersWithPermission() {
         List<Map<String, Object>> share = new ArrayList<>();
         Map<String, Object> user1 = new HashMap<>();
@@ -104,6 +87,22 @@ public class FileUtilTest {
         });
         assertEquals(IOException.class, exception.getCause().getClass());
     }
+
+    @Test
+    public void testGetParentPath() {
+        String relativePath = "Engg/SDoc/Test/ABC";
+        String expectedParentPath = "Engg/SDoc/Test";
+        String actualParentPath = FileUtil.getParentPath(relativePath);
+
+        assertEquals(expectedParentPath, actualParentPath);
+    }
+
+    @Test
+    public void testGetParentPathInvalidInput() {
+        String relativePath = "Engg";
+        assertNull(FileUtil.getParentPath(relativePath));
+    }
+
 
     @Test
     public void testCreateTxtFile() {

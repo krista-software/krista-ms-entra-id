@@ -55,7 +55,7 @@ public class OperationsManagementDao {
         try {
             Map<String, Object> payload = new HashMap<>();
             searchFileExecutor.getFileInfo(target, payload, true);
-            DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+            DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 assert Objects.requireNonNull(driveItem).parentReference != null;
@@ -95,7 +95,7 @@ public class OperationsManagementDao {
     private void validateAndRenameFile(String sourcePath, String targetFileName, Map<String, Object> payload) {
         if (sourcePath != null) {
             searchFileExecutor.getFileInfo(sourcePath, payload, true);
-            DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+            DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
             if (payload.get(Constants.SUCCESS) == Boolean.TRUE) {
                 renameDriveItem(targetFileName, driveItem, payload);
             } else {

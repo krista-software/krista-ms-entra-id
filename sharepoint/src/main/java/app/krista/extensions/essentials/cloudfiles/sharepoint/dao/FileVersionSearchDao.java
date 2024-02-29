@@ -50,7 +50,7 @@ public class FileVersionSearchDao {
                 sourcePath = sourcePath + "/" + search;
             }
             searchFileExecutor.getFileInfo(sourcePath,payload,true);
-            DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+            DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
             if (driveItem == null || driveItem.parentReference == null || driveItem.parentReference.driveId == null) {
                 ResponseUtil.successResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);

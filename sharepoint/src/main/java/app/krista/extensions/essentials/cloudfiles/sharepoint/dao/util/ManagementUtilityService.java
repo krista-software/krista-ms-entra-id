@@ -4,6 +4,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchImpl
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -197,8 +198,7 @@ public class ManagementUtilityService {
 
     public void handleFileNotFoundException(Exception cause, Map<String, Object> payload) {
         LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
-        payload.put(Constants.MESSAGE, "Please provide a correct path; the specified file or folder could not be located.");
-        payload.put(Constants.SUCCESS, false);
+        ResponseUtil.errorResponse(false,"Please provide a correct path; the specified file or folder could not be located.",payload);
     }
 
     public String getUpdatedFilePath(String path) {

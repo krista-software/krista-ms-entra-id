@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
@@ -60,7 +59,7 @@ public class DriveTextFileManager {
         try {
             if (source != null) {
                 searchFileExecutor.getFileInfo(source, payload, true);
-                DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     readTxtFileFromSource(payload, driveItem);
@@ -104,11 +103,11 @@ public class DriveTextFileManager {
         try {
             if (target != null && FileUtil.hasFileExtension(target) && target.endsWith(".txt")) {
 
-                String path = DriveUtil.getRelativePath(target);
+                String path = DriveUtil.validatePath(target);
                 String parentPath = FileUtil.getParentPath(path);
                 searchFileExecutor.getFileInfo(parentPath, payload, true);
-                DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ?
-                        (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ?
+                        (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     if (driveItem!= null && driveItem.name != null && driveItem.folder != null) {

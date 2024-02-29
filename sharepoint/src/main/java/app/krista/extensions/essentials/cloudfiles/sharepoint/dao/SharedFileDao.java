@@ -61,7 +61,7 @@ public class SharedFileDao {
                 return handleInvalidPath(payload);
             }
             searchFileExecutor.getFileInfo(source,payload,true);
-            DriveItem drive = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+            DriveItem drive = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
             if (!(boolean) payload.get(Constants.SUCCESS)) {
                 return handleInvalidPath(payload);

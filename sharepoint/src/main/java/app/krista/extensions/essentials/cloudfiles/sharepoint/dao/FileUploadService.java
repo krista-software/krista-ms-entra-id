@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
@@ -73,10 +72,10 @@ public class FileUploadService {
                                        Map<String, Object> payload) {
         if (targetPath != null && !FileUtil.hasFileExtension(targetPath)) {
             searchFileExecutor.getFileInfo(targetPath,payload,true);
-            DriveItem driveItem = (payload.containsKey(Constants.DRIVE_ITEM) ? (DriveItem) payload.get(Constants.DRIVE_ITEM) : null);
+            DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
-                targetPath = DriveUtil.getRelativePath(targetPath);
+                targetPath = DriveUtil.validatePath(targetPath);
                 assert Objects.requireNonNull(driveItem).parentReference != null;
                 uploadFileByPathByDriveID(driveItem.parentReference.driveId, targetPath, kristaFile, payload,driveItem);
             } else {

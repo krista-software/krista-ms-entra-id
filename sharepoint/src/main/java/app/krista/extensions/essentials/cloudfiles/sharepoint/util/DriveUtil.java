@@ -62,7 +62,7 @@ public class DriveUtil {
         return driveItem;
     }
 
-    public static String getRelativePath(String fullUrl) {
+    public static String validatePath(String fullUrl) {
         try {
             String escapedUrl = fullUrl.replace(" ", "%20");  // Escape spaces
             URI uri = new URI(escapedUrl);
