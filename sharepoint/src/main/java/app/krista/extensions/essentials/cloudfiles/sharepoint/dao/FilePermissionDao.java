@@ -1,7 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveSharedPermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -57,18 +56,18 @@ public class FilePermissionDao {
         if (filePath != null) {
             filePath = filePath.replace(Constants.WHITE_SPACE, " ");
             List<DriveSharedPermissionImpl> resultPage = new ArrayList<>();
-            SearchEntityQueryCollectionPage page;  // Initialize the result page
             try {
-
-
-                page = searchFileExecutor.getSharedFileInfo(filePath, payload, useEmail, accountID);
+                GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(useEmail, accountID);
+                LinkedList<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath(filePath);
+                SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
                     extractDriveFromSearchResultsUsingPath(resultPage, page, filePath, null);
                 }
 
                 if (!resultPage.isEmpty()) {
-                    ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile)
+                    ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(app.krista.extensions.essentials.cloudfiles.
+                                    sharepoint.catalog.entities.File::fromFile)
                             .collect(Collectors.toList()), true, Constants.FILE_FOUND, payload);
                 } else {
                     ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);

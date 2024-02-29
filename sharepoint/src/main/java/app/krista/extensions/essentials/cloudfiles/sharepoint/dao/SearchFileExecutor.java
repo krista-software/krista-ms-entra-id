@@ -256,7 +256,8 @@ public class SearchFileExecutor {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
             try {
-                LinkedList<SearchRequest> requestsList = buildSearchRequestsFromFile(filePath);
+                LinkedList<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath(filePath);
+                // buildSearchRequestListWithAbsolutePath
                 SearchEntityQueryCollectionPage page = buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -270,5 +271,41 @@ public class SearchFileExecutor {
         return null;
     }
 
+    public LinkedList<SearchRequest> buildSearchRequestListWithAbsolutePath(String filePath) {
+        LinkedList<SearchRequest> requestsList = new LinkedList<>();
+        SearchRequest requests = fileSearchImpl.buildSearchRequest();
+        buildSearchRequestForRestShared(filePath, requests);
+        requestsList.add(requests);
+        return requestsList;
+    }
+
+    public void buildSearchRequestForRestShared(String filePath, SearchRequest requests) {
+        String domainName = fileSearchImpl.getDomainName();
+        String siteDomainPath = fileSearchImpl.getDomainPath(domainName, true);
+        filePath = fileSearchImpl.handleAbsolutePath(filePath, siteDomainPath);
+        SearchQuery query = new SearchQuery();
+        query.queryString = prepareSearchQuery(filePath);
+        requests.query = query;
+        requests.from = 0;
+        requests.size = 500;
+    }
+
+    private String prepareSearchQuery(String path) {
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        String searchString = path.substring(path.lastIndexOf("/") + 1);
+        if (searchString.contains(".")) {
+            String folderPath = path.substring(0, path.lastIndexOf("/"));
+            String parentFolder = folderPath.substring(folderPath.lastIndexOf("/") + 1);
+            return searchString + " AND path:\"" + folderPath.substring(0, folderPath.lastIndexOf("/") + 1) + "\" AND ParentLink:/" + parentFolder;
+        } else {
+            int lastSlashIndex = path.lastIndexOf("/");
+            String parentFolder = path.substring(lastSlashIndex + 1);
+            String folderPath = path.substring(0, lastSlashIndex);
+            return "path:\"" + folderPath + "\" AND ParentLink:/" + parentFolder;
+        }
+    }
 }
 

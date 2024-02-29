@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
@@ -63,7 +62,7 @@ public class DriveFileService {
     public FreeForm getFileInfo(String sourcePath, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
         try {
-            if (sourcePath == null || sourcePath.trim().isEmpty()  ) {
+            if (sourcePath == null || sourcePath.trim().isEmpty()) {
                 handleInvalidPathError(payload);
                 return payload; // Exit the method early
             }
@@ -243,7 +242,7 @@ public class DriveFileService {
     private void fetchFileInfo(String sourcePath, FreeForm payload, boolean useEmail, String accountID, DriveItem driveItem) {
         try {
             sourcePath = FolderManagementDao.getRelativePath(sourcePath);
-            DriveItemCollectionPage page = driveItemCollectionPageProvider(sourcePath,payload,useEmail,accountID,driveItem);
+            DriveItemCollectionPage page = driveItemCollectionPageProvider(sourcePath, payload, useEmail, accountID, driveItem);
 
             if (page != null && !page.getCurrentPage().isEmpty()) {
                 processResponse(page, payload);
@@ -339,7 +338,7 @@ public class DriveFileService {
         FreeForm payload = new FreeForm();
         try {
             List<FileService> files = new ArrayList<>();
-            if (isNullOrEmpty(relativePath)){
+            if (isNullOrEmpty(relativePath)) {
                 handleInvalidPathError(payload);
                 return payload;
             }
