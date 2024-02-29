@@ -120,6 +120,11 @@ public class FileUtil {
             return pathAfterRoot;
         }
     }
+
+    public static String validateTextInput(String input) {
+        return input == null ? "" : input;
+    }
+
     public static String relativeFilePath(String fullPath) {
         String[] str = fullPath.split("/");
 

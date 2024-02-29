@@ -7,6 +7,7 @@ import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import org.apache.commons.validator.routines.EmailValidator;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -56,6 +57,20 @@ public class ResponseUtil {
 
     public static void addFileSize(long size, FreeForm payload) {
         payload.put("Size", "Number", size);
+    }
+
+    public static void changesSinceResponse(boolean success, String message, List<Map<String, Object>> result, Map<String, Object> payload) {
+        payload.put(Constants.RESULT, result);
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+    }
+
+    public static Map<String, Object> createResultContent(String path, long date, String update) {
+        Map<String, Object> resultContent = new LinkedHashMap<>();
+        resultContent.put(Constants.PATH, path);
+        resultContent.put(Constants.DATE, date);
+        resultContent.put(Constants.UPDATE, update);
+        return resultContent;
     }
 
     public static void getFileEventData(FreeForm eventData, Map<String, Object> payload) {

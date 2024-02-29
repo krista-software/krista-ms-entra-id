@@ -17,8 +17,6 @@ import java.util.Map;
 
 @Service
 public class ManagementDaoImpl {
-
-    private final GraphServiceClientProvider provider;
     private final DriveFileService fileManagementDao;
     private final FolderManagementDao folderManagementDao;
     private final OperationsManagementDao operationsManagementDao;
@@ -27,21 +25,16 @@ public class ManagementDaoImpl {
     private final SharedFileDao sharedFileDao;
     private final FileTransferService copyFileDao;
     private final DriveTextFileManager driveTextFileService;
-    private final FileSearchFilterByRange fileSearchFilterByRange;
-    private final FileVersionSearchDao fileVersionSearchDao;
     private final HandleFileIsChanged handleFileIsChanged;
-
-    private final SearchFileExecutor searchFileExecutor;
+    private final FileVersionOperations fileVersionOperations;
 
 
     @Inject
-    public ManagementDaoImpl(GraphServiceClientProviderFactory factory, DriveFileService fileManagementDao,
+    public ManagementDaoImpl( DriveFileService fileManagementDao,
                              FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
                              SharedFileDao sharedFileDao, FileTransferService copyFileDao, FileDownloadService fileDownloadService,
                              FileUploadService fileUploadService, DriveTextFileManager driveTextFileService,
-                             FileSearchFilterByRange fileSearchFilterByRange, FileVersionSearchDao fileVersionSearchDao,
-                             HandleFileIsChanged handleFileIsChanged, SearchFileExecutor searchFileExecutor) {
-        this.provider = factory.create();
+                             HandleFileIsChanged handleFileIsChanged, FileVersionOperations fileVersionOperations) {
         this.fileManagementDao = fileManagementDao;
         this.folderManagementDao = folderManagementDao;
         this.operationsManagementDao = operationsManagementDao;
@@ -50,10 +43,8 @@ public class ManagementDaoImpl {
         this.fileDownloadService = fileDownloadService;
         this.fileUploadService = fileUploadService;
         this.driveTextFileService = driveTextFileService;
-        this.fileSearchFilterByRange = fileSearchFilterByRange;
-        this.fileVersionSearchDao = fileVersionSearchDao;
         this.handleFileIsChanged = handleFileIsChanged;
-        this.searchFileExecutor = searchFileExecutor;
+        this.fileVersionOperations = fileVersionOperations;
     }
 
 
@@ -67,7 +58,7 @@ public class ManagementDaoImpl {
 
     public Map<String, Object> deleteFile(String target) {
         try {
-          return operationsManagementDao.deleteFile(target);
+            return operationsManagementDao.deleteFile(target);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
@@ -163,7 +154,7 @@ public class ManagementDaoImpl {
 
     public Map<String, Object> getVersionHistory(String sourcePath, String search, Long since) {
         try {
-            return fileVersionSearchDao.getVersionHistory(sourcePath, search, since);
+            return fileVersionOperations.getVersionHistory(sourcePath, search, since);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

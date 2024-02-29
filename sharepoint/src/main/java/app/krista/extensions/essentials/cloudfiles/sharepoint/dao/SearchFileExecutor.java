@@ -44,9 +44,9 @@ public class SearchFileExecutor {
             String updatedTarget = getUpdatedFilePath(driveIdPath);
 
             if(isSourcePath){
-                payload.put(Constants.SOURCE_ROOT_PATH,updatedTarget);
+                payload.put(Constants.SOURCE_ROOT_PATH,driveIdPath.replace("%20", " "));
             }else{
-                payload.put(Constants.TARGET_ROOT_PATH,updatedTarget);
+                payload.put(Constants.TARGET_ROOT_PATH,driveIdPath.replace("%20", " "));
             }
             setPayloadIfInitialPathValidOrNot(updatedTarget, payload);
             String driveId = payload.get(Constants.DRIVE_ID) !=null ? payload.get(Constants.DRIVE_ID).toString() : null;
