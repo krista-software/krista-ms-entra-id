@@ -17,7 +17,12 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.LinkedHashMap;
 
 /**
  * This class provides functionality for sharing files in SharePoint using Microsoft Graph API.
@@ -35,8 +40,7 @@ public class SharedFileDao {
     private final SearchFileExecutor searchFileExecutor;
 
     @Inject
-    public SharedFileDao(GraphServiceClientProviderFactory factory,
-                         FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
+    public SharedFileDao(GraphServiceClientProviderFactory factory, FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
@@ -59,22 +63,13 @@ public class SharedFileDao {
 
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage(), cause);
-            ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
-                    .contains(Constants.ITEM_NOT_FOUND)
-                    ? Constants.FILE_NOT_FOUND : "Error occurred during sharing file", payload);
+            ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage()).contains(Constants.ITEM_NOT_FOUND) ? Constants.FILE_NOT_FOUND : "Error occurred during sharing file", payload);
         }
         return payload;
     }
 
     private DriveItemCreateLinkParameterSet getParameterSet(String role) {
-        return DriveItemCreateLinkParameterSet
-                .newBuilder()
-                .withType(role)
-                .withScope("organization")
-                .withExpirationDateTime(null)
-                .withPassword(null)
-                .withMessage(null)
-                .withRetainInheritedPermissions(null).build();
+        return DriveItemCreateLinkParameterSet.newBuilder().withType(role).withScope("organization").withExpirationDateTime(null).withPassword(null).withMessage(null).withRetainInheritedPermissions(null).build();
     }
 
     private void processSharing(DriveItem driveItem, String source, List<Map<String, Object>> share, Map<String, Object> payload) {
@@ -98,18 +93,12 @@ public class SharedFileDao {
             return;
         }
         DriveItem upadatedDriveItem = getFileWithPermissions(driveItem.parentReference.driveId, driveItem.id);
-        payload.put(Constants.FILE,
-                app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File.fromFile(new FileImpl(upadatedDriveItem, provider.getUserRequestBuilder(null, null), source, null, fileSearchUtilityService)));
+        payload.put(Constants.FILE, app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File.fromFile(new FileImpl(upadatedDriveItem, provider.getUserRequestBuilder(null, null), source, null, fileSearchUtilityService)));
         payload.put(Constants.SUCCESS, true);
     }
 
     public DriveItem getFileWithPermissions(String driveId, String id) {
-        return provider.getUserRequestBuilder(null, null)
-                .drives(driveId)
-                .items(id)
-                .buildRequest()
-                .expand(Constants.PERMISSIONS)
-                .get();
+        return provider.getUserRequestBuilder(null, null).drives(driveId).items(id).buildRequest().expand(Constants.PERMISSIONS).get();
     }
 
     private void grantPermissions(String role, List<String> usersList, DriveItem driveItem, Map<String, Object> payload) {
@@ -128,12 +117,7 @@ public class SharedFileDao {
                 driveRecipient.email = user;
                 recipientsList.add(driveRecipient);
             }
-            provider.getGraphServiceClientForAdmin().shares(encodedSharingUrl).permission().grant(
-                    PermissionGrantParameterSet
-                            .newBuilder()
-                            .withRoles(List.of(role))
-                            .withRecipients(recipientsList)
-                            .build()).buildRequest().post();
+            provider.getGraphServiceClientForAdmin().shares(encodedSharingUrl).permission().grant(PermissionGrantParameterSet.newBuilder().withRoles(List.of(role)).withRecipients(recipientsList).build()).buildRequest().post();
 
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage(), cause);
@@ -164,8 +148,6 @@ public class SharedFileDao {
 
     @Nullable
     private Permission executePermission(String driveID, String id, DriveItemCreateLinkParameterSet parameterSet) {
-        return provider.getUserRequestBuilder(null, null)
-                .drives(driveID).items(id)
-                .createLink(parameterSet).buildRequest().post();
+        return provider.getUserRequestBuilder(null, null).drives(driveID).items(id).createLink(parameterSet).buildRequest().post();
     }
 }
