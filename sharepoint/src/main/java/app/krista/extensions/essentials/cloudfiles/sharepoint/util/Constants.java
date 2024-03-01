@@ -126,6 +126,7 @@ public class Constants {
     public static final String FAILED_TO_RENAME_FILE = "Failed to rename file. Please try again later.";
 
     public static final String INVALID_PATH_MESSAGE = "Please Provide a valid relative path for file.";
+    public static final String ERROR_OCCURRED_DURING_FETCHING_DETAILS = "Error occurred during fetching Details: {}";
 
     public static final String FILE_RENAMED_SUCCESSFULLY = "File Renamed Successfully";
 

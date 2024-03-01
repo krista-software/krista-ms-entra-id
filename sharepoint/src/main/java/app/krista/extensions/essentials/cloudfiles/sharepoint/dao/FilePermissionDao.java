@@ -18,8 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,16 +31,13 @@ public class FilePermissionDao {
     private final SharePointAttributes sharePointAttributes;
     private final FileSearchUtilityService fileSearchUtilityService;
 
-    private final SearchFileExecutor searchFileExecutor;
-
     @Inject
     public FilePermissionDao(GraphServiceClientProviderFactory clientProviderFactory, FileSearchImpl fileSearchImpl,
-                             SharePointAttributes sharePointAttributes, FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
+                             SharePointAttributes sharePointAttributes, FileSearchUtilityService fileSearchUtilityService) {
         this.clientProvider = clientProviderFactory.create();
         this.fileSearchImpl = fileSearchImpl;
         this.sharePointAttributes = sharePointAttributes;
         this.fileSearchUtilityService = fileSearchUtilityService;
-        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -51,7 +48,6 @@ public class FilePermissionDao {
     public FreeForm getSharedPermission(String filePath, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with filePath: {} ", filePath);
         FreeForm payload = new FreeForm();
-        Map<String,Object> mapPayload =new HashMap<>();
         if (filePath != null) {
             filePath = filePath.replace(Constants.WHITE_SPACE, " ");
             List<DriveSharedPermissionImpl> resultPage = new ArrayList<>();

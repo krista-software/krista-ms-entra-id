@@ -26,7 +26,9 @@ import java.util.Objects;
 @Service
 public class SearchFileExecutor {
 
+    private static final String ERROR_DURING_FILE_SEARCH = "Error during file search: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFileExecutor.class);
+    private static final String PLEASE_PROVIDE_VALID_SITE_PATH = "Please provide valid site path";
 
     private final FileSearchImpl fileSearchImpl;
     private final GraphServiceClientProvider provider;
@@ -52,7 +54,7 @@ public class SearchFileExecutor {
             String driveId = payload.get(Constants.DRIVE_ID) != null ? payload.get(Constants.DRIVE_ID).toString() : null;
             fetchFileDetailsByDriveID(driveId, relativeFilePath, isSourcePath, payload, useMail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage());
+            LOGGER.error(ERROR_DURING_FILE_SEARCH, cause.getMessage(), cause);
             ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND, payload);
         }
     }
@@ -100,7 +102,7 @@ public class SearchFileExecutor {
                     ;
 
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage());
+            LOGGER.error(ERROR_DURING_FILE_SEARCH, cause.getMessage(), cause);
             ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND, payload);
         }
         return null;
@@ -121,7 +123,7 @@ public class SearchFileExecutor {
                 GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useMail, accountID);
                 getFileByAbsolutePath(sourcePath, graphClient, payload);
             } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error(cause.getMessage());
+                LOGGER.error(ERROR_DURING_FILE_SEARCH, cause.getMessage(), cause);
                 handleFileExistenceCheckException(cause, payload);
             }
         }
@@ -166,11 +168,11 @@ public class SearchFileExecutor {
                     findDriveItemByFilePath(page, payload);
                 }
             } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
+                LOGGER.error(ERROR_DURING_FILE_SEARCH, cause.getMessage(), cause);
                 ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
                         .contains(Constants.ITEM_NOT_FOUND)
                         ? Constants.FILE_NOT_FOUND
-                        : Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND, payload);
+                        : PLEASE_PROVIDE_VALID_SITE_PATH, payload);
             }
         }
 
@@ -198,11 +200,17 @@ public class SearchFileExecutor {
                                     payload.put(Constants.SUCCESS, true);
                                     return;
                                 } else {
-                                    ResponseUtil.errorResponse(false, Constants.FILE_FOUND, payload);
+                                    ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
                                     return;
                                 }
+                            }else {
+                                ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
+                                return;
                             }
                         }
+                    } else {
+                        ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
+                        return;
                     }
                 }
             }

@@ -77,7 +77,7 @@ public class FileSearchFilterByRange {
                 return payload;
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
             handleInvalidError(Constants.FILE_NOT_FOUND, payload);
             return payload;
         }
@@ -99,7 +99,6 @@ public class FileSearchFilterByRange {
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
             ResponseUtil.successResponse(false, Constants.PROVIDE_VALID_SIZE_RANGE, payload);
-            throw new IllegalArgumentException(" Error : " + cause.getMessage());
         }
         return resultPage;
     }
@@ -126,7 +125,7 @@ public class FileSearchFilterByRange {
                 return payload;
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
             handleInvalidError(Constants.FILE_NOT_FOUND, payload);
             return payload;
         }
@@ -159,21 +158,11 @@ public class FileSearchFilterByRange {
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
                 ResponseUtil.successResponse(false, Constants.PROVIDE_VALID_SIZE_RANGE, payload);
-                throw new IllegalArgumentException(" Error : " + cause.getMessage());
             }
         } else {
             ResponseUtil.successResponse(false, Constants.PROVIDE_VALID_SIZE_RANGE, payload);
         }
         return resultPage;
-    }
-
-
-    public LinkedList<SearchRequest> buildSearchRequestListWithAbsolutePath(Double from, Double size, int pageIndex, int pageSize) {
-        LinkedList<SearchRequest> requestsList = new LinkedList<>();
-        SearchRequest requests = buildSearchRequest();
-        buildSearchRequestForRest(from, size, requests, pageIndex, pageSize);
-        requestsList.add(requests);
-        return requestsList;
     }
 
     public LinkedList<SearchRequest> buildSearchRequestList(Double fromSize, Double toSize, int pageIndex, int pageSize) {

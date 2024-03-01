@@ -8,7 +8,10 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.*;
+import com.microsoft.graph.models.EntityType;
+import com.microsoft.graph.models.SearchQuery;
+import com.microsoft.graph.models.SearchRequest;
+import com.microsoft.graph.models.SortProperty;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
@@ -17,8 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +49,7 @@ public class FileEmailSearchDao {
         LOGGER.info("Searching for files with filePath: {} {} ", email, user);
         FreeForm payload = new FreeForm();
         if (email == null || email.isEmpty()) {
-           return ResponseUtil.getInfoResponse(false, Constants.MAILID_CANNOT_BE_EMPTY, payload);
+            return ResponseUtil.getInfoResponse(false, Constants.MAILID_CANNOT_BE_EMPTY, payload);
         }
         if (!ResponseUtil.isValidEmail(email)) {
             return ResponseUtil.getInfoResponse(false, Constants.INVALID_EMAIL, payload);

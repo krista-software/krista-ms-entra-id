@@ -1,7 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -18,7 +17,11 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Base64;
+import java.util.LinkedList;
 
 /**
  * This class provides functionality for sharing files in SharePoint using Microsoft Graph API.
@@ -32,16 +35,14 @@ public class SharedFileDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharedFileDao.class);
     private final GraphServiceClientProvider provider;
-    private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
 
     private final SearchFileExecutor searchFileExecutor;
 
     @Inject
-    public SharedFileDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
+    public SharedFileDao(GraphServiceClientProviderFactory factory,
                          FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
-        this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
     }
@@ -112,12 +113,12 @@ public class SharedFileDao {
 
     private Map<String, Object> handleInvalidPath(Map<String, Object> payload) {
         payload.put(Constants.SUCCESS, false);
-        payload.put(Constants.MESSAGE, "Please provide valid path, file was not found");
+        payload.put(Constants.MESSAGE, Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND);
         return payload;
     }
 
     private void handleGraphServiceException(Exception cause, Map<String, Object> payload) {
-        LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
+        LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
         payload.put(Constants.MESSAGE, Constants.FAILED_TO_SHARE_FILE);
         payload.put(Constants.SUCCESS, false);
     }

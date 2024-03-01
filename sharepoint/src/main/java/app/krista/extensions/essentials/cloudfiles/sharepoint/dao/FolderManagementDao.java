@@ -1,7 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -38,15 +37,13 @@ public class FolderManagementDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FolderManagementDao.class);
     private final GraphServiceClientProvider provider;
-    private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
 
     @Inject
-    public FolderManagementDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
+    public FolderManagementDao(GraphServiceClientProviderFactory factory,
                                FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
-        this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
     }
@@ -65,19 +62,18 @@ public class FolderManagementDao {
                 ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
             }
             searchFileExecutor.getFileInfo(sourcePath, mapPayload, true, useEmail, accountID);
-//            sourcePath = managementUtilityService.getUpdatedFilePath(sourcePath);
-//            DriveItem driveItem = checkIfFileExist(sourcePath, payload, useEmail, accountID);
-            if (mapPayload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
+            if (mapPayload.get(Constants.SUCCESS).equals(Boolean.TRUE) && mapPayload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
                 DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
                 sourcePath = getRelativePath(sourcePath);
                 getRootFilesByDriveIDPath(driveItem.parentReference.driveId, sourcePath, files, useEmail, accountID, search, payload);
-            } else {
-                ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
+            } else{
+                payload.put(Constants.SUCCESS,Constants.SWITCH,false);
+                payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH));
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(cause.getMessage());
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
-                    .contains("itemNotFound") ? Constants.INVALID_FOLDER_PATH : cause.getMessage(), payload);
+                    .contains(Constants.ITEM_NOT_FOUND) ? Constants.INVALID_FOLDER_PATH : Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND, payload);
         }
         return payload;
     }
@@ -113,32 +109,8 @@ public class FolderManagementDao {
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
             ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
-                    .contains("itemNotFound") ? "File Not Found" : cause.getMessage(), payload);
+                    .contains(Constants.ITEM_NOT_FOUND) ? Constants.FILE_NOT_FOUND : Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND, payload);
         }
-    }
-
-
-    private DriveItem checkIfFileExist(String sourcePath, FreeForm payload, boolean useEmail, String accountID) {
-        DriveItem driveItem = new DriveItem();
-        try {
-            if (sourcePath != null) {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
-                driveItem = managementUtilityService.getFileByAbsolutePath(sourcePath, graphClient);
-                if (driveItem != null && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
-                    ResponseUtil.addFileSize(driveItem.size != null ? driveItem.size : 0L, payload);
-                    ResponseUtil.getInfoResponse(true, Constants.FILE_FOUND, payload);
-                } else {
-                    ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
-                }
-            } else {
-                ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
-            }
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
-                    .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage(), payload);
-            return new DriveItem();
-        }
-        return driveItem;
     }
 
 

@@ -2,7 +2,6 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -36,15 +35,13 @@ public class DriveTextFileManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DriveTextFileManager.class);
     private final GraphServiceClientProvider provider;
-    private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
 
     @Inject
-    public DriveTextFileManager(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
+    public DriveTextFileManager(GraphServiceClientProviderFactory factory,
                                 FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
-        this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
     }
@@ -68,12 +65,11 @@ public class DriveTextFileManager {
             }
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
             FileUtil.failedToReadTextFile(payload);
         }
         return payload;
     }
-
 
     private void readTxtFileFromSource(Map<String, Object> payload, DriveItem driveItem) {
         if (driveItem.name != null && FileUtil.getBaseName(driveItem.name).get(1) != null &&
@@ -91,7 +87,6 @@ public class DriveTextFileManager {
 
     }
 
-
     /**
      * Uploads a TXT file with specified content to the target path, handling path validation, folder existence checks, potential errors, and file creation.
      *
@@ -107,9 +102,9 @@ public class DriveTextFileManager {
                 searchFileExecutor.getFileInfo(parentPath, payload, true);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
-                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ?
-                        (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
-                    if (driveItem!= null && driveItem.name != null && driveItem.folder != null) {
+                    DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ?
+                            (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
+                    if (driveItem != null && driveItem.name != null && driveItem.folder != null) {
                         uploadTxtFileFromTarget(target, fileContent, payload, driveItem);
                     }
                 } else {
@@ -120,7 +115,7 @@ public class DriveTextFileManager {
             }
 
         } catch (GraphServiceException | IllegalArgumentException | IOException cause) {
-            LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
             failedToUploadTxtFile(payload);
         }
         return payload;
@@ -171,8 +166,9 @@ public class DriveTextFileManager {
             response.put(Constants.DRIVE_ITEM, driveItem);
             response.put(Constants.SUCCESS, true);
         } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
             response.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
-                    .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage());
+                    .contains(Constants.ITEM_NOT_FOUND) ? Constants.FILE_NOT_FOUND : cause.getMessage());
             response.put(Constants.SUCCESS, false);
         }
     }

@@ -34,6 +34,7 @@ import java.util.List;
 public class FileSearchImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchImpl.class);
+    public static final String ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL = "Added DrivePermission for created by user with email: {}";
     private final GraphServiceClientProvider clientProvider;
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
@@ -135,12 +136,11 @@ public class FileSearchImpl {
     }
 
     public SearchEntityQueryCollectionPage buildSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {
-        SearchEntityQueryCollectionPage page = graphClient
+        return graphClient
                 .search()
                 .query(SearchEntityQueryParameterSet.newBuilder().withRequests(requestsList).build())
                 .buildRequest()
                 .post();
-        return page;
     }
 
     public void extractDriveFromSearchResults(List<DriveImpl> files, SearchEntityQueryCollectionPage page) {
@@ -260,21 +260,21 @@ public class FileSearchImpl {
                                         if (driveItem.webUrl != null && user.equals(Constants.CREATED_BY) && driveItem.createdBy != null
                                                 && driveItem.createdBy.user != null
                                                 && driveItem.createdBy.user.additionalDataManager() != null
-                                                && driveItem.createdBy.user.additionalDataManager().get("email") != null
-                                                && driveItem.createdBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
+                                                && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL) != null
+                                                && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
                                             resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
-                                            LOGGER.info("Added DrivePermission for created by user with email: " + email);
+                                            LOGGER.info(ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL, email);
                                         } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null
                                                 && driveItem.lastModifiedBy.user != null
                                                 && driveItem.lastModifiedBy.user.additionalDataManager() != null
-                                                && driveItem.lastModifiedBy.user.additionalDataManager().get("email") != null
-                                                && driveItem.lastModifiedBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
+                                                && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL) != null
+                                                && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
                                             resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
-                                            LOGGER.info("Added DrivePermission for modified by user with email: " + email);
+                                            LOGGER.info(ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL , email);
                                         }
                                     }
                                 } catch (IllegalStateException cause) {
-                                    LOGGER.error("Error processing DriveItem: " + cause.getMessage());
+                                    LOGGER.error("Error processing DriveItem: {}" , cause.getMessage());
                                 }
                             }
                         }
@@ -282,7 +282,7 @@ public class FileSearchImpl {
                 }
             }
         } catch (RuntimeException cause) {
-            LOGGER.error("An unexpected error occurred: " + cause.getMessage());
+            LOGGER.error("An unexpected error occurred: {}" , cause.getMessage());
         }
     }
 

@@ -26,8 +26,6 @@ public class FileImpl implements FileService {
     private final GraphServiceClient<Request> graphClient;
     private final FileSearchUtilityService fileSearchUtilityService;
 
-    //private final SharePointAttributes sharePointAttributes;
-
     public FileImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient, String sourcePath, String targetPath,
                     FileSearchUtilityService fileSearchUtilityService) {
         this.driveItem = driveItem;

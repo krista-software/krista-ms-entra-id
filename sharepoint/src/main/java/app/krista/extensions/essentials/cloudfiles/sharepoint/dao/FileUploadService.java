@@ -38,17 +38,14 @@ public class FileUploadService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadService.class);
 
     private final GraphServiceClientProvider provider;
-    private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
-
     private final JavaFileHandleHelper javaFileHandleHelper;
 
     @Inject
-    public FileUploadService(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
+    public FileUploadService(GraphServiceClientProviderFactory factory,
                              FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, JavaFileHandleHelper javaFileHandleHelper) {
         this.provider = factory.create();
-        this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
         this.javaFileHandleHelper = javaFileHandleHelper;
@@ -75,9 +72,8 @@ public class FileUploadService {
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
             DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
-                targetPath = DriveUtil.validatePath(targetPath);
                 assert Objects.requireNonNull(driveItem).parentReference != null;
-                uploadFileByPathByDriveID(driveItem.parentReference.driveId, targetPath, kristaFile, payload,driveItem);
+                uploadFileByPathByDriveID(driveItem.parentReference.driveId, kristaFile, payload,driveItem);
             } else {
                 setInvalidPathMessage(payload);
             }
@@ -92,17 +88,15 @@ public class FileUploadService {
     }
 
     private void handleUploadFilesException(Exception cause, Map<String, Object> payload) {
-        LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
+        LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
         payload.put(Constants.MESSAGE, Constants.ERROR_IN_UPLOAD_FILE);
         payload.put(Constants.SUCCESS, false);
     }
 
-    private void uploadFileByPathByDriveID(String driveID, String targetPath, app.krista.model.base.File kristaFile,
+    private void uploadFileByPathByDriveID(String driveID, app.krista.model.base.File kristaFile,
                                            Map<String, Object> payload, DriveItem driveItem) {
         try {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
-//            DriveItem driveItem = driveID != null ? graphClient.drives(driveID).root().itemWithPath(targetPath).buildRequest().get()
-//                    : graphClient.drive().root().itemWithPath(targetPath).buildRequest().get();
             if (driveItem != null && driveItem.folder != null && driveItem.id != null) {
                 java.io.File javaFile = javaFileHandleHelper.convertKristaFileToJavaFile(kristaFile);
                 DriveUtil.listValidator(List.of(javaFile), Constants.FAILED_TO_UPLOAD_FILE);
@@ -119,9 +113,9 @@ public class FileUploadService {
                 }
             }
         } catch (GraphServiceException | IllegalArgumentException | IOException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
             payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPLOAD);
             payload.put(Constants.SUCCESS, false);
-            throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 

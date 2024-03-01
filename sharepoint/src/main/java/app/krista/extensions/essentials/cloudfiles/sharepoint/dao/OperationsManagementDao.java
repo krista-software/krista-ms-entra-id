@@ -27,22 +27,13 @@ import java.util.Objects;
 public class OperationsManagementDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsManagementDao.class);
-
     private final GraphServiceClientProvider provider;
-
-    private final ManagementUtilityService managementUtilityService;
-
-    private final FileDao fileDao;
-
     private final SearchFileExecutor searchFileExecutor;
 
 
     @Inject
-    public OperationsManagementDao(GraphServiceClientProviderFactory factory,
-                                   ManagementUtilityService managementUtilityService, FileDao fileDao, SearchFileExecutor searchFileExecutor) {
+    public OperationsManagementDao(GraphServiceClientProviderFactory factory, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
-        this.managementUtilityService = managementUtilityService;
-        this.fileDao = fileDao;
         this.searchFileExecutor = searchFileExecutor;
     }
 
@@ -71,11 +62,10 @@ public class OperationsManagementDao {
             }
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
         }
         return Map.of();
     }
-
 
     /**
      * Renames a file to the specified target name, handling validation and potential errors.
@@ -104,7 +94,6 @@ public class OperationsManagementDao {
         }
     }
 
-
     private void renameDriveItem(String targetFileName, DriveItem drive, Map<String, Object> payload) {
         DriveItem driveItem = new DriveItem();
         driveItem.name = targetFileName;
@@ -114,23 +103,13 @@ public class OperationsManagementDao {
         setFileRenamedSuccessfullyMessage(payload);
     }
 
-    private void setFileExtensionNotAvailableMessage(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.FILE_EXTENSION_NOT_AVAILABLE);
-        payload.put(Constants.SUCCESS, false);
-    }
-
     private void setFileNotFoundMessage(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, "Please provide valid path, file was not found");
-        payload.put(Constants.SUCCESS, false);
-    }
-
-    private void setInvalidFileMessage(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.INVALID_PATH_MESSAGE);
+        payload.put(Constants.MESSAGE, Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND);
         payload.put(Constants.SUCCESS, false);
     }
 
     private void handleRenameFileException(Exception cause, Map<String, Object> payload) {
-        LOGGER.error(Constants.ERROR_MESSAGE + " : " + cause.getMessage());
+        LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
         payload.put(Constants.MESSAGE, Constants.FAILED_TO_RENAME_FILE);
         payload.put(Constants.SUCCESS, false);
     }
