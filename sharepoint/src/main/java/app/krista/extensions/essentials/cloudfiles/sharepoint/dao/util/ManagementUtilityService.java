@@ -4,9 +4,9 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchImpl
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.DriveItem;
-import com.microsoft.graph.models.SearchRequest;
+import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
@@ -82,6 +83,27 @@ public class ManagementUtilityService {
     public DriveItem getFileByAbsolutePath(String filePath, GraphServiceClient<Request> graphClient) {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
+            DriveItem driveItem = new DriveItem();  // Initialize the result page
+            try {
+                LinkedList<SearchRequest> requestsList = buildSearchRequestList(filePath);
+                SearchEntityQueryCollectionPage page = buildSearchQuery(graphClient, requestsList);
+
+                if (page != null && !page.getCurrentPage().isEmpty()) {
+                    driveItem = fileSearchImpl.findDriveItemByFilePath(page, filePath, driveItem, false);
+                }
+                return driveItem;
+            } catch (GraphServiceException | IllegalArgumentException cause) {
+                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
+                throw new IllegalArgumentException(cause.getMessage(), cause);
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public DriveItem getFileByAbsolutePathForVersionHistory(String filePath, GraphServiceClient<Request> graphClient) {
+        LOGGER.info("Searching for files with filePath: {}", filePath);
+        if (filePath != null) {
             String siteDomainPath = fileSearchImpl.getDomainPath(fileSearchImpl.getDomainName(), true);
             filePath = fileSearchImpl.handleAbsolutePath(filePath, siteDomainPath);
             DriveItem driveItem = new DriveItem();  // Initialize the result page
@@ -100,6 +122,45 @@ public class ManagementUtilityService {
         } else {
             return null;
         }
+    }
+
+    public LinkedList<SearchRequest> buildSearchRequestList(String filePath) {
+        LinkedList<SearchRequest> requestsList = new LinkedList<>();
+        SearchRequest requests = buildSearchRequest();
+        buildSearchRequestForRest(filePath, requests);
+        requestsList.add(requests);
+        return requestsList;
+    }
+
+    public void buildSearchRequestForRest(String filePath, SearchRequest requests) {
+        SearchQuery query = new SearchQuery();
+        query.queryString = "path:\"" + filePath + "\"";
+        requests.query = query;
+        requests.size = 25;
+    }
+
+    public SearchRequest buildSearchRequest() {
+        SearchRequest requests = new SearchRequest();
+        requests.entityTypes = Arrays.asList(EntityType.LIST, EntityType.LIST_ITEM,
+                EntityType.DRIVE, EntityType.DRIVE_ITEM);
+
+        // Fill in the rest of the request setup logic
+        LinkedList<SortProperty> sortProperties = new LinkedList<>();
+        SortProperty sort = new SortProperty();
+        sort.name = "LastModifiedTime";
+        sort.isDescending = false;
+        sortProperties.add(sort);
+        requests.sortProperties = sortProperties;
+        return requests;
+    }
+
+    public SearchEntityQueryCollectionPage buildSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {
+        SearchEntityQueryCollectionPage page = graphClient
+                .search()
+                .query(SearchEntityQueryParameterSet.newBuilder().withRequests(requestsList).build())
+                .buildRequest()
+                .post();
+        return page;
     }
 
     public DriveItem getRootFolderByAbsolutePath(String filePath, Boolean flag) {
@@ -131,8 +192,13 @@ public class ManagementUtilityService {
 
     public void handleDeleteFileException(Exception cause, Map<String, Object> payload) {
         LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
-        payload.put(Constants.MESSAGE, Constants.INVALID_INPUT_PROVIDED);
+        payload.put(Constants.MESSAGE, "File not found for deletion");
         payload.put(Constants.SUCCESS, false);
+    }
+
+    public void handleFileNotFoundException(Exception cause, Map<String, Object> payload) {
+        LOGGER.error(" {} : {} " + Constants.ERROR_MESSAGE, cause.getMessage());
+        ResponseUtil.errorResponse(false,"Please provide a correct path; the specified file or folder could not be located.",payload);
     }
 
     public String getUpdatedFilePath(String path) {
@@ -143,4 +209,5 @@ public class ManagementUtilityService {
         }
         return fileSearchImpl.handleAbsolutePath(path, siteDomainPath);
     }
+
 }

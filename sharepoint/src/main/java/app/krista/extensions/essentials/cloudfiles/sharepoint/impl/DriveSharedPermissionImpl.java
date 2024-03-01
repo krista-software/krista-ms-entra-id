@@ -101,7 +101,7 @@ public class DriveSharedPermissionImpl implements FileService {
 
     @Override
     public Boolean getIsFolder() {
-        return driveMetaData.folder != null;
+        return driveMetaData != null && driveMetaData.folder != null;
     }
 
     @Override

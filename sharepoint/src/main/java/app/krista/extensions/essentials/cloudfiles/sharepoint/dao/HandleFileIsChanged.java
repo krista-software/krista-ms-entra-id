@@ -1,12 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import java.util.LinkedList;
-import com.microsoft.graph.options.Option;
-import com.microsoft.graph.options.QueryOption;
 import app.krista.extension.executor.Invoker;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileChangeResourceUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
@@ -22,7 +18,6 @@ import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.models.DriveItemDeltaParameterSet;
 import com.microsoft.graph.models.SearchQuery;
 import com.microsoft.graph.models.SearchRequest;
-import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
@@ -61,6 +56,7 @@ public class HandleFileIsChanged {
 
     /**
      * Retrieves information about changes made to a file at the specified path, handling path validation, potential errors, and returning file change details.
+     *
      * @return A Map containing status and result details, including success/failure indicators, file change information, or error messages.
      */
     public Map<String, Object> getChangeFileEvent(String source, String search) {
@@ -108,7 +104,7 @@ public class HandleFileIsChanged {
             if (notificationDriveItem != null) {
 
                 if (notificationDriveItem.deleted != null && notificationDriveItem.deleted.state.equals("deleted")) {
-                    payload.put(Constants.FILE, CatalogTypes.fromFile(new DrivePermissionImpl(new DriveItem(), graphClient, fileSearchUtilityService)));
+                    payload.put(Constants.FILE, File.fromFile(new DrivePermissionImpl(new DriveItem(), graphClient, fileSearchUtilityService)));
                     payload.put(Constants.EVENT, Constants.DELETED);
                     return payload;
                 }
@@ -205,13 +201,13 @@ public class HandleFileIsChanged {
     }
 
     private void addUpdatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient) {
-        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.EVENT, Constants.UPDATED);
     }
 
     private void addCreatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient) {
-        File fileEntity = CatalogTypes.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+        File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.EVENT, Constants.CREATED);
     }

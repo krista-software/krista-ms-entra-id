@@ -25,6 +25,8 @@ public class RestClient {
     public static final String ONE_OR_MORE_FIELD_PROVIDED_ARE_INVALID = "One or more field provided are invalid";
     public static final String GRAPH_API_BASE_URI = "https://graph.microsoft.com/v1.0/me";
 
+    public static final String GRAPH_API_DRIVES_BASE_URI = "https://graph.microsoft.com/v1.0";
+
     String accessToken;
     String driveId;
     String instanceUrl;
@@ -43,7 +45,7 @@ public class RestClient {
     }
 
     private String getProperInstanceUrl(String driveId) {
-        return driveId != null ? GRAPH_API_BASE_URI + "/drives/" + driveId + "/items/"
+        return driveId != null ? GRAPH_API_DRIVES_BASE_URI + "/drives/" + driveId + "/items/"
                 : GRAPH_API_BASE_URI + "/drive/items/";
     }
 

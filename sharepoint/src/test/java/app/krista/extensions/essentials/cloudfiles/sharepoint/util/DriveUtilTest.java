@@ -52,29 +52,7 @@ public class DriveUtilTest {
         Assert.assertTrue(exception.getMessage().contains("Failed to get drive item. Folder name is empty."));
     }
 
-    @Test
-    public void testGetRelativePath() {
-        String fullUrl = "https://kristasoft.sharepoint.com/sites/Engineering/Shared%20Documents/TestAllFiles/Test Folder Two/Test Folder/Test.txt";
-        String expectedRelativePath = "/TestAllFiles/Test Folder Two/Test Folder/Test.txt";
-        String actualRelativePath = DriveUtil.getRelativePath(fullUrl);
-        assertEquals(expectedRelativePath, actualRelativePath);
 
-        fullUrl = "https://kristasoft.sharepoint.com/sites/Engineering/Shared%20Documents/Path%20with%20Spaces/Document.txt";
-        expectedRelativePath = "/Path with Spaces/Document.txt";
-        actualRelativePath = DriveUtil.getRelativePath(fullUrl);
-        assertEquals(expectedRelativePath, actualRelativePath);
-
-        fullUrl = "invalid-url";
-        assertNull(DriveUtil.getRelativePath(fullUrl));
-
-        fullUrl = "https://example.com/document.txt";
-        assertNull(DriveUtil.getRelativePath(fullUrl));
-
-        fullUrl = "/sites/Engineering/Shared%20Documents/Document.txt";
-        expectedRelativePath = "/Document.txt";
-        actualRelativePath = DriveUtil.getRelativePath(fullUrl);
-        assertEquals(expectedRelativePath, actualRelativePath);
-    }
 
     @Test
     public void testRemoveLastSegment() {

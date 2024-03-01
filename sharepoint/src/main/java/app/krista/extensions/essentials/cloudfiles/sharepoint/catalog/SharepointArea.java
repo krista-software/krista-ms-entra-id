@@ -103,7 +103,12 @@ public class SharepointArea {
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSearchByMail(email, user, useEmail, accountID);
-            eventHandler.handleEvent(taskId, freeForm);
+            try {
+                Thread.sleep(2000); // Adding 2 seconds delay to initialize wait for event in case of quick response
+                eventHandler.handleEvent(taskId, freeForm);
+            } catch (InterruptedException cause) {
+                Thread.currentThread().interrupt();
+            }
         });
         return taskId;
     }

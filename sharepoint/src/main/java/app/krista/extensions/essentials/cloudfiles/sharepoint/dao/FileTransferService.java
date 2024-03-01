@@ -1,9 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.CopyFileUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -11,14 +9,15 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Re
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.google.gson.JsonObject;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
-import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.DriveItemRequestBuilder;
 import okhttp3.MediaType;
-import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The FileTransferService class provides methods for copying and moving files within a Microsoft Graph-driven system.
@@ -42,264 +42,223 @@ public class FileTransferService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileTransferService.class);
     private final GraphServiceClientProvider provider;
-    private final OperationsManagementDao operationsManagementDao;
-    private final ManagementUtilityService managementUtilityService;
-    private final CopyFileUtilityService copyFileUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
+    private final SearchFileExecutor searchFileExecutor;
+    private static final String MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE = "?@microsoft.graph.conflictBehavior=replace";
 
     @Inject
     public FileTransferService(GraphServiceClientProviderFactory factory,
-                               OperationsManagementDao operationsManagementDao,
-                               ManagementUtilityService managementUtilityService,
-                               CopyFileUtilityService copyFileUtilityService,
-                               FileSearchUtilityService fileSearchUtilityService) {
+                               FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
-        this.operationsManagementDao = operationsManagementDao;
-        this.managementUtilityService = managementUtilityService;
-        this.copyFileUtilityService = copyFileUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
      * Copies a file from the source path to the target path, handling potential replacements, folder creation, and errors.
+     *
      * @return A Map containing status and result details, including success/failure indicators and error messages.
      */
-    public Map<String, Object> copyFile(String source, String target, Boolean replace, Boolean createFolder) {
+    public Map<String, Object> copyFile(String source, String target, Boolean replace, boolean createFolder) {
         Map<String, Object> payload = new HashMap<>();
         try {
-            if (validateReplaceAndCreateFolderParameters(replace, createFolder, payload)) {
-                copyFileUtilityService.validateSourceAndTargetPaths(source, target, payload);
-                if ((boolean) payload.get(Constants.SUCCESS)) {
-                    source = managementUtilityService.getUpdatedFilePath(source);
-                    DriveItem driveItemSource = managementUtilityService.checkIfFileExist(source, payload);
+            searchFileExecutor.getFileInfo(source, payload, true);
+            if (payload.get(Constants.SUCCESS) != null && payload.get(Constants.SUCCESS).equals(Boolean.TRUE)) {
+                if (payload.get(Constants.IS_SOURCE_FILE_EXIST) != null && payload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
+                    DriveItem sourceDriveItem = (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM);
+                    Map<String, Object> targetPayload = new HashMap<>();
 
-                    if ((boolean) payload.get(Constants.SUCCESS)) {
-                        target = managementUtilityService.getUpdatedFilePath(target);
-                        DriveItem driveItemTarget = createOrCheckTargetItem(target, createFolder, payload, replace);
-
-                        if ((boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
-                            buildCopyFileRequest(driveItemSource, replace, driveItemTarget, payload, target, source);
-                        }
+                    String targetRelativeFilePath = FileUtil.relativeFilePath(target);
+                    String targetDriveIdPath = FileUtil.driveIdPath(target);
+                    String updatedTarget = searchFileExecutor.getUpdatedFilePath(targetDriveIdPath);
+                    searchFileExecutor.setPayloadIfInitialPathValidOrNot(updatedTarget, targetPayload, null, null);
+                    String targetDriveId = targetPayload.get(Constants.DRIVE_ID) != null ? targetPayload.get(Constants.DRIVE_ID).toString() : null;
+                    if (createFolder) {
+                        createFolderInPath(targetDriveId, targetRelativeFilePath);
                     }
+                    searchFileExecutor.getFileInfo(target, payload, false);
+                    if (payload.get(Constants.IS_TARGET_FILE_EXIST) != null && payload.get(Constants.IS_TARGET_FILE_EXIST).equals(Boolean.TRUE)) {
+                        DriveItem targetDriveItem = (DriveItem) payload.get(Constants.TARGET_DRIVE_ITEM);
+                        executeCopy(sourceDriveItem, targetDriveItem, replace, payload, target, source);
+                        return payload;
+
+                    } else {
+                        ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_VALID_TARGET_PATH, payload);
+                        return payload;
+                    }
+
                 }
             }
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            copyFileUtilityService.handleCopyFileException(cause, payload);
+        } catch (GraphServiceException | IOException | IllegalArgumentException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
+            ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
+                    .contains(Constants.ITEM_NOT_FOUND)
+                    ? Constants.FILE_NOT_FOUND
+                    : Constants.ERROR_OCCURRED_DURING_COPYING_FILE, payload);
         }
         return payload;
     }
 
-    private void buildCopyFileRequest(DriveItem driveItemSource, Boolean replace, DriveItem driveItemTarget,
-                                      Map<String, Object> payload, String target, String source) {
+    /**
+     * Moves a file from the source path to the target path, handling path validation, file existence checks, target folder validation, and potential errors.
+     *
+     * @return A Map containing status and result details, including success/failure indicators and error messages.
+     */
+    public Map<String, Object> moveFile(String source, String target) {
+        Map<String, Object> payload = new HashMap<>();
         try {
-            String endpoint = driveItemSource.id + "/copy";
-            endpoint = addConflictBehaviorQueryParam(endpoint, replace);
+            searchFileExecutor.getFileInfo(source, payload, true);
+            if (payload.get(Constants.SUCCESS) != null && payload.get(Constants.SUCCESS).equals(Boolean.TRUE)) {
+                if (payload.get(Constants.IS_SOURCE_FILE_EXIST) != null && payload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
+                    DriveItem sourceDriveItem = (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM);
+                    searchFileExecutor.getFileInfo(target, payload, false);
+                    if (payload.get(Constants.IS_TARGET_FILE_EXIST) != null && payload.get(Constants.IS_TARGET_FILE_EXIST).equals(Boolean.TRUE)) {
+                        DriveItem targetDriveItem = (DriveItem) payload.get(Constants.TARGET_DRIVE_ITEM);
+                        executeMove(sourceDriveItem, targetDriveItem, payload, target, source);
+                        return payload;
 
-            Response copyResponse = getRestClient(driveItemTarget.parentReference.driveId)
-                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(driveItemTarget.id));
+                    } else {
+                        ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_VALID_TARGET_PATH, payload);
+                        return payload;
+                    }
 
-            processResponse(copyResponse, payload, driveItemSource, target, source);
-        } catch (GraphServiceException | IOException | IllegalArgumentException cause) {
-            copyFileUtilityService.handleCopyFileException(cause, payload);
-        }
-    }
-
-    private boolean validateReplaceAndCreateFolderParameters(Boolean replace, Boolean createFolder,
-                                                             Map<String, Object> payload) {
-        if (replace != null && createFolder != null && replace && createFolder) {
-            payload.put(Constants.MESSAGE, Constants.PLEASE_SPECIFY_REPLACE_OR_CREATE);
-            payload.put(Constants.SUCCESS, false);
-            return false;
-        }
-        return true;
-    }
-
-    private DriveItem createOrCheckTargetItem(String target, Boolean createFolder,
-                                              Map<String, Object> payload, Boolean replace) {
-        DriveItem driveItemTarget;
-        if (createFolder) {
-            driveItemTarget = createFolderInPath(target, payload);
-        } else {
-            driveItemTarget = checkIfTargetFolderExist(target, payload);
-        }
-
-        if (!(boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
-            payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_TARGET_PATH);
-            payload.put(Constants.SUCCESS, false);
-        }
-        return driveItemTarget;
-    }
-
-    private String addConflictBehaviorQueryParam(String endpoint, Boolean replace) {
-        return replace ? endpoint + "?@microsoft.graph.conflictBehavior=replace" : endpoint;
-    }
-
-    private DriveItem checkIfTargetFolderExist(String target, Map<String, Object> response) {
-        if (target != null) {
-            try {
-                GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
-                DriveItem driveItem = managementUtilityService.getFileByAbsolutePath(target, graphClient);
-                boolean isFolderExist = driveItem != null && driveItem.parentReference != null;
-                response.put(Constants.IS_FOLDER_EXIST, isFolderExist);
-                return isFolderExist ? driveItem : new DriveItem();
-            } catch (GraphServiceException | IllegalArgumentException cause) {
-                copyFileUtilityService.handleFolderExistenceCheckException(cause, response);
-                return new DriveItem();
+                }
             }
-        } else {
-            response.put(Constants.IS_FOLDER_EXIST, false);
-            return new DriveItem();
+        } catch (GraphServiceException | IOException | IllegalArgumentException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
+            ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
+                    .contains(Constants.ITEM_NOT_FOUND)
+                    ? Constants.FILE_NOT_FOUND
+                    : Constants.ERROR_OCCURRED_DURING_COPYING_FILE, payload);
         }
+        return payload;
     }
 
     private RestClient getRestClient(String driveId) {
         return provider.getRestClient(driveId);
     }
 
-    public RequestBody createRequestBody(String folderId) {
-        String payload = getParentReferenceJson(folderId);
+    public RequestBody createRequestBody(String folderId, String driveId) {
+        String payload = getParentReferenceJson(folderId, driveId);
         MediaType jsonMediaType = MediaType.parse(Constants.APPLICATION_JSON);
         return RequestBody.create(jsonMediaType, payload);
     }
 
-    private String getParentReferenceJson(String folderId) {
+    private String getParentReferenceJson(String folderId, String driveId) {
         JsonObject jsonObject = new JsonObject();
         JsonObject parentReference = new JsonObject();
+        parentReference.addProperty("driveId", driveId);
         parentReference.addProperty(Constants.ID, folderId);
         jsonObject.add(Constants.PARENT_REFERENCE, parentReference);
         return jsonObject.toString();
     }
 
-    private void processResponse(Response statusResponse, Map<String, Object> payload, DriveItem driveItemSource, String target, String source) throws IOException {
-        if (statusResponse.code() == Constants.HTTP_STATUS_OK || statusResponse.code() == Constants.HTTP_STATUS_ACCEPTED) {
-            GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
 
-            DriveItem driveItem = graphClient.drives(driveItemSource.parentReference.driveId).items(driveItemSource.id)
-                    .buildRequest().get();
+    private void prepareCopyResponse(Response response, String driveId, Map<String, Object> payload, String target, String source) throws IOException {
+        if (response != null && response.code() == 202) {
+            try (Response statusResponse = getRestClient(null).get(response.header("Location"))) {
+                if (statusResponse.code() == 200) {
+                    final ResponseBody statusResponseBody = statusResponse.body();
+                    if (statusResponseBody != null) {
+                        String responseBodyString = statusResponseBody.string(); // Read the response body as a string
+                        JsonObject jsonObject = Constants.GSON.fromJson(responseBodyString, JsonObject.class);
 
-            payload.put(Constants.FILE, CatalogTypes.fromFile(new FileImpl(driveItem, graphClient, source, target, fileSearchUtilityService)));
-            payload.put(Constants.MESSAGE, Constants.FILE_MOVED_SUCCESSFULLY);
-            payload.put(Constants.SUCCESS, true);
-        } else if (statusResponse.code() == Constants.HTTP_STATUS_CONFLICT) {
-            payload.put(Constants.MESSAGE, Constants.FILE_WITH_THIS_NAME_ALREADY_EXISTS);
-            payload.put(Constants.SUCCESS, false);
-        } else {
-            payload.put(Constants.MESSAGE, Constants.THERE_IS_SOME_ISSUE_WITH_FILE);
-            payload.put(Constants.SUCCESS, false);
-        }
-    }
+                        if (jsonObject.isJsonObject()) {
+                            String status = jsonObject.getAsJsonPrimitive("status").getAsString();
+                            if ("completed".equalsIgnoreCase(status)) {
+                                DriveItem driveItem = FileUtil
+                                        .getUserRequestBuilderWithItemId(provider
+                                                , driveId
+                                                , jsonObject.getAsJsonPrimitive("resourceId").getAsString().trim())
+                                        .buildRequest().expand(Constants.PERMISSIONS).get();
 
-    /**
-     * Moves a file from the source path to the target path, handling path validation, file existence checks, target folder validation, and potential errors.
-     * @return A Map containing status and result details, including success/failure indicators and error messages.
-     */
-    public Map<String, Object> moveFile(String source, String target) {
-        Map<String, Object> payload = new HashMap<>();
-        try {
-            if (copyFileUtilityService.validateSourceAndTargetPathsForMove(source, target, payload)) {
-                source = managementUtilityService.getUpdatedFilePath(source);
-                DriveItem driveItemSource = managementUtilityService.checkIfFileExist(source, payload);
-
-                if ((boolean) payload.get(Constants.SUCCESS)) {
-                    target = managementUtilityService.getUpdatedFilePath(target);
-                    DriveItem driveItemTarget = validateTargetFolderAndGetDriveItem(target, payload);
-
-                    if ((boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
-                        moveFileToTarget(driveItemSource, driveItemTarget, target, source, payload);
-                    } else {
-                        copyFileUtilityService.handleInvalidTargetPath(payload);
+                                ResponseUtil.fileEntityResponse(File
+                                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null), source, target, fileSearchUtilityService))
+                                        , true, Constants.FILE_HAS_BEEN_COPIED, payload);
+                            } else if ("inProgress".equalsIgnoreCase(status)) {
+                                ResponseUtil.errorResponse(true, Constants.COPY_IN_PROGRESS, payload);
+                            } else if ("failed".equalsIgnoreCase(status)) {
+                                ResponseUtil.errorResponse(false, Constants.FILE_ALREADY_EXIST, payload);
+                            }
+                        }
                     }
-                } else {
-                    copyFileUtilityService.handleInvalidSourcePath(payload);
                 }
             }
-        } catch (GraphServiceException | IOException | IllegalArgumentException cause) {
-            copyFileUtilityService.handleMoveFileException(cause, payload);
+        } else {
+            ResponseUtil.errorResponse(false, Constants.ERROR_DURING_SERVICE, payload);
         }
-        return payload;
     }
 
-    private void moveFileToTarget(DriveItem driveItemSource, DriveItem driveItemTarget, String target, String source,
-                                  Map<String, Object> payload) throws IOException {
-        String endpoint = buildMoveEndpoint(driveItemSource, driveItemTarget);
-
-        Response moveResponse = getRestClient(driveItemTarget.parentReference.driveId).
-                executeHttpMethods(endpoint, Constants.PATCH_METHOD,
-                        createRequestBody(driveItemTarget.id));
-
-        processResponse(moveResponse, payload, driveItemSource, target, source);
-    }
-
-
-    private DriveItem validateTargetFolderAndGetDriveItem(String target, Map<String, Object> payload) {
-        Map<String, Object> response = new HashMap<>();
-        DriveItem driveItemTarget = checkIfTargetFolderExist(target, response);
-        payload.put(Constants.IS_FOLDER_EXIST, response.get(Constants.IS_FOLDER_EXIST));
-
-        return driveItemTarget;
-    }
-
-    private String buildMoveEndpoint(DriveItem driveItemSource, DriveItem driveItemTarget) {
-        String endpoint = driveItemSource.id + "?@microsoft.graph.conflictBehavior=replace";
-        return endpoint;
-    }
-
-    private DriveItem createFolderInPath(String target, Map<String, Object> payload) {
-        DriveItem driveItem = new DriveItem();
+    private void createFolderInPath(String targetDriveId, String targetRelativeFilePath) {
         try {
-            copyFileUtilityService.validateTargetPath(target, payload);
-
-            if ((boolean) payload.get(Constants.SUCCESS)) {
-                String absolutePathBuilder = DriveUtil.getRootUrl(target);
-                DriveItem driveItemTarget = copyFileUtilityService.checkRootTargetFolderExist(absolutePathBuilder, payload);
-
-                if ((boolean) payload.get(Constants.IS_FOLDER_EXIST)) {
-                    target = DriveUtil.removeFirstSlash(DriveUtil.getRelativePath(target));
-                    driveItem = createFoldersInTargetPath(target, absolutePathBuilder, driveItemTarget, payload);
-                } else {
-                    copyFileUtilityService.handleInvalidTargetPath(payload);
-                    return new DriveItem();
+            String validatedPath = targetRelativeFilePath.startsWith("/") ? targetRelativeFilePath.replaceFirst("/", "") : targetRelativeFilePath;
+            String[] stream = validatedPath.split("/");
+            StringBuilder relativePathBuilder = new StringBuilder();
+            for (String folderName : stream) {
+                Map<String, Object> check = new HashMap<>();
+                relativePathBuilder.append("/").append(folderName);
+                searchFileExecutor.fetchFileDetailsByDriveID(targetDriveId, relativePathBuilder.toString(), false, check, null, null);
+                if (!(boolean) check.get(Constants.IS_TARGET_FILE_EXIST)) {
+                    String parentPath = FileUtil.getParentPath(relativePathBuilder.toString());
+                    DriveItemRequestBuilder builder = FileUtil.getRootUserRequestBuilder(provider, targetDriveId);
+                    if (parentPath != null && !parentPath.isEmpty()) {
+                        builder = builder.itemWithPath(FileUtil.getParentPath(relativePathBuilder.toString()));
+                    }
+                    builder.children().buildRequest().post(DriveUtil.getDriveItemForItem(folderName));
                 }
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            copyFileUtilityService.handleInvalidTargetPath(payload);
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
         }
-        return driveItem;
     }
 
-    private DriveItem createFoldersInTargetPath(String target, String absolutePathBuilder, DriveItem driveItemTarget,
-                                                Map<String, Object> payload) {
-        DriveItem driveItem = new DriveItem();
-        String[] folders = target.split("/");
+    private void prepareMovedResponse(Response moveResponse, String driveId, Map<String, Object> payload, String target, String source) {
+        if (moveResponse != null && moveResponse.code() == 200) {
+            try {
+                String itemID = moveResponse.request().url()
+                        .pathSegments()
+                        .get(moveResponse.request().url().pathSegments().size() - 1);
+                DriveItem driveItem = FileUtil.getUserRequestBuilderWithItemId(provider, driveId, itemID)
+                        .buildRequest().expand(Constants.PERMISSIONS).get();
 
-        StringBuilder relativePathBuilder = new StringBuilder();
-        for (String folderName : folders) {
-            Map<String, Object> check = new HashMap<>();
-            absolutePathBuilder = absolutePathBuilder + "/" + folderName;
-            relativePathBuilder.append("/").append(folderName);
-
-            // Check if the folder exists
-            driveItem = checkIfTargetFolderExist(absolutePathBuilder.toString(), check);
-
-            if (!(boolean) check.get(Constants.IS_FOLDER_EXIST)) {
-                driveItem = createDriveItemForFolder(folderName, absolutePathBuilder, relativePathBuilder.toString(),
-                        driveItemTarget, payload);
-                return driveItem;
+                ResponseUtil.fileEntityResponse(File
+                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null), source, target, fileSearchUtilityService))
+                        , true, Constants.FILE_HAS_BEEN_MOVED, payload);
+            } catch (GraphServiceException | IllegalArgumentException cause) {
+                LOGGER.info(cause.getMessage(), cause);
+                ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
+                        .contains(Constants.ITEM_NOT_FOUND)
+                        ? Constants.FILE_NOT_FOUND : Constants.ERROR_OCCURRED_DURING_MOVING_FILE, payload);
             }
+        } else if (moveResponse != null && moveResponse.code() == 409) {
+            ResponseUtil.errorResponse(false, Constants.FILE_ALREADY_EXIST, payload);
+        } else {
+            ResponseUtil.errorResponse(false, Constants.ERROR_DURING_SERVICE, payload);
         }
-        return driveItem;
     }
 
-    private DriveItem createDriveItemForFolder(String folderName, String absolutePathBuilder, String relativePath,
-                                               DriveItem driveItemTarget, Map<String, Object> payload) {
-        DriveItem driveItem;
-        driveItem = provider.getUserRequestBuilder(null, null)
-                .drives(driveItemTarget.parentReference.driveId).root()
-                .itemWithPath(FileUtil.getParentPath(relativePath))
-                .children().buildRequest().post(DriveUtil.getDriveItemForItem(folderName));
+    private void executeMove(DriveItem source, DriveItem target, Map<String, Object> payload, String sourcePath, String targetPath) throws IOException {
+        if (source != null) {
 
-        payload.put("isFileExist", true);
-        return driveItem;
+            String endpoint = source.id;
+
+            Response moveResponse = getRestClient(target.parentReference.driveId).
+                    executeHttpMethods(endpoint, Constants.PATCH_METHOD,
+                            createRequestBody(target.id, target.parentReference.driveId));
+            prepareMovedResponse(moveResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
+        }
     }
 
+    private void executeCopy(DriveItem source, DriveItem target, Boolean replace, Map<String, Object> payload, String sourcePath, String targetPath) throws IOException {
+        if (source != null) {
+
+            String endpoint = source.id + "/copy";
+            if (Boolean.TRUE.equals(replace)) {
+                endpoint += MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE;
+            }
+            Response copyResponse = getRestClient(target.parentReference.driveId)
+                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, target.parentReference.driveId));
+            prepareCopyResponse(copyResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
+        }
+    }
 }

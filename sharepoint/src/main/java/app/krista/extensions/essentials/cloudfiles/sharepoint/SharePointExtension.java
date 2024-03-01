@@ -8,12 +8,10 @@ import app.krista.extension.impl.anno.InvokerRequest;
 import app.krista.extension.impl.anno.StaticResource;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.HandleFileIsChanged;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.model.base.FreeForm;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -24,7 +22,7 @@ import java.util.concurrent.Executors;
 @Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
 @Field.Text(value = Constants.TENANT_ID, isSecured = true)
 @Field.Text(value = Constants.EMAIL)
-@Extension(version = "2.0.0-rc2")
+@Extension(version = "2.0.0-rc3")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {
 

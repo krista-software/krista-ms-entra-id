@@ -1,6 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
@@ -25,6 +25,7 @@ import java.util.Map;
 public class FileCreateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileCreateService.class);
+    private static final String INVALID_INPUT_MISSING_GROUP_DATA_OR_PROPERTIES = "Invalid input: Missing group data or properties";
 
     private final GraphServiceClient<Request> graphClient;
 
@@ -45,14 +46,14 @@ public class FileCreateService {
         Map<String, Object> payload = new HashMap<>();
         try {
             if (!validateGroupData(groupName, mailNickName)) {
-                LOGGER.error("Invalid input: Missing group data or properties");
-                throw new IllegalArgumentException("Invalid input: Missing group data or properties");
+                LOGGER.error(INVALID_INPUT_MISSING_GROUP_DATA_OR_PROPERTIES);
+                throw new IllegalArgumentException(INVALID_INPUT_MISSING_GROUP_DATA_OR_PROPERTIES);
             }
             Group groupToCreate = buildGroup(groupName, mailNickName);
             Group createdGroup = graphClient.groups().buildRequest().post(groupToCreate);
 
             if (createdGroup.id != null) {
-                payload.put(Constants.FILE, CatalogTypes.fromFile(new GroupImpl(createdGroup, null)));
+                payload.put(Constants.FILE, File.fromFile(new GroupImpl(createdGroup, null)));
                 payload.put(Constants.SUCCESS, true);
                 payload.put(Constants.MESSAGE, Constants.GROUP_CREATED);
             } else {

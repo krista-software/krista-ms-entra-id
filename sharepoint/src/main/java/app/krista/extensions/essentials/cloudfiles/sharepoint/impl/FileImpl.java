@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
@@ -39,6 +40,7 @@ public class FileImpl implements FileService {
         }
         this.driveMetaData = fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
     }
+
 
 
     @Override

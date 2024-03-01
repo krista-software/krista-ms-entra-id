@@ -62,41 +62,16 @@ public class DriveUtil {
         return driveItem;
     }
 
-    public static String getRelativePath(String fullUrl) {
+    public static String validatePath(String fullUrl) {
         try {
             String escapedUrl = fullUrl.replace(" ", "%20");  // Escape spaces
             URI uri = new URI(escapedUrl);
-            String path = uri.getPath();
-
-            String[] pathSegments = path.split(File.separator.equals("\\") ? "\\\\" : File.separator);
-
-            // Find the index of the last "Documents" segment, regardless of case:
-            int startIndex = -1;
-            for (int i = pathSegments.length - 1; i >= 0; i--) {
-                if (pathSegments[i].equalsIgnoreCase(Constants.DOCUMENTS) ||
-                        pathSegments[i].equalsIgnoreCase(Constants.SHARED_DOCUMENTS)) {
-                    startIndex = i;
-                    break;
-                }
-            }
-
-            if (startIndex != -1) {
-                startIndex++;  // Start after "Documents"
-                StringBuilder dynamicPath = new StringBuilder(File.separator);
-                for (int i = startIndex; i < pathSegments.length; i++) {
-                    dynamicPath.append(pathSegments[i]);
-                    if (i < pathSegments.length - 1) {
-                        dynamicPath.append(File.separator);
-                    }
-                }
-                return dynamicPath.toString();
-            } else {
-                return null;  // Handle cases where "Documents" is not found
-            }
+            return uri.getPath();
         } catch (URISyntaxException e) {
             return null;
         }
     }
+
 
     public static String removeLastSegment(String url) {
         if (url != null && !url.isEmpty()) {
@@ -138,7 +113,7 @@ public class DriveUtil {
         return inputPath;
     }
 
-    public static String DoubleToDateConversion(String inputString) {
+    public static String doubleToDateConversion(String inputString) {
         double inputDouble = Double.parseDouble(inputString);
 
         // Convert double to Date
@@ -176,7 +151,6 @@ public class DriveUtil {
             }
 
             token = queryParams.get("token");
-            System.out.println("Token: " + token);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException();
         }
