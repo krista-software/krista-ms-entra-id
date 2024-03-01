@@ -80,9 +80,9 @@ public class ManagementDaoImpl {
         }
     }
 
-    public FreeForm getFileByPath(String relativePath, String search, boolean useEmail, String accountID) {
+    public FreeForm getFileByPath(String sourcePath, String search, boolean useEmail, String accountID) {
         try {
-            return fileManagementDao.getListOfFiles(relativePath, search, useEmail, accountID);
+            return fileManagementDao.getListOfFiles(sourcePath, search, useEmail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }

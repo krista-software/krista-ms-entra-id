@@ -95,8 +95,8 @@ public class OperationsManagementDao {
     private void validateAndRenameFile(String sourcePath, String targetFileName, Map<String, Object> payload) {
         if (sourcePath != null) {
             searchFileExecutor.getFileInfo(sourcePath, payload, true);
+            if (payload.get(Constants.SUCCESS).equals(Boolean.TRUE)) {
             DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
-            if (payload.get(Constants.SUCCESS) == Boolean.TRUE) {
                 renameDriveItem(targetFileName, driveItem, payload);
             } else {
                 setFileNotFoundMessage(payload);

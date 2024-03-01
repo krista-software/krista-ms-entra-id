@@ -22,9 +22,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,13 +40,15 @@ public class FolderManagementDao {
     private final GraphServiceClientProvider provider;
     private final ManagementUtilityService managementUtilityService;
     private final FileSearchUtilityService fileSearchUtilityService;
+    private final SearchFileExecutor searchFileExecutor;
 
     @Inject
     public FolderManagementDao(GraphServiceClientProviderFactory factory, ManagementUtilityService managementUtilityService,
-                               FileSearchUtilityService fileSearchUtilityService) {
+                               FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
         this.managementUtilityService = managementUtilityService;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -56,18 +56,21 @@ public class FolderManagementDao {
      *
      * @return A FreeForm object containing the list of folders or error messages.
      */
-    public FreeForm getListOfFolders(String relativePath, String search, boolean useEmail, String accountID) {
+    public FreeForm getListOfFolders(String sourcePath, String search, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
+        Map<String, Object> mapPayload = new HashMap<>();
         try {
             List<FileService> files = new ArrayList<>();
-            if (relativePath == null || relativePath.isEmpty()) {
+            if (sourcePath == null || sourcePath.isEmpty()) {
                 ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
             }
-            relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
-            DriveItem driveItem = checkIfFileExist(relativePath, payload, useEmail, accountID);
-            if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
-                relativePath = getRelativePath(relativePath);
-                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, relativePath, files, useEmail, accountID, search, payload);
+            searchFileExecutor.getFileInfo(sourcePath, mapPayload, true, useEmail, accountID);
+//            sourcePath = managementUtilityService.getUpdatedFilePath(sourcePath);
+//            DriveItem driveItem = checkIfFileExist(sourcePath, payload, useEmail, accountID);
+            if (mapPayload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
+                DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
+                sourcePath = getRelativePath(sourcePath);
+                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, sourcePath, files, useEmail, accountID, search, payload);
             } else {
                 ResponseUtil.getInfoResponse(false, Constants.INVALID_FOLDER_PATH, payload);
             }

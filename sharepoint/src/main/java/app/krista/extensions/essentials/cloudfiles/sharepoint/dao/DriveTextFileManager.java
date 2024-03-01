@@ -59,9 +59,8 @@ public class DriveTextFileManager {
         try {
             if (source != null) {
                 searchFileExecutor.getFileInfo(source, payload, true);
-                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
-
                 if ((boolean) payload.get(Constants.SUCCESS)) {
+                    DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
                     readTxtFileFromSource(payload, driveItem);
                 } else {
                     invalidPath(payload);
@@ -106,10 +105,10 @@ public class DriveTextFileManager {
                 String path = DriveUtil.validatePath(target);
                 String parentPath = FileUtil.getParentPath(path);
                 searchFileExecutor.getFileInfo(parentPath, payload, true);
-                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ?
-                        (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
+                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ?
+                        (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
                     if (driveItem!= null && driveItem.name != null && driveItem.folder != null) {
                         uploadTxtFileFromTarget(target, fileContent, payload, driveItem);
                     }

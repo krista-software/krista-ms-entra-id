@@ -53,7 +53,7 @@ public class SearchFileExecutor {
             fetchFileDetailsByDriveID(driveId, relativeFilePath, isSourcePath, payload, useMail, accountID);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage());
-            ResponseUtil.errorResponse(false, "Please provide a correct path; the specified file or folder could not be located.", payload);
+            ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND, payload);
         }
     }
 
@@ -84,8 +84,6 @@ public class SearchFileExecutor {
                 }
                 payload.put(Constants.SUCCESS, false);
             }
-        } else {
-            return;
         }
     }
 
@@ -103,7 +101,7 @@ public class SearchFileExecutor {
 
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage());
-            ResponseUtil.errorResponse(false, "Please provide a correct path; the specified file or folder could not be located.", payload);
+            ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND, payload);
         }
         return null;
     }
@@ -132,7 +130,7 @@ public class SearchFileExecutor {
     private void handleFileExistenceCheckException(Exception cause, Map<String, Object> payload) {
         LOGGER.error("{} : {}", Constants.ERROR_MESSAGE, cause.getMessage());
         payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
-                .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : cause.getMessage());
+                .contains(Constants.ITEM_NOT_FOUND) ? Constants.FILE_NOT_FOUND : Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND);
         payload.put(Constants.SUCCESS, false);
     }
 
@@ -172,7 +170,7 @@ public class SearchFileExecutor {
                 ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
                         .contains(Constants.ITEM_NOT_FOUND)
                         ? Constants.FILE_NOT_FOUND
-                        : Constants.PROVIDE_VALID_PATH_FILE_NOT_FOUND, payload);
+                        : Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND, payload);
             }
         }
 

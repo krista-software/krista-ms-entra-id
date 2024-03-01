@@ -340,20 +340,23 @@ public class DriveFileService {
      * @return A FreeForm object containing the list of files or error messages.
      */
     @NotNull
-    public FreeForm getListOfFiles(String relativePath, String search, boolean useEmail, String accountID) {
+    public FreeForm getListOfFiles(String sourcePath, String search, boolean useEmail, String accountID) {
         FreeForm payload = new FreeForm();
+        Map<String, Object> mapPayload = new HashMap<>();
         try {
             List<FileService> files = new ArrayList<>();
-            if (isNullOrEmpty(relativePath)) {
+            if (isNullOrEmpty(sourcePath)) {
                 handleInvalidPathError(payload);
                 return payload;
             }
-            relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
-            DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
-            if (payload.get(Constants.SUCCESS) == Boolean.TRUE && driveItem != null && driveItem.parentReference != null) {
-                String refinedRelativePath = FolderManagementDao.getRelativePath(relativePath);
+            searchFileExecutor.getFileInfo(sourcePath, mapPayload, true, useEmail, accountID);
+//            relativePath = managementUtilityService.getUpdatedFilePath(relativePath);
+//            DriveItem driveItem = checkIfFileExistAndGetParentDriveId(relativePath, payload, useEmail, accountID);
+            if (mapPayload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
+                DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
+                String refinedRelativePath = FolderManagementDao.getRelativePath(sourcePath);
                 getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath,
-                        files, useEmail, accountID, search, payload, relativePath);
+                        files, useEmail, accountID, search, payload, sourcePath);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(cause.getMessage());

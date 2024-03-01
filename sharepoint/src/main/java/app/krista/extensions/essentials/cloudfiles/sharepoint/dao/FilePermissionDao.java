@@ -18,8 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +51,7 @@ public class FilePermissionDao {
     public FreeForm getSharedPermission(String filePath, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with filePath: {} ", filePath);
         FreeForm payload = new FreeForm();
-        // Map<String,Object> payload =new HashMap<>();
+        Map<String,Object> mapPayload =new HashMap<>();
         if (filePath != null) {
             filePath = filePath.replace(Constants.WHITE_SPACE, " ");
             List<DriveSharedPermissionImpl> resultPage = new ArrayList<>();

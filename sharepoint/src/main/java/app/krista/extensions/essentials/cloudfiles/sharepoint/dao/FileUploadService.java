@@ -72,9 +72,9 @@ public class FileUploadService {
                                        Map<String, Object> payload) {
         if (targetPath != null && !FileUtil.hasFileExtension(targetPath)) {
             searchFileExecutor.getFileInfo(targetPath,payload,true);
-            DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
+            DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
                 targetPath = DriveUtil.validatePath(targetPath);
                 assert Objects.requireNonNull(driveItem).parentReference != null;
                 uploadFileByPathByDriveID(driveItem.parentReference.driveId, targetPath, kristaFile, payload,driveItem);
