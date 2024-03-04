@@ -7,6 +7,7 @@ import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.OperationsAreaImpl;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.Map;
 
 @Domain(id = "catEntryDomain_30c63e77-37f2-4a1d-afd8-f6bfda07ad57",
@@ -88,7 +89,7 @@ public class OperationsArea {
             description = "Updates the display name of an existing SharePoint group.",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity", required = false)
+    @Field.Desc(name = "File", type = "Entity(File)",required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> updateGroup(
@@ -98,14 +99,14 @@ public class OperationsArea {
     }
 
     @CatalogRequest(
-            id = "localDomainRequest_ce9dcc9f-7be5-42e5-8d97-05304c122097",
+            id = "localDomainRequest_ad41172b-aeac-47c0-afff-04a8cc2df1bd",
             name = "Create Group",
             description = "Create group in Sharepoint",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Desc(name = "File", type = "Entity(File)",required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Desc(name = "File", type = "Entity(File)", required = false)
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> createGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
             @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {

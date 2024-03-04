@@ -1,15 +1,39 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileCreateService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaListImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaSiteImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.microsoft.graph.http.GraphServiceException;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.jvnet.hk2.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.HttpMethod;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
+
 
 /**
  * Class for creating,deleting and updating SharePoint lists & Site using Microsoft Graph API.
@@ -19,20 +43,20 @@ import java.util.Map;
 @Service
 public class OperationsAreaImpl {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsAreaImpl.class);
     private final GraphServiceClientProvider clientProvider;
-
     private final OperationsAreaListImpl operationsAreaListImpl;
-
     private final OperationsAreaSiteImpl operationsAreaSiteImpl;
-
+    private final SharePointAttributes sharePointAttributes;
 
     @Inject
     public OperationsAreaImpl(GraphServiceClientProviderFactory clientProviderFactory,
                               OperationsAreaListImpl operationsAreaListImpl,
-                              OperationsAreaSiteImpl operationsAreaSiteImpl) {
+                              OperationsAreaSiteImpl operationsAreaSiteImpl, SharePointAttributes sharePointAttributes) {
         this.clientProvider = clientProviderFactory.create();
         this.operationsAreaListImpl = operationsAreaListImpl;
         this.operationsAreaSiteImpl = operationsAreaSiteImpl;
+        this.sharePointAttributes = sharePointAttributes;
     }
 
 
@@ -87,9 +111,70 @@ public class OperationsAreaImpl {
      */
 
     public Map<String, Object> createGroup(String groupName, String mailNickName) {
-        FileCreateService fileCreateService = new FileCreateService(clientProvider.
-                getUserRequestBuilder(null, null));
-        return fileCreateService.createGroup(groupName, mailNickName);
+        Map<String, Object> payload = new HashMap<>();
+        String ownerMail = sharePointAttributes.getMailId();
+
+        try {
+            String response = clientProvider.getRestClient(null).
+                    executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createJsoBody(groupName, mailNickName, ownerMail));
+
+
+            prepareResponse(response, payload);
+        } catch (IOException cause) {
+            LOGGER.error("Failed to create group - " + cause.getMessage());
+        }
+        return payload;
     }
+
+    private void prepareResponse(String response, Map<String, Object> payload) throws IOException {
+         File file = new File();
+//        try (ResponseBody responseBody = response.body()) {
+//            if (responseBody != null) {
+//
+//
+//                String groupCreateResponse = textBuilder.toString();
+//                LOGGER.info("Group Create Successfully.." + groupCreateResponse);
+////                ObjectMapper mapper = new ObjectMapper();
+////                JsonNode jsonNode = mapper.readTree(response.body().byteStream());
+////
+////                file.name = String.valueOf(jsonNode.get("displayName"));
+////                file.baseName = String.valueOf(jsonNode.get("mailNickname"));
+//                payload.put(Constants.FILE, file);
+//                payload.put(Constants.SUCCESS, true);
+//                payload.put(Constants.MESSAGE, "Group Created Successfully");
+//            }
+//        } catch (JsonSyntaxException | NoSuchElementException cause) {
+//            LOGGER.error(cause.getMessage());
+//        }
+
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
+        file.name = String.valueOf(jsonObject.get("displayName"));
+         payload.put(Constants.FILE,file);
+    }
+
+    private RequestBody createJsoBody(String groupName, String mailNickName, String ownerMail) {
+        MediaType jsonMediaType = MediaType.parse(Constants.APPLICATION_JSON);
+        String payLoad = createPayload(groupName, mailNickName, ownerMail);
+        return RequestBody.create(payLoad, jsonMediaType);
+    }
+
+    private String createPayload(String groupName, String mailNickName, String ownerMail) {
+        JsonObject jsonBody = new JsonObject();
+        jsonBody.addProperty("displayName", groupName);
+        jsonBody.addProperty("mailEnabled", true);
+        jsonBody.addProperty("mailNickname", mailNickName);
+        jsonBody.addProperty("securityEnabled", false);
+
+        JsonArray groupTypes = new JsonArray();
+        groupTypes.add("Unified");
+        jsonBody.add("groupTypes", groupTypes);
+
+        JsonArray owners = new JsonArray();
+        owners.add("https://graph.microsoft.com/v1.0/users/" + ownerMail);
+        jsonBody.add("owners@odata.bind", owners);
+        return new Gson().toJson(jsonBody);
+    }
+
 
 }

@@ -5,8 +5,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.codehaus.jettison.json.JSONException;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 public class RestClient {
@@ -24,22 +31,40 @@ public class RestClient {
     public static final String ONE_OR_MORE_INPUT_PARAMETER_IS_INVALID = "One or more input parameter is invalid";
     public static final String ONE_OR_MORE_FIELD_PROVIDED_ARE_INVALID = "One or more field provided are invalid";
     public static final String GRAPH_API_BASE_URI = "https://graph.microsoft.com/v1.0/me";
-
-    String accessToken;
-    String driveId;
-    String instanceUrl;
-
     public static final String AUTHORIZATION = "Authorization";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String YOU_ARE_NOT_AUTHORIZED = "You are not authorized";
     public static final String APPLICATION_JSON = "application/json";
     public static final String STATUS_CODE_IS = "Status code is ";
+    String accessToken;
+    String driveId;
+    String instanceUrl;
 
 
     public RestClient(String accessToken, String driveId) {
         this.accessToken = accessToken;
         this.driveId = driveId;
         this.instanceUrl = getProperInstanceUrl(driveId);
+    }
+
+    public RestClient(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    private static Request prepareRequest(String methodType, RequestBody requestBody, String endPointUrl,
+                                          String accessToken) {
+
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(endPointUrl)
+                .method(methodType, requestBody);
+
+        if (!Constants.GET_REQUEST.equalsIgnoreCase(methodType)) {
+            requestBuilder
+                    .addHeader(AUTHORIZATION, BEARER_ + accessToken)
+                    .addHeader(CONTENT_TYPE, APPLICATION_JSON);
+        }
+
+        return requestBuilder.build();
     }
 
     private String getProperInstanceUrl(String driveId) {
@@ -74,22 +99,6 @@ public class RestClient {
         return null;
     }
 
-    private static Request prepareRequest(String methodType, RequestBody requestBody, String endPointUrl,
-                                          String accessToken) {
-
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(endPointUrl)
-                .method(methodType, requestBody);
-
-        if (!Constants.GET_REQUEST.equalsIgnoreCase(methodType)) {
-            requestBuilder
-                    .addHeader(AUTHORIZATION, BEARER_ + accessToken)
-                    .addHeader(CONTENT_TYPE, APPLICATION_JSON);
-        }
-
-        return requestBuilder.build();
-    }
-
     private Response executeRequest(RequestBody payload, String methodType, String endPointUrl) throws
             IOException {
         Request request = prepareRequest(methodType, payload, instanceUrl + endPointUrl, accessToken);
@@ -97,6 +106,22 @@ public class RestClient {
         try (Response response = client.newCall(request).execute()) {
             return handleResponse(Objects.requireNonNull(response));
         }
+    }
+
+    private String executeRequestForGroup(RequestBody payload, String methodType, String endPointUrl) throws
+            IOException {
+        Request request = prepareRequest(methodType, payload, endPointUrl, accessToken);
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return parseCreateGroupResponse(Objects.requireNonNull(response));
+        }
+    }
+
+    private String parseCreateGroupResponse(Response response) throws IOException {
+        String createGroupResponse = response.body().string();
+
+        return null;
     }
 
     public Response handleResponse(Response response) {
@@ -123,5 +148,14 @@ public class RestClient {
         }
         return null;
     }
+
+    public String executeHttpMethodsForGroup(String groupUrl, String action, RequestBody jsoBody) throws IOException {
+        if (action.equals(Constants.POST_METHOD)) {
+            return executeRequestForGroup(jsoBody, Constants.POST_METHOD, groupUrl);
+        }
+        return null;
+    }
+
+
 
 }

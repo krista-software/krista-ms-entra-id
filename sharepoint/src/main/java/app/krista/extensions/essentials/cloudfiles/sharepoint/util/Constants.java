@@ -233,11 +233,11 @@ public class Constants {
 
     public static final String FILE_WITH_THIS_NAME_ALREADY_EXISTS = "A file with this name already exists. Please choose a different file name.";
 
-    public static final String THERE_IS_SOME_ISSUE_WITH_FILE =  "There is some issue with File , Please choose a different file name.";
+    public static final String THERE_IS_SOME_ISSUE_WITH_FILE = "There is some issue with File , Please choose a different file name.";
 
-    public static final String FAILED_GET_FILE_FROM_INPUT_STREAM_INPUT_STREAM_EMPTY =  "Failed get file from input stream. Input stream is empty.";
+    public static final String FAILED_GET_FILE_FROM_INPUT_STREAM_INPUT_STREAM_EMPTY = "Failed get file from input stream. Input stream is empty.";
 
-    public static final String FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY =  "Failed get file from input stream. File name is empty.";
+    public static final String FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY = "Failed get file from input stream. File name is empty.";
 
     public static final String FAILED_TO_GET_DRIVE_ITEM_FOLDER_NAME_IS_EMPTY = "Failed to get drive item. Folder name is empty.";
 
@@ -303,11 +303,11 @@ public class Constants {
 
     public static final String MAILID_CANNOT_BE_EMPTY = "E-Mail Id Cannot be null or empty";
 
-    public static final String INVALID_EMAIL=  "Please provide a valid email";
+    public static final String INVALID_EMAIL = "Please provide a valid email";
 
-    public static final String CREATED_BY  = "Created By";
+    public static final String CREATED_BY = "Created By";
 
-    public static final String FAILED_TO_CREATE_SUBSCRIPTION  = "Failed to create subscription for sites, Please try again letter.";
+    public static final String FAILED_TO_CREATE_SUBSCRIPTION = "Failed to create subscription for sites, Please try again letter.";
 
     public static final String MICROSOFT_GRAPH_DRIVE_ITEM = "#microsoft.graph.driveItem";
 
@@ -339,6 +339,7 @@ public class Constants {
 
     public static final String GROUP_CREATED = "Group created successfully";
 
+    public static final String GROUP_URL = "https://graph.microsoft.com/v1.0/groups";
 
 
     private Constants() {
