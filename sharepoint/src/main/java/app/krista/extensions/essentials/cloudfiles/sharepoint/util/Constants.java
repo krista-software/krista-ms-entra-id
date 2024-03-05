@@ -7,15 +7,10 @@ import com.google.gson.GsonBuilder;
 public class Constants {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
     public static final String CODE = "code";
-
     public static final String STATE = "state";
-
     public static final String INVALID_STATE_PARAMETERS = "Invalid state parameters!";
-
     public static final String WS_CONTACT = "wsContact";
-
     public static final String IGNORED_EXCEPTION = "IGNORED EXCEPTION";
 
     public static final String PLEASE_PROVIDE_VALID_TARGET_PATH = "Please, Provide Valid Target Path";
@@ -366,12 +361,9 @@ public class Constants {
     public static final String PLEASE_PROVIDE_VALID_FILE_SOURCE_PATH = "Please, Provide Valid File Source Path";
 
     public static final String FILE_IS_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT = "Access to download this file is currently restricted. For assistance, contact your administrator or support.";
-
     public static final String ACCESS_DENIED = "accessDenied";
     public static final String FILE_DELETED_SUCCESSFULLY = "File deleted successfully";
     public static final String PROVIDE_VALID_PATH_FILE_NOT_FOUND = "Please provide valid path, file was not found";
-
-
     public static final String GTE = "gte";
     public static final String LTE = "lte";
     public static final String GT = "gt";
@@ -417,17 +409,29 @@ public class Constants {
     public static final String USER_EMAIL = "User Email";
 
     public static final String FOLDERS = "Folders";
+
     public static final String SIZE = "Size";
+
     public static final String OLDEST_FILE = "Oldest File";
+
     public static final String OLDEST_FILE_CREATE_DATE = "Oldest File Create Date";
+
     public static final String NEWEST_FILE = "Newest File";
+
     public static final String NEWEST_FILE_DATE = "Newest File Date";
+
     public static final String LAST_MODIFIED_FILE_ID = "Last Modified File Id";
+
     public static final String LAST_MODIFIED_FILE_NAME = "Last Modified File Name";
+
     public static final String LAST_MODIFIED_FILE_CREATE_DATE = "Last Modified File Create Date";
+
     public static final String ODATA_CONTEXT = "@odata.context";
+
     public static final String PLEASE_PROVIDE_VALID_PATH_FOLDER_WAS_NOT_FOUND = "Please provide valid path, folder was not found";
+
     public static final String PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND = "Please provide a valid path, the file/folder was not found";
+
     public static final String EMPTY_FOLDER = "The provided folder is empty";
 
 
