@@ -27,6 +27,7 @@
 * [KE-1462](https://antbrains.atlassian.net/browse/KE-1462)  Unable to retrieve data using the 'Search by mail' request with the email addresses configured in the extension.
 * [KC-1869](https://antbrains.atlassian.net/browse/KC-1462)   Share Point Extension Service Bettor error Message to User in configure Extension Screen.
 * [KC-1507](https://antbrains.atlassian.net/browse/KC-1507)  Download as file : Need to update the message
+
 * [KE-1499](https://antbrains.atlassian.net/browse/KE-1499)  When an empty folder is given, No data is returned in place of NA or Zero.
 
 
