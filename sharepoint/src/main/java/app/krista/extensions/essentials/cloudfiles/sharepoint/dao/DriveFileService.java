@@ -37,6 +37,8 @@ import java.util.stream.Collectors;
 public class DriveFileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DriveFileService.class);
+
+    private static final String EMPTY_FOLDER = "The provided folder is empty";
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
@@ -86,7 +88,7 @@ public class DriveFileService {
 
     private void handleEmptyFolder(FreeForm payload, Map<String, Object> mapPayload) {
         payload.put(Constants.SUCCESS, Constants.SWITCH, true);
-        payload.put(Constants.MESSAGE, Constants.TEXT, mapPayload.getOrDefault(Constants.MESSAGE, Constants.EMPTY_FOLDER));
+        payload.put(Constants.MESSAGE, Constants.TEXT, mapPayload.getOrDefault(Constants.MESSAGE, EMPTY_FOLDER));
     }
 
     private void handleErrorResponse(String errorMessage, FreeForm payload) {
