@@ -109,8 +109,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Limitation :
-> * This request return the total size of files present inside folder.
-> * Size of folder and total size of files may differ due to following reason.
+> * This request returns the total size of files present inside folder.
+> * Size of folder and total size of files may differ because of following reasons.
 >  1. Folder sizes in SharePoint may not just reflect file sizes but include extra data like version history and system files.
 >  2. The reported size might be bigger or less due to saved versions of files and items in the recycle bin.
 
