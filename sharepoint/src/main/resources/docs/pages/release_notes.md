@@ -26,6 +26,7 @@
 * [KE-1465](https://antbrains.atlassian.net/browse/KE-1465) The size displayed in response is not correct for the folder in the 'Get Info' request.
 * [KE-1462](https://antbrains.atlassian.net/browse/KE-1462)  Unable to retrieve data using the 'Search by mail' request with the email addresses configured in the extension.
 * [KC-1869](https://antbrains.atlassian.net/browse/KC-1462)   Share Point Extension Service Bettor error Message to User in configure Extension Screen.
+* [KC-1507](https://antbrains.atlassian.net/browse/KC-1507)  Download as file : Need to update the message
 
   
 ## Known Issues

@@ -251,11 +251,11 @@ public class Constants {
 
     public static final String FILE_WITH_THIS_NAME_ALREADY_EXISTS = "A file with this name already exists. Please choose a different file name.";
 
-    public static final String THERE_IS_SOME_ISSUE_WITH_FILE =  "There is some issue with File , Please choose a different file name.";
+    public static final String THERE_IS_SOME_ISSUE_WITH_FILE = "There is some issue with File , Please choose a different file name.";
 
-    public static final String FAILED_GET_FILE_FROM_INPUT_STREAM_INPUT_STREAM_EMPTY =  "Failed get file from input stream. Input stream is empty.";
+    public static final String FAILED_GET_FILE_FROM_INPUT_STREAM_INPUT_STREAM_EMPTY = "Failed get file from input stream. Input stream is empty.";
 
-    public static final String FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY =  "Failed get file from input stream. File name is empty.";
+    public static final String FAILED_GET_FILE_FROM_INPUT_STREAM_FILE_NAME_EMPTY = "Failed get file from input stream. File name is empty.";
 
     public static final String FAILED_TO_GET_DRIVE_ITEM_FOLDER_NAME_IS_EMPTY = "Failed to get drive item. Folder name is empty.";
 
@@ -321,11 +321,11 @@ public class Constants {
 
     public static final String MAILID_CANNOT_BE_EMPTY = "E-Mail Id Cannot be null or empty";
 
-    public static final String INVALID_EMAIL=  "Please provide a valid email";
+    public static final String INVALID_EMAIL = "Please provide a valid email";
 
-    public static final String CREATED_BY  = "Created By";
+    public static final String CREATED_BY = "Created By";
 
-    public static final String FAILED_TO_CREATE_SUBSCRIPTION  = "Failed to create subscription for sites, Please try again letter.";
+    public static final String FAILED_TO_CREATE_SUBSCRIPTION = "Failed to create subscription for sites, Please try again letter.";
 
     public static final String MICROSOFT_GRAPH_DRIVE_ITEM = "#microsoft.graph.driveItem";
 
@@ -372,7 +372,6 @@ public class Constants {
     public static final String PROVIDE_VALID_PATH_FILE_NOT_FOUND = "Please provide valid path, file was not found";
 
 
-
     public static final String GTE = "gte";
     public static final String LTE = "lte";
     public static final String GT = "gt";
@@ -403,11 +402,11 @@ public class Constants {
     public static final String FILE_FETCHED_SUCCESSFULLY = "Files and Folders fetched successfully";
     public static final String FOLDER_NAME_LIST_IS_EMPTY_OR_NULL = "Folder with given path and search parameter is empty";
     public static final String FILE_NAME_LIST_IS_EMPTY_OR_NULL = "Files or Folder with given path and search parameter are empty";
-     public static final String FILE_SPECIFIC_FILE_NOT_FOUND = "File with this name does not exist or provided path is incorrect";
+    public static final String FILE_SPECIFIC_FILE_NOT_FOUND = "File with this name does not exist or provided path is incorrect";
     public static final String FOLDER_IS_EMPTY = "Folder with given path is empty";
-     public static final String FILE_HAS_BEEN_MOVED = "File has been moved successfully";
-      public static final String FILE_IS_TO_SHARE_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT = "Access to share this file or folder is currently restricted. For assistance, contact your administrator or support.";
-       public static final String AUTH_URL_QUERY_PARAMS = "&access_type=offline&approval_prompt=force&prompt=login";
+    public static final String FILE_HAS_BEEN_MOVED = "File has been moved successfully";
+    public static final String FILE_IS_TO_SHARE_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT = "Access to share this file or folder is currently restricted. For assistance, contact your administrator or support.";
+    public static final String AUTH_URL_QUERY_PARAMS = "&access_type=offline&approval_prompt=force&prompt=login";
 
     public static final String ERROR_OCCURRED_DURING_UPLOADING_ATTACHMENT = "Error occurred during uploading attachment";
     public static final String ERROR_OCCURRED_DURING_MOVING_FILE = "Error occurred during moving file";
@@ -433,6 +432,7 @@ public class Constants {
 
     public static final String PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND = "Please provide a valid path, the file/folder was not found";
 
+    public static final String FILE_DOWNLOADED_SUCCESSFULLY = "File downloaded successfully";
 
 
     private Constants() {
