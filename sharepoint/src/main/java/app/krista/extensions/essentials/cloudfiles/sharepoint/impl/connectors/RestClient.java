@@ -6,14 +6,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.codehaus.jettison.json.JSONException;
-import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.codehaus.jettison.json.JSONObject;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 public class RestClient {
@@ -108,20 +107,18 @@ public class RestClient {
         }
     }
 
-    private String executeRequestForGroup(RequestBody payload, String methodType, String endPointUrl) throws
-            IOException {
-        Request request = prepareRequest(methodType, payload, endPointUrl, accessToken);
+    private javax.ws.rs.core.Response executeRequestForGroup(String payload, String methodType, String endPointUrl) throws
+            IOException, JSONException {
+//        Request request = prepareRequest(methodType, payload, endPointUrl, accessToken);
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-        try (Response response = client.newCall(request).execute()) {
-            return parseCreateGroupResponse(Objects.requireNonNull(response));
-        }
-    }
+        Client jerseyClient = ClientBuilder.newClient();
 
-    private String parseCreateGroupResponse(Response response) throws IOException {
-        String createGroupResponse = response.body().string();
+        javax.ws.rs.client.Invocation.Builder requestBuilder = jerseyClient.target(endPointUrl)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + accessToken);
 
-        return null;
+              return requestBuilder.post(Entity.json(payload));
     }
 
     public Response handleResponse(Response response) {
@@ -149,7 +146,7 @@ public class RestClient {
         return null;
     }
 
-    public String executeHttpMethodsForGroup(String groupUrl, String action, RequestBody jsoBody) throws IOException {
+    public javax.ws.rs.core.Response executeHttpMethodsForGroup(String groupUrl, String action, String jsoBody) throws IOException, JSONException {
         if (action.equals(Constants.POST_METHOD)) {
             return executeRequestForGroup(jsoBody, Constants.POST_METHOD, groupUrl);
         }

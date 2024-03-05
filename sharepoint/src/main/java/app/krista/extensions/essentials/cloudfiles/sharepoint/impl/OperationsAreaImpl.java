@@ -13,26 +13,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.microsoft.graph.http.GraphServiceException;
+import com.microsoft.graph.models.Group;
+import com.microsoft.graph.serializer.DefaultSerializer;
+import com.microsoft.graph.serializer.ISerializer;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import org.codehaus.jettison.json.JSONException;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.HttpMethod;
-import java.io.BufferedReader;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 
 /**
@@ -114,49 +111,50 @@ public class OperationsAreaImpl {
         Map<String, Object> payload = new HashMap<>();
         String ownerMail = sharePointAttributes.getMailId();
 
-        try {
-            String response = clientProvider.getRestClient(null).
-                    executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createJsoBody(groupName, mailNickName, ownerMail));
 
+        try {
+            Response response = clientProvider.getRestClient(null).
+                    executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createJsonBody(groupName, mailNickName, ownerMail));
 
             prepareResponse(response, payload);
         } catch (IOException cause) {
             LOGGER.error("Failed to create group - " + cause.getMessage());
+        } catch (JSONException cause) {
+            throw new RuntimeException(cause);
         }
         return payload;
     }
 
-    private void prepareResponse(String response, Map<String, Object> payload) throws IOException {
-         File file = new File();
-//        try (ResponseBody responseBody = response.body()) {
-//            if (responseBody != null) {
-//
-//
-//                String groupCreateResponse = textBuilder.toString();
-//                LOGGER.info("Group Create Successfully.." + groupCreateResponse);
-////                ObjectMapper mapper = new ObjectMapper();
-////                JsonNode jsonNode = mapper.readTree(response.body().byteStream());
-////
-////                file.name = String.valueOf(jsonNode.get("displayName"));
-////                file.baseName = String.valueOf(jsonNode.get("mailNickname"));
-//                payload.put(Constants.FILE, file);
-//                payload.put(Constants.SUCCESS, true);
-//                payload.put(Constants.MESSAGE, "Group Created Successfully");
-//            }
-//        } catch (JsonSyntaxException | NoSuchElementException cause) {
-//            LOGGER.error(cause.getMessage());
-//        }
+    private void prepareResponse(Response response, Map<String, Object> payload) throws JSONException {
+        File file = new File();
 
-        Gson gson = new Gson();
-        JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
-        file.name = String.valueOf(jsonObject.get("displayName"));
-         payload.put(Constants.FILE,file);
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String responseBody = response.readEntity(String.class);
+
+            try {
+                JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+                file.name = jsonNode.get("displayName").asText();
+                file.baseName = jsonNode.get("mailNickname").asText();
+
+                payload.put(Constants.FILE, file);
+                payload.put(Constants.SUCCESS, true);
+                payload.put(Constants.MESSAGE, "Group created successfully");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if(response.getStatus() == Response.Status.BAD_REQUEST.getStatusCode()){
+            System.out.println(response.getStatus());
+        }
     }
 
-    private RequestBody createJsoBody(String groupName, String mailNickName, String ownerMail) {
-        MediaType jsonMediaType = MediaType.parse(Constants.APPLICATION_JSON);
-        String payLoad = createPayload(groupName, mailNickName, ownerMail);
-        return RequestBody.create(payLoad, jsonMediaType);
+
+    private String createJsonBody(String groupName, String mailNickName, String ownerMail) {
+//        MediaType jsonMediaType = MediaType.parse(Constants.APPLICATION_JSON);
+        return createPayload(groupName, mailNickName, ownerMail);
+//        return RequestBody.create(payLoad, jsonMediaType);
     }
 
     private String createPayload(String groupName, String mailNickName, String ownerMail) {
