@@ -37,6 +37,8 @@ import java.util.stream.Collectors;
 public class DriveFileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DriveFileService.class);
+
+    private static final String EMPTY_FOLDER = "The provided folder is empty";
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
@@ -67,7 +69,13 @@ public class DriveFileService {
             if (mapPayload.get(Constants.SUCCESS).equals(Boolean.TRUE) && mapPayload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
                 DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
                 payload.put(Constants.SIZE, Constants.NUMBER, driveItem.size != null ? driveItem.size : 0);
-                fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
+
+                if(driveItem.size != 0){
+                    fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
+                }
+                else{
+                  handleEmptyFolder(payload,mapPayload);
+                }
             }else{
                 payload.put(Constants.SUCCESS,Constants.SWITCH,false);
                 payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH));
@@ -76,6 +84,11 @@ public class DriveFileService {
             handleErrorResponse("An error occurred. Please provide a valid path.", payload);
         }
         return payload;
+    }
+
+    private void handleEmptyFolder(FreeForm payload, Map<String, Object> mapPayload) {
+        payload.put(Constants.SUCCESS, Constants.SWITCH, true);
+        payload.put(Constants.MESSAGE, Constants.TEXT, mapPayload.getOrDefault(Constants.MESSAGE, EMPTY_FOLDER));
     }
 
     private void handleErrorResponse(String errorMessage, FreeForm payload) {
