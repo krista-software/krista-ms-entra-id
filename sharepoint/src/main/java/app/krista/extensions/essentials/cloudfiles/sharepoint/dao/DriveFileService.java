@@ -72,8 +72,7 @@ public class DriveFileService {
                     fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
                 }
                 else{
-                    payload.put(Constants.SUCCESS,Constants.SWITCH,true);
-                    payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE, Constants.EMPTY_FOLDER));
+                  handleEmptyFolder(payload,mapPayload);
                 }
             }else{
                 payload.put(Constants.SUCCESS,Constants.SWITCH,false);
@@ -83,6 +82,11 @@ public class DriveFileService {
             handleErrorResponse("An error occurred. Please provide a valid path.", payload);
         }
         return payload;
+    }
+
+    private void handleEmptyFolder(FreeForm payload, Map<String, Object> mapPayload) {
+        payload.put(Constants.SUCCESS, Constants.SWITCH, true);
+        payload.put(Constants.MESSAGE, Constants.TEXT, mapPayload.getOrDefault(Constants.MESSAGE, Constants.EMPTY_FOLDER));
     }
 
     private void handleErrorResponse(String errorMessage, FreeForm payload) {
