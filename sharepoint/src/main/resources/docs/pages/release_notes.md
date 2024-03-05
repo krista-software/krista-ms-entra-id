@@ -9,7 +9,8 @@
 
 ## Resolved Bugs
 
-* KE-1499 [https://antbrains.atlassian.net/browse/KE-1499]  When an empty folder is given, No data is returned in place of NA or Zero
+* [KE-1499] https://antbrains.atlassian.net/browse/KE-1499]  When an empty folder is given, No data is returned in place of NA or Zero.
+* [KE-1507] https://antbrains.atlassian.net/browse/KE-1507  Download as file : Need to update the message.
 
 
 ## Known Issues
