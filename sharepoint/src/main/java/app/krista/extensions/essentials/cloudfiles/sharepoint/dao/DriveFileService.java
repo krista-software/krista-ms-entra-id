@@ -67,7 +67,14 @@ public class DriveFileService {
             if (mapPayload.get(Constants.SUCCESS).equals(Boolean.TRUE) && mapPayload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
                 DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
                 payload.put(Constants.SIZE, Constants.NUMBER, driveItem.size != null ? driveItem.size : 0);
-                fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
+
+                if(driveItem.size != 0){
+                    fetchFileInfo(sourcePath, payload, useEmail, accountID, driveItem);
+                }
+                else{
+                    payload.put(Constants.SUCCESS,Constants.SWITCH,true);
+                    payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE, Constants.EMPTY_FOLDER));
+                }
             }else{
                 payload.put(Constants.SUCCESS,Constants.SWITCH,false);
                 payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH));

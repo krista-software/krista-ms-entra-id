@@ -427,11 +427,11 @@ public class Constants {
     public static final String LAST_MODIFIED_FILE_NAME = "Last Modified File Name";
     public static final String LAST_MODIFIED_FILE_CREATE_DATE = "Last Modified File Create Date";
     public static final String ODATA_CONTEXT = "@odata.context";
-
-
     public static final String PLEASE_PROVIDE_VALID_PATH_FOLDER_WAS_NOT_FOUND = "Please provide valid path, folder was not found";
-
     public static final String PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND = "Please provide a valid path, the file/folder was not found";
+
+    public static final String EMPTY_FOLDER = "Provided Folder is empty";
+
 
 
 

@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 @Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
 @Field.Text(value = Constants.TENANT_ID, isSecured = true)
 @Field.Text(value = Constants.EMAIL)
-@Extension(version = "2.0.0-rc3")
+@Extension(version = "2.0.0-rc5")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {
 
