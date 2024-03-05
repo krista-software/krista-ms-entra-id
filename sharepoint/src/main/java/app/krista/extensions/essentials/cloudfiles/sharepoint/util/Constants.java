@@ -435,9 +435,6 @@ public class Constants {
     public static final String FILE_DOWNLOADED_SUCCESSFULLY = "File downloaded successfully";
 
 
-    public static final Object EMPTY_FOLDER_MESSAGE = "The provided folder is empty";
-
-
     private Constants() {
     }
 }
