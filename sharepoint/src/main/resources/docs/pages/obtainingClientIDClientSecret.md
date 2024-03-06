@@ -43,8 +43,10 @@ For the SharePoint Extension, you would need to obtain Client ID, Tenant ID, and
 
 
 * Start typing permission name and select the following permissions after you see.
+  * Group.Create (Need Admin Permission)
   * Group.ReadWrite.All (Need Admin Permission)
   * GroupMember.Read.All (Need Admin Permission)
+  * User.Read.All (Need Admin Permission)
   * offline_access
   * openid
   * profile
