@@ -78,17 +78,17 @@ public class OperationsAreaImpl {
         }
     }
 
-    public Map<String, Object> updateSite(String siteName, String newSiteName) {
+    public Map<String, Object> updateGroup(String groupName, String newGroupName) {
         try {
-            return operationsAreaSiteImpl.updateSite(siteName, newSiteName);
+            return operationsAreaSiteImpl.updateGroup(groupName, newGroupName);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
 
-    public Map<String, Object> deleteSite(String siteName) {
+    public Map<String, Object> deleteGroup(String groupName) {
         try {
-            return operationsAreaSiteImpl.deleteSite(siteName);
+            return operationsAreaSiteImpl.deleteGroup(groupName);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
@@ -127,24 +127,28 @@ public class OperationsAreaImpl {
             String responseBody = response.readEntity(String.class);
             JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
 
-            if (jsonObject.has("id") &&                // Success 201 created Group
-                    jsonObject.has("createdDateTime") &&
-                    jsonObject.has("displayName") &&
-                    jsonObject.has("mail")) {
+            if (jsonObject.has(Constants.id) &&                // Success 201 created Group
+                    jsonObject.has(Constants.createdDateTime) &&
+                    jsonObject.has(Constants.displayName) &&
+                    jsonObject.has(Constants.mail)) {
 
-                if (jsonObject.has("displayName") && jsonObject.has("mailNickname")) {
-                    file.name = jsonObject.get("displayName").getAsString();
-                    file.baseName = jsonObject.get("mailNickname").getAsString();
+                if (jsonObject.has(Constants.displayName) && jsonObject.has(Constants.mailNickname)) {
+                    file.name = jsonObject.get(Constants.displayName).getAsString();
+                    file.baseName = jsonObject.get(Constants.mailNickname).getAsString();
                 }
-                 ResponseUtil.preparePayloadResponse(file, true, Constants.GROUP_CREATED,payload);
-            } else if (jsonObject.getAsJsonObject("error") != null) {
-                JsonObject errorJsonBody = jsonObject.getAsJsonObject("error");
-                if (errorJsonBody.get(Constants.CODE).getAsString().equals("Request_BadRequest") && errorJsonBody.get("message").getAsString().equals(Constants.groupConflictMessage)) {
-                    ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict,payload);   // Bad request 400 Conflict Message
+                ResponseUtil.preparePayloadResponse(file, true, Constants.GROUP_CREATED, payload);
+            } else if (jsonObject.has(Constants.error)) {
+                JsonObject errorJsonBody = jsonObject.getAsJsonObject(Constants.error);
+                if (errorJsonBody.get(Constants.CODE).getAsString().equals(Constants.Request_BadRequest) &&
+                        errorJsonBody.get(Constants.message).getAsString().equals(Constants.groupConflictMessage)) {
+                    ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict, payload);   // Bad request 400 Conflict Message
                 }
-                if (errorJsonBody.get(Constants.CODE).getAsString().equals("Request_BadRequest") && errorJsonBody.get("message").getAsString().equals(Constants.InvalidMailNickName)) {
-                    ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName,payload);     // Bad request 400 Invalid Mail Nick Name
+                if (errorJsonBody.get(Constants.CODE).getAsString().equals(Constants.Request_BadRequest)
+                        && errorJsonBody.get(Constants.message).getAsString().equals(Constants.InvalidMailNickName)) {
+                    ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName, payload);     // Bad request 400 Invalid Mail Nick Name
                 }
+            } else {
+                throw new IllegalArgumentException("Failed to create group");
             }
         }
     }
@@ -152,21 +156,20 @@ public class OperationsAreaImpl {
 
     private String createPayload(String groupName, String mailNickName, String ownerMail) {
         JsonObject jsonBody = new JsonObject();
-        jsonBody.addProperty("displayName", groupName);
-        jsonBody.addProperty("mailEnabled", true);
-        jsonBody.addProperty("mailNickname", mailNickName);
-        jsonBody.addProperty("securityEnabled", false);
+        jsonBody.addProperty(Constants.displayName, groupName);
+        jsonBody.addProperty(Constants.mailEnabled, true);
+        jsonBody.addProperty(Constants.mailNickname, mailNickName);
+        jsonBody.addProperty(Constants.securityEnabled, false);
 
         JsonArray groupTypes = new JsonArray();
-        groupTypes.add("Unified");
-        jsonBody.add("groupTypes", groupTypes);
+        groupTypes.add(Constants.Unified);
+        jsonBody.add(Constants.groupTypes, groupTypes);
 
         JsonArray owners = new JsonArray();
-        owners.add("https://graph.microsoft.com/v1.0/users/" + ownerMail);
-        jsonBody.add("owners@odata.bind", owners);
+        owners.add(Constants.groupBaseUrl + ownerMail);
+        jsonBody.add(Constants.ownersDataBind, owners);
         return new Gson().toJson(jsonBody);
     }
-
 
 
 }

@@ -7,7 +7,6 @@ import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.OperationsAreaImpl;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.Map;
 
 @Domain(id = "catEntryDomain_30c63e77-37f2-4a1d-afd8-f6bfda07ad57",
@@ -63,7 +62,7 @@ public class OperationsArea {
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> deleteGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName) {
-        return operationsAreaImpl.deleteSite(groupName);
+        return operationsAreaImpl.deleteGroup(groupName);
     }
 
     @CatalogRequest(
@@ -83,6 +82,7 @@ public class OperationsArea {
         return operationsAreaImpl.updateList(siteName, listName, displayName, description);
     }
 
+
     @CatalogRequest(
             id = "localDomainRequest_92dede25-2e0e-47c4-beee-5dba787b0435",
             name = "Update Group",
@@ -95,7 +95,7 @@ public class OperationsArea {
     public Map<String, Object> updateGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
             @Field.Text(name = "New Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String newGroupName) {
-        return operationsAreaImpl.updateSite(groupName, newGroupName);
+        return operationsAreaImpl.updateGroup(groupName, newGroupName);
     }
 
     @CatalogRequest(

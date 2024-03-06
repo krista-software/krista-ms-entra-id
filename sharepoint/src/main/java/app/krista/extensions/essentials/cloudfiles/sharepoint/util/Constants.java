@@ -140,9 +140,9 @@ public class Constants {
 
     public static final String READ_AND_WRITE = "Read and Write";
 
-    public static final String SITE_DELETED_SUCCESSFULLY = " Site deleted successfully";
+    public static final String GROUP_DELETED_SUCCESSFULLY = " Group deleted successfully";
 
-    public static final String FAILED_TO_DELETE_SITE = "Failed to delete site. Please try again later.";
+    public static final String TO_DELETE_GROUP_PLEASE_TRY_AGAIN_LATER = "Failed to delete group. Please try again later.";
 
     public static final String ERROR_LIST_CREATION = "Error creating list. Please try again later.";
 
@@ -365,12 +365,29 @@ public class Constants {
     public static final String error ="error";
 
     public static final String id = "id";
-
     public static final String createdDateTime ="createdDateTime";
 
     public static final String displayName = "displayName";
 
     public static final String mail = "mail";
+
+    public static final String message = "message";
+
+    public static final String mailNickname = "mailNickname";
+
+    public static final String  Request_BadRequest = "Request_BadRequest";
+
+    public static final String  mailEnabled = "mailEnabled";
+
+    public static final String securityEnabled = "securityEnabled";
+
+    public static final String Unified = "Unified";
+
+    public static final String groupTypes = "groupTypes";
+
+    public static final String  ownersDataBind = "owners@odata.bind";
+
+    public static final String groupBaseUrl = "https://graph.microsoft.com/v1.0/users/";
 
     private Constants() {
     }

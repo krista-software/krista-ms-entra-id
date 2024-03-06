@@ -45,30 +45,30 @@ public class OperationsAreaSiteImpl {
     /**
      * Updates the display name of a specified SharePoint site.
      *
-     * @param siteName    Name of the site to be updated.
-     * @param newSiteName New display name for the site.
+     * @param groupName    Name of the site to be updated.
+     * @param newGroupName New display name for the site.
      * @return A Map containing details of the operation's success or failure:
      * - Success: true if site update succeeded, false otherwise.
      * - Message: Informative message about the operation's outcome.
      * - File (optional): Details of the updated site if successful.
      * @throws GraphServiceException If an error occurs during communication with Microsoft Graph.
      */
-    public Map<String, Object> updateSite(String siteName, String newSiteName) {
+    public Map<String, Object> updateGroup(String groupName, String newGroupName) {
         Map<String, Object> payload = new HashMap<>();
-        if (!operationsAreaUtilityService.validateSiteAndUpdatedNames(siteName, newSiteName, payload)) {
+        if (!operationsAreaUtilityService.validateSiteAndUpdatedNames(groupName, newGroupName, payload)) {
             return payload; // Early return if validation fails
         }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
-            Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);
+            Site existingSite = OperationsAreaUtilityService.getSite(graphClient, groupName);
             if (existingSite == null) {
-                payload.put(Constants.MESSAGE, "Site '" + siteName + "' not found while updating site");
+                payload.put(Constants.MESSAGE, "Site '" + groupName + "' not found while updating site");
                 payload.put(Constants.SUCCESS, false);
                 return payload;
             }
 
-            existingSite.displayName = newSiteName;
+            existingSite.displayName = newGroupName;
 
             Site updatedSite = graphClient.sites(existingSite.id).buildRequest().patch(existingSite);
 
@@ -84,15 +84,15 @@ public class OperationsAreaSiteImpl {
     /**
      * Deletes a specified SharePoint site.
      *
-     * @param siteName Name of the site to be deleted.
+     * @param groupName Name of the site to be deleted.
      * @return A Map containing details of the operation's success or failure:
      * - Success: true if site deletion succeeded, false otherwise.
      * - Message: Informative message about the operation's outcome.
      * @throws GraphServiceException If an error occurs during communication with Microsoft Graph.
      */
-    public Map<String, Object> deleteSite(String siteName) {
+    public Map<String, Object> deleteGroup(String groupName) {
         Map<String, Object> payload = new HashMap<>();
-        if (!operationsAreaUtilityService.validateSiteNames(siteName, payload)) {
+        if (!operationsAreaUtilityService.validateSiteNames(groupName, payload)) {
             return payload; // Early return if validation fails
         }
         try {
@@ -104,7 +104,7 @@ public class OperationsAreaSiteImpl {
 
             if (existingGroups != null) {
                 for (Group group : existingGroups.getCurrentPage()) {
-                    if (group.displayName.equals(siteName)) {
+                    if (group.displayName.equals(groupName)) {
                         groupToDelete = group;
                         break;
                     }
@@ -114,15 +114,15 @@ public class OperationsAreaSiteImpl {
             if (groupToDelete != null) {
                 graphClient.groups(groupToDelete.id).buildRequest().delete();
                 payload.put(Constants.SUCCESS, true);
-                payload.put(Constants.MESSAGE, groupToDelete.displayName + Constants.SITE_DELETED_SUCCESSFULLY);
+                payload.put(Constants.MESSAGE, groupToDelete.displayName + Constants.GROUP_DELETED_SUCCESSFULLY);
             } else {
                 payload.put(Constants.SUCCESS, false);
-                payload.put(Constants.MESSAGE, "Site with name " + siteName + " not found");
+                payload.put(Constants.MESSAGE, "Site with name " + groupName + " not found");
             }
         } catch (Exception cause) {
             LOGGER.error("Error deleting site : {} ", cause.getMessage());
             payload.put(Constants.SUCCESS, false);
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_DELETE_SITE);
+            payload.put(Constants.MESSAGE, Constants.TO_DELETE_GROUP_PLEASE_TRY_AGAIN_LATER);
         }
         return payload;
     }
