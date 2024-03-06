@@ -362,6 +362,15 @@ public class Constants {
 
     public static final String GROUP_URL = "https://graph.microsoft.com/v1.0/groups";
 
+    public static final String error ="error";
+
+    public static final String id = "id";
+
+    public static final String createdDateTime ="createdDateTime";
+
+    public static final String displayName = "displayName";
+
+    public static final String mail = "mail";
 
     private Constants() {
     }
