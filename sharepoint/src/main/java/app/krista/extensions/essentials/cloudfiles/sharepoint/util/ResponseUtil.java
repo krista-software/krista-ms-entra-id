@@ -6,6 +6,7 @@ import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import org.apache.commons.validator.routines.EmailValidator;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,9 +16,9 @@ public class ResponseUtil {
     private ResponseUtil() {
     }
 
-    public static Map<String, Object> fileEntityResponse(File fileEntity, boolean Success, String message,
-                                                         Map<String, Object> payload) {
-        payload.put(Constants.FILE, fileEntity);
+    public static Map<String, Object> preparePayloadResponse(File fileEntity, boolean Success, String message) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(Constants.FILE, fileEntity != null ? fileEntity : new File());
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, Success);
         return payload;

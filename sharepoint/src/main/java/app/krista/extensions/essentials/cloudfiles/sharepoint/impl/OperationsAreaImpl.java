@@ -8,17 +8,13 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsArea
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.Group;
-import com.microsoft.graph.serializer.DefaultSerializer;
-import com.microsoft.graph.serializer.ISerializer;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import org.codehaus.jettison.json.JSONException;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -45,6 +41,7 @@ public class OperationsAreaImpl {
     private final OperationsAreaListImpl operationsAreaListImpl;
     private final OperationsAreaSiteImpl operationsAreaSiteImpl;
     private final SharePointAttributes sharePointAttributes;
+
 
     @Inject
     public OperationsAreaImpl(GraphServiceClientProviderFactory clientProviderFactory,
@@ -111,10 +108,9 @@ public class OperationsAreaImpl {
         Map<String, Object> payload = new HashMap<>();
         String ownerMail = sharePointAttributes.getMailId();
 
-
         try {
             Response response = clientProvider.getRestClient(null).
-                    executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createJsonBody(groupName, mailNickName, ownerMail));
+                    executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createPayload(groupName, mailNickName, ownerMail));
 
             prepareResponse(response, payload);
         } catch (IOException cause) {
@@ -125,37 +121,34 @@ public class OperationsAreaImpl {
         return payload;
     }
 
-    private void prepareResponse(Response response, Map<String, Object> payload) throws JSONException {
+    private void prepareResponse(Response response, Map<String, Object> payload) throws JSONException, JsonProcessingException {
         File file = new File();
-
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            ObjectMapper objectMapper = new ObjectMapper();
+        try (response) {
             String responseBody = response.readEntity(String.class);
+            JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
 
-            try {
-                JsonNode jsonNode = objectMapper.readTree(responseBody);
+            if (jsonObject.has("id") &&                // Success 201 created
+                    jsonObject.has("createdDateTime") &&
+                    jsonObject.has("displayName") &&
+                    jsonObject.has("mail")) {
 
-                file.name = jsonNode.get("displayName").asText();
-                file.baseName = jsonNode.get("mailNickname").asText();
-
-                payload.put(Constants.FILE, file);
-                payload.put(Constants.SUCCESS, true);
-                payload.put(Constants.MESSAGE, "Group created successfully");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                if (jsonObject.has("displayName") && jsonObject.has("mailNickname")) {
+                    file.name = jsonObject.get("displayName").getAsString();
+                    file.baseName = jsonObject.get("mailNickname").getAsString();
+                }
+                ResponseUtil.preparePayloadResponse(file, true, Constants.GROUP_CREATED);
+            } else if (jsonObject.getAsJsonObject("error") != null) {       // 400 Conflict group name
+                JsonObject errorJsonBody = jsonObject.getAsJsonObject("error");
+                if (errorJsonBody.get(Constants.CODE).getAsString().equals("Request_BadRequest") && errorJsonBody.get("message").getAsString().equals(Constants.groupConflictMessage)) {
+                    ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict);
+                }
+                if (errorJsonBody.get(Constants.CODE).getAsString().equals("Request_BadRequest") && errorJsonBody.get("message").getAsString().equals(Constants.InvalidMailNickName)) {
+                    ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName);
+                }
             }
         }
-        if(response.getStatus() == Response.Status.BAD_REQUEST.getStatusCode()){
-            System.out.println(response.getStatus());
-        }
     }
 
-
-    private String createJsonBody(String groupName, String mailNickName, String ownerMail) {
-//        MediaType jsonMediaType = MediaType.parse(Constants.APPLICATION_JSON);
-        return createPayload(groupName, mailNickName, ownerMail);
-//        return RequestBody.create(payLoad, jsonMediaType);
-    }
 
     private String createPayload(String groupName, String mailNickName, String ownerMail) {
         JsonObject jsonBody = new JsonObject();

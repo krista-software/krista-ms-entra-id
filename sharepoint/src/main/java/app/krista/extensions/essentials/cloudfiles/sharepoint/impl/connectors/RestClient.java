@@ -6,7 +6,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -107,18 +106,14 @@ public class RestClient {
         }
     }
 
-    private javax.ws.rs.core.Response executeRequestForGroup(String payload, String methodType, String endPointUrl) throws
-            IOException, JSONException {
-//        Request request = prepareRequest(methodType, payload, endPointUrl, accessToken);
-        OkHttpClient client = new OkHttpClient().newBuilder().build();
-
+    private javax.ws.rs.core.Response executeRequestForGroup(String payload, String methodType, String endPointUrl) {
         Client jerseyClient = ClientBuilder.newClient();
 
         javax.ws.rs.client.Invocation.Builder requestBuilder = jerseyClient.target(endPointUrl)
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + accessToken);
 
-              return requestBuilder.post(Entity.json(payload));
+        return requestBuilder.post(Entity.json(payload));
     }
 
     public Response handleResponse(Response response) {
@@ -152,7 +147,6 @@ public class RestClient {
         }
         return null;
     }
-
 
 
 }
