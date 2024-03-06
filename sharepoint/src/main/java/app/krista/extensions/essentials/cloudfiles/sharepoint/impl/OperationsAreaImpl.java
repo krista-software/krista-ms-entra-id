@@ -127,7 +127,7 @@ public class OperationsAreaImpl {
             String responseBody = response.readEntity(String.class);
             JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
 
-            if (jsonObject.has("id") &&                // Success 201 created
+            if (jsonObject.has("id") &&                // Success 201 created Group
                     jsonObject.has("createdDateTime") &&
                     jsonObject.has("displayName") &&
                     jsonObject.has("mail")) {
@@ -137,13 +137,13 @@ public class OperationsAreaImpl {
                     file.baseName = jsonObject.get("mailNickname").getAsString();
                 }
                 ResponseUtil.preparePayloadResponse(file, true, Constants.GROUP_CREATED);
-            } else if (jsonObject.getAsJsonObject("error") != null) {       // 400 Conflict group name
+            } else if (jsonObject.getAsJsonObject("error") != null) {
                 JsonObject errorJsonBody = jsonObject.getAsJsonObject("error");
                 if (errorJsonBody.get(Constants.CODE).getAsString().equals("Request_BadRequest") && errorJsonBody.get("message").getAsString().equals(Constants.groupConflictMessage)) {
-                    ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict);
+                    ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict);   // Bad request 400 Conflict Message
                 }
                 if (errorJsonBody.get(Constants.CODE).getAsString().equals("Request_BadRequest") && errorJsonBody.get("message").getAsString().equals(Constants.InvalidMailNickName)) {
-                    ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName);
+                    ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName);     // Bad request 400 Invalid Mail Nick Name
                 }
             }
         }
