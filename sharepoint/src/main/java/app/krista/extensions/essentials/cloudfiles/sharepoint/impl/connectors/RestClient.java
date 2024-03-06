@@ -5,7 +5,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.codehaus.jettison.json.JSONException;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -76,6 +81,14 @@ public class RestClient {
         return null;
     }
 
+    private javax.ws.rs.core.Response executeRequestForGroup(String payload, String methodType, String endPointUrl) {
+        Client jerseyClient = ClientBuilder.newClient();
+        javax.ws.rs.client.Invocation.Builder requestBuilder = jerseyClient.target(endPointUrl)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + accessToken);
+        return requestBuilder.post(Entity.json(payload));
+    }
+
     private static Request prepareRequest(String methodType, RequestBody requestBody, String endPointUrl,
                                           String accessToken) {
 
@@ -122,6 +135,13 @@ public class RestClient {
         } else if (statusCode == Constants.INTERNAL_SERVER_ERROR) {
             System.out.println(STATUS_CODE_IS + response.code() + INTERNAL_SERVER_ERROR);
             throw new IllegalArgumentException(ONE_OR_MORE_FIELD_PROVIDED_ARE_INVALID);
+        }
+        return null;
+    }
+
+    public javax.ws.rs.core.Response executeHttpMethodsForGroup(String groupUrl, String action, String jsoBody) throws IOException, JSONException {
+        if (action.equals(Constants.POST_METHOD)) {
+            return executeRequestForGroup(jsoBody, Constants.POST_METHOD, groupUrl);
         }
         return null;
     }

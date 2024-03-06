@@ -352,6 +352,16 @@ public class Constants {
 
     public static final String FILE_DOWNLOADED_SUCCESSFULLY = "File downloaded successfully";
 
+    public static final String groupConflictMessage = "Another object with the same value for property mailNickname already exists.";
+
+    public static final String groupMessageForConflict = "There is already another group with the same email nickname. Please choose a different nickname.";
+
+    public static final String InvalidMailNickName = "Invalid value specified for property 'mailNickname' of resource 'Group'.";
+
+    public static final String ValidMailNickName = "Please provide valid mail nick name ";
+
+    public static final String GROUP_URL = "https://graph.microsoft.com/v1.0/groups";
+
 
     private Constants() {
     }

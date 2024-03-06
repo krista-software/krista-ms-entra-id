@@ -175,7 +175,7 @@ public class GraphServiceClientProvider {
             ConfidentialClientApplication confidentialClientApplication = ConfidentialClientApplication.builder
                     (sharePointAttributes.getClientId(), clientCredential).authority(authority).build();
             IAuthenticationResult authenticationResult = confidentialClientApplication.acquireToken(refreshTokenParameters).get();
-            return new RestClient(authenticationResult.accessToken());
+            return new RestClient(authenticationResult.accessToken(), "");
         } catch (IOException | ExecutionException | InterruptedException cause) {
             Thread.currentThread().interrupt();
             throw createMustAuthorizationException(userId, true);
