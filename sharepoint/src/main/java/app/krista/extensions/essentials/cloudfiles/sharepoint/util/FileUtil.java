@@ -10,10 +10,8 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Utility class with static methods for common file-related operations, string validation, and file creation.
@@ -144,29 +142,19 @@ public class FileUtil {
     }
 
 
-    public static DriveItemRequestBuilder getRootUserRequestBuilder(GraphServiceClientProvider provider,String driveID) {
+    public static DriveItemRequestBuilder getRootUserRequestBuilder(GraphServiceClientProvider provider, String driveID) {
         return provider.getUserRequestBuilder(null, null).drives(driveID).root();
     }
 
     public static String driveIdPath(String fullPath) {
-        String str[] = fullPath.split("/");
-        String drivePath = "/" + str[1] + "/" + (str[2]);
-        return drivePath;
-    }
-
-
-    public static List<String> getDriveIDAndPath(String relativePath) {
-
-        String[] stream = relativePath.trim().split("/");
-
-        String path = Arrays.stream(stream, 4, stream.length)
-                .collect(Collectors.joining("/"));
-
-        return List.of(stream[2], path);
-    }
-
-    public static DriveItemRequestBuilder getSharedUserRequestBuilder(GraphServiceClientProvider provider, String driveId) {
-        return provider.getUserRequestBuilder(null, null).drives(driveId).root();
+        try {
+            String str[] = fullPath.split("/");
+            String drivePath = "/" + str[1] + "/" + (str[2]);
+            return drivePath;
+        } catch (RuntimeException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
+            return Constants.CONTENT;
+        }
     }
 
     public static void failedToReadTextFile(Map<String, Object> payload) {
