@@ -34,6 +34,7 @@ import java.util.List;
 public class FileSearchImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchImpl.class);
+    public static final String ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL = "Added DrivePermission for created by user with email: {}";
     private final GraphServiceClientProvider clientProvider;
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
@@ -75,10 +76,10 @@ public class FileSearchImpl {
         } else if ("Modified By".equals(selector)) {
             query.queryString = "ModifiedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Created".equals(selector)) {
-            name = DriveUtil.DoubleToDateConversion(name);
+            name = DriveUtil.doubleToDateConversion(name);
             query.queryString = "Created = " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Modified".equals(selector)) {
-            name = DriveUtil.DoubleToDateConversion(name);
+            name = DriveUtil.doubleToDateConversion(name);
             query.queryString = "LastModifiedTime = " + name + " AND NOT path:\"" + personalDrivePath + "\"";
         } else if ("Name".equals(selector) || "Base Name".equalsIgnoreCase(selector)) {
             query.queryString = "isDocument=true AND fileName:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
@@ -92,15 +93,11 @@ public class FileSearchImpl {
 
     public String handleAbsolutePath(String name, String siteDomainPath) {
         name = name.replace(Constants.WHITE_SPACE, " ");
-        if (name.startsWith(siteDomainPath)) {
-            if (!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
-                name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
-            }
-        } else {
+        if (!name.startsWith(siteDomainPath)) {
             name = siteDomainPath + name;
-            if (!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
-                name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
-            }
+        }
+        if (!name.contains(Constants.SHARED_DOCUMENT_PATH)) {
+            name = name.replace(Constants.DOCUMENT_PATH, Constants.SHARED_DOCUMENT_PATH);
         }
         return name;
     }
@@ -139,12 +136,11 @@ public class FileSearchImpl {
     }
 
     public SearchEntityQueryCollectionPage buildSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {
-        SearchEntityQueryCollectionPage page = graphClient
+        return graphClient
                 .search()
                 .query(SearchEntityQueryParameterSet.newBuilder().withRequests(requestsList).build())
                 .buildRequest()
                 .post();
-        return page;
     }
 
     public void extractDriveFromSearchResults(List<DriveImpl> files, SearchEntityQueryCollectionPage page) {
@@ -195,6 +191,8 @@ public class FileSearchImpl {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem drive = (DriveItem) hits.resource;
+                                assert drive.parentReference != null;
+                                String driveId = drive.parentReference.driveId;
                                 if (drive.webUrl != null && drive.webUrl.equals(filePath) && !rootFolder) {
                                     driveItem = (DriveItem) hits.resource;
                                     break;
@@ -247,29 +245,44 @@ public class FileSearchImpl {
         }
     }
 
+
     public void extractDrivePermissionsForSearchByMail(List<DrivePermissionImpl> resultPage, SearchEntityQueryCollectionPage page,
                                                        GraphServiceClient<Request> graphClient, String email, String user) {
-        for (SearchResponse driveInPage : page.getCurrentPage()) {
-            if (driveInPage.hitsContainers != null) {
-                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-                    if (hitContainer.hits != null) {
-                        for (SearchHit hits : hitContainer.hits) {
-                            if (hits != null && hits.resource instanceof DriveItem) {
-                                DriveItem driveItem = (DriveItem) hits.resource;
-                                if (driveItem.webUrl != null && user.equals(Constants.CREATED_BY) && driveItem.createdBy != null
-                                        && driveItem.createdBy.user.additionalDataManager().get("email") != null
-                                        && driveItem.createdBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
-                                    resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
-                                } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null
-                                        && driveItem.lastModifiedBy.user.additionalDataManager().get("email") != null
-                                        && driveItem.lastModifiedBy.user.additionalDataManager().get("email").getAsString().equals(email)) {
-                                    resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+        try {
+            for (SearchResponse driveInPage : page.getCurrentPage()) {
+                if (driveInPage.hitsContainers != null) {
+                    for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
+                        if (hitContainer.hits != null) {
+                            for (SearchHit hits : hitContainer.hits) {
+                                try {
+                                    if (hits != null && hits.resource instanceof DriveItem) {
+                                        DriveItem driveItem = (DriveItem) hits.resource;
+                                        if (driveItem.webUrl != null && user.equals(Constants.CREATED_BY) && driveItem.createdBy != null
+                                                && driveItem.createdBy.user != null
+                                                && driveItem.createdBy.user.additionalDataManager() != null
+                                                && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL) != null
+                                                && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
+                                            resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                            LOGGER.info(ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL, email);
+                                        } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null
+                                                && driveItem.lastModifiedBy.user != null
+                                                && driveItem.lastModifiedBy.user.additionalDataManager() != null
+                                                && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL) != null
+                                                && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
+                                            resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                            LOGGER.info(ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL , email);
+                                        }
+                                    }
+                                } catch (IllegalStateException cause) {
+                                    LOGGER.error("Error processing DriveItem: {}" , cause.getMessage());
                                 }
                             }
                         }
                     }
                 }
             }
+        } catch (RuntimeException cause) {
+            LOGGER.error("An unexpected error occurred: {}" , cause.getMessage());
         }
     }
 

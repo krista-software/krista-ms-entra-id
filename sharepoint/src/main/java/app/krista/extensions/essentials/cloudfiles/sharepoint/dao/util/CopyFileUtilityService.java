@@ -78,7 +78,7 @@ public class CopyFileUtilityService {
     }
 
     public void handleInvalidTargetPath(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_TARGET_PATH);
+        payload.put(Constants.MESSAGE, Constants.PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND);
         payload.put(Constants.SUCCESS, false);
     }
 
@@ -120,7 +120,7 @@ public class CopyFileUtilityService {
     }
 
     public Map<String, Object> handleInvalidSourcePath(Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, Constants.PROVIDE_VALID_SOURCE_PATH);
+        payload.put(Constants.MESSAGE, "Please provide a valid path, the file/folder was not found");
         payload.put(Constants.SUCCESS, false);
         return payload;
     }

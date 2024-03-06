@@ -1,7 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveSharedPermissionImpl;
@@ -66,7 +65,8 @@ public class FilePermissionSearchDao {
                 }
 
                 if (!resultPage.isEmpty()) {
-                    List<File> fileEntity = resultPage.stream().map(CatalogTypes::fromFile).filter(file -> hasPermission(file, permission)).collect(Collectors.toList());
+                    List<File> fileEntity = resultPage.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).
+                            filter(file -> hasPermission(file, permission)).collect(Collectors.toList());
                     ResponseUtil.listOfFileEntityResponse(fileEntity, true, Constants.FILE_FOUND, payload);
                 } else {
                     ResponseUtil.getInfoResponse(false, Constants.PROVIDE_VALID_SOURCE_PATH, payload);

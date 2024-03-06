@@ -2,11 +2,12 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.model.base.FreeForm;
+import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import org.apache.commons.validator.routines.EmailValidator;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,43 +17,36 @@ public class ResponseUtil {
     private ResponseUtil() {
     }
 
-    public static Map<String, Object> preparePayloadResponse(File fileEntity, boolean Success, String message) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put(Constants.FILE, fileEntity != null ? fileEntity : new File());
+    public static void fileEntityResponse(File fileEntity, boolean success, String message, Map<String, Object> payload) {
+        payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.MESSAGE, message);
-        payload.put(Constants.SUCCESS, Success);
-        return payload;
+        payload.put(Constants.SUCCESS, success);
     }
 
-    public static void listOfFileEntityResponse(List<File> fileEntity, boolean Success, String message,
-                                                FreeForm payload) {
+    public static void listOfFileEntityResponse(List<File> fileEntity, boolean success, String message, FreeForm payload) {
         payload.put(Constants.FILES, "[ Entity(File) ]", fileEntity);
-        payload.put(Constants.MESSAGE, "Text", message);
-        payload.put(Constants.SUCCESS, "Switch", Success);
+        payload.put(Constants.MESSAGE, Constants.TEXT, message);
+        payload.put(Constants.SUCCESS, Constants.SWITCH, success);
     }
 
-    public static Map<String, Object> successResponse(boolean Success, String message, Map<String, Object> payload) {
-        payload.put(Constants.MESSAGE, message);
-        payload.put(Constants.SUCCESS, Success);
-        return payload;
+
+    public static void successResponse(boolean success, String message, Map<String, Object> payload) {
+        errorResponse(success,message,payload);
     }
 
-    public static void getInfoResponse(int files, int folders, long size, String oldestFile, long oldestFileCreateDate,
-                                       String newestFile, long newestFileCreteDate, String lastModifiedFileId,
-                                       String lastModifiedFileName, long lastModifiedFileCreateDate, boolean Success,
-                                       String message, FreeForm payload) {
-        payload.put("Files", "Number", files);
-        payload.put("Folders", "Number", folders);
-        payload.put("Size", "Number", size);
-        payload.put("Oldest File", "Text", oldestFile);
-        payload.put("Oldest File Create Date", "Date", oldestFileCreateDate);
-        payload.put("Newest File", "Text", newestFile);
-        payload.put("Newest File Date", "Date", newestFileCreteDate);
-        payload.put("Last Modified File Id", "Text", lastModifiedFileId);
-        payload.put("Last Modified File Name", "Text", lastModifiedFileName);
-        payload.put("Last Modified File Create Date", "Date", lastModifiedFileCreateDate);
-        payload.put(Constants.MESSAGE, "Text", message);
-        payload.put(Constants.SUCCESS, "Switch", Success);
+    public static void getInfoResponse(int files, int folders, long size, String oldestFile, long oldestFileCreateDate, String newestFile, long newestFileCreteDate, String lastModifiedFileId, String lastModifiedFileName, long lastModifiedFileCreateDate, boolean success, String message, FreeForm payload) {
+        payload.put(Constants.FILES, Constants.NUMBER, files);
+        payload.put(Constants.FOLDERS, Constants.NUMBER, folders);
+        payload.put(Constants.SIZE, Constants.NUMBER, size);
+        payload.put(Constants.OLDEST_FILE, Constants.TEXT, oldestFile);
+        payload.put(Constants.OLDEST_FILE_CREATE_DATE, Constants.DATE, oldestFileCreateDate);
+        payload.put(Constants.NEWEST_FILE, Constants.TEXT, newestFile);
+        payload.put(Constants.NEWEST_FILE_DATE, Constants.DATE, newestFileCreteDate);
+        payload.put(Constants.LAST_MODIFIED_FILE_ID, Constants.TEXT, lastModifiedFileId);
+        payload.put(Constants.LAST_MODIFIED_FILE_NAME, Constants.TEXT, lastModifiedFileName);
+        payload.put(Constants.LAST_MODIFIED_FILE_CREATE_DATE, Constants.DATE, lastModifiedFileCreateDate);
+        payload.put(Constants.MESSAGE, Constants.TEXT, message);
+        payload.put(Constants.SUCCESS, Constants.SWITCH, success);
     }
 
     public static FreeForm getInfoResponse(boolean Success, String message, FreeForm payload) {
@@ -65,17 +59,31 @@ public class ResponseUtil {
         payload.put("Size", "Number", size);
     }
 
+    public static void changesSinceResponse(boolean success, String message, List<Map<String, Object>> result, Map<String, Object> payload) {
+        payload.put(Constants.RESULT, result);
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+    }
+
+    public static Map<String, Object> createResultContent(String path, long date, String update) {
+        Map<String, Object> resultContent = new LinkedHashMap<>();
+        resultContent.put(Constants.PATH, path);
+        resultContent.put(Constants.DATE, date);
+        resultContent.put(Constants.UPDATE, update);
+        return resultContent;
+    }
+
     public static void getFileEventData(FreeForm eventData, Map<String, Object> payload) {
-        payload.put("Files", eventData.get("Files"));
-        payload.put("Folders", eventData.get("Folders"));
-        payload.put("Size", eventData.get("Size"));
-        payload.put("Oldest File", eventData.get("Oldest File"));
-        payload.put("Oldest File Create Date", eventData.get("Oldest File Create Date"));
-        payload.put("Newest File", eventData.get("Newest File"));
-        payload.put("Newest File Date", eventData.get("Newest File Date"));
-        payload.put("Last Modified File Id", eventData.get("Last Modified File Id"));
-        payload.put("Last Modified File Name", eventData.get("Last Modified File Name"));
-        payload.put("Last Modified File Create Date", eventData.get("Last Modified File Create Date"));
+        payload.put(Constants.FILES, eventData.get(Constants.FILES));
+        payload.put(Constants.FOLDERS, eventData.get(Constants.FOLDERS));
+        payload.put(Constants.SIZE, eventData.get(Constants.SIZE));
+        payload.put(Constants.OLDEST_FILE, eventData.get(Constants.OLDEST_FILE));
+        payload.put(Constants.OLDEST_FILE_CREATE_DATE, eventData.get(Constants.OLDEST_FILE_CREATE_DATE));
+        payload.put(Constants.NEWEST_FILE, eventData.get(Constants.NEWEST_FILE));
+        payload.put(Constants.NEWEST_FILE_DATE, eventData.get(Constants.NEWEST_FILE_DATE));
+        payload.put(Constants.LAST_MODIFIED_FILE_ID, eventData.get(Constants.LAST_MODIFIED_FILE_ID));
+        payload.put(Constants.LAST_MODIFIED_FILE_NAME, eventData.get(Constants.LAST_MODIFIED_FILE_NAME));
+        payload.put(Constants.LAST_MODIFIED_FILE_CREATE_DATE, eventData.get(Constants.LAST_MODIFIED_FILE_CREATE_DATE));
         payload.put(Constants.MESSAGE, eventData.get(Constants.MESSAGE));
         payload.put(Constants.SUCCESS, eventData.get(Constants.SUCCESS));
     }
@@ -95,6 +103,32 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, false);
         payload.put(Constants.MESSAGE, Constants.GROUP_NAME_EXIST);
         return payload;
+    }
+
+    public static void errorResponse(boolean success, String message, Map<String, Object> payload) {
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+    }
+
+    public static void addDriveItemMessage(boolean isFileExist, boolean success, String message, Map<String, Object> payload) {
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.IS_FILE_EXIST, isFileExist);
+        payload.put(Constants.SUCCESS, success);
+    }
+
+    public static void addSourceDriveItem(boolean isFileExist, DriveItem driveItem, Map<String, Object> payload) {
+        payload.put(Constants.SOURCE_DRIVE_ITEM, driveItem);
+        payload.put(Constants.IS_SOURCE_FILE_EXIST, isFileExist);
+    }
+
+    public static void addTargetDriveItem(boolean isFileExist, DriveItem driveItem, Map<String, Object> payload) {
+        payload.put(Constants.TARGET_DRIVE_ITEM, driveItem);
+        payload.put(Constants.IS_TARGET_FILE_EXIST, isFileExist);
+    }
+
+    public static void addDriveItem(boolean isFileExist, DriveItem driveItem, Map<String, Object> payload) {
+        payload.put(Constants.DRIVE_ITEM, driveItem);
+        payload.put(Constants.IS_FILE_EXIST, isFileExist);
     }
 }
 

@@ -1,14 +1,18 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.IdentitySet;
 import com.microsoft.graph.models.Permission;
 import com.microsoft.graph.requests.PermissionCollectionPage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Service class for retrieving shared permissions on files using Microsoft Graph API.
@@ -18,6 +22,8 @@ import java.util.Map;
  */
 
 public class FilePermissionService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilePermissionService.class);
 
     public List<Map<String, Object>> getSharedWithPermissions(PermissionCollectionPage permissionCollectionPage) {
         try {
@@ -42,8 +48,9 @@ public class FilePermissionService {
             }
             return mapList;
         } catch (GraphServiceException cause) {
-            throw new IllegalArgumentException(cause.getMessage(), cause);
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
         }
+        return Collections.emptyList();
     }
 
     private List<Map<String, Object>> findUsersInMap(List<Map<String, Object>> mapList, Permission permission) {
@@ -77,9 +84,13 @@ public class FilePermissionService {
 
     private String getPermissionString(Permission permission) {
         if (permission.roles != null && !permission.roles.isEmpty()) {
-            return "owner".equals(permission.roles.get(0)) ? "Read and Write" : permission.roles.get(0).toString();
+            return "owner".equals(permission.roles.get(0)) ? Constants.READ_AND_WRITE : toSentenceCase(permission.roles.get(0));
         }
         return "";
+    }
+
+    private static String toSentenceCase(String role) {
+        return role.substring(0, 1).toUpperCase() + role.substring(1).toLowerCase();
     }
 
 }

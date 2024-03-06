@@ -10,7 +10,7 @@
         <Root level="info">
             <AppenderRef ref="console"/>
         </Root>
-        <Logger name="com.kristasoft.extensions" additivity="false" level="debug">
+        <Logger name="app.krista.extensions.essentials.cloudfiles.sharepoint" additivity="false" level="debug">
             <AppenderRef ref="console" />
         </Logger>
     </Loggers>

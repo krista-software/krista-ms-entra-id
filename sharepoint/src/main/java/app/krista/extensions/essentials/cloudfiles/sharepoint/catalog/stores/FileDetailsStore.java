@@ -3,10 +3,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores;
 import app.krista.extension.executor.SearchCondition;
 import app.krista.extension.executor.SearchQuery;
 import app.krista.extension.util.EntityStore;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.CatalogTypes;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.ManagementArea;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -22,9 +19,8 @@ import java.util.stream.Collectors;
 @Service
 public class FileDetailsStore implements EntityStore<File> {
 
-    private final FileDao fileDao;
-
     private static final Logger lOGGER = LoggerFactory.getLogger(FileDetailsStore.class);
+    private final FileDao fileDao;
 
     @Inject
     public FileDetailsStore(FileDao fileDao) {
@@ -39,7 +35,7 @@ public class FileDetailsStore implements EntityStore<File> {
 
     @Override
     public File get(String id) throws IOException {
-        return CatalogTypes.fromFile(fileDao.getFileByAbsolutePath(id));
+        return File.fromFile(fileDao.getFileByAbsolutePath(id));
     }
 
     @Override
@@ -75,7 +71,7 @@ public class FileDetailsStore implements EntityStore<File> {
                     "Created".equalsIgnoreCase(selector) || "Modified".equalsIgnoreCase(selector) ||
                     "Base Name".equalsIgnoreCase(selector) || "Size".equalsIgnoreCase(selector)) {
                 fileDetails = fileDao.getFilesByFilter(matchPattern, selector, pageIndex, pageSize).stream()
-                        .map(CatalogTypes::fromFile).collect(Collectors.toList());
+                        .map(File::fromFile).collect(Collectors.toList());
             }
         }
         return fileDetails;

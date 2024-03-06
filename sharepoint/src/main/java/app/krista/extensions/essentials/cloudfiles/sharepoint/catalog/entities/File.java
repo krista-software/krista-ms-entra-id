@@ -3,6 +3,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities;
 import java.util.Map;
 import java.util.List;
 import app.krista.extension.impl.anno.*;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 
 @Domain(id = "catEntryDomain_30c63e77-37f2-4a1d-afd8-f6bfda07ad57",
         name = "Cloud Files",
@@ -76,5 +77,28 @@ public class File {
     @Searchable
     @Field.Text(name = "Modified By", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String modifiedBy;
+
+    public static File fromFile(FileService file) {
+        if (file == null) {
+            return new File();
+        }
+        File fileDetails = new File();
+        fileDetails.name = file.getName();
+        fileDetails.baseName = file.getBaseName();
+        fileDetails.extension = file.getExtension();
+        fileDetails.parentFolder = file.getParentFolder();
+        fileDetails.absolutePath = file.getAbsolutePath();
+        fileDetails.owner = file.getOwner();
+        fileDetails.created = file.getCreated();
+        fileDetails.modified = file.getModified();
+        fileDetails.size = file.getSize();
+        fileDetails.permissions = file.getPermissions();
+        fileDetails.isFolder = file.getIsFolder() != null && file.getIsFolder();
+        fileDetails.tags = file.getTags();
+        fileDetails.sharedWith = file.getSharedWith();
+        fileDetails.createdBy = file.getCreatedBy();
+        fileDetails.modifiedBy = file.getModifiedBy();
+        return fileDetails;
+    }
 
 }

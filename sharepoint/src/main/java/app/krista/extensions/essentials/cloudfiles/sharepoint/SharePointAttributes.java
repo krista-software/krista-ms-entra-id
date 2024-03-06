@@ -75,6 +75,8 @@ public class SharePointAttributes {
         return routingUrl + Constants.REST_SHAREPOINT_CALLBACK;
     }
 
+
+
     public synchronized OAuth20Service getOAuth20Service() {
         if (oAuth20Service == null) {
             oAuth20Service = new ServiceBuilder(clientId)
