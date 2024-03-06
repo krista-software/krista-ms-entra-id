@@ -119,11 +119,11 @@ public class FileDownloadService {
     }
 
     private void handleDownload(Map<String, Object> payload, DriveItem driveItem) throws IOException {
-        if (driveItem.size != null && driveItem.size > (1024 * 1024 * 30)) { // 30MB
+        if (driveItem.size != null && driveItem.size > (1024 * 1024 * 50)) {
             payload.put(Constants.SUCCESS, true);
             payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
             payload.put(Constants.DOWNLOAD_LINK, "");
-        } else if (driveItem.size != null && driveItem.size < (1024 * 1024 * 30) &&
+        } else if (driveItem.size != null && driveItem.size < (1024 * 1024 * 50) &&
                 driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
             assert driveItem.id != null;
             InputStream inputStream = provider.getUserRequestBuilder(null, null)
@@ -132,7 +132,7 @@ public class FileDownloadService {
             app.krista.model.base.File kristaFile = javaFileHandleHelper.convertJavaFileToKristaFile(content);
             payload.put(Constants.KRISTA_FILE, kristaFile);
             payload.put(Constants.SUCCESS, true);
-            payload.put(Constants.MESSAGE, Constants.TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL);
+            payload.put(Constants.MESSAGE, Constants.FILE_DOWNLOADED_SUCCESSFULLY);
         }
     }
 
