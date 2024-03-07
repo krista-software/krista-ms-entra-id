@@ -77,37 +77,17 @@ public class OperationsAreaUtilityService {
         }
     }
 
-    public static Group getGroup(GraphServiceClient<Request> graphClient, String groupName) {
-        try {
-            LinkedList<Option> requestOptions = new LinkedList<>();
-         //   requestOptions.add(new QueryOption("search", groupName));
-            GroupCollectionPage groups = graphClient.groups().buildRequest().get();
 
-            Group existingSite = null;
-            if (groups != null) {
-                for (Group group : groups.getCurrentPage()) {
-                    if (group.displayName != null && group.displayName.equals(groupName)) {
-                        existingSite = group;
-                        break;
-                    }
-                }
-            }
-            return existingSite;
-        } catch (Exception cause) {
-            return null;
-        }
-    }
-
-    public static Group findMatchingGroup(GraphServiceClient<Request> graphClient, String siteName) {
+    public static Group findMatchingGroup(GraphServiceClient<Request> graphClient, String groupName) {
         try {
             GroupCollectionPage groups = graphClient.groups().buildRequest().get();
 
             while (groups != null && !groups.getCurrentPage().isEmpty()) {
                 for (Group group : groups.getCurrentPage()) {
 
-                        if (group.displayName != null && group.displayName.equals(siteName)) {
-                            return group;
-                        }
+                    if (group.displayName != null && group.displayName.equals(groupName)) {
+                        return group;
+                    }
 
                 }
                 if (groups.getNextPage() != null) {
@@ -123,22 +103,12 @@ public class OperationsAreaUtilityService {
         return null; // Group not found
     }
 
-    public static void processResponse(File file, Map<String, Object> payload) {
-        if (file != null) {
-            payload.put(Constants.SUCCESS, true);
-            payload.put(Constants.MESSAGE, Constants.GROUP_UPDATED_SUCCESSFULLY);
-            payload.put(Constants.FILE, file); // Include updated site information
-        } else {
-            payload.put(Constants.SUCCESS, false);
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_GROUP_PLEASE_TRY_AGAIN_LATER);
-        }
-    }
 
     public static void processResponseGroup(Group group, Map<String, Object> payload) {
         if (group != null) {
             payload.put(Constants.SUCCESS, true);
             payload.put(Constants.MESSAGE, Constants.GROUP_UPDATED_SUCCESSFULLY);
-            payload.put(Constants.FILE, File.fromFile(new GroupImpl(group,null))); // Include updated site information
+            payload.put(Constants.FILE, File.fromFile(new GroupImpl(group, null))); // Include updated site information
         } else {
             payload.put(Constants.SUCCESS, false);
             payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_GROUP_PLEASE_TRY_AGAIN_LATER);

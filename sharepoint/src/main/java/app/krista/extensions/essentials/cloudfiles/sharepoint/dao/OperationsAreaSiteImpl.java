@@ -53,13 +53,11 @@ public class OperationsAreaSiteImpl {
      */
     public Map<String, Object> updateGroup(String groupName, String newGroupName) {
         Map<String, Object> payload = new HashMap<>();
-        File file = new File();
         if (!operationsAreaUtilityService.validateSiteAndUpdatedNames(groupName, newGroupName, payload)) {
             return payload; // Early return if validation fails
         }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
-
             Group existingGroup = OperationsAreaUtilityService.findMatchingGroup(graphClient, groupName);
 
             if (existingGroup == null) {
@@ -71,8 +69,10 @@ public class OperationsAreaSiteImpl {
             Group updateGroup = new Group();
             updateGroup.displayName = newGroupName;
 
-            Group upadtedGroup = graphClient.groups(existingGroup.id).buildRequest().patch(updateGroup);
-            OperationsAreaUtilityService.processResponse(file, payload); // Use the processResponse method
+            graphClient.groups(existingGroup.id).buildRequest().patch(updateGroup);
+
+            payload.put(Constants.MESSAGE, Constants.GROUP_UPDATED_SUCCESSFULLY);
+            payload.put(Constants.SUCCESS, true);
         } catch (Exception cause) {
             LOGGER.error("Error updating group : {} ", cause.getMessage());
             payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_GROUP_PLEASE_TRY_AGAIN_LATER);
