@@ -1,12 +1,12 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.OperationsAreaUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.Group;
-import com.microsoft.graph.models.Site;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.GroupCollectionPage;
 import okhttp3.Request;
@@ -28,11 +28,9 @@ import java.util.Map;
 @Service
 public class OperationsAreaSiteImpl {
 
-    private final GraphServiceClientProvider clientProvider;
-
-    private final OperationsAreaUtilityService operationsAreaUtilityService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsAreaSiteImpl.class);
+    private final GraphServiceClientProvider clientProvider;
+    private final OperationsAreaUtilityService operationsAreaUtilityService;
 
     @Inject
     public OperationsAreaSiteImpl(GraphServiceClientProviderFactory clientProviderFactory,
@@ -55,27 +53,29 @@ public class OperationsAreaSiteImpl {
      */
     public Map<String, Object> updateGroup(String groupName, String newGroupName) {
         Map<String, Object> payload = new HashMap<>();
+        File file = new File();
         if (!operationsAreaUtilityService.validateSiteAndUpdatedNames(groupName, newGroupName, payload)) {
             return payload; // Early return if validation fails
         }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
-            Site existingSite = OperationsAreaUtilityService.getSite(graphClient, groupName);
-            if (existingSite == null) {
-                payload.put(Constants.MESSAGE, "Site '" + groupName + "' not found while updating site");
+            Group existingGroup = OperationsAreaUtilityService.findMatchingGroup(graphClient, groupName);
+
+            if (existingGroup == null) {
+                payload.put(Constants.MESSAGE, "Group '" + groupName + "' not found while updating group");
                 payload.put(Constants.SUCCESS, false);
                 return payload;
             }
 
-            existingSite.displayName = newGroupName;
+            Group updateGroup = new Group();
+            updateGroup.displayName = newGroupName;
 
-            Site updatedSite = graphClient.sites(existingSite.id).buildRequest().patch(existingSite);
-
-            OperationsAreaUtilityService.processResponse(updatedSite, payload); // Use the processResponse method
+            Group upadtedGroup = graphClient.groups(existingGroup.id).buildRequest().patch(updateGroup);
+            OperationsAreaUtilityService.processResponse(file, payload); // Use the processResponse method
         } catch (Exception cause) {
-            LOGGER.error("Error updating site : {} ", cause.getMessage());
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_SITE);
+            LOGGER.error("Error updating group : {} ", cause.getMessage());
+            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_GROUP_PLEASE_TRY_AGAIN_LATER);
             payload.put(Constants.SUCCESS, false);
         }
         return payload;
@@ -117,10 +117,10 @@ public class OperationsAreaSiteImpl {
                 payload.put(Constants.MESSAGE, groupToDelete.displayName + Constants.GROUP_DELETED_SUCCESSFULLY);
             } else {
                 payload.put(Constants.SUCCESS, false);
-                payload.put(Constants.MESSAGE, "Site with name " + groupName + " not found");
+                payload.put(Constants.MESSAGE, "Group with name " + groupName + " not found");
             }
         } catch (Exception cause) {
-            LOGGER.error("Error deleting site : {} ", cause.getMessage());
+            LOGGER.error("Error deleting group : {} ", cause.getMessage());
             payload.put(Constants.SUCCESS, false);
             payload.put(Constants.MESSAGE, Constants.TO_DELETE_GROUP_PLEASE_TRY_AGAIN_LATER);
         }

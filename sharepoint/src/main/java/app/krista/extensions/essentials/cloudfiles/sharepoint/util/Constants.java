@@ -40,8 +40,9 @@ public class Constants {
 
     public static final String HASH = "#";
 
-    public static final String REQUIRED_SCOPE = "openid offline_access Mail.Send Mail.ReadWrite Mail.Send.Shared Mail.ReadWrite.Shared";
+    public static final String REQUIRED_SCOPE = "openid offline_access Mail.Send Mail.ReadWrite Mail.Send.Shared Mail.ReadWrite.Shared Group.ReadWrite.All GroupMember.Read.All";
 
+    // openid User.Read User.Read.All offline_access Sites.Read.All Sites.Manage.All Group.ReadWrite.All GroupMember.Read.All
     public static final String FILE_ALREADY_EXIST = "A file with this name already exists, Please choose a different file name";
 
     public static final String SCOPE_SEPARATOR = " ";
@@ -152,9 +153,9 @@ public class Constants {
 
     public static final String FAILED_TO_MODIFY_LIST = "Failed to modify list. Please try again later.";
 
-    public static final String FAILED_TO_UPDATE_SITE = "Failed to update site. Please try again later.";
+    public static final String FAILED_TO_UPDATE_GROUP_PLEASE_TRY_AGAIN_LATER = "Failed to update group. Please try again later.";
 
-    public static final String SITE_UPDATED_SUCCESSFULLY = "Site updated successfully";
+    public static final String GROUP_UPDATED_SUCCESSFULLY = "Group updated successfully";
 
     public static final String SITE_NAME_CANNOT_BE_NULL = "Site name cannot be null or empty";
 
@@ -362,22 +363,21 @@ public class Constants {
 
     public static final String GROUP_URL = "https://graph.microsoft.com/v1.0/groups";
 
-    public static final String error ="error";
+    public static final String error = "error";
 
     public static final String id = "id";
-    public static final String createdDateTime ="createdDateTime";
+    public static final String createdDateTime = "createdDateTime";
 
     public static final String displayName = "displayName";
-
     public static final String mail = "mail";
 
     public static final String message = "message";
 
     public static final String mailNickname = "mailNickname";
 
-    public static final String  Request_BadRequest = "Request_BadRequest";
+    public static final String Request_BadRequest = "Request_BadRequest";
 
-    public static final String  mailEnabled = "mailEnabled";
+    public static final String mailEnabled = "mailEnabled";
 
     public static final String securityEnabled = "securityEnabled";
 
@@ -385,7 +385,7 @@ public class Constants {
 
     public static final String groupTypes = "groupTypes";
 
-    public static final String  ownersDataBind = "owners@odata.bind";
+    public static final String ownersDataBind = "owners@odata.bind";
 
     public static final String groupBaseUrl = "https://graph.microsoft.com/v1.0/users/";
 
