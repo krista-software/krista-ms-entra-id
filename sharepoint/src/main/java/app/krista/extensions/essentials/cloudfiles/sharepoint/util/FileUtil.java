@@ -162,4 +162,10 @@ public class FileUtil {
         payload.put(Constants.SUCCESS, false);
     }
 
+    public static String preparePath(String filePath) {
+        if(filePath!=null){
+            return filePath.replace("%20"," ");
+        }
+        return null;
+    }
 }

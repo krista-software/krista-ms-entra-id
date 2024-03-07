@@ -55,7 +55,7 @@ public class FilePermissionDao {
             return payload;
         }
         if (driveItem != null) {
-            resultPage.add(new DriveSharedPermissionImpl(driveItem, clientProvider.getUserRequestBuilder(useEmail, accountID), sharePointAttributes, fileSearchUtilityService));
+            resultPage.add(new DriveSharedPermissionImpl(driveItem, clientProvider.getUserRequestBuilder(useEmail, accountID), sharePointAttributes, fileSearchUtilityService,filePath));
             ResponseUtil.listOfFileEntityResponse(resultPage.stream().map(app.krista.extensions.essentials.cloudfiles.
                             sharepoint.catalog.entities.File::fromFile)
                     .collect(Collectors.toList()), true, Constants.FILE_FOUND, payload);
