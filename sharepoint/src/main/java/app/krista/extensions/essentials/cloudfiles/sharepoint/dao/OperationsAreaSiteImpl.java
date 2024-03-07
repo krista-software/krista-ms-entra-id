@@ -1,10 +1,10 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.OperationsAreaUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.Group;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -51,7 +51,7 @@ public class OperationsAreaSiteImpl {
      * - File (optional): Details of the updated site if successful.
      * @throws GraphServiceException If an error occurs during communication with Microsoft Graph.
      */
-    public Map<String, Object> updateGroup(String groupName, String newGroupName) {
+    public Map<String, Object> updateGroup(String groupName, String newGroupName) throws Exception {
         Map<String, Object> payload = new HashMap<>();
         if (!operationsAreaUtilityService.validateSiteAndUpdatedNames(groupName, newGroupName, payload)) {
             return payload; // Early return if validation fails
@@ -65,20 +65,13 @@ public class OperationsAreaSiteImpl {
                 payload.put(Constants.SUCCESS, false);
                 return payload;
             }
-
             Group updateGroup = new Group();
             updateGroup.displayName = newGroupName;
-
             graphClient.groups(existingGroup.id).buildRequest().patch(updateGroup);
-
-            payload.put(Constants.MESSAGE, Constants.GROUP_UPDATED_SUCCESSFULLY);
-            payload.put(Constants.SUCCESS, true);
-        } catch (Exception cause) {
-            LOGGER.error("Error updating group : {} ", cause.getMessage());
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_GROUP_PLEASE_TRY_AGAIN_LATER);
-            payload.put(Constants.SUCCESS, false);
+        } catch (GraphServiceException cause) {
+            throw new IllegalStateException(cause.getMessage());
         }
-        return payload;
+        return ResponseUtil.preparePayloadResponse(null, true, Constants.GROUP_UPDATED_SUCCESSFULLY);
     }
 
     /**

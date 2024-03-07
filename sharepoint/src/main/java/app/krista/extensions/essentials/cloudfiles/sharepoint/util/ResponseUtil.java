@@ -128,12 +128,12 @@ public class ResponseUtil {
         payload.put(Constants.IS_FILE_EXIST, isFileExist);
     }
 
-    public static Map<String,Object> preparePayloadResponse(File file, boolean success, String message,Map<String,Object> payload) {
+    public static Map<String,Object> preparePayloadResponse(File file, boolean success, String message) {
+        Map<String,Object> payload = new HashMap<>();
         payload.put(Constants.FILE,file);
         payload.put(Constants.SUCCESS,success);
         payload.put(Constants.MESSAGE,message);
         return payload;
-
     }
 }
 

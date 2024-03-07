@@ -83,6 +83,8 @@ public class OperationsAreaImpl {
             return operationsAreaSiteImpl.updateGroup(groupName, newGroupName);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
+        } catch (Exception cause) {
+            throw new RuntimeException(cause);
         }
     }
 
@@ -112,7 +114,7 @@ public class OperationsAreaImpl {
             Response response = clientProvider.getRestClient(null).
                     executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createPayload(groupName, mailNickName, ownerMail));
 
-            prepareResponse(response, payload);
+          return  prepareResponse(response, payload);
         } catch (IOException cause) {
             LOGGER.error("Failed to create group - " + cause.getMessage());
         } catch (JSONException cause) {
@@ -121,7 +123,7 @@ public class OperationsAreaImpl {
         return payload;
     }
 
-    private void prepareResponse(Response response, Map<String, Object> payload) throws JSONException, JsonProcessingException {
+    private Map<String, Object> prepareResponse(Response response, Map<String, Object> payload) throws JSONException, JsonProcessingException {
         File file = new File();
         try (response) {
             String responseBody = response.readEntity(String.class);
@@ -136,16 +138,16 @@ public class OperationsAreaImpl {
                     file.name = jsonObject.get(Constants.displayName).getAsString();
                     file.baseName = jsonObject.get(Constants.mailNickname).getAsString();
                 }
-                ResponseUtil.preparePayloadResponse(file, true, Constants.GROUP_CREATED, payload);
+                return ResponseUtil.preparePayloadResponse(file, true, Constants.GROUP_CREATED);
             } else if (jsonObject.has(Constants.error)) {
                 JsonObject errorJsonBody = jsonObject.getAsJsonObject(Constants.error);
                 if (errorJsonBody.get(Constants.CODE).getAsString().equals(Constants.Request_BadRequest) &&
                         errorJsonBody.get(Constants.message).getAsString().equals(Constants.groupConflictMessage)) {
-                    ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict, payload);   // Bad request 400 Conflict Message
+                    return ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict);   // Bad request 400 Conflict Message
                 }
                 if (errorJsonBody.get(Constants.CODE).getAsString().equals(Constants.Request_BadRequest)
                         && errorJsonBody.get(Constants.message).getAsString().equals(Constants.InvalidMailNickName)) {
-                    ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName, payload);     // Bad request 400 Invalid Mail Nick Name
+                    return ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName);     // Bad request 400 Invalid Mail Nick Name
                 }
             } else {
                 throw new IllegalArgumentException("Failed to create group");
