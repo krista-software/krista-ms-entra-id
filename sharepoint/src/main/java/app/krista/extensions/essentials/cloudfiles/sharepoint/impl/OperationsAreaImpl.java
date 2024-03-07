@@ -153,6 +153,7 @@ public class OperationsAreaImpl {
                 throw new IllegalArgumentException("Failed to create group");
             }
         }
+        return payload;
     }
 
 
