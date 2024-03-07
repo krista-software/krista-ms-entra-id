@@ -28,7 +28,7 @@ public class FilePermissionDaoUtil {
     public static final String NOT_ADDED = "NOT ADDED";
     public static final String VISITORS = "Visitors";
 
-    public static List<Map<String, Object>> getSharedPermissions(DriveItem driveItem, SharePointAttributes sharePointAttributes,
+    public static List<Map<String, Object>> getSharedPermissions(DriveItem driveItem,
                                                                  GraphServiceClient<Request> graphServiceClient) {
         try {
             List<Map<String, Object>> mapList = new ArrayList<>();
@@ -37,9 +37,9 @@ public class FilePermissionDaoUtil {
                 if (permissionCollectionPage.additionalDataManager() != null
                         && Objects.requireNonNullElse(permissionCollectionPage.additionalDataManager().get(Constants.ODATA_CONTEXT), "")
                         .toString().contains(DRIVE_ITEMS)) {
-                    iterateAddDataPermission(driveItem, mapList, sharePointAttributes, graphServiceClient);
+                    iterateAddDataPermission(driveItem, mapList, graphServiceClient);
                 } else {
-                    iteratePermissionsFromDriveItem(driveItem, mapList, sharePointAttributes, graphServiceClient);
+                    iteratePermissionsFromDriveItem(driveItem, mapList, graphServiceClient);
                 }
                 if (permissionCollectionPage.getNextPage() != null) {
                     permissionCollectionPage = permissionCollectionPage.getNextPage().buildRequest().get();
@@ -56,111 +56,98 @@ public class FilePermissionDaoUtil {
         }
     }
 
+    /**
+     * This method collects mailId of user which is deleted from records but its mailId exist and Files is shared to respective mailID
+     *
+     * @param sharePointIdentitySet contains user information
+     * @return email
+     */
 
-    private static void iterateAddDataPermission(DriveItem driveItem, List<Map<String, Object>> mapList, SharePointAttributes sharePointAttributes, GraphServiceClient<Request> graphServiceClient) {
+    private static String getSiteUserWithNoRecords(
+            SharePointIdentitySet sharePointIdentitySet) {
+        return sharePointIdentitySet.siteUser != null ? Objects.requireNonNullElse(sharePointIdentitySet.siteUser
+                .additionalDataManager().get(Constants.EMAIL), sharePointIdentitySet.siteUser.displayName).toString() : "";
+    }
+
+    private static void iterateAddDataPermission(DriveItem driveItem, List<Map<String, Object>> mapList, GraphServiceClient<Request> graphServiceClient) {
         PermissionCollectionPage permissionCollectionPage = driveItem.permissions;
         String siteId = driveItem.parentReference != null ? driveItem.parentReference.siteId : null;
-        for (Permission permission : permissionCollectionPage.getCurrentPage()) {
+
+        permissionCollectionPage.getCurrentPage().forEach(permission -> {
             if (permission.grantedToV2 != null) {
-                Map<String, Object> sharedUser = new HashMap<>();
-                String email = permission.grantedToV2.user != null
-                        ? getMailFromGrantedTo(permission.grantedToV2, mapList, sharePointAttributes, graphServiceClient, siteId, permission) : "";
-                if (email.equals(ADDED_IN_SHARED)) {
-                    continue;
-                } else if (email.equals(NOT_ADDED)) {
-                    return;
-                } else if (email.contains(VISITORS)) {
-                    sharedUser.put(Constants.USER_EMAIL, email);
-                    sharedUser.put(Constants.PERMISSION, Constants.READ);
-                    mapList.add(sharedUser);
-                    continue;
-                }
-                if (email.isBlank()) {
-                    email = permission.grantedToV2.siteUser != null ? Objects.requireNonNullElse(permission.grantedToV2.siteUser
-                            .additionalDataManager().get(Constants.EMAIL), permission.grantedToV2.siteUser.displayName).toString() : "";
-                }
-                sharedUser.put(Constants.USER_EMAIL, email.replace("\"", ""));
-                sharedUser.put(Constants.PERMISSION, Constants.OWN);
-                mapList.add(sharedUser);
+                handlePermissionV2(permission.grantedToV2, mapList, graphServiceClient, siteId, permission, false);
             } else if (permission.grantedToIdentitiesV2 != null) {
-                for (SharePointIdentitySet set : permission.grantedToIdentitiesV2) {
-                    Map<String, Object> sharedUser = new HashMap<>();
-                    String email = set.user != null ? getMailFromGrantedTo(set, mapList, sharePointAttributes, graphServiceClient, siteId, permission) : "";
-                    if (email.equals(ADDED_IN_SHARED)) {
-                        continue;
-                    } else if (email.equals(NOT_ADDED)) {
-                        return;
-                    } else if (email.contains(VISITORS)) {
-                        sharedUser.put(Constants.USER_EMAIL, email);
-                        sharedUser.put(Constants.PERMISSION, Constants.READ);
-                        mapList.add(sharedUser);
-                        continue;
-                    }
-                    if (email.isBlank()) {
-                        email = set.siteUser != null ? Objects.requireNonNullElse(set.siteUser.additionalDataManager().get(Constants.EMAIL), set.siteUser.displayName).toString() : "";
-                    }
-                    sharedUser.put(Constants.USER_EMAIL, email.replace("\"", ""));
-                    sharedUser.put(Constants.PERMISSION, permission.roles != null ? toSentenceCase(permission.roles.get(0)) : "");
-                    mapList.add(sharedUser);
-                }
+                permission.grantedToIdentitiesV2.forEach(set -> handlePermissionV2(set, mapList, graphServiceClient, siteId, permission, true));
             }
-        }
+        });
     }
 
+    private static void handlePermissionV2(IdentitySet grantedToV2, List<Map<String, Object>> mapList, GraphServiceClient<Request> graphServiceClient, String siteId, Permission permission, boolean isIdentitySet) {
+        String email = grantedToV2.user != null ? getMailFromGrantedTo(grantedToV2, mapList, graphServiceClient, siteId, permission) : "";
+        if (email.equals(ADDED_IN_SHARED) || email.equals(NOT_ADDED)) {
+            return;
+        }
+        if (email.contains(VISITORS)) {
+            Map<String, Object> sharedUser = new HashMap<>();
+            setSharedUser(sharedUser, email, Constants.READ);
+            mapList.add(sharedUser);
+            return;
+        }
+        if (email.isBlank()) {
+            email = getSiteUserWithNoRecords(permission.grantedToV2);
+        }
+        Map<String, Object> sharedUser = new HashMap<>();
+        if (isIdentitySet) {
+            String role = permission.roles != null ? toSentenceCase(permission.roles.get(0)) : "";
+            setSharedUser(sharedUser, email.replace("\"", ""), role);
+        } else {
+            setSharedUser(sharedUser, email.replace("\"", ""), Constants.OWN);
+        }
+        mapList.add(sharedUser);
+    }
 
-    private static void iteratePermissionsFromDriveItem(DriveItem driveItem, List<Map<String, Object>> mapList, SharePointAttributes sharePointAttributes, GraphServiceClient<Request> graphServiceClient) {
+    private static void handlePermission(IdentitySet set, List<Map<String, Object>> mapList, GraphServiceClient<Request> graphServiceClient, String siteId, Permission permission, boolean identitySet) {
+        String email = set.user != null ? getMailFromGrantedTo(set, mapList, graphServiceClient, siteId, permission) : "";
+        if (email.equals(ADDED_IN_SHARED) || email.equals(NOT_ADDED)) {
+            return;
+        } else if (email.endsWith(VISITORS)) {
+            Map<String, Object> sharedUser = new HashMap<>();
+            setSharedUser(sharedUser, email, Constants.READ);
+            mapList.add(sharedUser);
+            return;
+        }
+        Map<String, Object> sharedUser = new HashMap<>();
+        if (identitySet) {
+            String role = permission.roles != null ? toSentenceCase(permission.roles.get(0)) : "";
+            setSharedUser(sharedUser, email.replace("\"", ""), role);
+        } else {
+            setSharedUser(sharedUser, email.replace("\"", ""), Constants.OWN);
+        }
+        mapList.add(sharedUser);
+    }
+
+    private static void iteratePermissionsFromDriveItem(DriveItem driveItem, List<Map<String, Object>> mapList, GraphServiceClient<Request> graphServiceClient) {
         PermissionCollectionPage permissionCollectionPage = driveItem.permissions;
         String siteId = driveItem.parentReference != null ? driveItem.parentReference.siteId : null;
-        for (Permission permission : permissionCollectionPage.getCurrentPage()) {
+
+        permissionCollectionPage.getCurrentPage().forEach(permission -> {
             if (permission.grantedTo != null) {
-                Map<String, Object> sharedUser = new HashMap<>();
-                String email = permission.grantedTo.user != null
-                        ? getMailFromGrantedTo(permission.grantedTo, mapList, sharePointAttributes, graphServiceClient, siteId, permission)
-                        : "";
-                if (email.equals(ADDED_IN_SHARED)) {
-                    continue;
-                } else if (email.equals(NOT_ADDED)) {
-                    return;
-                } else if (email.endsWith(VISITORS)) {
-                    sharedUser.put(Constants.USER_EMAIL, email);
-                    sharedUser.put(Constants.PERMISSION, Constants.READ);
-                    mapList.add(sharedUser);
-                    continue;
-                }
-                sharedUser.put(Constants.USER_EMAIL, email.replace("\"", ""));
-                sharedUser.put(Constants.PERMISSION, Constants.OWN);
-                mapList.add(sharedUser);
+                handlePermission(permission.grantedTo, mapList, graphServiceClient, siteId, permission, false);
             } else if (permission.grantedToIdentities != null) {
-                for (IdentitySet set : permission.grantedToIdentities) {
-                    Map<String, Object> sharedUser = new HashMap<>();
-                    String email = set.user != null
-                            ? getMailFromGrantedTo(set, mapList, sharePointAttributes, graphServiceClient, siteId, permission) : "";
-                    if (email.equals(ADDED_IN_SHARED)) {
-                        continue;
-                    } else if (email.equals(NOT_ADDED)) {
-                        return;
-                    } else if (email.contains(VISITORS)) {
-                        sharedUser.put(Constants.USER_EMAIL, email);
-                        sharedUser.put(Constants.PERMISSION, Constants.READ);
-                        mapList.add(sharedUser);
-                        continue;
-                    }
-                    sharedUser.put(Constants.USER_EMAIL, email.replace("\"", ""));
-                    sharedUser.put(Constants.PERMISSION, permission.roles != null ? toSentenceCase(permission.roles.get(0)) : "");
-                    mapList.add(sharedUser);
-                }
+                permission.grantedToIdentities.forEach(set -> handlePermission(set, mapList, graphServiceClient, siteId, permission, true));
             }
-        }
+        });
     }
 
-    private static String getMailFromGrantedTo(IdentitySet set, List<Map<String, Object>> mapList, SharePointAttributes sharePointAttributes, GraphServiceClient<Request> graphServiceClient, String siteId, Permission permission) {
+
+    private static String getMailFromGrantedTo(IdentitySet set, List<Map<String, Object>> mapList, GraphServiceClient<Request> graphServiceClient, String siteId, Permission permission) {
         try {
             if (set.user.additionalDataManager().get(Constants.EMAIL) != null) {
                 return set.user.additionalDataManager().get(Constants.EMAIL).getAsString();
             } else {
                 return set.user.displayName.contains(VISITORS)
                         ? set.user.displayName
-                        : setUsersInShared(permission, set.user.displayName, mapList, siteId, sharePointAttributes, graphServiceClient).toString();
+                        : setUsersInShared(permission, set.user.displayName, mapList, siteId, graphServiceClient).toString();
             }
         } catch (RuntimeException cause) {
             LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
@@ -168,7 +155,7 @@ public class FilePermissionDaoUtil {
         }
     }
 
-    private static Object setUsersInShared(Permission permission, String displayName, List<Map<String, Object>> listSharedUser, String siteId, SharePointAttributes sharePointAttributes, GraphServiceClient<Request> graphServiceClient) {
+    private static Object setUsersInShared(Permission permission, String displayName, List<Map<String, Object>> listSharedUser, String siteId, GraphServiceClient<Request> graphServiceClient) {
         String siteName;
         boolean continueWithSiteId = false;
         siteName = siteId != null ? getSiteName(siteId, graphServiceClient) : extractSiteName(displayName);
@@ -177,36 +164,37 @@ public class FilePermissionDaoUtil {
         }
         Group group = findMatchingGroup(graphServiceClient, siteName, continueWithSiteId, siteId);
         if (group != null) {
-            setUsersInSharedMap(displayName, group, listSharedUser, permission, sharePointAttributes, graphServiceClient);
+            setUsersInSharedMap(displayName, group, listSharedUser, permission, graphServiceClient);
             return ADDED_IN_SHARED;
         }
         return NOT_ADDED;
     }
 
-    private static void setUsersInSharedMap(String displayName, Group group, List<Map<String, Object>> listSharedUser, Permission permission, SharePointAttributes sharePointAttributes, GraphServiceClient<Request> graphServiceClient) {
+    private static void setUsersInSharedMap(String displayName, Group group, List<Map<String, Object>> listSharedUser, Permission permission, GraphServiceClient<Request> graphServiceClient) {
         try {
             if (displayName.endsWith("Owners")) {
                 // Check owners:
                 DirectoryObjectCollectionWithReferencesPage owners = graphServiceClient.groups(group.id).owners().buildRequest().get();
-                setOwnersPermission(owners, listSharedUser, permission, sharePointAttributes);
+                setOwnersPermission(owners, listSharedUser);
             } else {
                 // Check members:
                 DirectoryObjectCollectionWithReferencesPage members = graphServiceClient.groups(group.id).members().buildRequest().get();
-                setMembersPermission(members, listSharedUser, permission, sharePointAttributes);
+                setMembersPermission(members, listSharedUser, permission);
             }
         } catch (RuntimeException cause) {
             LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
         }
     }
 
-    private static void setMembersPermission(DirectoryObjectCollectionWithReferencesPage members, List<Map<String, Object>> listSharedUser, Permission permission, SharePointAttributes sharePointAttributes) {
+    private static void setMembersPermission(DirectoryObjectCollectionWithReferencesPage members, List<Map<String, Object>> listSharedUser, Permission permission) {
         while (members != null && !members.getCurrentPage().isEmpty()) {
             for (DirectoryObject member : members.getCurrentPage()) {
                 if (member instanceof User) {
                     Map<String, Object> sharedMembers = new HashMap<>();
                     User user = (User) member;
-                    sharedMembers.put(Constants.USER_EMAIL, user.mail != null ? user.mail : " ");
-                    sharedMembers.put(Constants.PERMISSION, permission.roles != null ? toSentenceCase(permission.roles.get(0)) : "");
+                    setSharedUser(sharedMembers
+                            , user.mail != null ? user.mail : " "
+                            , permission.roles != null ? toSentenceCase(permission.roles.get(0)) : "");
                     listSharedUser.add(sharedMembers);
                 }
             }
@@ -218,14 +206,13 @@ public class FilePermissionDaoUtil {
         }
     }
 
-    private static void setOwnersPermission(DirectoryObjectCollectionWithReferencesPage owners, List<Map<String, Object>> listSharedUser, Permission permission, SharePointAttributes sharePointAttributes) {
+    private static void setOwnersPermission(DirectoryObjectCollectionWithReferencesPage owners, List<Map<String, Object>> listSharedUser) {
         while (owners != null && !owners.getCurrentPage().isEmpty()) {
             for (DirectoryObject owner : owners.getCurrentPage()) {
                 if (owner instanceof User) {
                     Map<String, Object> sharedOwner = new HashMap<>();
                     User user = (User) owner;
-                    sharedOwner.put(Constants.USER_EMAIL, user.mail != null ? user.mail : " ");
-                    sharedOwner.put(Constants.PERMISSION, Constants.OWN);
+                    setSharedUser(sharedOwner, user.mail != null ? user.mail : " ", Constants.OWN);
                     listSharedUser.add(sharedOwner);
                 }
             }
@@ -333,5 +320,10 @@ public class FilePermissionDaoUtil {
             LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
             return null;
         }
+    }
+
+    private static void setSharedUser(Map<String, Object> sharedUser, String email, String permission) {
+        sharedUser.put(Constants.USER_EMAIL, email);
+        sharedUser.put(Constants.PERMISSION, permission);
     }
 }

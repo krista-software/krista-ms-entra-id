@@ -107,7 +107,7 @@ public class DriveSharedPermissionImpl implements FileService {
     @Override
     public List<Map<String, Object>> getSharedWith() {
         return driveMetaData != null && driveMetaData.permissions != null ?
-                FilePermissionDaoUtil.getSharedPermissions(driveMetaData, sharePointAttributes, graphClient) : null;
+                FilePermissionDaoUtil.getSharedPermissions(driveMetaData, graphClient) : null;
     }
 
     @Override
