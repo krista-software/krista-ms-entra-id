@@ -12,11 +12,8 @@ import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class FilePermissionDaoUtil {
@@ -54,9 +51,9 @@ public class FilePermissionDaoUtil {
                     .distinct()
                     .collect(Collectors.toList());
         } catch (GraphServiceException cause) {
-            cause.printStackTrace();
-            throw new IllegalArgumentException(cause.getMessage(), cause);
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS,cause.getMessage());
         }
+        return Collections.emptyList();
     }
 
     /**
