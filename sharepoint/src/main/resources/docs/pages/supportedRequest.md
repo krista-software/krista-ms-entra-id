@@ -364,6 +364,7 @@ Krista SharePoint extension supports the following Catalog Requests:
       receive notifications for both new creations and updates.
 >   - Searching with Contains ChildFolder implies seeking instances where the provided path includes any subfolders.
 
+
 ## SharePoint Area
 
 #### 1. Fetch By File Size Range
@@ -388,6 +389,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 >   - Specify File Size in "bytes" when conducting size range searches.
 >   - The output limit for a list of files is capped at 500.
 
+
 #### 2. Fetch File By Modification Date Range
 
 - **Description**: This request retrieve files by specifying a range of modification dates. It returns the corresponding Task ID for the matched files.
@@ -408,14 +410,15 @@ Krista SharePoint extension supports the following Catalog Requests:
 > #### Note :
 >   - The output limit for a list of files is capped at 500.
 
+
 #### 3. Get Shared Permission
 
 - **Description**: Obtain a list of users with granted access to a specific file, encompassing both those with shared access and those authorized to interact with the file.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                      |
-|--------------------|--------------------|---------------|----------------------------------|
-| Source Path        | Text               | Yes           | /siteName /Shared Documents/file |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                     |
+|--------------------|--------------------|---------------|---------------------------------|
+| Source Path        | Text               | Yes           | /siteName/Shared Documents/file |
 
 - **Output**:
 
@@ -424,11 +427,11 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - The File Entity within the response of the Get Shared Permission catalog provides details on permissions associated with SharePoint Groups. Please be aware that this feature is restricted to SharePoint Groups and does not cover Sites.
+>   - File Entity within the response of the Get Shared Permission catalog provides details on permissions associated with SharePoint Groups. Please be aware that this feature is restricted to SharePoint Groups and does not cover Sites.
 >   - Specify the file path for which you intend to retrieve shared permissions.
+>   - It includes list of Owners and Members.
+>   - The Get Shared Permission request does not include list of Visitors.
 
-> #### Limitation :
->   - This request functions exclusively with file paths. If a folder path is provided, the results will include folders with identical names even if they exist within the parent folder. For example, if there are two folders, "Test" and "Test Data," within the "Shared Folder," providing the path for "Test" will also return results for "Test Data."
 
 #### 4. Search By Mail
 
@@ -469,8 +472,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Files              | List&lt;Entity>    | [{name : ABC, extension:.txt , ...}] |
 | Message            | Text               | File Information                     |
 | Success            | Yes/No             | Yes                                  |
-
-
 
 
 ## Operation Area

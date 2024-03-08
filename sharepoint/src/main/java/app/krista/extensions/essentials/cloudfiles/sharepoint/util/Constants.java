@@ -40,11 +40,13 @@ public class Constants {
 
     public static final String HASH = "#";
 
-    public static final String REQUIRED_SCOPE = "openid offline_access Mail.Send Mail.ReadWrite Mail.Send.Shared Mail.ReadWrite.Shared";
+    public static final String REQUIRED_SCOPE = "openid User.Read User.Read.All offline_access Sites.Read.All Sites.Manage.All Group.ReadWrite.All GroupMember.Read.All";
 
     public static final String FILE_ALREADY_EXIST = "A file with this name already exists, Please choose a different file name";
 
     public static final String SCOPE_SEPARATOR = " ";
+    public static final String ODATA_CONTEXT = "@odata.context";
+    public static final String USER_EMAIL = "User Email";
 
     public static final String AUTHORITY = "https://login.microsoftonline.com/";
 
@@ -171,7 +173,8 @@ public class Constants {
     public static final String UPDATED_SITE_NAME_CANNOT_BE_NULL = "Updated Site name cannot be null or empty";
 
     public static final String PERMISSIONS = "Permissions";
-
+    public static final String PERMISSION = "Permission";
+    public static final String OWN = "Own";
     public static final String QUERY_PERMISSIONS = "permissions";
 
     public static final String FILE_SIZE_CANNOT_BE_NULL = "File Size can't be null or 0";

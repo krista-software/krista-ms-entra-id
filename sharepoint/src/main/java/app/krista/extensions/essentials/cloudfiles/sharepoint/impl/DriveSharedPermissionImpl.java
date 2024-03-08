@@ -24,16 +24,18 @@ public class DriveSharedPermissionImpl implements FileService {
     private final GraphServiceClient<Request> graphClient;
     private final SharePointAttributes sharePointAttributes;
     private final FileSearchUtilityService fileSearchUtilityService;
+    private final String absolutePath;
 
 
     public DriveSharedPermissionImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient,
                                      SharePointAttributes sharePointAttributes,
-                                     FileSearchUtilityService fileSearchUtilityService) {
+                                     FileSearchUtilityService fileSearchUtilityService, String filePath) {
         this.driveItem = driveItem;
         this.graphClient = graphClient;
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.driveMetaData = fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
         this.sharePointAttributes = sharePointAttributes;
+        this.absolutePath = FileUtil.preparePath(filePath);
     }
 
     @Override
@@ -53,12 +55,12 @@ public class DriveSharedPermissionImpl implements FileService {
 
     @Override
     public String getParentFolder() {
-        return FileSearchUtilityService.getParentFolder(driveMetaData, driveItem);
+        return absolutePath == null ? FileSearchUtilityService.getParentFolder(driveMetaData, driveItem) : FileUtil.getParentPath(absolutePath);
     }
 
     @Override
     public String getAbsolutePath() {
-        return FileSearchUtilityService.getAbsolutePath(driveMetaData, driveItem);
+            return absolutePath == null ? FileSearchUtilityService.getAbsolutePath(driveMetaData, driveItem) : absolutePath;
     }
 
     @Override
@@ -91,7 +93,7 @@ public class DriveSharedPermissionImpl implements FileService {
     @Override
     public String getPermissions() {
         return driveMetaData != null && driveItem != null && driveMetaData.permissions != null ?
-                FilePermissionDaoUtil.getPermissions(driveMetaData.permissions, sharePointAttributes, graphClient) : null;
+                FilePermissionDaoUtil.getOwnerPermissions(driveMetaData.permissions, sharePointAttributes) : null;
     }
 
     @Override
@@ -107,7 +109,7 @@ public class DriveSharedPermissionImpl implements FileService {
     @Override
     public List<Map<String, Object>> getSharedWith() {
         return driveMetaData != null && driveMetaData.permissions != null ?
-                FilePermissionDaoUtil.getSharedWithPermissions(driveMetaData.permissions, graphClient) : null;
+                FilePermissionDaoUtil.getSharedPermissions(driveMetaData, graphClient) : null;
     }
 
     @Override
