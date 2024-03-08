@@ -389,6 +389,8 @@ public class Constants {
 
     public static final String groupBaseUrl = "https://graph.microsoft.com/v1.0/users/";
 
+    public static final String ownerMailUrl = "https://graph.microsoft.com/v1.0/me";
+
     private Constants() {
     }
 }

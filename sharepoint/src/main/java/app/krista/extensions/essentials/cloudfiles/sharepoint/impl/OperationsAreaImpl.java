@@ -10,13 +10,13 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.RestClient;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
-import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.requests.GraphServiceClient;
-import okhttp3.Request;
 import org.codehaus.jettison.json.JSONException;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -113,18 +113,15 @@ public class OperationsAreaImpl {
 
     public Map<String, Object> createGroup(String groupName, String mailNickName) {
         Map<String, Object> payload = new HashMap<>();
-        String ownerMail = sharePointAttributes.getMailId();
+        String ownerMail = null;
 
-        boolean invokeAsUser = requestContext.invokeAsUser();
         try {
             RestClient restClient = clientProvider.getRestClient(null);
-            if (invokeAsUser) {
-                okhttp3.Response response = restClient.get("https://graph.microsoft.com/v1.0/me");
-                String responseBody = response.body().string();
-                JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
-                if (jsonObject != null && jsonObject.has("mail")) {
-                    ownerMail = jsonObject.get("mail").getAsString();
-                }
+
+            if (requestContext.invokeAsUser()) {
+                ownerMail = getOwnerMail(restClient);
+            } else {
+                ownerMail = sharePointAttributes.getMailId();
             }
             Response response = restClient.
                     executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createPayload(groupName, mailNickName, ownerMail));
@@ -189,5 +186,15 @@ public class OperationsAreaImpl {
         return new Gson().toJson(jsonBody);
     }
 
+    private String getOwnerMail(RestClient restClient) throws IOException {
+        String ownerMail = null;
+        okhttp3.Response response = restClient.get(Constants.ownerMailUrl);
+        String responseBody = response.body().string();
+        JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
+        if (jsonObject != null && jsonObject.has(Constants.mail)) {
+            ownerMail = jsonObject.get(Constants.mail).getAsString();
+        }
+        return ownerMail;
+    }
 
 }
