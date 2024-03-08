@@ -7,14 +7,16 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsArea
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.OperationsAreaSiteImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.RestClient;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
+import app.krista.ksdk.context.AuthorizationContext;
+import app.krista.ksdk.context.RequestContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.microsoft.graph.http.GraphServiceException;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.Request;
 import org.codehaus.jettison.json.JSONException;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -42,15 +44,18 @@ public class OperationsAreaImpl {
     private final OperationsAreaSiteImpl operationsAreaSiteImpl;
     private final SharePointAttributes sharePointAttributes;
 
+    private final RequestContext requestContext;
+
 
     @Inject
     public OperationsAreaImpl(GraphServiceClientProviderFactory clientProviderFactory,
                               OperationsAreaListImpl operationsAreaListImpl,
-                              OperationsAreaSiteImpl operationsAreaSiteImpl, SharePointAttributes sharePointAttributes) {
+                              OperationsAreaSiteImpl operationsAreaSiteImpl, SharePointAttributes sharePointAttributes, RequestContext requestContext) {
         this.clientProvider = clientProviderFactory.create();
         this.operationsAreaListImpl = operationsAreaListImpl;
         this.operationsAreaSiteImpl = operationsAreaSiteImpl;
         this.sharePointAttributes = sharePointAttributes;
+        this.requestContext = requestContext;
     }
 
 
@@ -110,8 +115,18 @@ public class OperationsAreaImpl {
         Map<String, Object> payload = new HashMap<>();
         String ownerMail = sharePointAttributes.getMailId();
 
+        boolean invokeAsUser = requestContext.invokeAsUser();
         try {
-            Response response = clientProvider.getRestClient(null).
+            RestClient restClient = clientProvider.getRestClient(null);
+            if (invokeAsUser) {
+                okhttp3.Response response = restClient.get("https://graph.microsoft.com/v1.0/me");
+                String responseBody = response.body().string();
+                JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
+                if (jsonObject != null && jsonObject.has("mail")) {
+                    ownerMail = jsonObject.get("mail").getAsString();
+                }
+            }
+            Response response = restClient.
                     executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createPayload(groupName, mailNickName, ownerMail));
 
             return prepareResponse(response, payload);
