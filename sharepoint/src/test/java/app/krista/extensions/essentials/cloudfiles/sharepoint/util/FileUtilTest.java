@@ -37,6 +37,17 @@ public class FileUtilTest {
     }
 
     @Test
+    public void testGetlastPathElement() {
+        String path1 = "/Enng/test";
+        String path2 = "/folder1/folder2/file.txt";
+        String path3 = "/onlyOneElement";
+
+        assertEquals("test", FileUtil.getlastPathElement(path1));
+        assertEquals("file.txt", FileUtil.getlastPathElement(path2));
+        assertEquals("onlyOneElement", FileUtil.getlastPathElement(path3));
+    }
+
+    @Test
     public void testGetUsersWithPermission() {
         List<Map<String, Object>> share = new ArrayList<>();
         Map<String, Object> user1 = new HashMap<>();

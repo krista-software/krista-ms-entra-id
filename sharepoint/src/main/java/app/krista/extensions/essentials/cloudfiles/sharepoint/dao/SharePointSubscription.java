@@ -32,30 +32,30 @@ public class SharePointSubscription {
     private SharePointSubscription() {
     }
 
-    public static void createSharePointSubscriptionForAllSites(String routingUrl, GraphServiceClientProvider provider) {
-        try {
-            LinkedList<QueryOption> requestOptions = new LinkedList<>();
-            requestOptions.add(new QueryOption("search", "*"));
-            SiteCollectionPage sites = provider.getGraphServiceClientForAdmin().sites().buildRequest(requestOptions).get();
-
-            for (Site site : sites.getCurrentPage()) {
-                try {
-                    provider.getGraphServiceClientForAdmin().sites(site.id).buildRequest().get();    // To check if site exist or not
-                    ListCollectionPage listCollectionPage = provider.getGraphServiceClientForAdmin().sites(site.id).lists().buildRequest().get();
-                    if (listCollectionPage != null) {
-                        for (List list : listCollectionPage.getCurrentPage()) {
-                            System.out.println(" Site " + site.displayName + "  " + site.id + " list " + list.id);
-                            createSubscription(routingUrl, provider, site.id, list.id);
-                        }
-                    }
-                } catch (Exception cause) {
-                    lOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
-                }
-            }
-        } catch (Exception cause) {
-            lOGGER.info(" Error Description : " + cause.getMessage());
-        }
-    }
+//    public static void createSharePointSubscriptionForAllSites(String routingUrl, GraphServiceClientProvider provider) {
+//        try {
+//            LinkedList<QueryOption> requestOptions = new LinkedList<>();
+//            requestOptions.add(new QueryOption("search", "*"));
+//            SiteCollectionPage sites = provider.getGraphServiceClientForAdmin().sites().buildRequest(requestOptions).get();
+//
+//            for (Site site : sites.getCurrentPage()) {
+//                try {
+//                    provider.getGraphServiceClientForAdmin().sites(site.id).buildRequest().get();    // To check if site exist or not
+//                    ListCollectionPage listCollectionPage = provider.getGraphServiceClientForAdmin().sites(site.id).lists().buildRequest().get();
+//                    if (listCollectionPage != null) {
+//                        for (List list : listCollectionPage.getCurrentPage()) {
+//                            System.out.println(" Site " + site.displayName + "  " + site.id + " list " + list.id);
+//                            createSubscription(routingUrl, provider, site.id, list.id);
+//                        }
+//                    }
+//                } catch (Exception cause) {
+//                    lOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
+//                }
+//            }
+//        } catch (Exception cause) {
+//            lOGGER.info(" Error Description : " + cause.getMessage());
+//        }
+//    }
 
     /**
      * This method will create a mail alert subscription
@@ -65,16 +65,42 @@ public class SharePointSubscription {
      * @param siteId
      * @param listId
      */
-    public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
+//    public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
+//        try {
+//           // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
+//            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://feaf-125-19-87-178.ngrok-free.app") : routingUrl,siteId, listId);
+//
+//            SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
+//            while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
+//                for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
+//                    if (Objects.requireNonNull(oldSubscription.resource).equals(subscription.resource)) {
+//                        return;
+//                    }
+//                }
+//                SubscriptionCollectionRequestBuilder nextPage = collectionPage.getNextPage();
+//                if (nextPage != null) {
+//                    collectionPage = nextPage.buildRequest().get();
+//                } else {
+//                    break;
+//                }
+//            }
+//            provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
+//            System.out.println(" New Subscription has been created ");
+//        } catch (ClientException | ParseException cause) {
+//            throw new RuntimeException(cause);
+//        }
+//    }
+
+    public static Subscription createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
-           // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
-            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://2bff-125-19-87-178.ngrok-free.app") : routingUrl,siteId, listId);
+            // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://feaf-125-19-87-178.ngrok-free.app") : routingUrl,siteId, listId);
 
             SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
             while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
                 for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
                     if (Objects.requireNonNull(oldSubscription.resource).equals(subscription.resource)) {
-                        return;
+                        return oldSubscription;
                     }
                 }
                 SubscriptionCollectionRequestBuilder nextPage = collectionPage.getNextPage();
@@ -84,8 +110,8 @@ public class SharePointSubscription {
                     break;
                 }
             }
-            provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
-            System.out.println(" New Subscription has been created ");
+            return provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
+
         } catch (ClientException | ParseException cause) {
             throw new RuntimeException(cause);
         }

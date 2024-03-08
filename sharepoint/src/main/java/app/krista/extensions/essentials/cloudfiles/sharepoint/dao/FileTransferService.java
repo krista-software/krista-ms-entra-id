@@ -138,17 +138,18 @@ public class FileTransferService {
         return provider.getRestClient(driveId);
     }
 
-    public RequestBody createRequestBody(String folderId, String driveId) {
-        String payload = getParentReferenceJson(folderId, driveId);
+    public RequestBody createRequestBody(String folderId, String driveId,String name) {
+        String payload = getParentReferenceJson(folderId, driveId,name);
         MediaType jsonMediaType = MediaType.parse(Constants.APPLICATION_JSON);
         return RequestBody.create(jsonMediaType, payload);
     }
 
-    private String getParentReferenceJson(String folderId, String driveId) {
+    private String getParentReferenceJson(String folderId, String driveId,String name) {
         JsonObject jsonObject = new JsonObject();
         JsonObject parentReference = new JsonObject();
         parentReference.addProperty("driveId", driveId);
         parentReference.addProperty(Constants.ID, folderId);
+        jsonObject.addProperty("name",name);
         jsonObject.add(Constants.PARENT_REFERENCE, parentReference);
         return jsonObject.toString();
     }
@@ -242,9 +243,9 @@ public class FileTransferService {
 
             String endpoint = source.id;
 
-            Response moveResponse = getRestClient(target.parentReference.driveId).
+            Response moveResponse = getRestClient(source.parentReference.driveId).
                     executeHttpMethods(endpoint, Constants.PATCH_METHOD,
-                            createRequestBody(target.id, target.parentReference.driveId));
+                            createRequestBody(target.id, target.parentReference.driveId,target.name));
             prepareMovedResponse(moveResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
         }
     }
@@ -256,8 +257,8 @@ public class FileTransferService {
             if (Boolean.TRUE.equals(replace)) {
                 endpoint += MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE;
             }
-            Response copyResponse = getRestClient(target.parentReference.driveId)
-                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, target.parentReference.driveId));
+            Response copyResponse = getRestClient(source.parentReference.driveId)
+                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, target.parentReference.driveId,source.name));
             prepareCopyResponse(copyResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
         }
     }

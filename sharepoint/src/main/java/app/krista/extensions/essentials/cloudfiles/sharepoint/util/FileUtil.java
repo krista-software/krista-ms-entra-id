@@ -10,6 +10,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -141,6 +142,35 @@ public class FileUtil {
         return drivePathBuilder.toString();
     }
 
+    public static boolean isPathContainsInput(String path, String input) {
+        // Split path and input into tokens
+        String[] pathTokens = path.split("/");
+        String[] inputTokens = input.split("/");
+
+        // Remove leading and trailing empty tokens
+        pathTokens = removeEmptyTokens(pathTokens);
+        inputTokens = removeEmptyTokens(inputTokens);
+
+        // Check if the number of tokens in path is at least equal to the number of tokens in input
+        if (pathTokens.length < inputTokens.length) {
+            return false;
+        }
+
+        // Compare tokens
+        for (int i = 0; i < inputTokens.length; i++) {
+            if (!pathTokens[i].equals(inputTokens[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static String[] removeEmptyTokens(String[] tokens) {
+        return Arrays.stream(tokens)
+                .filter(token -> !token.isEmpty())
+                .toArray(String[]::new);
+    }
 
     public static DriveItemRequestBuilder getRootUserRequestBuilder(GraphServiceClientProvider provider, String driveID) {
         return provider.getUserRequestBuilder(null, null).drives(driveID).root();
@@ -157,6 +187,9 @@ public class FileUtil {
         }
     }
 
+    public static String getlastPathElement(String path){
+        return path.substring(path.lastIndexOf("/") + 1);
+    }
     public static void failedToReadTextFile(Map<String, Object> payload) {
         payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
         payload.put(Constants.SUCCESS, false);

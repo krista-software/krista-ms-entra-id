@@ -1,10 +1,14 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.models.SearchHitsContainer;
+import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
+import okhttp3.Request;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.util.LinkedHashMap;
@@ -21,6 +25,22 @@ public class ResponseUtil {
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);
+    }
+
+    public static void addUpdatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService) {
+        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+        payload.put(Constants.FILE, fileEntity);
+        payload.put(Constants.EVENT, Constants.UPDATED);
+    }
+    public static void addCreatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService) {
+        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+        payload.put(Constants.FILE, fileEntity);
+        payload.put(Constants.EVENT, Constants.CREATED);
+    }
+
+    public static void addEventToFreeForm(Map<String, Object> payload, FreeForm form) {
+        form.put(Constants.FILE, "Entity(File)", payload.get(Constants.FILE));
+        form.put(Constants.EVENT, Constants.TEXT, payload.get(Constants.EVENT));
     }
 
     public static void listOfFileEntityResponse(List<File> fileEntity, boolean success, String message, FreeForm payload) {
