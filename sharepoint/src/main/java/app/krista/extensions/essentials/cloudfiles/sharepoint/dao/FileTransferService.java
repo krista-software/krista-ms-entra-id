@@ -242,7 +242,7 @@ public class FileTransferService {
 
             String endpoint = source.id;
 
-            Response moveResponse = getRestClient(target.parentReference.driveId).
+            Response moveResponse = getRestClient(source.parentReference.driveId).
                     executeHttpMethods(endpoint, Constants.PATCH_METHOD,
                             createRequestBody(target.id, target.parentReference.driveId));
             prepareMovedResponse(moveResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
@@ -256,7 +256,7 @@ public class FileTransferService {
             if (Boolean.TRUE.equals(replace)) {
                 endpoint += MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE;
             }
-            Response copyResponse = getRestClient(target.parentReference.driveId)
+            Response copyResponse = getRestClient(source.parentReference.driveId)
                     .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, target.parentReference.driveId));
             prepareCopyResponse(copyResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
         }
