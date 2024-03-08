@@ -114,7 +114,7 @@ public class OperationsAreaImpl {
             Response response = clientProvider.getRestClient(null).
                     executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createPayload(groupName, mailNickName, ownerMail));
 
-          return  prepareResponse(response, payload);
+            return prepareResponse(response, payload);
         } catch (IOException cause) {
             LOGGER.error("Failed to create group - " + cause.getMessage());
         } catch (JSONException cause) {

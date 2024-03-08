@@ -8,7 +8,6 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.Group;
 import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.GroupCollectionPage;
 import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class provides operations for managing SharePoint sites, including updating display names and deleting sites.
@@ -67,8 +67,9 @@ public class OperationsAreaSiteImpl {
             }
             Group updateGroup = new Group();
             updateGroup.displayName = newGroupName;
-            graphClient.groups(existingGroup.id).buildRequest().patch(updateGroup);
+            graphClient.groups(existingGroup.id).buildRequest().patch(updateGroup); // 204 No Content
         } catch (GraphServiceException cause) {
+            LOGGER.error("Error occurred while updating group");
             throw new IllegalStateException(cause.getMessage());
         }
         return ResponseUtil.preparePayloadResponse(null, true, Constants.GROUP_UPDATED_SUCCESSFULLY);
@@ -91,26 +92,18 @@ public class OperationsAreaSiteImpl {
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
-            GroupCollectionPage existingGroups = graphClient.groups().buildRequest().get();
-
-            Group groupToDelete = null;
-
-            if (existingGroups != null) {
-                for (Group group : existingGroups.getCurrentPage()) {
-                    if (group.displayName.equals(groupName)) {
-                        groupToDelete = group;
-                        break;
-                    }
-                }
-            }
+            Group groupToDelete = OperationsAreaUtilityService.findMatchingGroup(graphClient, groupName);
 
             if (groupToDelete != null) {
-                graphClient.groups(groupToDelete.id).buildRequest().delete();
-                payload.put(Constants.SUCCESS, true);
-                payload.put(Constants.MESSAGE, groupToDelete.displayName + Constants.GROUP_DELETED_SUCCESSFULLY);
+                if (groupToDelete.id != null) {
+                    graphClient.groups(Objects.requireNonNull(groupToDelete.id)).buildRequest().delete();
+                    return ResponseUtil.preparePayloadResponse(null, true, groupToDelete.displayName
+                            + Constants.GROUP_DELETED_SUCCESSFULLY);
+                } else {
+                    return ResponseUtil.preparePayloadResponse(null, false, "Group ID is null. Cannot delete group.");
+                }
             } else {
-                payload.put(Constants.SUCCESS, false);
-                payload.put(Constants.MESSAGE, "Group with name " + groupName + " not found");
+                return ResponseUtil.preparePayloadResponse(null, false, "Group not found. Cannot delete group.");
             }
         } catch (Exception cause) {
             LOGGER.error("Error deleting group : {} ", cause.getMessage());

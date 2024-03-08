@@ -30,7 +30,7 @@ public class Constants {
 
     public static final String ERROR_DESCRIPTION = "error_description";
 
-    public static final String ACCESS_TYPE_OFFLINE_APPROVAL_PROMPT_FORCE = "&access_type=offline&approval_prompt=force";
+    public static final String ACCESS_TYPE_OFFLINE_APPROVAL_PROMPT_FORCE = "&access_type=offline&approval_prompt=force&prompt=select_account";
 
     public static final String TEXT = "Text";
 
