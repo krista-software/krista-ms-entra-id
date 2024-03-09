@@ -357,6 +357,8 @@ public class Constants {
 
     public static final String  documentLibrary = "documentLibrary";
 
+    public static final String  Shared_Documents = "Shared Documents";
+
 
     private Constants() {
     }

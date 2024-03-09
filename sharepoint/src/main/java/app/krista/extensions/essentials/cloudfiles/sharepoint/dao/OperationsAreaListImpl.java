@@ -4,6 +4,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Operation
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.ColumnDefinitionCollectionPage;
 import com.microsoft.graph.requests.ColumnDefinitionCollectionResponse;
@@ -46,6 +47,10 @@ public class OperationsAreaListImpl {
         Map<String, Object> payload = new HashMap<>();
         if (!operationsAreaUtilityService.validateSiteAndListNames(siteName, listName, payload)) {
             return payload; // Early return if validation fails
+        }
+        if(listName.equals(Constants.Shared_Documents)){
+            LOGGER.info("This list name is not allowed to create");
+            return payload;
         }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
