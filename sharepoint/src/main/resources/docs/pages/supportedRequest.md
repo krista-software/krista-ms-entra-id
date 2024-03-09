@@ -504,9 +504,7 @@ Krista SharePoint extension supports the following Catalog Requests:
       doesn't appear in the SharePoint navigation panel. The request provides the absolute path for accessing the list.
 
 > #### Limitations :
->  - Creating a list named **Documents** is not possible, as it is a default list already existing. Similarly,
-     attempting to create a list named **Shared Documents** will result in the creation of **Shared Documents1** due to the default list's
-     presence.
+>  - Creating a list named **Documents** and **Shared Documents** is not possible, as it is a default list already existing.
 
 #### 2. Delete List
 
