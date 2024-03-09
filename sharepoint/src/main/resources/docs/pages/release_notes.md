@@ -28,6 +28,7 @@
 * KC-1869 [https://antbrains.atlassian.net/browse/KC-1462]  Share Point Extension Service Bettor error Message to User in configure Extension Screen.
 * KC-1507 [https://antbrains.atlassian.net/browse/KC-1507]  Download as file : Need to update the message
 * KE-1499 [https://antbrains.atlassian.net/browse/KE-1499]  When an empty folder is given, No data is returned in place of NA or Zero.
+* KE-1506 [https://antbrains.atlassian.net/browse/KE-1506]   SharePoint : Create List : The list is not visible on the UI
 
 
 ## Known Issues

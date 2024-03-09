@@ -4,10 +4,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Operation
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import com.microsoft.graph.models.ColumnDefinition;
-import com.microsoft.graph.models.DateTimeColumn;
-import com.microsoft.graph.models.List;
-import com.microsoft.graph.models.Site;
+import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.ColumnDefinitionCollectionPage;
 import com.microsoft.graph.requests.ColumnDefinitionCollectionResponse;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -74,26 +71,13 @@ public class OperationsAreaListImpl {
     private List buildMicrosoftGraphList(String listName) {
         List microsoftGraphList = new List();                           // Create the Microsoft Graph List object
         microsoftGraphList.displayName = listName;
+        ListInfo list = new ListInfo();
+        list.template = Constants.documentLibrary;
+        list.contentTypesEnabled = true;
+        list.hidden = false;
+        microsoftGraphList.list = list;
 
-        // Set "Modified" and "Modified By" columns ... these are the default column which we are adding
-        LinkedList<ColumnDefinition> columnsList = new LinkedList<>();
-        columnsList.add(buildColumnDefinition(Constants.MODIFIED));
-        columnsList.add(buildColumnDefinition(Constants.MODIFIED_BY));
-
-        // Set columns for the Microsoft Graph List
-        ColumnDefinitionCollectionResponse columnDefinitionCollectionResponse = new ColumnDefinitionCollectionResponse();
-        columnDefinitionCollectionResponse.value = columnsList;
-        ColumnDefinitionCollectionPage columnDefinitionCollectionPage =
-                new ColumnDefinitionCollectionPage(columnDefinitionCollectionResponse, null);
-        microsoftGraphList.columns = columnDefinitionCollectionPage;
         return microsoftGraphList;
-    }
-
-    private ColumnDefinition buildColumnDefinition(String columnName) {
-        ColumnDefinition columnDefinition = new ColumnDefinition();
-        columnDefinition.name = columnName;
-        columnDefinition.dateTime = new DateTimeColumn();
-        return columnDefinition;
     }
 
     /**
