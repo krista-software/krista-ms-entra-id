@@ -67,6 +67,21 @@ public class RestClient {
         }
     }
 
+    public Response getWithHeader(String endPoint) {
+        try {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(endPoint)
+                    .addHeader(AUTHORIZATION, BEARER_ + accessToken)
+                    .get()
+                    .build();
+
+            return handleResponse(client.newCall(request).execute());
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public Response executeHttpMethods(String endpoint, String action, RequestBody payload) throws IOException {
         switch (action) {
             case Constants.POST_METHOD:

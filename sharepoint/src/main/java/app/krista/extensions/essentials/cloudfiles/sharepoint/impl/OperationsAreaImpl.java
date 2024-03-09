@@ -188,7 +188,7 @@ public class OperationsAreaImpl {
 
     private String getOwnerMail(RestClient restClient) throws IOException {
         String ownerMail = null;
-        okhttp3.Response response = restClient.get(Constants.ownerMailUrl);
+        okhttp3.Response response = restClient.getWithHeader(Constants.ownerMailUrl);
         String responseBody = response.body().string();
         JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
         if (jsonObject != null && jsonObject.has(Constants.mail)) {
