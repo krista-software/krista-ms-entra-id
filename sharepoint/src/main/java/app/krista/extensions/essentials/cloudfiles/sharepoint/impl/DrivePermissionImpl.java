@@ -22,11 +22,23 @@ public class DrivePermissionImpl implements FileService {
     private final GraphServiceClient<Request> graphClient;
     private final FileSearchUtilityService fileSearchUtilityService;
 
-    public DrivePermissionImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService) {
+    private final String absolutePath;
+
+    public DrivePermissionImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
         this.driveItem = driveItem;
         this.graphClient = graphClient;
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.driveMetaData = this.fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
+        this.absolutePath =  sitePath!=null ? getFilePath(driveItem,sitePath) : null;
+
+    }
+
+    private String getFilePath(DriveItem driveItem, String sitePath) {
+        if(driveItem.parentReference != null && driveItem.parentReference.path != null){
+            String relativePath = FileUtil.getRootRelativeFilePath(driveItem.parentReference.path);
+            return sitePath+"/"+relativePath +"/"+driveItem.name;
+        }
+        return null;
     }
 
     @Override
@@ -46,12 +58,16 @@ public class DrivePermissionImpl implements FileService {
 
     @Override
     public String getParentFolder() {
-        return FileSearchUtilityService.getParentFolder(driveMetaData, driveItem);
+        return absolutePath == null
+                ? FileSearchUtilityService.getParentFolder(driveMetaData, driveItem)
+                : FileUtil.getParentPath(absolutePath);
     }
 
     @Override
     public String getAbsolutePath() {
-        return FileSearchUtilityService.getAbsolutePath(driveMetaData, driveItem);
+        return absolutePath == null
+                ? FileSearchUtilityService.getAbsolutePath(driveMetaData, driveItem)
+                : absolutePath;
     }
 
     @Override

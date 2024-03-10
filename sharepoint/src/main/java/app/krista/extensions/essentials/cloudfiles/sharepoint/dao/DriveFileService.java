@@ -254,7 +254,7 @@ public class DriveFileService {
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload, absolutePath);
             } else {
-                files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null));
                 ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {

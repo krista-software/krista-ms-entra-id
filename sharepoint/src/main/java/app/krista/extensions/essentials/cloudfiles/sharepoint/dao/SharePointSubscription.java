@@ -94,7 +94,7 @@ public class SharePointSubscription {
     public static Subscription createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
             // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
-            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", " https://c564-103-152-180-135.ngrok-free.app") : routingUrl,siteId, listId);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://7174-2409-40c2-116b-d3dc-855f-7707-cfca-ee55.ngrok-free.app") : routingUrl,siteId, listId);
 
 //            SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
 //            while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {

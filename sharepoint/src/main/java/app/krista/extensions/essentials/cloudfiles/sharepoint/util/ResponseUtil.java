@@ -27,13 +27,13 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, success);
     }
 
-    public static void addUpdatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService) {
-        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+    public static void addUpdatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
+        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService,sitePath));
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.EVENT, Constants.UPDATED);
     }
-    public static void addCreatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService) {
-        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+    public static void addCreatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
+        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService,sitePath));
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.EVENT, Constants.CREATED);
     }

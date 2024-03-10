@@ -90,10 +90,10 @@ public class FolderManagementDao {
                     for (DriveItem driveInPage : page.getCurrentPage()) {
                         if (search != null && !search.isEmpty() && driveInPage.folder != null &&
                                 driveInPage.name != null && driveInPage.name.contains(search)) {
-                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService));
+                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, null));
                         }
                         if (search != null && search.isBlank() && driveInPage.folder != null) {
-                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService));
+                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, null));
                         }
                     }
                     if (page.getNextPage() != null) {

@@ -221,7 +221,7 @@ public class FileSearchFilterByRange {
                     if (hitContainer.hits != null) {
                         for (SearchHit hits : hitContainer.hits) {
                             if (hits != null && hits.resource instanceof DriveItem) {
-                                resultPage.add(new DrivePermissionImpl((DriveItem) hits.resource, graphClient, fileSearchUtilityService));
+                                resultPage.add(new DrivePermissionImpl((DriveItem) hits.resource, graphClient, fileSearchUtilityService, null));
                             }
                         }
                     }

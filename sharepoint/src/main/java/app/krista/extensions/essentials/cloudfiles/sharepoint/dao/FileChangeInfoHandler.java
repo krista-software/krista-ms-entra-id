@@ -56,7 +56,13 @@ public class FileChangeInfoHandler {
             }
             String driveID = extractDriveID(oldDeltaCollectionPage);
             String itemId = extractItemId(oldDeltaCollectionPage);
-            processDeltaLinkItems(oldDeltaCollectionPage, payload);
+            String monitoredPath = FileChangeResourceUtil.getPathBySubscription(subscriptionId);
+            if(monitoredPath == null){
+                payload.put(Constants.MESSAGE, Constants.EMPTY);
+                return payload;
+            }
+            String sitePath = FileUtil.driveIdPath(monitoredPath);
+            processDeltaLinkItems(oldDeltaCollectionPage, payload,sitePath);
             FileChangeResourceUtil.addFileMetaData(subscriptionId, createFileChangeResource(driveID,itemId));
             return payload;
 
@@ -76,14 +82,14 @@ public class FileChangeInfoHandler {
         }
     }
 
-    private void processDeltaLinkItems(DriveItemDeltaCollectionPage oldDeltaCollectionPage, Map<String, Object> payload) {
+    private void processDeltaLinkItems(DriveItemDeltaCollectionPage oldDeltaCollectionPage, Map<String, Object> payload, String sitePath) {
         try {
             payload.put(Constants.EVENT, Constants.NO_CHANGE);
             String token = getDeltaLinkToken(oldDeltaCollectionPage);
             String driveID = extractDriveID(oldDeltaCollectionPage);
             String itemId = extractItemId(oldDeltaCollectionPage);
             DriveItemDeltaCollectionPage trackChanges = getDeltaCollectionWithToken(token,driveID,itemId);
-            compareWithChanges(trackChanges, payload,driveID,itemId);
+            compareWithChanges(trackChanges, payload,driveID,itemId,sitePath);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage(), cause);
             payload.put(Constants.EVENT, Constants.NO_CHANGE);
@@ -119,16 +125,16 @@ public class FileChangeInfoHandler {
         }
     }
 
-    private void compareWithChanges(DriveItemDeltaCollectionPage trackChange, Map<String, Object> payload, String driveID, String itemId) {
+    private void compareWithChanges(DriveItemDeltaCollectionPage trackChange, Map<String, Object> payload, String driveID, String itemId, String sitePath) {
         while (trackChange != null && !trackChange.getCurrentPage().isEmpty()) {
             DriveItemDeltaCollectionPage nextDelta = getDeltaCollectionWithToken(getDeltaLinkToken(trackChange), driveID, itemId);
             if(nextDelta == null){
                 DriveItem driveItem = trackChange.getCurrentPage().get(trackChange.getCurrentPage().size()-1);
                 if(driveItem.lastModifiedDateTime != null && driveItem.createdDateTime != null
                 && driveItem.lastModifiedDateTime.equals(driveItem.createdDateTime)){
-                    ResponseUtil.addCreatedFile(driveItem, payload,provider.getUserRequestBuilder(null,null),fileSearchUtilityService);
+                    ResponseUtil.addCreatedFile(driveItem, payload,provider.getUserRequestBuilder(null,null),fileSearchUtilityService,sitePath);
                 }else{
-                    ResponseUtil.addUpdatedFile(driveItem, payload,provider.getUserRequestBuilder(null,null),fileSearchUtilityService);
+                    ResponseUtil.addUpdatedFile(driveItem, payload,provider.getUserRequestBuilder(null,null),fileSearchUtilityService,sitePath);
                 }
             }
             if (nextDelta != null) {

@@ -52,4 +52,13 @@ public class FileChangeResourceUtil {
         return SUBSCRIPTION_STORE.get(path);
     }
 
+    public static String getPathBySubscription(String subscriptionId){
+        return SUBSCRIPTION_STORE.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().equals(subscriptionId))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    }
+
 }
