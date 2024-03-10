@@ -94,22 +94,22 @@ public class SharePointSubscription {
     public static Subscription createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
             // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
-            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://feaf-125-19-87-178.ngrok-free.app") : routingUrl,siteId, listId);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", " https://c564-103-152-180-135.ngrok-free.app") : routingUrl,siteId, listId);
 
-            SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
-            while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
-                for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
-                    if (Objects.requireNonNull(oldSubscription.resource).equals(subscription.resource)) {
-                        return oldSubscription;
-                    }
-                }
-                SubscriptionCollectionRequestBuilder nextPage = collectionPage.getNextPage();
-                if (nextPage != null) {
-                    collectionPage = nextPage.buildRequest().get();
-                } else {
-                    break;
-                }
-            }
+//            SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
+//            while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
+//                for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
+//                    if (Objects.requireNonNull(oldSubscription.resource).equals(subscription.resource)) {
+//                        return oldSubscription;
+//                    }
+//                }
+//                SubscriptionCollectionRequestBuilder nextPage = collectionPage.getNextPage();
+//                if (nextPage != null) {
+//                    collectionPage = nextPage.buildRequest().get();
+//                } else {
+//                    break;
+//                }
+//            }
             return provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
 
         } catch (ClientException | ParseException cause) {
@@ -158,5 +158,25 @@ public class SharePointSubscription {
         }
     }
 
+    /**
+     * This method is used to delete the mail alert subscription
+     *
+     * @param provider   {@link GraphServiceClientProvider} object to get the subscriptions
+     * @param subscriptionId url to remove the subscription alert
+     */
+    public static void deleteSubscription(GraphServiceClientProvider provider, String subscriptionId) {
+        try {
+            SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
+            if (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
+                for (Subscription subscription : collectionPage.getCurrentPage()) {
+                    if (subscription.id != null && subscription.id.equals(subscriptionId)) {
+                        provider.getGraphServiceClientForAdmin().subscriptions(Objects.requireNonNull(subscription.id)).buildRequest().delete();
+                    }
+                }
+            }
+        } catch (ClientException cause) {
+            lOGGER.error("Error while deleting Subscription : {}",cause.getMessage());
+        }
+    }
 
 }

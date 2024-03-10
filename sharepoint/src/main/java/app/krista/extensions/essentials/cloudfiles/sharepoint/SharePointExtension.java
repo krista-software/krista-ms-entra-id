@@ -16,10 +16,10 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
-import com.microsoft.graph.http.DeltaCollectionPage;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.DriveCollectionPage;
+import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.models.List;
+import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.ListCollectionPage;
@@ -67,6 +67,28 @@ public class SharePointExtension {
         this.searchFileExecutor = searchFileExecutor;
     }
 
+    private static String getListFromSite(String siteId, String listName, GraphServiceClient<Request> graphClient) {
+        try {
+            ListCollectionPage listCollectionPage = graphClient.sites(siteId).lists().buildRequest().get();
+            while (listCollectionPage != null && !listCollectionPage.getCurrentPage().isEmpty()) {
+                for (List list : listCollectionPage.getCurrentPage()) {
+                    if (list.name != null && list.name.equals(listName)) {
+                        return list.id;
+                    }
+                }
+                if (listCollectionPage.getNextPage() != null) {
+                    listCollectionPage = listCollectionPage.getNextPage().buildRequest().get();
+                } else {
+                    break;
+                }
+            }
+
+        } catch (GraphServiceException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
+        }
+        return null;
+    }
+
     @InvokerRequest(InvokerRequest.Type.AUTHENTICATOR)
     public RequestAuthenticator getRequestAuthenticator() {
         return requestAuthenticator;
@@ -111,7 +133,7 @@ public class SharePointExtension {
      */
     @InvokerRequest(InvokerRequest.Type.REGISTER_EVENT_LISTENER)
     public void onRegisterEventListener(WaitForEventListener waitForEventListener) {
-        if(waitForEventListener.getRequestId().equals("localDomainRequest_d6ab2648-df6b-4429-aeef-a56c75fde191")) {
+        if (waitForEventListener.getRequestId().equals("localDomainRequest_d6ab2648-df6b-4429-aeef-a56c75fde191")) {
             Map<String, Object> payload = new HashMap<>();
             if (waitForEventListener != null) {
                 String path = waitForEventListener.getRequestInputs().get("Source").toString();
@@ -127,7 +149,8 @@ public class SharePointExtension {
                         //Create Subscription
                         Subscription subscription = SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(sharePointAttributes), siteId, listId);
                         FileChangeResourceUtil.addSubscription(path, subscription.id);
-                        DriveItemDeltaCollectionPage deltaCollectionPage = clientProviderFactory.create(sharePointAttributes).getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId)
+                        DriveItemDeltaCollectionPage deltaCollectionPage = clientProviderFactory.create(sharePointAttributes).
+                                getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId)
                                 .items(driveItem.id).delta().buildRequest().get();
                         FileChangeResourceUtil.addFileMetaData(subscription.id, deltaCollectionPage);
                         //Now add metaData
@@ -152,31 +175,15 @@ public class SharePointExtension {
      */
     @InvokerRequest(InvokerRequest.Type.UNREGISTER_EVENT_LISTENER)
     public void onUnRegisterEventListener(WaitForEventListener waitForEventListener) {
-        //Delete subscription
-        //
-    }
 
+        if (waitForEventListener.getRequestId().equals("localDomainRequest_d6ab2648-df6b-4429-aeef-a56c75fde191")) {
+            String path = waitForEventListener.getRequestInputs().get("Source").toString();
+            String subscriptionId = FileChangeResourceUtil.getSubscriptionByPath(path);
 
-    private static String getListFromSite(String siteId, String listName, GraphServiceClient<Request> graphClient) {
-        try {
-            ListCollectionPage listCollectionPage = graphClient.sites(siteId).lists().buildRequest().get();
-            while(listCollectionPage != null && !listCollectionPage.getCurrentPage().isEmpty()){
-                for(List list : listCollectionPage.getCurrentPage()){
-                    if(list.name != null && list.name.equals(listName)){
-                        return list.id;
-                    }
-                }
-                if(listCollectionPage.getNextPage() != null){
-                    listCollectionPage = listCollectionPage.getNextPage().buildRequest().get();
-                }else{
-                    break;
-                }
+            if(subscriptionId !=null){
+                SharePointSubscription.deleteSubscription(clientProviderFactory.create(sharePointAttributes),subscriptionId);
             }
-
-        } catch (GraphServiceException cause) {
-            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
         }
-        return null;
     }
 
 }
