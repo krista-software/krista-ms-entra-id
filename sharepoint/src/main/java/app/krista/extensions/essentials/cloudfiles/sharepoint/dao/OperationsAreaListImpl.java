@@ -4,10 +4,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Operation
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.ColumnDefinitionCollectionPage;
-import com.microsoft.graph.requests.ColumnDefinitionCollectionResponse;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
@@ -16,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -48,7 +44,7 @@ public class OperationsAreaListImpl {
         if (!operationsAreaUtilityService.validateSiteAndListNames(siteName, listName, payload)) {
             return payload; // Early return if validation fails
         }
-        if(listName.equals(Constants.Shared_Documents)){
+        if(listName.equals(Constants.SHARED_DOCUMENTS)){
             LOGGER.info("This list name is not allowed to create");
             return payload;
         }
@@ -77,7 +73,7 @@ public class OperationsAreaListImpl {
         List microsoftGraphList = new List();                           // Create the Microsoft Graph List object
         microsoftGraphList.displayName = listName;
         ListInfo list = new ListInfo();
-        list.template = Constants.documentLibrary;
+        list.template = Constants.DOCUMENT_LIBRARY;
         list.contentTypesEnabled = true;
         list.hidden = false;
         microsoftGraphList.list = list;

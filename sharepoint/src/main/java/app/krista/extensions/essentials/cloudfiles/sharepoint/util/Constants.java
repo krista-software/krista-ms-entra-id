@@ -355,9 +355,7 @@ public class Constants {
 
     public static final String FILE_DOWNLOADED_SUCCESSFULLY = "File downloaded successfully";
 
-    public static final String  documentLibrary = "documentLibrary";
-
-    public static final String  Shared_Documents = "Shared Documents";
+    public static final String DOCUMENT_LIBRARY = "documentLibrary";
 
 
     private Constants() {
