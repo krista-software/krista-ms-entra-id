@@ -30,18 +30,10 @@ public class FileImpl implements FileService {
         this.driveItem = driveItem;
         this.graphClient = graphClient;
         this.fileSearchUtilityService = fileSearchUtilityService;
-//        if (targetPath != null) {
-//            this.parentFolder = fileSearchUtilityService.extractLastNameFromPath(targetPath);
-//            this.absolutePath = targetPath !=null ? getFilePath(driveItem,targetPath) : null;
-//        } else {
-//            this.parentFolder = null;
-//            this.absolutePath = sourcePath;
-//        }
         this.absolutePath =  sitePath!=null ? getFilePath(driveItem,sitePath) : null;
         this.driveMetaData = fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
     }
 
-// this.absolutePath =  sitePath!=null ? getFilePath(driveItem,sitePath) : null;
 
     @Override
     public String getName() {
