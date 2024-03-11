@@ -218,8 +218,9 @@ public class DriveFileService {
             if (mapPayload.get(Constants.SUCCESS).equals(Boolean.TRUE) && mapPayload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
                 DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
                 String refinedRelativePath = FolderManagementDao.getRelativePath(sourcePath);
+                String sitePath = mapPayload.get(Constants.SOURCE_ROOT_PATH).toString();
                 getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath,
-                        files, useEmail, accountID, search, payload, sourcePath);
+                        files, useEmail, accountID, search, payload, sourcePath,sitePath);
             }else{
                 payload.put(Constants.SUCCESS,Constants.SWITCH,false);
                 payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH));
@@ -245,14 +246,13 @@ public class DriveFileService {
         ResponseUtil.getInfoResponse(false, errorMessage, payload);
     }
 
-    public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload, String absolutePath) {
+    public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload, String absolutePath, String sitePath) {
         try {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
 
             DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
-            String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
-                iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload, absolutePath);
+                iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload,sitePath);
             } else {
                 files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, sitePath));
                 ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
@@ -262,13 +262,12 @@ public class DriveFileService {
         }
     }
 
-    private void iterateAndAddFilesToCollection(List<FileService> files, String search, String driveID, String relativePath, boolean useEmail, String accountID, FreeForm payload, String absolutePath) {
+    private void iterateAndAddFilesToCollection(List<FileService> files, String search, String driveID, String relativePath, boolean useEmail, String accountID, FreeForm payload, String sitePath) {
         try {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
 
             DriveItemCollectionPage page = graphClient.drives(driveID).root().itemWithPath(relativePath).children()
                     .buildRequest().get();
-            String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
             while (page != null && !page.getCurrentPage().isEmpty()) {
                 for (DriveItem driveInPage : page.getCurrentPage()) {
                     if (isSearchCriteriaMatched(search, driveInPage)) {
@@ -279,7 +278,7 @@ public class DriveFileService {
                 if (page.getNextPage() != null) {
                     page = page.getNextPage().buildRequest().get();
                 } else {
-                    ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
+                    ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, Constants.FILE_FETCHED_SUCCESSFULLY, payload);
                     break;
                 }
             }

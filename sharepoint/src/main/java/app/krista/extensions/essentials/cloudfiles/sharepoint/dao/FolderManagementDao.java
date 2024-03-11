@@ -65,7 +65,8 @@ public class FolderManagementDao {
             if (mapPayload.get(Constants.SUCCESS).equals(Boolean.TRUE) && mapPayload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
                 DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
                 sourcePath = getRelativePath(sourcePath);
-                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, sourcePath, files, useEmail, accountID, search, payload);
+                String sitePath = mapPayload.get(Constants.SOURCE_ROOT_PATH).toString();
+                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, sourcePath, files, useEmail, accountID, search, payload,sitePath);
             } else{
                 payload.put(Constants.SUCCESS,Constants.SWITCH,false);
                 payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH));
@@ -79,15 +80,13 @@ public class FolderManagementDao {
     }
 
     public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files,
-                                          boolean useEmail, String accountID, String search, FreeForm payload) {
+                                          boolean useEmail, String accountID, String search, FreeForm payload, String sitePath) {
         try {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
             DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 DriveItemCollectionPage page = graphClient.drives(driveID).root().itemWithPath(relativePath).children()
                         .buildRequest().get();
-                String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
-
                 while (page != null && !page.getCurrentPage().isEmpty()) {
                     for (DriveItem driveInPage : page.getCurrentPage()) {
                         if (search != null && !search.isEmpty() && driveInPage.folder != null &&
@@ -102,7 +101,7 @@ public class FolderManagementDao {
                         page = page.getNextPage().buildRequest().get();
                     } else {
                         ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile)
-                                .collect(Collectors.toList()), true, " ", payload);
+                                .collect(Collectors.toList()), true, Constants.FOLDERS_FETCHED_SUCCESSFULLY, payload);
                         break;
                     }
                 }

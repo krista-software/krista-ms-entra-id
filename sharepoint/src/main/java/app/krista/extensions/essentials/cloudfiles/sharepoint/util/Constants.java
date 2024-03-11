@@ -300,6 +300,11 @@ public class Constants {
     public static final int INTERNAL_SERVER_ERROR = 500;
 
     public static final String FOLDER_NOT_FOUND = "Folder Not Found";
+
+    public static final String FOLDERS_FETCHED_SUCCESSFULLY = "Folders fetched successfully";
+
+    public static final String FILE_FETCHED_SUCCESSFULLY = "Files and Folders fetched successfully";
+
     public static final String EMPTY = "EMPTY";
     public static final String GROUP_CREATED = "Group created successfully";
 
