@@ -72,7 +72,7 @@ public class SharePointAttributes {
     }
 
     public String getCallbackUrl() {
-        return routingUrl + Constants.REST_SHAREPOINT_CALLBACK;
+        return routingUrl.replace("https://extension.local.eng.krista.app", "http://localhost:8765") + Constants.REST_SHAREPOINT_CALLBACK;
     }
 
 
