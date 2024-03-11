@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility class with static methods for common file-related operations, string validation, and file creation.
@@ -187,7 +189,7 @@ public class FileUtil {
         }
     }
 
-    public static String getlastPathElement(String path){
+    public static String getLastPathElement(String path){
         return path.substring(path.lastIndexOf("/") + 1);
     }
     public static void failedToReadTextFile(Map<String, Object> payload) {
@@ -198,6 +200,25 @@ public class FileUtil {
     public static String preparePath(String filePath) {
         if(filePath!=null){
             return filePath.replace("%20"," ");
+        }
+        return null;
+    }
+
+    public static String extractSecondLastFolder(String path) {
+        String[] parts = path.replaceFirst("^(https?://)", "").split("/");
+        int length = parts.length;
+        if (length > 2) {
+            return parts[length - 2];
+        }
+        return "";
+    }
+
+    public static String extractSiteID(String input) {
+        Pattern pattern = Pattern.compile("SPO:SPO_([^@]+)@");
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            return matcher.group(1);
         }
         return null;
     }

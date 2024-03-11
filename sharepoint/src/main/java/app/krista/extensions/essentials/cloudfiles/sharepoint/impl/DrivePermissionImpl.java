@@ -36,7 +36,8 @@ public class DrivePermissionImpl implements FileService {
     private String getFilePath(DriveItem driveItem, String sitePath) {
         if(driveItem.parentReference != null && driveItem.parentReference.path != null){
             String relativePath = FileUtil.getRootRelativeFilePath(driveItem.parentReference.path);
-            return sitePath+"/"+relativePath +"/"+driveItem.name;
+            String modifiedRelativePath = relativePath.isBlank() ? "" : relativePath +"/";
+            return sitePath+"/"+modifiedRelativePath+driveItem.name;
         }
         return null;
     }
@@ -99,7 +100,6 @@ public class DrivePermissionImpl implements FileService {
 
     @Override
     public String getPermissions() {
-    //    assert driveItem.permissions != null;
         if (driveItem.permissions != null) {
             return driveItem.permissions.toString();
         }

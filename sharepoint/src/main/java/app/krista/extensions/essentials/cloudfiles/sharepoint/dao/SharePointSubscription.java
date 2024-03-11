@@ -3,14 +3,8 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.core.ClientException;
-import com.microsoft.graph.models.List;
-import com.microsoft.graph.models.Site;
 import com.microsoft.graph.models.Subscription;
-import com.microsoft.graph.options.QueryOption;
-import com.microsoft.graph.requests.ListCollectionPage;
-import com.microsoft.graph.requests.SiteCollectionPage;
 import com.microsoft.graph.requests.SubscriptionCollectionPage;
-import com.microsoft.graph.requests.SubscriptionCollectionRequestBuilder;
 import com.microsoft.graph.serializer.OffsetDateTimeSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jvnet.hk2.annotations.Service;
@@ -21,7 +15,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.Objects;
 
 @Service
@@ -32,31 +25,6 @@ public class SharePointSubscription {
     private SharePointSubscription() {
     }
 
-//    public static void createSharePointSubscriptionForAllSites(String routingUrl, GraphServiceClientProvider provider) {
-//        try {
-//            LinkedList<QueryOption> requestOptions = new LinkedList<>();
-//            requestOptions.add(new QueryOption("search", "*"));
-//            SiteCollectionPage sites = provider.getGraphServiceClientForAdmin().sites().buildRequest(requestOptions).get();
-//
-//            for (Site site : sites.getCurrentPage()) {
-//                try {
-//                    provider.getGraphServiceClientForAdmin().sites(site.id).buildRequest().get();    // To check if site exist or not
-//                    ListCollectionPage listCollectionPage = provider.getGraphServiceClientForAdmin().sites(site.id).lists().buildRequest().get();
-//                    if (listCollectionPage != null) {
-//                        for (List list : listCollectionPage.getCurrentPage()) {
-//                            System.out.println(" Site " + site.displayName + "  " + site.id + " list " + list.id);
-//                            createSubscription(routingUrl, provider, site.id, list.id);
-//                        }
-//                    }
-//                } catch (Exception cause) {
-//                    lOGGER.info(" Error Description : " + cause.getMessage() + " Site Name : " + site.displayName);
-//                }
-//            }
-//        } catch (Exception cause) {
-//            lOGGER.info(" Error Description : " + cause.getMessage());
-//        }
-//    }
-
     /**
      * This method will create a mail alert subscription
      *
@@ -65,55 +33,15 @@ public class SharePointSubscription {
      * @param siteId
      * @param listId
      */
-//    public static void createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
-//        try {
-//           // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
-//            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://feaf-125-19-87-178.ngrok-free.app") : routingUrl,siteId, listId);
-//
-//            SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
-//            while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
-//                for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
-//                    if (Objects.requireNonNull(oldSubscription.resource).equals(subscription.resource)) {
-//                        return;
-//                    }
-//                }
-//                SubscriptionCollectionRequestBuilder nextPage = collectionPage.getNextPage();
-//                if (nextPage != null) {
-//                    collectionPage = nextPage.buildRequest().get();
-//                } else {
-//                    break;
-//                }
-//            }
-//            provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
-//            System.out.println(" New Subscription has been created ");
-//        } catch (ClientException | ParseException cause) {
-//            throw new RuntimeException(cause);
-//        }
-//    }
 
     public static Subscription createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
             // Subscription subscription = setSubscriptionParameters(routingUrl, siteId, listId);
-            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://7174-2409-40c2-116b-d3dc-855f-7707-cfca-ee55.ngrok-free.app") : routingUrl,siteId, listId);
-
-//            SubscriptionCollectionPage collectionPage = provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().get();
-//            while (collectionPage != null && !collectionPage.getCurrentPage().isEmpty()) {
-//                for (Subscription oldSubscription : collectionPage.getCurrentPage()) {
-//                    if (Objects.requireNonNull(oldSubscription.resource).equals(subscription.resource)) {
-//                        return oldSubscription;
-//                    }
-//                }
-//                SubscriptionCollectionRequestBuilder nextPage = collectionPage.getNextPage();
-//                if (nextPage != null) {
-//                    collectionPage = nextPage.buildRequest().get();
-//                } else {
-//                    break;
-//                }
-//            }
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://1670-125-19-87-178.ngrok-free.app") : routingUrl, siteId, listId);
             return provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
-
         } catch (ClientException | ParseException cause) {
-            throw new RuntimeException(cause);
+            lOGGER.error("Error occurred while creating subscription : {}", cause.getMessage());
+            return null;
         }
     }
 
@@ -161,7 +89,7 @@ public class SharePointSubscription {
     /**
      * This method is used to delete the mail alert subscription
      *
-     * @param provider   {@link GraphServiceClientProvider} object to get the subscriptions
+     * @param provider       {@link GraphServiceClientProvider} object to get the subscriptions
      * @param subscriptionId url to remove the subscription alert
      */
     public static void deleteSubscription(GraphServiceClientProvider provider, String subscriptionId) {
@@ -175,7 +103,7 @@ public class SharePointSubscription {
                 }
             }
         } catch (ClientException cause) {
-            lOGGER.error("Error while deleting Subscription : {}",cause.getMessage());
+            lOGGER.error("Error while deleting subscription : {}", cause.getMessage());
         }
     }
 

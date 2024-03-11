@@ -18,10 +18,12 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.models.Group;
 import com.microsoft.graph.models.List;
 import com.microsoft.graph.models.Subscription;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.GroupCollectionPage;
 import com.microsoft.graph.requests.ListCollectionPage;
 import okhttp3.Request;
 import org.slf4j.Logger;
@@ -30,8 +32,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Field.Text(value = Constants.CLIENT_ID)
 @Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
@@ -42,12 +42,14 @@ import java.util.concurrent.Executors;
 public class SharePointExtension {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharePointExtension.class);
+    private static final String WHEN_FILE_IS_CHANGE_REQ_ID = "localDomainRequest_d6ab2648-df6b-4429-aeef-a56c75fde191";
+    private static final String SOURCE = "Source";
+    private static final String INVALID_INPUT = "Invalid Input";
     private final String routingUrl;
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
     private final SharePointRequestAuthenticator requestAuthenticator;
     private final SearchFileExecutor searchFileExecutor;
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public SharePointExtension(Invoker invoker, SharePointAttributes sharePointAttributes,
@@ -107,9 +109,6 @@ public class SharePointExtension {
                     .getGraphServiceClientForAdmin()
                     .me().drive().root().children().buildRequest().get();
         }
-//        executorService.submit(() -> {
-//            SharePointSubscription.createSharePointSubscriptionForAllSites(routingUrl, clientProviderFactory.create(attributes));
-//        });
     }
 
     @InvokerRequest(InvokerRequest.Type.TEST_CONNECTION)
@@ -133,39 +132,75 @@ public class SharePointExtension {
      */
     @InvokerRequest(InvokerRequest.Type.REGISTER_EVENT_LISTENER)
     public void onRegisterEventListener(WaitForEventListener waitForEventListener) {
-        if (waitForEventListener.getRequestId().equals("localDomainRequest_d6ab2648-df6b-4429-aeef-a56c75fde191")) {
+        if (waitForEventListener.getRequestId().equals(WHEN_FILE_IS_CHANGE_REQ_ID)) {
             Map<String, Object> payload = new HashMap<>();
-            if (waitForEventListener != null) {
-                String path = waitForEventListener.getRequestInputs().get("Source").toString();
-                //Check if File Exists
-                searchFileExecutor.getFileInfo(path, payload, true);
-                DriveItem driveItem = payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null;
-                if (driveItem != null) {
-                    GraphServiceClient<Request> provider = clientProviderFactory.create(sharePointAttributes).getUserRequestBuilder(null, null);
-                    String siteId = driveItem.parentReference.siteId;
-                    String listName = FileUtil.getlastPathElement(payload.get(Constants.SOURCE_ROOT_PATH).toString());
-                    String listId = getListFromSite(siteId, listName, provider);
-                    if (listId != null) {
-                        //Create Subscription
-                        Subscription subscription = SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(sharePointAttributes), siteId, listId);
-                        FileChangeResourceUtil.addSubscription(path, subscription.id);
-                        DriveItemDeltaCollectionPage deltaCollectionPage = clientProviderFactory.create(sharePointAttributes).
-                                getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId)
-                                .items(driveItem.id).delta().buildRequest().get();
-                        FileChangeResourceUtil.addFileMetaData(subscription.id, deltaCollectionPage);
-                        //Now add metaData
-                    } else {
-                        throw new IllegalStateException("Invalid Input");
-                    }
-
+            String path = waitForEventListener.getRequestInputs().get(SOURCE).toString();
+            searchFileExecutor.getFileInfo(path, payload, true);
+            DriveItem driveItem = payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null;
+            if (driveItem != null) {
+                GraphServiceClient<Request> provider = clientProviderFactory.create(sharePointAttributes).getUserRequestBuilder(null, null);
+                String siteId = driveItem.parentReference.siteId;
+                if (siteId == null && driveItem.name != null && driveItem.name.equals("root")) {
+                    String siteName = FileUtil.extractSecondLastFolder(driveItem.webUrl != null ? driveItem.webUrl : "");
+                    siteId = getSiteIdBySiteName(siteName, provider);
+                }
+                String listName = FileUtil.getLastPathElement(payload.get(Constants.SOURCE_ROOT_PATH).toString());
+                String listId = getListFromSite(siteId, listName, provider);
+                if (listId != null) {
+                    Subscription subscription = SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(sharePointAttributes), siteId, listId);
+                    setFileResourceMetaData(path, driveItem, subscription);
                 } else {
-                    throw new IllegalStateException("Invalid Input");
+                    throw new IllegalStateException(INVALID_INPUT);
+                }
+            } else {
+                throw new IllegalStateException(INVALID_INPUT);
+            }
+
+        }
+    }
+
+    private void setFileResourceMetaData(String path, DriveItem driveItem, Subscription subscription) {
+        if (subscription != null) {
+            FileChangeResourceUtil.addSubscription(path, subscription.id);
+            DriveItemDeltaCollectionPage deltaCollectionPage = getDeltaCollectionPage(driveItem);
+            FileChangeResourceUtil.addFileMetaData(subscription.id, deltaCollectionPage);
+        }
+    }
+
+    private DriveItemDeltaCollectionPage getDeltaCollectionPage(DriveItem driveItem) {
+        try {
+            return clientProviderFactory.create(sharePointAttributes).
+                    getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId)
+                    .items(driveItem.id).delta().buildRequest().get();
+        } catch (GraphServiceException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
+        }
+        return null;
+    }
+
+    private String getSiteIdBySiteName(String siteName, GraphServiceClient<Request> provider) {
+        try {
+            GroupCollectionPage groups = provider.groups().buildRequest().get();
+            while (groups != null && !groups.getCurrentPage().isEmpty()) {
+                for (Group group : groups.getCurrentPage()) {
+                    if (group.mailNickname != null && group.mailNickname.equals(siteName) && group.proxyAddresses != null) {
+                        for (String content : group.proxyAddresses) {
+                            if (content.startsWith("SPO")) {
+                                return FileUtil.extractSiteID(content);
+                            }
+                        }
+                    }
+                }
+                if (groups.getNextPage() != null) {
+                    groups = groups.getNextPage().buildRequest().get();
+                } else {
+                    break;
                 }
             }
-            //create subscription based on path and store delta collection with subscription ID in Map
-            //store that path and subscription ID in Map
+        } catch (Exception cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
         }
-        //
+        return " ";
     }
 
     /**
@@ -176,12 +211,14 @@ public class SharePointExtension {
     @InvokerRequest(InvokerRequest.Type.UNREGISTER_EVENT_LISTENER)
     public void onUnRegisterEventListener(WaitForEventListener waitForEventListener) {
 
-        if (waitForEventListener.getRequestId().equals("localDomainRequest_d6ab2648-df6b-4429-aeef-a56c75fde191")) {
-            String path = waitForEventListener.getRequestInputs().get("Source").toString();
+        if (waitForEventListener.getRequestId().equals(WHEN_FILE_IS_CHANGE_REQ_ID)) {
+            String path = waitForEventListener.getRequestInputs().get(SOURCE).toString();
             String subscriptionId = FileChangeResourceUtil.getSubscriptionByPath(path);
 
-            if(subscriptionId !=null){
-                SharePointSubscription.deleteSubscription(clientProviderFactory.create(sharePointAttributes),subscriptionId);
+            if (subscriptionId != null) {
+                SharePointSubscription.deleteSubscription(clientProviderFactory.create(sharePointAttributes), subscriptionId);
+                FileChangeResourceUtil.removeSubscriptionByID(subscriptionId);
+                FileChangeResourceUtil.removePathFromSubscriptionStore(path);
             }
         }
     }
