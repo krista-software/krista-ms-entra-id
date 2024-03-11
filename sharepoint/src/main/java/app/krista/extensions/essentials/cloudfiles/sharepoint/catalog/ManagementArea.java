@@ -342,11 +342,6 @@ public class ManagementArea {
             map.put(Constants.EVENT, eventData.get(Constants.EVENT));
             return map;
         }
-
-//        Map<String, Object> fileStatus = managementDao.whenAFileIsChanged(source, search);
-//        if (eventName.equalsIgnoreCase(Constants.FILE_RECEIVED) && fileStatus.get(Constants.EVENT).equals(event)) {
-//            return fileStatus;
-//        }
         throw new IllegalStateException("Invalid Input");
     }
 
