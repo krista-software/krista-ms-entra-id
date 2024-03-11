@@ -138,17 +138,18 @@ public class FileTransferService {
         return provider.getRestClient(driveId);
     }
 
-    public RequestBody createRequestBody(String folderId, String driveId) {
-        String payload = getParentReferenceJson(folderId, driveId);
+    public RequestBody createRequestBody(String folderId, String driveId,String name) {
+        String payload = getParentReferenceJson(folderId, driveId,name);
         MediaType jsonMediaType = MediaType.parse(Constants.APPLICATION_JSON);
         return RequestBody.create(jsonMediaType, payload);
     }
 
-    private String getParentReferenceJson(String folderId, String driveId) {
+    private String getParentReferenceJson(String folderId, String driveId,String name) {
         JsonObject jsonObject = new JsonObject();
         JsonObject parentReference = new JsonObject();
         parentReference.addProperty("driveId", driveId);
         parentReference.addProperty(Constants.ID, folderId);
+        jsonObject.addProperty("name",name);
         jsonObject.add(Constants.PARENT_REFERENCE, parentReference);
         return jsonObject.toString();
     }
@@ -171,9 +172,9 @@ public class FileTransferService {
                                                 , driveId
                                                 , jsonObject.getAsJsonPrimitive("resourceId").getAsString().trim())
                                         .buildRequest().expand(Constants.PERMISSIONS).get();
-
+                                String sitePath = payload.get(Constants.TARGET_ROOT_PATH).toString();
                                 ResponseUtil.fileEntityResponse(File
-                                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null), source, target, fileSearchUtilityService))
+                                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null),sitePath, fileSearchUtilityService))
                                         , true, Constants.FILE_HAS_BEEN_COPIED, payload);
                             } else if ("inProgress".equalsIgnoreCase(status)) {
                                 ResponseUtil.errorResponse(true, Constants.COPY_IN_PROGRESS, payload);
@@ -220,9 +221,9 @@ public class FileTransferService {
                         .get(moveResponse.request().url().pathSegments().size() - 1);
                 DriveItem driveItem = FileUtil.getUserRequestBuilderWithItemId(provider, driveId, itemID)
                         .buildRequest().expand(Constants.PERMISSIONS).get();
-
+                String sitePath = payload.get(Constants.TARGET_ROOT_PATH).toString();
                 ResponseUtil.fileEntityResponse(File
-                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null), source, target, fileSearchUtilityService))
+                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null),sitePath, fileSearchUtilityService))
                         , true, Constants.FILE_HAS_BEEN_MOVED, payload);
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.info(cause.getMessage(), cause);
@@ -244,7 +245,7 @@ public class FileTransferService {
 
             Response moveResponse = getRestClient(source.parentReference.driveId).
                     executeHttpMethods(endpoint, Constants.PATCH_METHOD,
-                            createRequestBody(target.id, target.parentReference.driveId));
+                            createRequestBody(target.id, target.parentReference.driveId,target.name));
             prepareMovedResponse(moveResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
         }
     }
@@ -257,7 +258,7 @@ public class FileTransferService {
                 endpoint += MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE;
             }
             Response copyResponse = getRestClient(source.parentReference.driveId)
-                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, target.parentReference.driveId));
+                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, target.parentReference.driveId,source.name));
             prepareCopyResponse(copyResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
         }
     }

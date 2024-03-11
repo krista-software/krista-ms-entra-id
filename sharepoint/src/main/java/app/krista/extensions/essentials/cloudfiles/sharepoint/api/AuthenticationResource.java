@@ -2,6 +2,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.api;
 
 import app.krista.extension.executor.Invoker;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileChangeInfoHandler;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Notification;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.NotificationProcessQueue;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -9,6 +10,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Gr
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.RefreshTokenStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.extensions.util.EventHandler;
 import app.krista.ksdk.authentication.AuthorizationListener;
 import app.krista.ksdk.context.AuthorizationContext;
@@ -43,19 +45,23 @@ public final class AuthenticationResource {
     private final AuthorizationContext context;
     private final AuthorizationListener authorizationListener;
     private final NotificationProcessQueue notificationProcessQueue;
+    private final FileChangeInfoHandler fileChangeInfoHandler;
+    private static final List<Map<String, Object>> fileStore = new ArrayList<>(1000);
+    private static final int FILE_STORE_LIMIT = 1000;
 
 
     @Inject
     public AuthenticationResource(SharePointAttributeStore sharePointAttributeStore, RefreshTokenStore refreshTokenStore,
                                   GraphServiceClientProviderFactory providerFactory, EventHandler eventHandler,
                                   AuthorizationContext context, AuthorizationListener authorizationListener,
-                                  Invoker invoker) {
+                                  Invoker invoker, FileChangeInfoHandler fileChangeInfoHandler) {
         this.sharePointAttributeStore = sharePointAttributeStore;
         this.refreshTokenStore = refreshTokenStore;
         this.providerFactory = providerFactory;
         this.eventHandler = eventHandler;
         this.context = context;
         this.authorizationListener = authorizationListener;
+        this.fileChangeInfoHandler = fileChangeInfoHandler;
         this.notificationProcessQueue = new NotificationProcessQueue(providerFactory, invoker);
     }
 
@@ -128,6 +134,47 @@ public final class AuthenticationResource {
         }
     }
 
+
+    /**
+     * This method finds duplicate file entity from recent 1000 file entity received and add new file entity to set and Remove the oldest 100 file entities to make space for new ones.
+     *
+     * @param payload This is file entity sent by FileChangeInfoHandler
+     * @return true if duplicate is found
+     */
+    private boolean isDuplicateFile(Map<String, Object> payload) {
+        if (!fileStore.isEmpty()) {
+            if(isFileExist(payload)){
+                return true;
+            }
+            if (fileStore.size() >= FILE_STORE_LIMIT) {
+                removeOldestMessageIds((FILE_STORE_LIMIT + 100) - fileStore.size());
+            }
+            fileStore.add(payload);
+            return false;
+        }
+        else{
+            fileStore.add(payload);
+            return false;
+        }
+    }
+
+    private boolean isFileExist(Map<String, Object> payload) {
+        for(Map<String, Object> file : fileStore){
+            app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileStoreEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File)file.get(Constants.FILE);
+            String fileStoreEvent = file.get(Constants.EVENT).toString();
+            app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File)payload.get(Constants.FILE);
+            String fileEvent = payload.get(Constants.EVENT).toString();
+            if(fileEntity.absolutePath.equals(fileStoreEntity.absolutePath) && fileEvent.equals(fileStoreEvent) && fileEntity.modified.equals(fileStoreEntity.modified)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void removeOldestMessageIds(int count) {
+        fileStore.subList(0, count).clear();
+    }
+
     @POST
     @Path("/sharePointNotification")
     @Consumes(MediaType.TEXT_PLAIN)
@@ -140,11 +187,21 @@ public final class AuthenticationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response subscriptionNotification(@NotNull JsonObject notification) {
         JsonArray array = notification.get(Constants.VALUE).getAsJsonArray();
-        for (int i = 0; i < array.size(); i++) {
-            FreeForm freeForm = new FreeForm();
-            freeForm.put(Constants.SHAREPOINT_FILE_ID,Constants.SWITCH, true);
-            eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
-        }
+            String subscriptionId = array.get(0).getAsJsonObject().get("subscriptionId").getAsString();
+            Map<String, Object> payload = fileChangeInfoHandler.getChangeFileEvent(subscriptionId);
+            if(payload.containsKey(Constants.MESSAGE) && payload.get(Constants.MESSAGE).equals(Constants.EMPTY)){
+                FreeForm freeForm = new FreeForm();
+                freeForm.put(Constants.SHAREPOINT_FILE_ID,Constants.SWITCH, false);
+                eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
+            }else{
+                if (isDuplicateFile(payload)) {
+                    return Response.status(201).build() ;
+                }
+                FreeForm freeForm = new FreeForm();
+                ResponseUtil.addEventToFreeForm(payload, freeForm);
+                freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, true);
+                eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
+            }
         return Response.status(200).build();
     }
 

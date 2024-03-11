@@ -163,9 +163,9 @@ public class Constants {
     public static final String LIST_NAME_CANNOT_BE_NULL = "List name cannot be null or empty";
 
     public static final String UPDATED_LIST_NAME_CANNOT_BE_NULL = "Updated List name cannot be null or empty";
-
+    public static final String NO_CHANGE = "No Change";
     public static final String MODIFIED = "Modified";
-
+    public static final String RESOURCE_DATA = "resourceData";
     public static final String MODIFIED_BY = "Modified By";
 
     public static final String LIST_DELETED_SUCCESSFULLY = " List deleted successfully";
@@ -301,6 +301,11 @@ public class Constants {
 
     public static final String FOLDER_NOT_FOUND = "Folder Not Found";
 
+    public static final String FOLDERS_FETCHED_SUCCESSFULLY = "Folders fetched successfully";
+
+    public static final String FILE_FETCHED_SUCCESSFULLY = "Files and Folders fetched successfully";
+
+    public static final String EMPTY = "EMPTY";
     public static final String GROUP_CREATED = "Group created successfully";
 
     public static final String PLEASE_PROVIDE_VALID_SOURCE_PATH = "Please provide valid source path";

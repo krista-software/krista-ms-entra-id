@@ -345,24 +345,27 @@ Krista SharePoint extension supports the following Catalog Requests:
   the source path and event type, the event will be triggered.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                        |
-|--------------------|--------------------|---------------|------------------------------------|
-| Source             | Text               | Yes           | /siteName /Shared Documents/folder |
-| Event              | Pick One           | No            | {Created,Updated,Deleted}          |
-| Search             | Text               | No            | ChildFolder                        |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                       |
+|--------------------|--------------------|---------------|-----------------------------------|
+| Source             | Text               | Yes           | /siteName/Shared Documents/folder |
+| Event              | Pick One           | No            | {Created,Updated}                 |
+| Search             | Text               | No            | ChildFolder                       |
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                        |
-|--------------------|--------------------|------------------------------------|
-| File               | Entity             | {name : ABC, extension:.txt , ...} |
-| Event              | Text               | Updated                            |
+| **Parameter Name** | **Parameter Type** | **Example**                                                                              |
+|--------------------|--------------------|------------------------------------------------------------------------------------------|
+| File               | Entity             | {name : "ABC", extension:".txt" , "Absolute Path" : "/siteName/Shared Documents/folder"} |
+| Event              | Text               | Updated                                                                                  |
 
 > #### Note :
->   - File Entity in response does not contain Permission and Shared With & it's for Update & Create.
->   - Initially, upon creating a subscription, the system provides notifications for updates. Subsequently, you will
-      receive notifications for both new creations and updates.
->   - Searching with Contains ChildFolder implies seeking instances where the provided path includes any subfolders.
+> - The When a File is Changed request is System Triggered catalog request.
+> - If extension is upgraded to new version of SharePoint Extension, It is necessary to **Withdraw** all live conversation of the When File Is Change request and **Take Live** again  to continue receiving notification.
+> - The When a File is Changed request supports only **Created** and **Updated** events, **Deleted** and **Shared** events are not supported.
+> - The When a File is Changed request primarily focuses on monitoring folders rather than files. It does not support direct monitoring of files.
+> - The When a File is Changed request also notifies events occurred in sub folders.
+> - The average time for receiving event notifications is 5 minutes. However, the maximum time may vary based on the total number of files or folders within the monitored Folder.
+> - File entity in response does not contain **Permissions** .
 
 
 ## SharePoint Area

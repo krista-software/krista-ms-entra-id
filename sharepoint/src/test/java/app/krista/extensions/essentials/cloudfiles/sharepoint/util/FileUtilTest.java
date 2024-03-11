@@ -37,6 +37,17 @@ public class FileUtilTest {
     }
 
     @Test
+    public void testGetlastPathElement() {
+        String path1 = "/Enng/test";
+        String path2 = "/folder1/folder2/file.txt";
+        String path3 = "/onlyOneElement";
+
+        assertEquals("test", FileUtil.getLastPathElement(path1));
+        assertEquals("file.txt", FileUtil.getLastPathElement(path2));
+        assertEquals("onlyOneElement", FileUtil.getLastPathElement(path3));
+    }
+
+    @Test
     public void testGetUsersWithPermission() {
         List<Map<String, Object>> share = new ArrayList<>();
         Map<String, Object> user1 = new HashMap<>();
@@ -120,5 +131,56 @@ public class FileUtilTest {
                 assertTrue(createdFile.delete());
             }
         }
+    }
+
+    @Test
+    public void testExtractSecondLastFolderWithMultipleFolders() {
+        String path = "https://contoso.sharepoint.com/folder1/folder%20with%20space";
+        assertEquals("folder1", FileUtil.extractSecondLastFolder(path));
+    }
+
+    @Test
+    public void testExtractSecondLastFolderWithSingleFolder() {
+        String path = "https://contoso.sharepoint.com/Sample";
+        assertEquals("", FileUtil.extractSecondLastFolder(path)); // There is only one folder
+    }
+
+    @Test
+    public void testExtractSecondLastFolderWithEmptyPath() {
+        String path = "";
+        assertEquals("", FileUtil.extractSecondLastFolder(path)); // Empty path
+    }
+
+    @Test
+    public void testExtractSecondLastFolderWithPathWithoutFolders() {
+        String path = "https://contoso.sharepoint.com/";
+        assertEquals("", FileUtil.extractSecondLastFolder(path)); // No folders
+    }
+
+    @Test
+    public void testExtractSecondLastFolderWithPathContainingSpecialCharacters() {
+        String path = "https://contoso.sharepoint.com/folder1/folder%20with%20space/folder3";
+        assertEquals("folder%20with%20space", FileUtil.extractSecondLastFolder(path));
+    }
+
+
+    @Test
+    public void testExtractSiteID_Success() {
+        String input = "SPO:SPO_036f1078-1c4a-44bc-88b7-9e52dds6f789d@SPO_3694f6b4-b5f1-47ef-852f-a0b4a459ab44";
+        String expectedSiteID = "036f1078-1c4a-44bc-88b7-9e52dds6f789d";
+
+        String extractedSiteID = FileUtil.extractSiteID(input);
+
+        assertEquals(expectedSiteID, extractedSiteID);
+    }
+
+    @Test
+    public void testExtractSiteID_NoMatch() {
+        String input = "Invalid string without site ID";
+        String expectedSiteID = null;
+
+        String extractedSiteID = FileUtil.extractSiteID(input);
+
+        assertNull(extractedSiteID);
     }
 }
