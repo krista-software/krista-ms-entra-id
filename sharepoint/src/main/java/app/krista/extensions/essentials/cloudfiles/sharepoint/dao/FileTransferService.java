@@ -63,10 +63,10 @@ public class FileTransferService {
         Map<String, Object> payload = new HashMap<>();
         try {
 
-            if (source != null && !FileUtil.hasFileExtension(source)) {
+            if (!validatePath(source)) {
                 return ResponseUtil.buildPathValidationResult(false, Constants.PLEASE_PROVIDE_VALID_FILE_SOURCE_PATH);
             }
-            if (target != null && !FileUtil.hasFileExtension(target)) {
+            if (!validatePath(target)) {
                 return ResponseUtil.buildPathValidationResult(false, Constants.PLEASE_PROVIDE_VALID_TARGET_PATH);
             }
 
@@ -105,6 +105,10 @@ public class FileTransferService {
                     : Constants.ERROR_OCCURRED_DURING_COPYING_FILE, payload);
         }
         return payload;
+    }
+
+    private boolean validatePath(String path) {
+        return path != null && FileUtil.hasFileExtension(path);
     }
 
     /**
