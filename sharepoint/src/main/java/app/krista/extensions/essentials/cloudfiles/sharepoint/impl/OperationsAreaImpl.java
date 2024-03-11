@@ -16,15 +16,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.microsoft.graph.http.GraphServiceException;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import org.jetbrains.annotations.Nullable;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collections;
@@ -124,7 +121,7 @@ public class OperationsAreaImpl {
                 ownerMail = sharePointAttributes.getMailId();
             }
             Response response = restClient.
-                    executeHttpMethodsForGroup(Constants.GROUP_URL, createPayload(groupName, mailNickName, ownerMail));
+                    executeHttpMethodsForGroup(Constants.GROUP_URL, createGroupPayload(groupName, mailNickName, ownerMail));
 
             return prepareResponse(response);
         } catch (Exception cause) {
@@ -175,7 +172,7 @@ public class OperationsAreaImpl {
     }
 
 
-    private String createPayload(String groupName, String mailNickName, String ownerMail) {
+    private String createGroupPayload(String groupName, String mailNickName, String ownerMail) {
         JsonObject jsonBody = new JsonObject();
         jsonBody.addProperty(Constants.displayName, groupName);
         jsonBody.addProperty(Constants.mailEnabled, true);
