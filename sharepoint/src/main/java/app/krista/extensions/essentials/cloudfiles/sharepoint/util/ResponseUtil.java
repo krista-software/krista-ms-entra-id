@@ -7,10 +7,7 @@ import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import org.apache.commons.validator.routines.EmailValidator;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ResponseUtil {
 
@@ -129,6 +126,14 @@ public class ResponseUtil {
     public static void addDriveItem(boolean isFileExist, DriveItem driveItem, Map<String, Object> payload) {
         payload.put(Constants.DRIVE_ITEM, driveItem);
         payload.put(Constants.IS_FILE_EXIST, isFileExist);
+    }
+
+    public static Map<String,Object> preparePayloadResponse(File file, boolean success, String message) {
+        Map<String,Object> payload = new HashMap<>();
+        payload.put(Constants.FILE,file);
+        payload.put(Constants.SUCCESS,success);
+        payload.put(Constants.MESSAGE,message);
+        return payload;
     }
 }
 

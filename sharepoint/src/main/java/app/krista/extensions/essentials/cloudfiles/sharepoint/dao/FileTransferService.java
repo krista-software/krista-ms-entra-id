@@ -141,7 +141,7 @@ public class FileTransferService {
     public RequestBody createRequestBody(String folderId, String driveId) {
         String payload = getParentReferenceJson(folderId, driveId);
         MediaType jsonMediaType = MediaType.parse(Constants.APPLICATION_JSON);
-        return RequestBody.create(jsonMediaType, payload);
+        return RequestBody.create(payload, jsonMediaType);
     }
 
     private String getParentReferenceJson(String folderId, String driveId) {
@@ -189,29 +189,6 @@ public class FileTransferService {
         }
     }
 
-    private void createFolderInPath(String targetDriveId, String targetRelativeFilePath) {
-        try {
-            String validatedPath = targetRelativeFilePath.startsWith("/") ? targetRelativeFilePath.replaceFirst("/", "") : targetRelativeFilePath;
-            String[] stream = validatedPath.split("/");
-            StringBuilder relativePathBuilder = new StringBuilder();
-            for (String folderName : stream) {
-                Map<String, Object> check = new HashMap<>();
-                relativePathBuilder.append("/").append(folderName);
-                searchFileExecutor.fetchFileDetailsByDriveID(targetDriveId, relativePathBuilder.toString(), false, check, null, null);
-                if (!(boolean) check.get(Constants.IS_TARGET_FILE_EXIST)) {
-                    String parentPath = FileUtil.getParentPath(relativePathBuilder.toString());
-                    DriveItemRequestBuilder builder = FileUtil.getRootUserRequestBuilder(provider, targetDriveId);
-                    if (parentPath != null && !parentPath.isEmpty()) {
-                        builder = builder.itemWithPath(FileUtil.getParentPath(relativePathBuilder.toString()));
-                    }
-                    builder.children().buildRequest().post(DriveUtil.getDriveItemForItem(folderName));
-                }
-            }
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
-        }
-    }
-
     private void prepareMovedResponse(Response moveResponse, String driveId, Map<String, Object> payload, String target, String source) {
         if (moveResponse != null && moveResponse.code() == 200) {
             try {
@@ -237,12 +214,35 @@ public class FileTransferService {
         }
     }
 
+    private void createFolderInPath(String targetDriveId, String targetRelativeFilePath) {
+        try {
+            String validatedPath = targetRelativeFilePath.startsWith("/") ? targetRelativeFilePath.replaceFirst("/", "") : targetRelativeFilePath;
+            String[] stream = validatedPath.split("/");
+            StringBuilder relativePathBuilder = new StringBuilder();
+            for (String folderName : stream) {
+                Map<String, Object> check = new HashMap<>();
+                relativePathBuilder.append("/").append(folderName);
+                searchFileExecutor.fetchFileDetailsByDriveID(targetDriveId, relativePathBuilder.toString(), false, check, null, null);
+                if (!(boolean) check.get(Constants.IS_TARGET_FILE_EXIST)) {
+                    String parentPath = FileUtil.getParentPath(relativePathBuilder.toString());
+                    DriveItemRequestBuilder builder = FileUtil.getRootUserRequestBuilder(provider, targetDriveId);
+                    if (parentPath != null && !parentPath.isEmpty()) {
+                        builder = builder.itemWithPath(FileUtil.getParentPath(relativePathBuilder.toString()));
+                    }
+                    builder.children().buildRequest().post(DriveUtil.getDriveItemForItem(folderName));
+                }
+            }
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
+        }
+    }
+
     private void executeMove(DriveItem source, DriveItem target, Map<String, Object> payload, String sourcePath, String targetPath) throws IOException {
         if (source != null) {
 
             String endpoint = source.id;
 
-            Response moveResponse = getRestClient(target.parentReference.driveId).
+            Response moveResponse = getRestClient(source.parentReference.driveId).
                     executeHttpMethods(endpoint, Constants.PATCH_METHOD,
                             createRequestBody(target.id, target.parentReference.driveId));
             prepareMovedResponse(moveResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
@@ -256,7 +256,7 @@ public class FileTransferService {
             if (Boolean.TRUE.equals(replace)) {
                 endpoint += MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE;
             }
-            Response copyResponse = getRestClient(target.parentReference.driveId)
+            Response copyResponse = getRestClient(source.parentReference.driveId)
                     .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, target.parentReference.driveId));
             prepareCopyResponse(copyResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
         }

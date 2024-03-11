@@ -62,7 +62,7 @@ public class OperationsArea {
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> deleteGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName) {
-        return operationsAreaImpl.deleteSite(groupName);
+        return operationsAreaImpl.deleteGroup(groupName);
     }
 
     @CatalogRequest(
@@ -82,30 +82,31 @@ public class OperationsArea {
         return operationsAreaImpl.updateList(siteName, listName, displayName, description);
     }
 
+
     @CatalogRequest(
             id = "localDomainRequest_92dede25-2e0e-47c4-beee-5dba787b0435",
             name = "Update Group",
             description = "Updates the display name of an existing SharePoint group.",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "File", type = "Entity", required = false)
+    @Field.Desc(name = "File", type = "Entity(File)",required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> updateGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
             @Field.Text(name = "New Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String newGroupName) {
-        return operationsAreaImpl.updateSite(groupName, newGroupName);
+        return operationsAreaImpl.updateGroup(groupName, newGroupName);
     }
 
     @CatalogRequest(
-            id = "localDomainRequest_ce9dcc9f-7be5-42e5-8d97-05304c122097",
+            id = "localDomainRequest_ad41172b-aeac-47c0-afff-04a8cc2df1bd",
             name = "Create Group",
             description = "Create group in Sharepoint",
             area = "Operations",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Desc(name = "File", type = "Entity(File)",required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Desc(name = "File", type = "Entity(File)", required = false)
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> createGroup(
             @Field.Text(name = "Group Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupName,
             @Field.Text(name = "Mail Nick Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String mailNickName) {
