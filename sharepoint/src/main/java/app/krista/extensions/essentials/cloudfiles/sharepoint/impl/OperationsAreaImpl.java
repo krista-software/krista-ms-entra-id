@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -122,8 +123,8 @@ public class OperationsAreaImpl {
             } else {
                 ownerMail = sharePointAttributes.getMailId();
             }
-            okhttp3.Response response = restClient.
-                    executeHttpMethods(Constants.GROUP_URL, HttpMethod.POST, createPayload(groupName, mailNickName, ownerMail));
+            Response response = restClient.
+                    executeHttpMethodsForGroup(Constants.GROUP_URL, createPayload(groupName, mailNickName, ownerMail));
 
             return prepareResponse(response);
         } catch (Exception cause) {
@@ -132,9 +133,9 @@ public class OperationsAreaImpl {
         }
     }
 
-    private Map<String, Object> prepareResponse(okhttp3.Response response) throws IOException {
+    private Map<String, Object> prepareResponse(Response response) {
 
-        String responseBody = response.body() != null ? response.body().string() : null;
+        String responseBody = response.readEntity(String.class);
         if (responseBody != null) {
             JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
 
@@ -174,7 +175,7 @@ public class OperationsAreaImpl {
     }
 
 
-    private RequestBody createPayload(String groupName, String mailNickName, String ownerMail) {
+    private String createPayload(String groupName, String mailNickName, String ownerMail) {
         JsonObject jsonBody = new JsonObject();
         jsonBody.addProperty(Constants.displayName, groupName);
         jsonBody.addProperty(Constants.mailEnabled, true);
@@ -188,7 +189,7 @@ public class OperationsAreaImpl {
         JsonArray owners = new JsonArray();
         owners.add(Constants.groupBaseUrl + ownerMail);
         jsonBody.add(Constants.ownersDataBind, owners);
-        return RequestBody.create(new Gson().toJson(jsonBody), MediaType.parse(Constants.APPLICATION_JSON));
+        return new Gson().toJson(jsonBody);
     }
 
     private String getOwnerMail(RestClient restClient) throws IOException {

@@ -96,6 +96,14 @@ public class RestClient {
         return null;
     }
 
+    private javax.ws.rs.core.Response executeRequestForGroup(String payload, String endPointUrl) {
+        Client jerseyClient = ClientBuilder.newClient();
+        javax.ws.rs.client.Invocation.Builder requestBuilder = jerseyClient.target(endPointUrl)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + accessToken);
+        return requestBuilder.post(Entity.json(payload));
+    }
+
     private static Request prepareRequest(String methodType, RequestBody requestBody, String endPointUrl,
                                           String accessToken) {
 
@@ -144,6 +152,10 @@ public class RestClient {
             throw new IllegalArgumentException(ONE_OR_MORE_FIELD_PROVIDED_ARE_INVALID);
         }
         return null;
+    }
+
+    public javax.ws.rs.core.Response executeHttpMethodsForGroup(String groupUrl, String jsonBody) {
+        return executeRequestForGroup(jsonBody, groupUrl);
     }
 
 }
