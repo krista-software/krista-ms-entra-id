@@ -11,22 +11,22 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.Re
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.ksdk.context.RequestContext;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.microsoft.graph.http.GraphServiceException;
-import org.codehaus.jettison.json.JSONException;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import org.jetbrains.annotations.Nullable;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 
@@ -112,7 +112,6 @@ public class OperationsAreaImpl {
      */
 
     public Map<String, Object> createGroup(String groupName, String mailNickName) {
-        Map<String, Object> payload = new HashMap<>();
         String ownerMail = null;
 
         try {
@@ -123,22 +122,20 @@ public class OperationsAreaImpl {
             } else {
                 ownerMail = sharePointAttributes.getMailId();
             }
-            Response response = restClient.
-                    executeHttpMethodsForGroup(Constants.GROUP_URL, HttpMethod.POST, createPayload(groupName, mailNickName, ownerMail));
+            okhttp3.Response response = restClient.
+                    executeHttpMethods(Constants.GROUP_URL, HttpMethod.POST, createPayload(groupName, mailNickName, ownerMail));
 
-            return prepareResponse(response, payload);
-        } catch (IOException cause) {
-            LOGGER.error("Failed to create group - " + cause.getMessage());
-        } catch (JSONException cause) {
-            throw new RuntimeException(cause);
+            return prepareResponse(response);
+        } catch (Exception cause) {
+            LOGGER.error("Failed to create group - {}", cause.getMessage());
+            return ResponseUtil.preparePayloadResponse(null, false, "Failed to create group - " + cause.getMessage());
         }
-        return payload;
     }
 
-    private Map<String, Object> prepareResponse(Response response, Map<String, Object> payload) throws JSONException, JsonProcessingException {
-        File file = new File();
-        try (response) {
-            String responseBody = response.readEntity(String.class);
+    private Map<String, Object> prepareResponse(okhttp3.Response response) throws IOException {
+
+        String responseBody = response.body() != null ? response.body().string() : null;
+        if (responseBody != null) {
             JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
 
             if (jsonObject.has(Constants.id) &&                // Success 201 created Group
@@ -146,30 +143,38 @@ public class OperationsAreaImpl {
                     jsonObject.has(Constants.displayName) &&
                     jsonObject.has(Constants.mail)) {
 
+                File file = new File();
                 if (jsonObject.has(Constants.displayName) && jsonObject.has(Constants.mailNickname)) {
                     file.name = jsonObject.get(Constants.displayName).getAsString();
                     file.baseName = jsonObject.get(Constants.mailNickname).getAsString();
                 }
                 return ResponseUtil.preparePayloadResponse(file, true, Constants.GROUP_CREATED);
             } else if (jsonObject.has(Constants.error)) {
-                JsonObject errorJsonBody = jsonObject.getAsJsonObject(Constants.error);
-                if (errorJsonBody.get(Constants.CODE).getAsString().equals(Constants.Request_BadRequest) &&
-                        errorJsonBody.get(Constants.message).getAsString().equals(Constants.groupConflictMessage)) {
-                    return ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict);   // Bad request 400 Conflict Message
-                }
-                if (errorJsonBody.get(Constants.CODE).getAsString().equals(Constants.Request_BadRequest)
-                        && errorJsonBody.get(Constants.message).getAsString().equals(Constants.InvalidMailNickName)) {
-                    return ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName);     // Bad request 400 Invalid Mail Nick Name
-                }
+                Map<String, Object> groupMessageForConflict = getErrorResponse(jsonObject);
+                if (groupMessageForConflict != null) return groupMessageForConflict;
             } else {
                 throw new IllegalArgumentException("Failed to create group");
             }
         }
-        return payload;
+        return Collections.emptyMap();
+    }
+
+    @Nullable
+    private Map<String, Object> getErrorResponse(JsonObject jsonObject) {
+        JsonObject errorJsonBody = jsonObject.getAsJsonObject(Constants.error);
+        if (errorJsonBody.get(Constants.CODE).getAsString().equals(Constants.Request_BadRequest) &&
+                errorJsonBody.get(Constants.message).getAsString().equals(Constants.groupConflictMessage)) {
+            return ResponseUtil.preparePayloadResponse(null, false, Constants.groupMessageForConflict);
+        }
+        if (errorJsonBody.get(Constants.CODE).getAsString().equals(Constants.Request_BadRequest)
+                && errorJsonBody.get(Constants.message).getAsString().equals(Constants.InvalidMailNickName)) {
+            return ResponseUtil.preparePayloadResponse(null, false, Constants.ValidMailNickName);
+        }
+        return null;
     }
 
 
-    private String createPayload(String groupName, String mailNickName, String ownerMail) {
+    private RequestBody createPayload(String groupName, String mailNickName, String ownerMail) {
         JsonObject jsonBody = new JsonObject();
         jsonBody.addProperty(Constants.displayName, groupName);
         jsonBody.addProperty(Constants.mailEnabled, true);
@@ -183,7 +188,7 @@ public class OperationsAreaImpl {
         JsonArray owners = new JsonArray();
         owners.add(Constants.groupBaseUrl + ownerMail);
         jsonBody.add(Constants.ownersDataBind, owners);
-        return new Gson().toJson(jsonBody);
+        return RequestBody.create(new Gson().toJson(jsonBody), MediaType.parse(Constants.APPLICATION_JSON));
     }
 
     private String getOwnerMail(RestClient restClient) throws IOException {
