@@ -64,10 +64,10 @@ public class FileTransferService {
         try {
 
             if (source != null && !FileUtil.hasFileExtension(source)) {
-                return ResponseUtil.pathValidatorMessage(false, Constants.PLEASE_PROVIDE_VALID_FILE_SOURCE_PATH);
+                return ResponseUtil.buildPathValidationResult(false, Constants.PLEASE_PROVIDE_VALID_FILE_SOURCE_PATH);
             }
             if (target != null && !FileUtil.hasFileExtension(target)) {
-                return ResponseUtil.pathValidatorMessage(false, Constants.PLEASE_PROVIDE_VALID_TARGET_PATH);
+                return ResponseUtil.buildPathValidationResult(false, Constants.PLEASE_PROVIDE_VALID_TARGET_PATH);
             }
 
             searchFileExecutor.getFileInfo(source, payload, true);

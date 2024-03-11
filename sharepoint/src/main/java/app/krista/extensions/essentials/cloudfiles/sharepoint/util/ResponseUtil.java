@@ -107,7 +107,7 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, success);
     }
 
-    public static Map<String, Object> pathValidatorMessage(boolean success, String message) {
+    public static Map<String, Object> buildPathValidationResult(boolean success, String message) {
         Map<String, Object> payload = new HashMap<>();
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);

@@ -46,7 +46,7 @@ public class OperationsManagementDao {
             Map<String, Object> payload = new HashMap<>();
 
             if (target != null && !FileUtil.hasFileExtension(target)) {
-                return ResponseUtil.pathValidatorMessage(false, Constants.PROVIDE_VALID_PATH_FILE_NOT_FOUND);
+                return ResponseUtil.buildPathValidationResult(false, Constants.PROVIDE_VALID_PATH_FILE_NOT_FOUND);
             }
             searchFileExecutor.getFileInfo(target, payload, true);
             DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
