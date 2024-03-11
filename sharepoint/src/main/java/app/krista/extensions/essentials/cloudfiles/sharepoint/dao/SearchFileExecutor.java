@@ -29,7 +29,6 @@ public class SearchFileExecutor {
     private static final String ERROR_DURING_FILE_SEARCH = "Error during file search: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFileExecutor.class);
     private static final String PLEASE_PROVIDE_VALID_SITE_PATH = "Please provide valid site path";
-
     private final FileSearchImpl fileSearchImpl;
     private final GraphServiceClientProvider provider;
 
@@ -61,7 +60,6 @@ public class SearchFileExecutor {
 
     public void getFileInfo(String path, Map<String, Object> payload, boolean isSourcePath) {
         getFileInfo(path, payload, isSourcePath, null, null);
-
     }
 
     public void fetchFileDetailsByDriveID(String driveId, String relativeFilePath, boolean isSourcePath, Map<String, Object> payload, Boolean useMail, String accountID) {

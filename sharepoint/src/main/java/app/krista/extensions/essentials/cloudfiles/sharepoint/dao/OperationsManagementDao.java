@@ -1,10 +1,9 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
@@ -45,6 +44,10 @@ public class OperationsManagementDao {
     public Map<String, Object> deleteFile(String target) {
         try {
             Map<String, Object> payload = new HashMap<>();
+
+            if (target != null && !FileUtil.hasFileExtension(target)) {
+                return ResponseUtil.pathValidatorMessage(false, Constants.PROVIDE_VALID_PATH_FILE_NOT_FOUND);
+            }
             searchFileExecutor.getFileInfo(target, payload, true);
             DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
 
@@ -55,10 +58,10 @@ public class OperationsManagementDao {
                         drives(driveItem.parentReference.driveId).
                         items(driveItem.id)
                         .buildRequest().delete();
-                ResponseUtil.errorResponse(true,Constants.FILE_DELETED_SUCCESSFULLY,payload);
+                ResponseUtil.errorResponse(true, Constants.FILE_DELETED_SUCCESSFULLY, payload);
             }
             if (payload.isEmpty()) {
-                ResponseUtil.errorResponse(false,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH,payload);
+                ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH, payload);
             }
             return payload;
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -86,7 +89,7 @@ public class OperationsManagementDao {
         if (sourcePath != null) {
             searchFileExecutor.getFileInfo(sourcePath, payload, true);
             if (payload.get(Constants.SUCCESS).equals(Boolean.TRUE)) {
-            DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
+                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
                 renameDriveItem(targetFileName, driveItem, payload);
             } else {
                 setFileNotFoundMessage(payload);

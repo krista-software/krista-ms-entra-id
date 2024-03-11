@@ -65,6 +65,9 @@ public class FileDownloadService {
                     setInvalidPathMessage(payload);
                 }
             }
+            else {
+                setInvalidPathMessage(payload);
+            }
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
             ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_VALID_FILE_SOURCE_PATH, payload);

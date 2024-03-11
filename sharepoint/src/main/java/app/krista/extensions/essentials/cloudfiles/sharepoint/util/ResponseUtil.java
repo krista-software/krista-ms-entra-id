@@ -7,10 +7,7 @@ import com.microsoft.graph.models.SearchHitsContainer;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import org.apache.commons.validator.routines.EmailValidator;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ResponseUtil {
 
@@ -31,7 +28,7 @@ public class ResponseUtil {
 
 
     public static void successResponse(boolean success, String message, Map<String, Object> payload) {
-        errorResponse(success,message,payload);
+        errorResponse(success, message, payload);
     }
 
     public static void getInfoResponse(int files, int folders, long size, String oldestFile, long oldestFileCreateDate, String newestFile, long newestFileCreteDate, String lastModifiedFileId, String lastModifiedFileName, long lastModifiedFileCreateDate, boolean success, String message, FreeForm payload) {
@@ -108,6 +105,13 @@ public class ResponseUtil {
     public static void errorResponse(boolean success, String message, Map<String, Object> payload) {
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);
+    }
+
+    public static Map<String, Object> pathValidatorMessage(boolean success, String message) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+        return payload;
     }
 
     public static void addDriveItemMessage(boolean isFileExist, boolean success, String message, Map<String, Object> payload) {

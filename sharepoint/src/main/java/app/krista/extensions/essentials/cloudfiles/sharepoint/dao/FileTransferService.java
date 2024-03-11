@@ -41,10 +41,10 @@ import java.util.Objects;
 public class FileTransferService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileTransferService.class);
+    private static final String MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE = "?@microsoft.graph.conflictBehavior=replace";
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
-    private static final String MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE = "?@microsoft.graph.conflictBehavior=replace";
 
     @Inject
     public FileTransferService(GraphServiceClientProviderFactory factory,
@@ -62,6 +62,14 @@ public class FileTransferService {
     public Map<String, Object> copyFile(String source, String target, Boolean replace, boolean createFolder) {
         Map<String, Object> payload = new HashMap<>();
         try {
+
+            if (source != null && !FileUtil.hasFileExtension(source)) {
+                return ResponseUtil.pathValidatorMessage(false, Constants.PLEASE_PROVIDE_VALID_FILE_SOURCE_PATH);
+            }
+            if (target != null && !FileUtil.hasFileExtension(target)) {
+                return ResponseUtil.pathValidatorMessage(false, Constants.PLEASE_PROVIDE_VALID_TARGET_PATH);
+            }
+
             searchFileExecutor.getFileInfo(source, payload, true);
             if (payload.get(Constants.SUCCESS) != null && payload.get(Constants.SUCCESS).equals(Boolean.TRUE)) {
                 if (payload.get(Constants.IS_SOURCE_FILE_EXIST) != null && payload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
@@ -261,4 +269,5 @@ public class FileTransferService {
             prepareCopyResponse(copyResponse, target.parentReference.driveId, payload, sourcePath, targetPath);
         }
     }
+
 }

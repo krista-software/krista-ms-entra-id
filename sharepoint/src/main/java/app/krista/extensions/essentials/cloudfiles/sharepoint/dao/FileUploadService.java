@@ -2,7 +2,6 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.ManagementUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -53,6 +52,7 @@ public class FileUploadService {
 
     /**
      * Uploads files to the specified target path, handling validation and potential errors.
+     *
      * @return A Map containing status and result details, including success/failure indicators and error messages.
      */
     public Map<String, Object> uploadFiles(app.krista.model.base.File kristaFile, String targetPath) {
@@ -67,13 +67,14 @@ public class FileUploadService {
 
     private void validateAndUploadFile(app.krista.model.base.File kristaFile, String targetPath,
                                        Map<String, Object> payload) {
+
         if (targetPath != null && !FileUtil.hasFileExtension(targetPath)) {
-            searchFileExecutor.getFileInfo(targetPath,payload,true);
+            searchFileExecutor.getFileInfo(targetPath, payload, true);
 
             if ((boolean) payload.get(Constants.SUCCESS)) {
-            DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
+                DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
                 assert Objects.requireNonNull(driveItem).parentReference != null;
-                uploadFileByPathByDriveID(driveItem.parentReference.driveId, kristaFile, payload,driveItem);
+                uploadFileByPathByDriveID(driveItem.parentReference.driveId, kristaFile, payload, driveItem);
             } else {
                 setInvalidPathMessage(payload);
             }
@@ -102,7 +103,7 @@ public class FileUploadService {
                 DriveUtil.listValidator(List.of(javaFile), Constants.FAILED_TO_UPLOAD_FILE);
 
                 DriveItem uploadedDriveItem = driveID != null ? graphClient.drives(driveID).items(driveItem.id)
-                                .itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile))
+                        .itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile))
                         : graphClient.drive().items(driveItem.id)
                         .itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
                 if (uploadedDriveItem != null) {
