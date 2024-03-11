@@ -250,11 +250,11 @@ public class DriveFileService {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
 
             DriveItem driveItem = graphClient.drives(driveID).root().itemWithPath(relativePath).buildRequest().get();
-
+            String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload, absolutePath);
             } else {
-                files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null));
+                files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, sitePath));
                 ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -268,11 +268,11 @@ public class DriveFileService {
 
             DriveItemCollectionPage page = graphClient.drives(driveID).root().itemWithPath(relativePath).children()
                     .buildRequest().get();
-
+            String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
             while (page != null && !page.getCurrentPage().isEmpty()) {
                 for (DriveItem driveInPage : page.getCurrentPage()) {
                     if (isSearchCriteriaMatched(search, driveInPage)) {
-                        files.add(new FileImpl(driveInPage, graphClient, absolutePath + "/" + driveInPage.name, absolutePath, fileSearchUtilityService));
+                        files.add(new FileImpl(driveInPage, graphClient, sitePath, fileSearchUtilityService));
                     }
                 }
 

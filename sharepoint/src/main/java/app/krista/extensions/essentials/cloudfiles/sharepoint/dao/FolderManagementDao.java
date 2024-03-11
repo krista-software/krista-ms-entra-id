@@ -86,14 +86,16 @@ public class FolderManagementDao {
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 DriveItemCollectionPage page = graphClient.drives(driveID).root().itemWithPath(relativePath).children()
                         .buildRequest().get();
+                String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
+
                 while (page != null && !page.getCurrentPage().isEmpty()) {
                     for (DriveItem driveInPage : page.getCurrentPage()) {
                         if (search != null && !search.isEmpty() && driveInPage.folder != null &&
                                 driveInPage.name != null && driveInPage.name.contains(search)) {
-                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, null));
+                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, sitePath));
                         }
                         if (search != null && search.isBlank() && driveInPage.folder != null) {
-                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, null));
+                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, sitePath));
                         }
                     }
                     if (page.getNextPage() != null) {

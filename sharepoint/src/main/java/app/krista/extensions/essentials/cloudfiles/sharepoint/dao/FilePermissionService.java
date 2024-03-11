@@ -61,7 +61,7 @@ public class FilePermissionService {
         } else if (permission.grantedToIdentities != null) {
             for (IdentitySet identitySet : permission.grantedToIdentities) {
                 if (identitySet.user != null) {
-                    result.add(findOrCreateUser(mapList, String.valueOf(identitySet.user.additionalDataManager().get("email"))));
+                    result.add(findOrCreateUser(mapList, String.valueOf(identitySet.user.additionalDataManager().get("email")).replace("\"", "")));
                 }
             }
         }
@@ -84,7 +84,7 @@ public class FilePermissionService {
 
     private String getPermissionString(Permission permission) {
         if (permission.roles != null && !permission.roles.isEmpty()) {
-            return "owner".equals(permission.roles.get(0)) ? Constants.READ_AND_WRITE : toSentenceCase(permission.roles.get(0));
+            return "owner".equals(permission.roles.get(0)) ? Constants.OWN : toSentenceCase(permission.roles.get(0));
         }
         return "";
     }

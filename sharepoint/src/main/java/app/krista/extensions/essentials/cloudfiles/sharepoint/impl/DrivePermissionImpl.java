@@ -21,7 +21,6 @@ public class DrivePermissionImpl implements FileService {
     private final DriveItem driveMetaData;
     private final GraphServiceClient<Request> graphClient;
     private final FileSearchUtilityService fileSearchUtilityService;
-
     private final String absolutePath;
 
     public DrivePermissionImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {

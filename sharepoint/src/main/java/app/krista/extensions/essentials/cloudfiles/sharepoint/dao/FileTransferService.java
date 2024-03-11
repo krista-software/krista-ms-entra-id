@@ -172,9 +172,9 @@ public class FileTransferService {
                                                 , driveId
                                                 , jsonObject.getAsJsonPrimitive("resourceId").getAsString().trim())
                                         .buildRequest().expand(Constants.PERMISSIONS).get();
-
+                                String sitePath = payload.get(Constants.TARGET_ROOT_PATH).toString();
                                 ResponseUtil.fileEntityResponse(File
-                                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null), source, target, fileSearchUtilityService))
+                                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null),sitePath, fileSearchUtilityService))
                                         , true, Constants.FILE_HAS_BEEN_COPIED, payload);
                             } else if ("inProgress".equalsIgnoreCase(status)) {
                                 ResponseUtil.errorResponse(true, Constants.COPY_IN_PROGRESS, payload);
@@ -221,9 +221,9 @@ public class FileTransferService {
                         .get(moveResponse.request().url().pathSegments().size() - 1);
                 DriveItem driveItem = FileUtil.getUserRequestBuilderWithItemId(provider, driveId, itemID)
                         .buildRequest().expand(Constants.PERMISSIONS).get();
-
+                String sitePath = payload.get(Constants.TARGET_ROOT_PATH).toString();
                 ResponseUtil.fileEntityResponse(File
-                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null), source, target, fileSearchUtilityService))
+                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null),sitePath, fileSearchUtilityService))
                         , true, Constants.FILE_HAS_BEEN_MOVED, payload);
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.info(cause.getMessage(), cause);

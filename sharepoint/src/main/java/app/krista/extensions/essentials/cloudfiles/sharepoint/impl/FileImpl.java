@@ -21,27 +21,27 @@ public class FileImpl implements FileService {
 
     private final DriveItem driveItem;
     private final DriveItem driveMetaData;
-    private final String parentFolder;
     private final String absolutePath;
     private final GraphServiceClient<Request> graphClient;
     private final FileSearchUtilityService fileSearchUtilityService;
 
-    public FileImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient, String sourcePath, String targetPath,
+    public FileImpl(DriveItem driveItem, GraphServiceClient<Request> graphClient, String sitePath,
                     FileSearchUtilityService fileSearchUtilityService) {
         this.driveItem = driveItem;
         this.graphClient = graphClient;
         this.fileSearchUtilityService = fileSearchUtilityService;
-        if (targetPath != null) {
-            this.parentFolder = fileSearchUtilityService.extractLastNameFromPath(targetPath);
-            this.absolutePath = targetPath + "/" + fileSearchUtilityService.extractLastNameFromPath(sourcePath);
-        } else {
-            this.parentFolder = null;
-            this.absolutePath = sourcePath;
-        }
+//        if (targetPath != null) {
+//            this.parentFolder = fileSearchUtilityService.extractLastNameFromPath(targetPath);
+//            this.absolutePath = targetPath !=null ? getFilePath(driveItem,targetPath) : null;
+//        } else {
+//            this.parentFolder = null;
+//            this.absolutePath = sourcePath;
+//        }
+        this.absolutePath =  sitePath!=null ? getFilePath(driveItem,sitePath) : null;
         this.driveMetaData = fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
     }
 
-
+// this.absolutePath =  sitePath!=null ? getFilePath(driveItem,sitePath) : null;
 
     @Override
     public String getName() {
@@ -58,15 +58,19 @@ public class FileImpl implements FileService {
         return FileSearchUtilityService.getExtension(driveMetaData, driveItem);
     }
 
+
     @Override
     public String getParentFolder() {
-        return parentFolder != null ? parentFolder : (driveMetaData != null && driveItem != null ?
-                FileSearchUtilityService.getParentFolder(driveMetaData, driveItem) : null);
+        return absolutePath == null
+                ? FileSearchUtilityService.getParentFolder(driveMetaData, driveItem)
+                : FileUtil.getParentPath(absolutePath);
     }
 
     @Override
     public String getAbsolutePath() {
-        return absolutePath != null ? absolutePath : null;
+        return absolutePath == null
+                ? FileSearchUtilityService.getAbsolutePath(driveMetaData, driveItem)
+                : absolutePath;
     }
 
     @Override
@@ -131,5 +135,15 @@ public class FileImpl implements FileService {
             return null;
         }
         return driveItem.lastModifiedBy.user != null ? driveItem.lastModifiedBy.user.displayName : null;
+    }
+
+
+    private String getFilePath(DriveItem driveItem, String sitePath) {
+        if(driveItem.parentReference != null && driveItem.parentReference.path != null){
+            String relativePath = FileUtil.getRootRelativeFilePath(driveItem.parentReference.path);
+            String modifiedRelativePath = relativePath.isBlank() ? "" : relativePath +"/";
+            return sitePath+"/"+modifiedRelativePath+driveItem.name;
+        }
+        return null;
     }
 }
