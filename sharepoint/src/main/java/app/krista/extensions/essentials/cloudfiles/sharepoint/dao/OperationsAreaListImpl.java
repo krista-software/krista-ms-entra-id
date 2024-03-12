@@ -4,12 +4,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Operation
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import com.microsoft.graph.models.ColumnDefinition;
-import com.microsoft.graph.models.DateTimeColumn;
-import com.microsoft.graph.models.List;
-import com.microsoft.graph.models.Site;
-import com.microsoft.graph.requests.ColumnDefinitionCollectionPage;
-import com.microsoft.graph.requests.ColumnDefinitionCollectionResponse;
+import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
@@ -18,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -50,6 +44,10 @@ public class OperationsAreaListImpl {
         if (!operationsAreaUtilityService.validateSiteAndListNames(siteName, listName, payload)) {
             return payload; // Early return if validation fails
         }
+        if(listName.equals(Constants.SHARED_DOCUMENTS)){
+            LOGGER.info("This list name is not allowed to create");
+            return payload;
+        }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
@@ -74,26 +72,13 @@ public class OperationsAreaListImpl {
     private List buildMicrosoftGraphList(String listName) {
         List microsoftGraphList = new List();                           // Create the Microsoft Graph List object
         microsoftGraphList.displayName = listName;
+        ListInfo list = new ListInfo();
+        list.template = Constants.DOCUMENT_LIBRARY;
+        list.contentTypesEnabled = true;
+        list.hidden = false;
+        microsoftGraphList.list = list;
 
-        // Set "Modified" and "Modified By" columns ... these are the default column which we are adding
-        LinkedList<ColumnDefinition> columnsList = new LinkedList<>();
-        columnsList.add(buildColumnDefinition(Constants.MODIFIED));
-        columnsList.add(buildColumnDefinition(Constants.MODIFIED_BY));
-
-        // Set columns for the Microsoft Graph List
-        ColumnDefinitionCollectionResponse columnDefinitionCollectionResponse = new ColumnDefinitionCollectionResponse();
-        columnDefinitionCollectionResponse.value = columnsList;
-        ColumnDefinitionCollectionPage columnDefinitionCollectionPage =
-                new ColumnDefinitionCollectionPage(columnDefinitionCollectionResponse, null);
-        microsoftGraphList.columns = columnDefinitionCollectionPage;
         return microsoftGraphList;
-    }
-
-    private ColumnDefinition buildColumnDefinition(String columnName) {
-        ColumnDefinition columnDefinition = new ColumnDefinition();
-        columnDefinition.name = columnName;
-        columnDefinition.dateTime = new DateTimeColumn();
-        return columnDefinition;
     }
 
     /**

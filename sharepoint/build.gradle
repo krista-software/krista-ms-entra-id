@@ -75,6 +75,9 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.15.3'
     implementation group: 'commons-validator', name: 'commons-validator', version: '1.7'
     implementation 'commons-validator:commons-validator:1.7'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
+    implementation 'org.codehaus.jettison:jettison:1.5.4'
+
 
     testImplementation 'com.kristasoft.common:common-test:1.0.37'
     testImplementation 'app.krista:krista-apis:1.0.87'
