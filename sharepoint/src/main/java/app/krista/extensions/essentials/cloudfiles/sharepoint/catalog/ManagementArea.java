@@ -342,7 +342,7 @@ public class ManagementArea {
             map.put(Constants.EVENT, eventData.get(Constants.EVENT));
             return map;
         }
-        throw new IllegalStateException("Invalid Input");
+        throw new IllegalStateException(Constants.INVALID_INPUT);
     }
 
 

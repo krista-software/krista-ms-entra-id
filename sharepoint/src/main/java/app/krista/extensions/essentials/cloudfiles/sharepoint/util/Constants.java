@@ -308,6 +308,8 @@ public class Constants {
 
     public static final String FOLDER_NOT_FOUND = "Folder Not Found";
 
+    public static final String INVALID_INPUT = "Invalid Input";
+
     public static final String FOLDERS_FETCHED_SUCCESSFULLY = "Folders fetched successfully";
 
     public static final String FILE_FETCHED_SUCCESSFULLY = "Files and Folders fetched successfully";

@@ -106,9 +106,7 @@ public class FileChangeInfoHandler {
         {
            return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).parentReference).driveId;
         }
-        else {
-            return  " ";
-        }
+        return  null;
     }
 
     @Nullable
@@ -120,9 +118,7 @@ public class FileChangeInfoHandler {
         {
             return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).id);
         }
-        else {
-            return  " ";
-        }
+        return  null;
     }
 
     private void compareWithChanges(DriveItemDeltaCollectionPage trackChange, Map<String, Object> payload, String driveID, String itemId, String sitePath) {
@@ -155,7 +151,7 @@ public class FileChangeInfoHandler {
                     .buildRequest()
                     .get();
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
+            LOGGER.error("Error Caused while collecting Delta Token Collection : {}", cause.getMessage());
         }
         return null;
     }

@@ -44,7 +44,7 @@ public class SharePointExtension {
     private static final Logger LOGGER = LoggerFactory.getLogger(SharePointExtension.class);
     private static final String WHEN_FILE_IS_CHANGE_REQ_ID = "localDomainRequest_d6ab2648-df6b-4429-aeef-a56c75fde191";
     private static final String SOURCE = "Source";
-    private static final String INVALID_INPUT = "Invalid Input";
+
     private final String routingUrl;
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
@@ -150,10 +150,10 @@ public class SharePointExtension {
                     Subscription subscription = SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(sharePointAttributes), siteId, listId);
                     setFileResourceMetaData(path, driveItem, subscription);
                 } else {
-                    throw new IllegalStateException(INVALID_INPUT);
+                    throw new IllegalStateException(Constants.INVALID_INPUT);
                 }
             } else {
-                throw new IllegalStateException(INVALID_INPUT);
+                throw new IllegalStateException(Constants.INVALID_INPUT);
             }
 
         }
