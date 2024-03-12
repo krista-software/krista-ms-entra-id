@@ -13,6 +13,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 >  - If we include only Documents in the absolute path instead of Shared Documents or use the complete absolute path, it
      will still function.
 
+
 #### 1. Copy
 
 - **Description**: Copy the provide file represented by the entity to the target location and Replace file or create
@@ -27,7 +28,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Create Folder      | Boolean            | No            | True/False                               |
 
 > #### Note :
->    - Copy the specified file on the provided target location.
+> - Copy the specified file on the provided target location.
 
 - **Output**:
 
@@ -36,6 +37,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : ABC, extension:.txt , ...} |
 | Message            | Text               | File has been copied successfully  |
 | Success            | Yes/No             | Yes                                |
+
 
 #### 2. Delete
 
@@ -53,6 +55,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File Deleted successfully |
 | Success            | Yes/No             | Yes                       |
 
+
 #### 3. Download as Link
 
 - **Description**: Retrieves the file from the cloud storage and provides a reference as link.
@@ -69,6 +72,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Download Link      | Text               | {link}                               |
 | Message            | Text               | To Download file Please Click on URL |
 | Success            | Yes/No             | Yes                                  |
+
 
 #### 4. Download as Krista File
 
@@ -90,6 +94,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File Downloaded |
 | Success            | Yes/No             | Yes             |
 
+
 #### 5. Get Info
 
 - **Description**: Accepts Source of File and return Task ID which will further used in Get Info Result .
@@ -100,7 +105,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Source Path        | Text               | Yes           | /siteName /Shared Documents/folder |
 
 > #### Note :
->  - Get Info Supports Only For SharePoint Folders
+> - The Get Info request supports only for SharePoint folders
 
 - **Output**:
 
@@ -109,14 +114,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Limitation :
-> * This request returns the total size of files present inside folder.
-> * Size of folder and total size of files may differ because of following reasons.
-    >
-
-1. Folder sizes in SharePoint may not just reflect file sizes but include extra data like version history and system
-   files.
-
-> 2. The reported size might be bigger or less due to saved versions of files and items in the recycle bin.
+> - This request returns the total size of files present inside folder.
+> - Size of folder and total size of files may differ because of following reasons.
+> - Folder sizes in SharePoint may not just reflect file sizes but include extra data like version history and system files.
+> - The reported size might be bigger or less due to saved versions of files and items in the recycle bin.
 
 #### 6. Get Info Result
 
@@ -128,7 +129,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | Yes           | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->  - This **Task ID** is exclusively supported for Get Info catalog requests.
+> - This **Task ID** is exclusively supported for Get Info catalog requests.
+> - The average time of response may vary based on the total number of files or folders within the Folder in path.
 
 - **Output**:
 
@@ -147,6 +149,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message                        | Text               | File Information         |
 | Success                        | Yes/No             | Yes                      |
 
+
 #### 7. Get Result
 
 - **Description**: Accept task ID as input and return List of Files.
@@ -157,7 +160,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | Yes           | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->  - This task ID is exclusively supported for List Files & List Folders catalog requests.
+> - This task ID is exclusively supported for List Files & List Folders catalog requests.
+> - The average time of response may vary based on the total number of files or folders within the Folder in path.
 
 - **Output**:
 
@@ -166,6 +170,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Files              | List&lt;Entity>    | [{name : "ABC", extension:".txt" , ...}] |
 | Message            | Text               | File Information                         |
 | Success            | Yes/No             | Yes                                      |
+
 
 #### 8. List Files
 
@@ -183,6 +188,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|--------------------------|
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
+
 #### 9. List Folders
 
 - **Description**: Produces a non-recursive list of folders that is present within the folder denoted by the source.
@@ -199,6 +205,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**              |
 |--------------------|--------------------|--------------------------|
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
+
 
 #### 10. Move
 
@@ -218,6 +225,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File Moved                         |
 | Success            | Yes/No             | Yes                                |
 
+
 #### 11. Read
 
 - **Description**: Read the content of the file as plain text. If the file is too big or cannot be accessed this should
@@ -229,7 +237,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Source             | Text               | Yes           | /siteName /Shared Documents/folder/fileName |
 
 > #### Note :
->   - Read File Supports Only For .txt File
+> - Read File Supports Only For .txt File
 
 - **Output**:
 
@@ -238,6 +246,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Content            | Paragraph          | Text Content |
 | Message            | Text               |              |
 | Success            | Yes/No             | Yes          |
+
 
 #### 12. Rename
 
@@ -255,6 +264,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|-------------|
 | Message            | Text               |             |
 | Success            | Yes/No             | Yes         |
+
 
 #### 13. Share File
 
@@ -275,6 +285,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File has been shared successfully  |
 | Success            | Yes/No             | Yes                                |
 
+
 #### 14. Write
 
 - **Description**: Upload the content of the file from the media server to the cloud storage at target path. If Target
@@ -288,7 +299,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Target Path        | Text               | Yes           | /siteName /Shared Documents/folder |
 
 > #### Note :
->  - Upload File Supports file size up to 50 MB.
+>  - The Write request Supports file size up to 50 MB.
 >  - Target Path should be a path to a folder.
 
 - **Output**:
@@ -298,6 +309,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : ABC, extension:.txt , ...} |
 | Message            | Text               | File Uploaded Successfully         |
 | Success            | Yes/No             | Yes                                |
+
 
 #### 15. Write Text
 
@@ -316,6 +328,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
 | Message            | Text               | File Uploaded Successfully             |
 | Success            | Yes/No             | Yes                                    |
+
 
 #### 16. Changes Since
 
@@ -342,6 +355,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 >   - Changes Since Supports For SharePoint Folders and File.
+
 
 #### 17. When a File is Changed
 
@@ -371,6 +385,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 > - The average time for receiving event notifications is 5 minutes. However, the maximum time may vary based on the total number of files or folders within the monitored Folder.
 > - File entity in response does not contain **Permissions** .
 
+
 ## SharePoint Area
 
 #### 1. Fetch By File Size Range
@@ -396,6 +411,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 >   - Specify File Size in "bytes" when conducting size range searches.
 >   - The output limit for a list of files is capped at 500.
 
+
 #### 2. Fetch File By Modification Date Range
 
 - **Description**: This request retrieve files by specifying a range of modification dates. It returns the corresponding
@@ -416,6 +432,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 >   - The output limit for a list of files is capped at 500.
+
 
 #### 3. Get Shared Permission
 
@@ -472,7 +489,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | Yes           | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - This task ID is exclusively supported for Sharepoint Area catalog requests.
+> - This task ID is exclusively supported for Sharepoint Area catalog requests.
+> - The average time of response may vary based on the total number of files or folders within the Folder in path.
 
 - **Output**:
 
