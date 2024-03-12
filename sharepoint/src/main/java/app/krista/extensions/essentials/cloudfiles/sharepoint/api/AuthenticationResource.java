@@ -46,8 +46,8 @@ public final class AuthenticationResource {
     private final AuthorizationListener authorizationListener;
     private final NotificationProcessQueue notificationProcessQueue;
     private final FileChangeInfoHandler fileChangeInfoHandler;
-    private static final List<Map<String, Object>> fileStore = new ArrayList<>(1000);
     private static final int FILE_STORE_LIMIT = 1000;
+    private static final List<Map<String, Object>> fileStore = new ArrayList<>(FILE_STORE_LIMIT);
 
 
     @Inject
@@ -142,14 +142,14 @@ public final class AuthenticationResource {
      * @return true if duplicate is found
      */
     private boolean isDuplicateFile(Map<String, Object> payload) {
-        if (!fileStore.isEmpty()) {
-            if(isFileExist(payload)){
-                return true;
-            }
-            if (fileStore.size() >= FILE_STORE_LIMIT) {
-                removeOldestMessageIds((FILE_STORE_LIMIT + 100) - fileStore.size());
-            }
+        if (!fileStore.isEmpty() && isFileExist(payload)) {
+            return true;
         }
+
+        if (fileStore.size() >= FILE_STORE_LIMIT) {
+            removeOldestEvents((FILE_STORE_LIMIT + 100) - fileStore.size());
+        }
+
         fileStore.add(payload);
         return false;
     }
@@ -167,7 +167,7 @@ public final class AuthenticationResource {
         return false;
     }
 
-    private void removeOldestMessageIds(int count) {
+    private void removeOldestEvents(int count) {
         fileStore.subList(0, count).clear();
     }
 
@@ -183,22 +183,25 @@ public final class AuthenticationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response subscriptionNotification(@NotNull JsonObject notification) {
         JsonArray array = notification.get(Constants.VALUE).getAsJsonArray();
+        if(!array.isEmpty()) {
             String subscriptionId = array.get(0).getAsJsonObject().get("subscriptionId").getAsString();
             Map<String, Object> payload = fileChangeInfoHandler.getChangeFileEvent(subscriptionId);
-            if(payload.containsKey(Constants.MESSAGE) && payload.get(Constants.MESSAGE).equals(Constants.EMPTY)){
+            if (payload.containsKey(Constants.MESSAGE) && payload.get(Constants.MESSAGE).equals(Constants.EMPTY)) {
                 FreeForm freeForm = new FreeForm();
-                freeForm.put(Constants.SHAREPOINT_FILE_ID,Constants.SWITCH, false);
+                freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, false);
                 eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
-            }else{
+            } else {
                 if (isDuplicateFile(payload)) {
-                    return Response.status(201).build() ;
+                    return Response.status(201).build();
                 }
                 FreeForm freeForm = new FreeForm();
                 ResponseUtil.addEventToFreeForm(payload, freeForm);
                 freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, true);
                 eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
             }
-        return Response.status(200).build();
+            return Response.status(200).build();
+        }
+        return Response.status(201).build();
     }
 
     @POST

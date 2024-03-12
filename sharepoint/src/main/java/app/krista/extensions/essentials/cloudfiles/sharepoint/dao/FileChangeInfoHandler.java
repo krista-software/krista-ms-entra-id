@@ -32,17 +32,15 @@ import java.util.stream.Collectors;
 public class FileChangeInfoHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileChangeInfoHandler.class);
     private final GraphServiceClientProvider provider;
-    private final String routingUrl;
     private final FileSearchUtilityService fileSearchUtilityService;
 
     @Inject
-    public FileChangeInfoHandler(GraphServiceClientProviderFactory factory, Invoker invoker, FileSearchUtilityService fileSearchUtilityService) {
-        this(factory.create(), invoker, fileSearchUtilityService);
+    public FileChangeInfoHandler(GraphServiceClientProviderFactory factory, FileSearchUtilityService fileSearchUtilityService) {
+        this(factory.create(), fileSearchUtilityService);
     }
 
-    public FileChangeInfoHandler(GraphServiceClientProvider provider, Invoker invoker, FileSearchUtilityService fileSearchUtilityService) {
+    public FileChangeInfoHandler(GraphServiceClientProvider provider, FileSearchUtilityService fileSearchUtilityService) {
         this.provider = provider;
-        this.routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).contains("https://extension.local.eng.krista.app") ? invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE).replace("https://extension.local.eng.krista.app", "http://localhost:8765") : invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 

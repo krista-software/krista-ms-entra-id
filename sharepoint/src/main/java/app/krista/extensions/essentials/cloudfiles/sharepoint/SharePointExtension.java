@@ -69,7 +69,7 @@ public class SharePointExtension {
         this.searchFileExecutor = searchFileExecutor;
     }
 
-    private static String getListFromSite(String siteId, String listName, GraphServiceClient<Request> graphClient) {
+    private static String getListIdFromSite(String siteId, String listName, GraphServiceClient<Request> graphClient) {
         try {
             ListCollectionPage listCollectionPage = graphClient.sites(siteId).lists().buildRequest().get();
             while (listCollectionPage != null && !listCollectionPage.getCurrentPage().isEmpty()) {
@@ -145,7 +145,7 @@ public class SharePointExtension {
                     siteId = getSiteIdBySiteName(siteName, provider);
                 }
                 String listName = FileUtil.getLastPathElement(payload.get(Constants.SOURCE_ROOT_PATH).toString());
-                String listId = getListFromSite(siteId, listName, provider);
+                String listId = getListIdFromSite(siteId, listName, provider);
                 if (listId != null) {
                     Subscription subscription = SharePointSubscription.createSubscription(routingUrl, clientProviderFactory.create(sharePointAttributes), siteId, listId);
                     setFileResourceMetaData(path, driveItem, subscription);
