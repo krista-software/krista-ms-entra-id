@@ -172,7 +172,7 @@ public class FileSearchImpl {
                             if (hits != null && hits.resource instanceof DriveItem) {
                                 DriveItem driveItem = (DriveItem) hits.resource;
                                 if (driveItem.webUrl != null && driveItem.webUrl.equals(filePath)) {
-                                    resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                    resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null));
                                     break;
                                 }
                             }
@@ -262,14 +262,14 @@ public class FileSearchImpl {
                                                 && driveItem.createdBy.user.additionalDataManager() != null
                                                 && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL) != null
                                                 && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
-                                            resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                            resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null));
                                             LOGGER.info(ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL, email);
                                         } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null
                                                 && driveItem.lastModifiedBy.user != null
                                                 && driveItem.lastModifiedBy.user.additionalDataManager() != null
                                                 && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL) != null
                                                 && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
-                                            resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService));
+                                            resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null));
                                             LOGGER.info(ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL , email);
                                         }
                                     }

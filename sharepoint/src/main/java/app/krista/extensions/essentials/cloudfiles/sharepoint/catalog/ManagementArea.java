@@ -333,11 +333,39 @@ public class ManagementArea {
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
             @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted","Shared"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
             @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search) {
-        Map<String, Object> fileStatus = managementDao.whenAFileIsChanged(source, search);
-        if (eventName.equalsIgnoreCase(Constants.FILE_RECEIVED) && fileStatus.get(Constants.EVENT).equals(event)) {
-            return fileStatus;
+
+        if (eventName.equalsIgnoreCase(Constants.FILE_RECEIVED)
+                && eventData.get(Constants.EVENT) !=null && !eventData.get(Constants.EVENT).equals(Constants.NO_CHANGE)
+                && isInfoValid(eventData, search, source, event)) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(Constants.FILE, eventData.get(Constants.FILE));
+            map.put(Constants.EVENT, eventData.get(Constants.EVENT));
+            return map;
         }
-        throw new IllegalStateException("Invalid Input");
+        throw new IllegalStateException(Constants.INVALID_INPUT);
+    }
+
+
+    private boolean isInfoValid(FreeForm eventData, String search, String source, String event) {
+        if(event != null && !eventData.get(Constants.EVENT).equals(event)){
+            return false;
+        }
+        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File) eventData.get(Constants.FILE);
+        if (isContainsSource(fileEntity, source) && isContainsSearch(fileEntity, search)) {
+            return true;
+
+        } else return isContainsSource(fileEntity, source) && isContainsSearch(fileEntity, search);
+    }
+
+    private boolean isContainsSource(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity, String source) {
+        return source != null && fileEntity.absolutePath != null && FileUtil.isPathContainsInput(fileEntity.absolutePath,source);
+    }
+
+    private boolean isContainsSearch(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File eventData, String search) {
+        if (search != null && !search.isEmpty() && eventData.name != null && eventData.name.contains(search)) {
+            return true;
+        }
+        return search == null;
     }
 
 }

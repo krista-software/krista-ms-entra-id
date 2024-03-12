@@ -106,8 +106,10 @@ public class FileUploadService {
                         .itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile))
                         : graphClient.drive().items(driveItem.id)
                         .itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
+
                 if (uploadedDriveItem != null) {
-                    File fileEntity = File.fromFile(new DrivePermissionImpl(uploadedDriveItem, graphClient, fileSearchUtilityService));
+                    String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
+                    File fileEntity = File.fromFile(new DrivePermissionImpl(uploadedDriveItem, graphClient, fileSearchUtilityService, sitePath));
                     payload.put(Constants.FILE, fileEntity);
                     payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
                     payload.put(Constants.SUCCESS, true);
