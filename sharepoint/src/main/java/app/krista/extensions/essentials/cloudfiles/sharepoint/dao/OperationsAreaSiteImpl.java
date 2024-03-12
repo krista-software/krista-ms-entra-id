@@ -4,11 +4,10 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Operation
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.Group;
-import com.microsoft.graph.models.Site;
 import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.GroupCollectionPage;
 import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class provides operations for managing SharePoint sites, including updating display names and deleting sites.
@@ -28,11 +28,9 @@ import java.util.Map;
 @Service
 public class OperationsAreaSiteImpl {
 
-    private final GraphServiceClientProvider clientProvider;
-
-    private final OperationsAreaUtilityService operationsAreaUtilityService;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationsAreaSiteImpl.class);
+    private final GraphServiceClientProvider clientProvider;
+    private final OperationsAreaUtilityService operationsAreaUtilityService;
 
     @Inject
     public OperationsAreaSiteImpl(GraphServiceClientProviderFactory clientProviderFactory,
@@ -45,84 +43,72 @@ public class OperationsAreaSiteImpl {
     /**
      * Updates the display name of a specified SharePoint site.
      *
-     * @param siteName    Name of the site to be updated.
-     * @param newSiteName New display name for the site.
+     * @param groupName    Name of the site to be updated.
+     * @param newGroupName New display name for the site.
      * @return A Map containing details of the operation's success or failure:
      * - Success: true if site update succeeded, false otherwise.
      * - Message: Informative message about the operation's outcome.
      * - File (optional): Details of the updated site if successful.
      * @throws GraphServiceException If an error occurs during communication with Microsoft Graph.
      */
-    public Map<String, Object> updateSite(String siteName, String newSiteName) {
+    public Map<String, Object> updateGroup(String groupName, String newGroupName) throws Exception {
         Map<String, Object> payload = new HashMap<>();
-        if (!operationsAreaUtilityService.validateSiteAndUpdatedNames(siteName, newSiteName, payload)) {
+        if (!operationsAreaUtilityService.validateSiteAndUpdatedNames(groupName, newGroupName, payload)) {
             return payload; // Early return if validation fails
         }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
+            Group existingGroup = OperationsAreaUtilityService.findMatchingGroup(graphClient, groupName);
 
-            Site existingSite = OperationsAreaUtilityService.getSite(graphClient, siteName);
-            if (existingSite == null) {
-                payload.put(Constants.MESSAGE, "Site '" + siteName + "' not found while updating site");
+            if (existingGroup == null) {
+                payload.put(Constants.MESSAGE, "Group '" + groupName + "' not found while updating group");
                 payload.put(Constants.SUCCESS, false);
                 return payload;
             }
-
-            existingSite.displayName = newSiteName;
-
-            Site updatedSite = graphClient.sites(existingSite.id).buildRequest().patch(existingSite);
-
-            OperationsAreaUtilityService.processResponse(updatedSite, payload); // Use the processResponse method
-        } catch (Exception cause) {
-            LOGGER.error("Error updating site : {} ", cause.getMessage());
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_SITE);
-            payload.put(Constants.SUCCESS, false);
+            Group updateGroup = new Group();
+            updateGroup.displayName = newGroupName;
+            graphClient.groups(existingGroup.id).buildRequest().patch(updateGroup); // 204 No Content
+        } catch (GraphServiceException cause) {
+            LOGGER.error("Error occurred while updating group");
+            throw new IllegalStateException(cause.getMessage());
         }
-        return payload;
+        return ResponseUtil.preparePayloadResponse(null, true, Constants.GROUP_UPDATED_SUCCESSFULLY);
     }
 
     /**
      * Deletes a specified SharePoint site.
      *
-     * @param siteName Name of the site to be deleted.
+     * @param groupName Name of the site to be deleted.
      * @return A Map containing details of the operation's success or failure:
      * - Success: true if site deletion succeeded, false otherwise.
      * - Message: Informative message about the operation's outcome.
      * @throws GraphServiceException If an error occurs during communication with Microsoft Graph.
      */
-    public Map<String, Object> deleteSite(String siteName) {
+    public Map<String, Object> deleteGroup(String groupName) {
         Map<String, Object> payload = new HashMap<>();
-        if (!operationsAreaUtilityService.validateSiteNames(siteName, payload)) {
+        if (!operationsAreaUtilityService.validateSiteNames(groupName, payload)) {
             return payload; // Early return if validation fails
         }
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
 
-            GroupCollectionPage existingGroups = graphClient.groups().buildRequest().get();
-
-            Group groupToDelete = null;
-
-            if (existingGroups != null) {
-                for (Group group : existingGroups.getCurrentPage()) {
-                    if (group.displayName.equals(siteName)) {
-                        groupToDelete = group;
-                        break;
-                    }
-                }
-            }
+            Group groupToDelete = OperationsAreaUtilityService.findMatchingGroup(graphClient, groupName);
 
             if (groupToDelete != null) {
-                graphClient.groups(groupToDelete.id).buildRequest().delete();
-                payload.put(Constants.SUCCESS, true);
-                payload.put(Constants.MESSAGE, groupToDelete.displayName + Constants.SITE_DELETED_SUCCESSFULLY);
+                if (groupToDelete.id != null) {
+                    graphClient.groups(Objects.requireNonNull(groupToDelete.id)).buildRequest().delete();
+                    return ResponseUtil.preparePayloadResponse(null, true, groupToDelete.displayName
+                            + Constants.GROUP_DELETED_SUCCESSFULLY);
+                } else {
+                    return ResponseUtil.preparePayloadResponse(null, false, "Group ID is null. Cannot delete group.");
+                }
             } else {
-                payload.put(Constants.SUCCESS, false);
-                payload.put(Constants.MESSAGE, "Site with name " + siteName + " not found");
+                return ResponseUtil.preparePayloadResponse(null, false, "Group not found. Cannot delete group.");
             }
         } catch (Exception cause) {
-            LOGGER.error("Error deleting site : {} ", cause.getMessage());
+            LOGGER.error("Error deleting group : {} ", cause.getMessage());
             payload.put(Constants.SUCCESS, false);
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_DELETE_SITE);
+            payload.put(Constants.MESSAGE, Constants.TO_DELETE_GROUP_PLEASE_TRY_AGAIN_LATER);
         }
         return payload;
     }

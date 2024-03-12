@@ -42,9 +42,9 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Delete the given file from the cloud storage provider.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                               |
-|--------------------|--------------------|---------------|-------------------------------------------|
-| Target             | Text               | Yes           | /siteName /Shared Documents/fileName.txt  |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                              |
+|--------------------|--------------------|---------------|------------------------------------------|
+| Target             | Text               | Yes           | /siteName /Shared Documents/fileName.txt |
 
 - **Output**:
 
@@ -58,9 +58,9 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Retrieves the file from the cloud storage and provides a reference as link.
 - **Input Parameters**:
 
-| **Parameter Name**      | **Parameter Type** | **Mandatory** | **Example**                               |
-|-------------------------|--------------------|---------------|-------------------------------------------|
-| Source                  | Text               | Yes           | /siteName /Shared Documents/fileName.txt  |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                              |
+|--------------------|--------------------|---------------|------------------------------------------|
+| Source             | Text               | Yes           | /siteName /Shared Documents/fileName.txt |
 
 - **Output**:
 
@@ -75,9 +75,9 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Retrieves the file from the cloud storage and provides a Krista File.
 - **Input Parameters**:
 
-| **Parameter Name**      | **Parameter Type** | **Mandatory** | **Example**                               |
-|-------------------------|--------------------|---------------|-------------------------------------------|
-| Source                  | Text               | Yes           | /siteName /Shared Documents/fileName.txt  |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                              |
+|--------------------|--------------------|---------------|------------------------------------------|
+| Source             | Text               | Yes           | /siteName /Shared Documents/fileName.txt |
 
 > #### Note :
 > - Download as Krista File supports Files Up to 50 MB.
@@ -111,8 +111,12 @@ Krista SharePoint extension supports the following Catalog Requests:
 > #### Limitation :
 > * This request returns the total size of files present inside folder.
 > * Size of folder and total size of files may differ because of following reasons.
->  1. Folder sizes in SharePoint may not just reflect file sizes but include extra data like version history and system files.
->  2. The reported size might be bigger or less due to saved versions of files and items in the recycle bin.
+    >
+
+1. Folder sizes in SharePoint may not just reflect file sizes but include extra data like version history and system
+   files.
+
+> 2. The reported size might be bigger or less due to saved versions of files and items in the recycle bin.
 
 #### 6. Get Info Result
 
@@ -240,17 +244,17 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: Renames the file given at the source file path to the name given.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                       |
-|--------------------|--------------------|---------------|---------------------------------------------------|
-| Source             | Text               | Yes           | /siteName /Shared Documents/folder/fileName.xlsx  |
-| Target File Name   | Text               | Yes           | NewExcel.xlsx                                     |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                      |
+|--------------------|--------------------|---------------|--------------------------------------------------|
+| Source             | Text               | Yes           | /siteName /Shared Documents/folder/fileName.xlsx |
+| Target File Name   | Text               | Yes           | NewExcel.xlsx                                    |
 
 - **Output**:
 
-| **Parameter Name** | **Parameter Type** | **Example**                        |
-|--------------------|--------------------|------------------------------------|
-| Message            | Text               |                                    |
-| Success            | Yes/No             | Yes                                |
+| **Parameter Name** | **Parameter Type** | **Example** |
+|--------------------|--------------------|-------------|
+| Message            | Text               |             |
+| Success            | Yes/No             | Yes         |
 
 #### 13. Share File
 
@@ -364,12 +368,12 @@ Krista SharePoint extension supports the following Catalog Requests:
       receive notifications for both new creations and updates.
 >   - Searching with Contains ChildFolder implies seeking instances where the provided path includes any subfolders.
 
-
 ## SharePoint Area
 
 #### 1. Fetch By File Size Range
 
-- **Description**: This request is used to search files within sharePoint based on specified file size ranges. It returns the corresponding Task ID for the matched files.
+- **Description**: This request is used to search files within sharePoint based on specified file size ranges. It
+  returns the corresponding Task ID for the matched files.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
@@ -389,10 +393,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 >   - Specify File Size in "bytes" when conducting size range searches.
 >   - The output limit for a list of files is capped at 500.
 
-
 #### 2. Fetch File By Modification Date Range
 
-- **Description**: This request retrieve files by specifying a range of modification dates. It returns the corresponding Task ID for the matched files.
+- **Description**: This request retrieve files by specifying a range of modification dates. It returns the corresponding
+  Task ID for the matched files.
 - **Input Parameters**:
 
 | **Parameter Name**      | **Parameter Type** | **Mandatory** | **Example**             |
@@ -410,10 +414,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 > #### Note :
 >   - The output limit for a list of files is capped at 500.
 
-
 #### 3. Get Shared Permission
 
-- **Description**: Obtain a list of users with granted access to a specific file, encompassing both those with shared access and those authorized to interact with the file.
+- **Description**: Obtain a list of users with granted access to a specific file, encompassing both those with shared
+  access and those authorized to interact with the file.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                     |
@@ -427,15 +431,17 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - File Entity within the response of the Get Shared Permission catalog provides details on permissions associated with SharePoint Groups. Please be aware that this feature is restricted to SharePoint Groups and does not cover Sites.
+>   - File Entity within the response of the Get Shared Permission catalog provides details on permissions associated
+      with SharePoint Groups. Please be aware that this feature is restricted to SharePoint Groups and does not cover
+      Sites.
 >   - Specify the file path for which you intend to retrieve shared permissions.
 >   - It includes list of Owners and Members.
 >   - The Get Shared Permission request does not include list of Visitors.
 
-
 #### 4. Search By Mail
 
-- **Description**: Conducts a search for files in SharePoint using the email addresses of users who created and last modified the files.
+- **Description**: Conducts a search for files in SharePoint using the email addresses of users who created and last
+  modified the files.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**               |
@@ -450,8 +456,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
 > #### Note :
->   - File Search operates within the constraints of data associated with SharePoint Sites and Groups, emphasizing criteria linked to either the Created By or Modified By email addresses.
-
+>   - File Search operates within the constraints of data associated with SharePoint Sites and Groups, emphasizing
+      criteria linked to either the Created By or Modified By email addresses.
 
 #### 5. Get Response
 
@@ -473,7 +479,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File Information                     |
 | Success            | Yes/No             | Yes                                  |
 
-
 ## Operation Area
 
 #### 1. Create List
@@ -494,6 +499,13 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | List created successfully          |
 | Success            | Yes/No             | Yes                                |
 
+> #### Note :
+>   - This request is intended to create a list within a SharePoint site. The list is successfully created, but it
+      doesn't appear in the SharePoint navigation panel. The request provides the absolute path for accessing the list.
+
+> #### Limitations :
+>  - Creating a list named **Documents** and **Shared Documents** is not possible, as it is a default list already existing.
+
 #### 2. Delete List
 
 - **Description**: This request is used to delete a SharePoint list based on its Site name and List name.
@@ -513,7 +525,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 3. Create Group
 
-- **Description**: The create group request is utilized to establish a new group within the sharePoint environment. 
+- **Description**: The create group request is utilized to establish a new group within the sharePoint environment.
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example** |
 |--------------------|--------------------|---------------|-------------|
@@ -527,8 +539,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
 
 > #### Note :
->   - After creating a group, allow a minimum of 2 hours for the changes to take effect. Therefore, it is advisable to wait for this period before attempting to utilize the "Delete" or "Update" group methods.
-
+>   - After creating a group, allow a minimum of 2 hours for the changes to take effect. Therefore, it is advisable to
+      wait for this period before attempting to utilize the "Delete" or "Update" group methods.
 
 #### 4. Delete Group
 
@@ -551,12 +563,12 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: This request updates an existing sharePoint list with the provided display name and description.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**          |
-|--------------------|--------------------|---------------|----------------------|
-| Site Name          | Text               | Yes           | Test 123             |
-| List Name          | Text               | Yes           | ABC                  |
-| Display Name       | Text               | Yes           | ABC 123              |
-| Description        | Text               | Yes           | ABC 123 Description  |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**         |
+|--------------------|--------------------|---------------|---------------------|
+| Site Name          | Text               | Yes           | Test 123            |
+| List Name          | Text               | Yes           | ABC                 |
+| Display Name       | Text               | Yes           | ABC 123             |
+| Description        | Text               | Yes           | ABC 123 Description |
 
 - **Output**:
 
@@ -591,16 +603,16 @@ Krista SharePoint extension supports the following Catalog Requests:
 - **Description**: This request returns list of file details.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type**                           | **Mandatory** | **Example**                     |
-|--------------------|----------------------------------------------|---------------|---------------------------------|
-| Name               | Text                                         | No            | Sample.xlsx                     |
-| Base Name          | Text                                         | No            | Sample                          |
-| Extension          | Text                                         | No            | xlsx                            |
-| Absolute Path      | Text                                         | No            | /siteName/Shared Documents/file |
-| Owner              | Text                                         | No            | John Doe                        |
-| Created            | Date                                         | No            | 2023-12-29 T03 \: 43 \: 26Z     |
-| Modified           | Date                                         | No            | 2023-12-29 T03 \: 54 \: 26Z     |
-| Modified By        | Text                                         | No            | John Doe                        |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                     |
+|--------------------|--------------------|---------------|---------------------------------|
+| Name               | Text               | No            | Sample.xlsx                     |
+| Base Name          | Text               | No            | Sample                          |
+| Extension          | Text               | No            | xlsx                            |
+| Absolute Path      | Text               | No            | /siteName/Shared Documents/file |
+| Owner              | Text               | No            | John Doe                        |
+| Created            | Date               | No            | 2023-12-29 T03 \: 43 \: 26Z     |
+| Modified           | Date               | No            | 2023-12-29 T03 \: 54 \: 26Z     |
+| Modified By        | Text               | No            | John Doe                        |
 
 > #### Note :
 >  - Files can also be searched by using relative path. For example, you can use this -- /siteName/list Name/file
