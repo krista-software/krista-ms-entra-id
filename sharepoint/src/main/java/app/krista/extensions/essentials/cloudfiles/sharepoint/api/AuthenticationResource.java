@@ -149,13 +149,9 @@ public final class AuthenticationResource {
             if (fileStore.size() >= FILE_STORE_LIMIT) {
                 removeOldestMessageIds((FILE_STORE_LIMIT + 100) - fileStore.size());
             }
-            fileStore.add(payload);
-            return false;
         }
-        else{
-            fileStore.add(payload);
-            return false;
-        }
+        fileStore.add(payload);
+        return false;
     }
 
     private boolean isFileExist(Map<String, Object> payload) {
