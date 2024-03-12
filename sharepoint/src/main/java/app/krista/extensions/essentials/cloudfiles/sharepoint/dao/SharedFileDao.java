@@ -93,7 +93,9 @@ public class SharedFileDao {
             return;
         }
         DriveItem upadatedDriveItem = getFileWithPermissions(driveItem.parentReference.driveId, driveItem.id);
-        payload.put(Constants.FILE, app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File.fromFile(new FileImpl(upadatedDriveItem, provider.getUserRequestBuilder(null, null), source, null, fileSearchUtilityService)));
+
+        String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
+        payload.put(Constants.FILE, app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File.fromFile(new FileImpl(upadatedDriveItem, provider.getUserRequestBuilder(null, null), sitePath, fileSearchUtilityService)));
         payload.put(Constants.SUCCESS, true);
     }
 

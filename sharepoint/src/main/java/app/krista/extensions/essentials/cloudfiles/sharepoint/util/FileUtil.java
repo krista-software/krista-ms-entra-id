@@ -10,8 +10,11 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility class with static methods for common file-related operations, string validation, and file creation.
@@ -141,6 +144,35 @@ public class FileUtil {
         return drivePathBuilder.toString();
     }
 
+    public static boolean isPathContainsInput(String path, String input) {
+        // Split path and input into tokens
+        String[] pathTokens = path.split("/");
+        String[] inputTokens = input.split("/");
+
+        // Remove leading and trailing empty tokens
+        pathTokens = removeEmptyTokens(pathTokens);
+        inputTokens = removeEmptyTokens(inputTokens);
+
+        // Check if the number of tokens in path is at least equal to the number of tokens in input
+        if (pathTokens.length < inputTokens.length) {
+            return false;
+        }
+
+        // Compare tokens
+        for (int i = 0; i < inputTokens.length; i++) {
+            if (!pathTokens[i].equals(inputTokens[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static String[] removeEmptyTokens(String[] tokens) {
+        return Arrays.stream(tokens)
+                .filter(token -> !token.isEmpty())
+                .toArray(String[]::new);
+    }
 
     public static DriveItemRequestBuilder getRootUserRequestBuilder(GraphServiceClientProvider provider, String driveID) {
         return provider.getUserRequestBuilder(null, null).drives(driveID).root();
@@ -157,6 +189,9 @@ public class FileUtil {
         }
     }
 
+    public static String getLastPathElement(String path){
+        return path.substring(path.lastIndexOf("/") + 1);
+    }
     public static void failedToReadTextFile(Map<String, Object> payload) {
         payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
         payload.put(Constants.SUCCESS, false);
@@ -165,6 +200,25 @@ public class FileUtil {
     public static String preparePath(String filePath) {
         if(filePath!=null){
             return filePath.replace("%20"," ");
+        }
+        return null;
+    }
+
+    public static String extractSecondLastFolder(String path) {
+        String[] parts = path.replaceFirst("^(https?://)", "").split("/");
+        int length = parts.length;
+        if (length > 2) {
+            return parts[length - 2];
+        }
+        return "";
+    }
+
+    public static String extractSiteID(String input) {
+        Pattern pattern = Pattern.compile("SPO:SPO_([^@]+)@");
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            return matcher.group(1);
         }
         return null;
     }

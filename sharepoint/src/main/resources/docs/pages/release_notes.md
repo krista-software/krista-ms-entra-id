@@ -4,7 +4,7 @@
 
 - **Developer Name** :Aradhya Guadadhe
 - **Krista Service APIs Java** : 1.0.94
-- **Global Catalog Version** : 1.0.41
+- **Global Catalog Version** : 1.0.42
 - **Appliance Release Version** : 3.2.5
 
 ## Resolved Bugs
@@ -31,7 +31,7 @@
 * KS-728 [https://antbrains.atlassian.net/browse/KS-728]  SharePoint | Copy Share file does not work.
 * KS-727 [https://antbrains.atlassian.net/browse/KS-727]  SharePoint | Copy file in shared folder is broken.
 * KE-1522 [https://antbrains.atlassian.net/browse/KE-1522]  SharePoint : Create List : The list is not visible on the UI
-
+* KE-1519 [https://antbrains.atlassian.net/browse/KE-1519] SharePoint: "When a file is changed" request is not triggering after updating or creating any file in SharePoint.
 
 ## Known Issues
 

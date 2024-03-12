@@ -130,8 +130,9 @@ public class DriveTextFileManager {
             java.io.File javaFile = FileUtil.createTxtFile(fileName, fileContent);
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
             DriveItem uploadFile = graphClient.drives(driveItem.parentReference.driveId).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
+            String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
             if (uploadFile != null) {
-                File fileEntity = File.fromFile(new DrivePermissionImpl(uploadFile, graphClient, fileSearchUtilityService));
+                File fileEntity = File.fromFile(new DrivePermissionImpl(uploadFile, graphClient, fileSearchUtilityService, sitePath));
                 payload.put(Constants.FILE, fileEntity);
                 payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
                 payload.put(Constants.SUCCESS, true);

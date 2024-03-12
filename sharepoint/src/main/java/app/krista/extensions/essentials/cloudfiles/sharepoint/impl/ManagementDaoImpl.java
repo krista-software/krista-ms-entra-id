@@ -25,7 +25,6 @@ public class ManagementDaoImpl {
     private final SharedFileDao sharedFileDao;
     private final FileTransferService copyFileDao;
     private final DriveTextFileManager driveTextFileService;
-    private final HandleFileIsChanged handleFileIsChanged;
     private final FileVersionOperations fileVersionOperations;
 
 
@@ -33,8 +32,7 @@ public class ManagementDaoImpl {
     public ManagementDaoImpl( DriveFileService fileManagementDao,
                              FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
                              SharedFileDao sharedFileDao, FileTransferService copyFileDao, FileDownloadService fileDownloadService,
-                             FileUploadService fileUploadService, DriveTextFileManager driveTextFileService,
-                             HandleFileIsChanged handleFileIsChanged, FileVersionOperations fileVersionOperations) {
+                             FileUploadService fileUploadService, DriveTextFileManager driveTextFileService, FileVersionOperations fileVersionOperations) {
         this.fileManagementDao = fileManagementDao;
         this.folderManagementDao = folderManagementDao;
         this.operationsManagementDao = operationsManagementDao;
@@ -43,7 +41,6 @@ public class ManagementDaoImpl {
         this.fileDownloadService = fileDownloadService;
         this.fileUploadService = fileUploadService;
         this.driveTextFileService = driveTextFileService;
-        this.handleFileIsChanged = handleFileIsChanged;
         this.fileVersionOperations = fileVersionOperations;
     }
 
@@ -159,13 +156,4 @@ public class ManagementDaoImpl {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         }
     }
-
-    public Map<String, Object> whenAFileIsChanged(String source, String search) {
-        try {
-            return handleFileIsChanged.getChangeFileEvent(source, search);
-        } catch (GraphServiceException | IllegalArgumentException cause) {
-            throw new IllegalArgumentException(cause.getMessage(), cause);
-        }
-    }
-
 }
