@@ -5,7 +5,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.codehaus.jettison.json.JSONException;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -62,6 +67,21 @@ public class RestClient {
         }
     }
 
+    public Response getWithHeader(String endPoint) {
+        try {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(endPoint)
+                    .addHeader(AUTHORIZATION, BEARER_ + accessToken)
+                    .get()
+                    .build();
+
+            return handleResponse(client.newCall(request).execute());
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public Response executeHttpMethods(String endpoint, String action, RequestBody payload) throws IOException {
         switch (action) {
             case Constants.POST_METHOD:
@@ -74,6 +94,14 @@ public class RestClient {
                 break;
         }
         return null;
+    }
+
+    private javax.ws.rs.core.Response executeRequestForGroup(String payload, String endPointUrl) {
+        Client jerseyClient = ClientBuilder.newClient();
+        javax.ws.rs.client.Invocation.Builder requestBuilder = jerseyClient.target(endPointUrl)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + accessToken);
+        return requestBuilder.post(Entity.json(payload));
     }
 
     private static Request prepareRequest(String methodType, RequestBody requestBody, String endPointUrl,
@@ -124,6 +152,10 @@ public class RestClient {
             throw new IllegalArgumentException(ONE_OR_MORE_FIELD_PROVIDED_ARE_INVALID);
         }
         return null;
+    }
+
+    public javax.ws.rs.core.Response executeHttpMethodsForGroup(String groupUrl, String jsonBody) {
+        return executeRequestForGroup(jsonBody, groupUrl);
     }
 
 }

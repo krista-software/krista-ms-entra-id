@@ -30,7 +30,7 @@ public class Constants {
 
     public static final String ERROR_DESCRIPTION = "error_description";
 
-    public static final String ACCESS_TYPE_OFFLINE_APPROVAL_PROMPT_FORCE = "&access_type=offline&approval_prompt=force";
+    public static final String ACCESS_TYPE_OFFLINE_APPROVAL_PROMPT_FORCE = "&access_type=offline&approval_prompt=force&prompt=select_account";
 
     public static final String TEXT = "Text";
 
@@ -40,12 +40,14 @@ public class Constants {
 
     public static final String HASH = "#";
 
-    public static final String REQUIRED_SCOPE = "openid User.Read User.Read.All offline_access Sites.Read.All Sites.Manage.All Group.ReadWrite.All GroupMember.Read.All";
+    public static final String REQUIRED_SCOPE = "openid offline_access Mail.Send Mail.ReadWrite Mail.Send.Shared Mail.ReadWrite.Shared Group.ReadWrite.All GroupMember.Read.All User.Read User.Read.All";
 
     public static final String FILE_ALREADY_EXIST = "A file with this name already exists, Please choose a different file name";
 
     public static final String SCOPE_SEPARATOR = " ";
+
     public static final String ODATA_CONTEXT = "@odata.context";
+
     public static final String USER_EMAIL = "User Email";
 
     public static final String AUTHORITY = "https://login.microsoftonline.com/";
@@ -81,6 +83,7 @@ public class Constants {
     public static final String IS_FILE_EXIST = "isFileExist";
 
     public static final String IS_SOURCE_FILE_EXIST = "isSourceFileExist";
+
     public static final String IS_TARGET_FILE_EXIST = "isTargetFileExist";
 
     public static final String IS_FOLDER_EXIST = "isFolderExist";
@@ -132,6 +135,7 @@ public class Constants {
     public static final String SOURCE_DRIVE_ITEM = "SourceDriveItem";
 
     public static final String TARGET_DRIVE_ITEM = "TargetDriveItem";
+
     public static final String FILE_READ_SUCCESS = "File read successfully";
 
     public static final String SUCCESS = "Success";
@@ -142,9 +146,9 @@ public class Constants {
 
     public static final String READ_AND_WRITE = "Read and Write";
 
-    public static final String SITE_DELETED_SUCCESSFULLY = " Site deleted successfully";
+    public static final String GROUP_DELETED_SUCCESSFULLY = " Group deleted successfully";
 
-    public static final String FAILED_TO_DELETE_SITE = "Failed to delete site. Please try again later.";
+    public static final String TO_DELETE_GROUP_PLEASE_TRY_AGAIN_LATER = "Failed to delete group. Please try again later.";
 
     public static final String ERROR_LIST_CREATION = "Error creating list. Please try again later.";
 
@@ -154,9 +158,9 @@ public class Constants {
 
     public static final String FAILED_TO_MODIFY_LIST = "Failed to modify list. Please try again later.";
 
-    public static final String FAILED_TO_UPDATE_SITE = "Failed to update site. Please try again later.";
+    public static final String FAILED_TO_UPDATE_GROUP_PLEASE_TRY_AGAIN_LATER = "Failed to update group. Please try again later.";
 
-    public static final String SITE_UPDATED_SUCCESSFULLY = "Site updated successfully";
+    public static final String GROUP_UPDATED_SUCCESSFULLY = "Group updated successfully";
 
     public static final String SITE_NAME_CANNOT_BE_NULL = "Site name cannot be null or empty";
 
@@ -173,8 +177,11 @@ public class Constants {
     public static final String UPDATED_SITE_NAME_CANNOT_BE_NULL = "Updated Site name cannot be null or empty";
 
     public static final String PERMISSIONS = "Permissions";
+
     public static final String PERMISSION = "Permission";
+
     public static final String OWN = "Own";
+
     public static final String QUERY_PERMISSIONS = "permissions";
 
     public static final String FILE_SIZE_CANNOT_BE_NULL = "File Size can't be null or 0";
@@ -359,6 +366,48 @@ public class Constants {
     public static final String PLEASE_PROVIDE_A_VALID_PATH_THE_FILE_FOLDER_WAS_NOT_FOUND = "Please provide a valid path, the file/folder was not found";
 
     public static final String FILE_DOWNLOADED_SUCCESSFULLY = "File downloaded successfully";
+
+    public static final String groupConflictMessage = "Another object with the same value for property mailNickname already exists.";
+
+    public static final String groupMessageForConflict = "There is already another group with the same email nickname. Please choose a different nickname.";
+
+    public static final String InvalidMailNickName = "Invalid value specified for property 'mailNickname' of resource 'Group'.";
+
+    public static final String ValidMailNickName = "Please provide valid mail nick name ";
+
+    public static final String GROUP_URL = "https://graph.microsoft.com/v1.0/groups";
+
+    public static final String error = "error";
+
+    public static final String id = "id";
+
+    public static final String createdDateTime = "createdDateTime";
+
+    public static final String displayName = "displayName";
+
+    public static final String mail = "mail";
+
+    public static final String message = "message";
+
+    public static final String mailNickname = "mailNickname";
+
+    public static final String Request_BadRequest = "Request_BadRequest";
+
+    public static final String mailEnabled = "mailEnabled";
+
+    public static final String securityEnabled = "securityEnabled";
+
+    public static final String Unified = "Unified";
+
+    public static final String groupTypes = "groupTypes";
+
+    public static final String ownersDataBind = "owners@odata.bind";
+
+    public static final String groupBaseUrl = "https://graph.microsoft.com/v1.0/users/";
+
+    public static final String ownerMailUrl = "https://graph.microsoft.com/v1.0/me";
+
+    public static final String DOCUMENT_LIBRARY = "documentLibrary";
 
 
     private Constants() {

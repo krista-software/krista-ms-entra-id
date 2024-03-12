@@ -14,8 +14,8 @@
 * KE-1432 [https://antbrains.atlassian.net/browse/KE-1411]  Not able to delete file using the "Delete" request.
 * KE-1430 [https://antbrains.atlassian.net/browse/KE-1430]  SharePoint: Not able to fetch data using the "Changes Since" request.
 * KE-1408 [https://antbrains.atlassian.net/browse/KE-1408]  SharePoint: Not able to upload file using "Write" request.
-* KE-1407 [https://antbrains.atlassian.net/browse/KE-1407]  Unable to "Create Group" using entity request.
-* KE-1420 [https://antbrains.atlassian.net/browse/KE-1420]  Not able to delete site using "Delete Site" request.
+* KE-1407 [https://antbrains.atlassian.net/browse/KE-1407]  SharePoint: Unable to "Create Group" using entity request.
+* KE-1420 [https://antbrains.atlassian.net/browse/KE-1420]  NSharePoint: Not able to Update group using "Update Group" request.
 * KE-1410 [https://antbrains.atlassian.net/browse/KE-1410]  Not able to update site using "Update Site" request.
 * KE-1433 [https://antbrains.atlassian.net/browse/KE-1433]  Not able to download file using the "Download as File" request.
 * KE-1434 [https://antbrains.atlassian.net/browse/KE-1434]  All request are not working in "management area"
@@ -28,8 +28,9 @@
 * KC-1869 [https://antbrains.atlassian.net/browse/KC-1462]  Share Point Extension Service Bettor error Message to User in configure Extension Screen.
 * KC-1507 [https://antbrains.atlassian.net/browse/KC-1507]  Download as file : Need to update the message
 * KE-1499 [https://antbrains.atlassian.net/browse/KE-1499]  When an empty folder is given, No data is returned in place of NA or Zero.
-* KS-728 [https://antbrains.atlassian.net/browse/KS-728]   SharePoint | Copy Share file does not work.
+* KS-728 [https://antbrains.atlassian.net/browse/KS-728]  SharePoint | Copy Share file does not work.
 * KS-727 [https://antbrains.atlassian.net/browse/KS-727]  SharePoint | Copy file in shared folder is broken.
+* KE-1522 [https://antbrains.atlassian.net/browse/KE-1522]  SharePoint : Create List : The list is not visible on the UI
 
 
 ## Known Issues

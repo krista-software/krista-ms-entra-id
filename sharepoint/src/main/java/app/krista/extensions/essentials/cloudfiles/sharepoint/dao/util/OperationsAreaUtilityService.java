@@ -1,17 +1,21 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.GroupImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.ListImpl;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SiteImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import com.microsoft.graph.models.Group;
 import com.microsoft.graph.models.List;
 import com.microsoft.graph.models.Site;
 import com.microsoft.graph.options.Option;
 import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.GraphServiceClient;
+import com.microsoft.graph.requests.GroupCollectionPage;
 import com.microsoft.graph.requests.SiteCollectionPage;
 import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -26,6 +30,9 @@ import java.util.Map;
 
 @Service
 public class OperationsAreaUtilityService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsAreaUtilityService.class);
+
 
     private OperationsAreaUtilityService() {
     }
@@ -70,14 +77,41 @@ public class OperationsAreaUtilityService {
         }
     }
 
-    public static void processResponse(Site site, Map<String, Object> payload) {
-        if (site != null) {
+
+    public static Group findMatchingGroup(GraphServiceClient<Request> graphClient, String groupName) {
+        try {
+            GroupCollectionPage groups = graphClient.groups().buildRequest().get();
+
+            while (groups != null && !groups.getCurrentPage().isEmpty()) {
+                for (Group group : groups.getCurrentPage()) {
+
+                    if (group.displayName != null && group.displayName.equals(groupName)) {
+                        return group;
+                    }
+
+                }
+                if (groups.getNextPage() != null) {
+                    groups = groups.getNextPage().buildRequest().get();
+                } else {
+                    break;
+                }
+            }
+        } catch (Exception cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
+            return null;
+        }
+        return null; // Group not found
+    }
+
+
+    public static void processResponseGroup(Group group, Map<String, Object> payload) {
+        if (group != null) {
             payload.put(Constants.SUCCESS, true);
-            payload.put(Constants.MESSAGE, Constants.SITE_UPDATED_SUCCESSFULLY);
-            payload.put(Constants.FILE, File.fromFile(new SiteImpl(site))); // Include updated site information
+            payload.put(Constants.MESSAGE, Constants.GROUP_UPDATED_SUCCESSFULLY);
+            payload.put(Constants.FILE, File.fromFile(new GroupImpl(group, null))); // Include updated site information
         } else {
             payload.put(Constants.SUCCESS, false);
-            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_SITE);
+            payload.put(Constants.MESSAGE, Constants.FAILED_TO_UPDATE_GROUP_PLEASE_TRY_AGAIN_LATER);
         }
     }
 
