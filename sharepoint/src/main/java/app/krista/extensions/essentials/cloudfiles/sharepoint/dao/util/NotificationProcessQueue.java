@@ -1,8 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
 import app.krista.extension.executor.Invoker;
-import app.krista.extension.request.RoutingInfo;
-import app.krista.extension.request.protos.http.HttpProtocol;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SharePointSubscription;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
