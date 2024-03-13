@@ -63,11 +63,8 @@ public class FileTransferService {
         Map<String, Object> payload = new HashMap<>();
         try {
 
-            if(validatePath(source)){
-                return ResponseUtil.buildPathValidationResult(false,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH);
-            }
-            if(validatePath(target)){
-                return ResponseUtil.buildPathValidationResult(false,Constants.PLEASE_PROVIDE_VALID_TARGET_PATH);
+            if (validatePath(source) || validatePath(target)) {
+                return ResponseUtil.buildPathValidationResult(false, validatePath(source) ? Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH : Constants.PLEASE_PROVIDE_VALID_TARGET_PATH);
             }
 
             searchFileExecutor.getFileInfo(source, payload, true);
