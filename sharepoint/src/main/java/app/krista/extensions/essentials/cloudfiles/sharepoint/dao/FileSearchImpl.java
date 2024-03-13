@@ -214,23 +214,6 @@ public class FileSearchImpl {
         return domainName;
     }
 
-//    public void extractDriveItemListFromSearchResults(List<DriveItem> files, SearchEntityQueryCollectionPage page) {
-//        for (SearchResponse driveInPage : page.getCurrentPage()) {
-//            if (driveInPage.hitsContainers != null) {
-//                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-//                    if (hitContainer.hits != null) {
-//                        for (SearchHit hits : hitContainer.hits) {
-//                            if (hits != null && hits.resource instanceof DriveItem) {
-//                                DriveItem driveItem = (DriveItem) hits.resource;
-//                                files.add(driveItem);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 
     public void extractDrivePermissionsForSearchByMail(List<DrivePermissionImpl> resultPage, SearchEntityQueryCollectionPage page,
                                                        GraphServiceClient<Request> graphClient, String email, String user) {
