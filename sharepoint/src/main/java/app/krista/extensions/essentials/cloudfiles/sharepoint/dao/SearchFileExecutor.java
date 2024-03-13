@@ -181,37 +181,6 @@ public class SearchFileExecutor {
                 .post();
     }
 
-//    public void findDriveItemByFilePath(SearchEntityQueryCollectionPage page, Map<String, Object> payload) {
-//        for (SearchResponse driveInPage : page.getCurrentPage()) {
-//            if (driveInPage.hitsContainers != null) {
-//                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-//                    if (hitContainer.hits != null) {
-//                        for (SearchHit hits : hitContainer.hits) {
-//                            if (hits != null && hits.resource instanceof DriveItem) {
-//                                DriveItem driveItem = (DriveItem) hits.resource;
-//                                if (driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
-//                                    payload.put(Constants.DRIVE_ID, driveItem.parentReference.driveId);
-//                                    payload.put(Constants.DRIVE_ITEM, driveItem);
-//                                    payload.put(Constants.SUCCESS, true);
-//                                    return;
-//                                } else {
-//                                    ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
-//                                    return;
-//                                }
-//                            } else {
-//                                ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
-//                                return;
-//                            }
-//                        }
-//                    } else {
-//                        ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
-//                        return;
-//                    }
-//                }
-//            }
-//        }
-//    }
-
     public void findDriveItemByFilePath(SearchEntityQueryCollectionPage page, Map<String, Object> payload) {
         Optional<SearchHit> driveItem = page.getCurrentPage().stream()
                 .filter(response -> response.hitsContainers != null)
