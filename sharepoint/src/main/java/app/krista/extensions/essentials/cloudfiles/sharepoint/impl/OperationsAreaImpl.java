@@ -87,7 +87,7 @@ public class OperationsAreaImpl {
         } catch (GraphServiceException | IllegalArgumentException cause) {
             throw new IllegalArgumentException(cause.getMessage(), cause);
         } catch (Exception cause) {
-            throw new RuntimeException(cause);
+            throw new IllegalStateException(cause);
         }
     }
 

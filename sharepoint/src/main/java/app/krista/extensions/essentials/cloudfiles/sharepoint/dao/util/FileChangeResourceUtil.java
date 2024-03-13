@@ -10,8 +10,8 @@ public class FileChangeResourceUtil {
     private FileChangeResourceUtil() {
     }
 
-    private static Map<String, DriveItemDeltaCollectionPage> FILE_CHANGE_RESOURCE = new HashMap<>();
-    private static Map<String, String> SUBSCRIPTION_STORE = new HashMap<>();
+    private static final Map<String, DriveItemDeltaCollectionPage> FILE_CHANGE_RESOURCE = new HashMap<>();
+    private static final Map<String, String> SUBSCRIPTION_STORE = new HashMap<>();
 
     public static void addFileMetaData(String subscriptionId, DriveItemDeltaCollectionPage page) {
         FILE_CHANGE_RESOURCE.put(subscriptionId, page);

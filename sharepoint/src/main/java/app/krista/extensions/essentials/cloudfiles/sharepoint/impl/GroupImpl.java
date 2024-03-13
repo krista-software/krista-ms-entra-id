@@ -80,7 +80,7 @@ public class GroupImpl implements FileService {
 
     @Override
     public Boolean getIsFolder() {
-        return null;
+        return false;
     }
 
     @Override

@@ -90,7 +90,9 @@ public class OperationsManagementDao {
             searchFileExecutor.getFileInfo(sourcePath, payload, true);
             if (payload.get(Constants.SUCCESS).equals(Boolean.TRUE)) {
                 DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
-                renameDriveItem(targetFileName, driveItem, payload);
+                if (driveItem != null) {
+                    renameDriveItem(targetFileName, driveItem, payload);
+                }
             } else {
                 setFileNotFoundMessage(payload);
             }
@@ -100,8 +102,6 @@ public class OperationsManagementDao {
     private void renameDriveItem(String targetFileName, DriveItem drive, Map<String, Object> payload) {
         DriveItem driveItem = new DriveItem();
         driveItem.name = targetFileName;
-        assert drive.parentReference != null;
-        assert drive.id != null;
         provider.getUserRequestBuilder(null, null).drives(drive.parentReference.driveId).items(drive.id).buildRequest().patch(driveItem);
         setFileRenamedSuccessfullyMessage(payload);
     }

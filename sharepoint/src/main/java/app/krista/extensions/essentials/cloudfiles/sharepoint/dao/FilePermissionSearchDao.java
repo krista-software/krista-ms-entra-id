@@ -80,7 +80,7 @@ public class FilePermissionSearchDao {
     }
 
     private SearchEntityQueryCollectionPage getSearchResult(GraphServiceClient<Request> graphClient, int from, int size) {
-        LinkedList<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath(from, size);
+        List<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath(from, size);
         return fileSearchImpl.buildSearchQuery(graphClient, requestsList);
     }
 
@@ -88,7 +88,7 @@ public class FilePermissionSearchDao {
         return fileEntity.permissions != null && fileEntity.permissions.equalsIgnoreCase(permission);
     }
 
-    public LinkedList<SearchRequest> buildSearchRequestListWithAbsolutePath(int from, int size) {
+    public List<SearchRequest> buildSearchRequestListWithAbsolutePath(int from, int size) {
         LinkedList<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
         buildSearchRequestForRest(requests, from, size);
@@ -111,23 +111,18 @@ public class FilePermissionSearchDao {
     }
 
     public void extractDriveFromSearchResultsUsingPath(List<DriveSharedPermissionImpl> files, SearchEntityQueryCollectionPage page, GraphServiceClient<Request> graphClient) {
-        for (SearchResponse driveInPage : page.getCurrentPage()) {
-            if (driveInPage.hitsContainers != null) {
-                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-                    if (hitContainer.hits != null) {
-                        for (SearchHit hits : hitContainer.hits) {
-                            if (hits != null && hits.resource instanceof DriveItem) {
-                                DriveItem driveItem = (DriveItem) hits.resource;
-                                if (driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/")) {
-                                    files.add(new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, fileSearchUtilityService, null));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        page.getCurrentPage().stream()
+                .filter(response -> response.hitsContainers != null)
+                .flatMap(response -> response.hitsContainers.stream())
+                .filter(container -> container.hits != null)
+                .flatMap(container -> container.hits.stream())
+                .filter(hits -> hits != null && hits.resource instanceof DriveItem)
+                .map(hits -> (DriveItem) hits.resource)
+                .filter(driveItem -> driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/"))
+                .map(driveItem -> new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, fileSearchUtilityService, null))
+                .forEach(files::add);
     }
+
 
     public void buildSearchRequestForRest(SearchRequest requests, int from, int size) {
         String domainName = fileSearchImpl.getDomainName();

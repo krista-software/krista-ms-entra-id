@@ -188,7 +188,7 @@ public class ManagementArea {
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFileByPath(sourcePath, search, useEmail, accountID);
+            FreeForm freeForm = managementDao.getFileByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -208,7 +208,7 @@ public class ManagementArea {
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
         executorService.submit(() -> {
-            FreeForm freeForm = managementDao.getFoldersByPath(sourcePath, search, useEmail, accountID);
+            FreeForm freeForm = managementDao.getFoldersByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
@@ -309,13 +309,13 @@ public class ManagementArea {
             description = "This endpoint produces a list of recent updates within a specified folder since a given date. The updates include information about the path, file status (e.g., Created, Updated, Deleted), and can be filtered using an optional regex in the search variable.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "Result", type = "[ { Path: Text, Date: Date, Update: PickOne(Created|Updated|Deleted) } ]",required = false)
+    @Field.Desc(name = "Result", type = "[ { Path: Text, Date: Date, Update: PickOne(Created|Updated|Deleted) } ]", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> changesSince(
             @Field.Text(name = "Source Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String sourcePath,
             @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search,
-            @Field.Date(name = "Since", required = true, includeTimeOfDay = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = false, allowFuture = false, defaultTimeSpan = 1, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})  Long since) {
+            @Field.Date(name = "Since", required = true, includeTimeOfDay = true, showHowManyDaysInViewer = 60, allowPast = true, allowToday = false, allowFuture = false, defaultTimeSpan = 1, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Long since) {
         return managementDao.getVersionHistory(sourcePath, FileUtil.validateTextInput(search), since);
     }
 
@@ -325,17 +325,17 @@ public class ManagementArea {
             description = "Monitors the Cloud Storage for changes. When a change arrives and the affected files/folders match the source path and event type, the event will be triggered.",
             area = "Management",
             type = CatalogRequest.Type.WAIT_FOR_EVENT)
-    @Field.Desc(name = "File", type = "Entity(File)",required = false)
-    @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted","Shared"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Desc(name = "File", type = "Entity(File)", required = false)
+    @Field.PickOne(name = "Event", values = {"Created", "Updated", "Deleted", "Shared"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> whenAFileIsChanged(
             @Field(name = "eventName", type = "Text") String eventName,
             @Field(name = "eventData", type = "FreeForm") FreeForm eventData,
             @Field.Text(name = "Source", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String source,
-            @Field.PickOne(name = "Event", values = {"Created","Updated","Deleted","Shared"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
+            @Field.PickOne(name = "Event", values = {"Created", "Updated", "Deleted", "Shared"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String event,
             @Field.Text(name = "Search", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String search) {
 
         if (eventName.equalsIgnoreCase(Constants.FILE_RECEIVED)
-                && eventData.get(Constants.EVENT) !=null && !eventData.get(Constants.EVENT).equals(Constants.NO_CHANGE)
+                && eventData.get(Constants.EVENT) != null && !eventData.get(Constants.EVENT).equals(Constants.NO_CHANGE)
                 && isInfoValid(eventData, search, source, event)) {
             Map<String, Object> map = new HashMap<>();
             map.put(Constants.FILE, eventData.get(Constants.FILE));
@@ -347,7 +347,7 @@ public class ManagementArea {
 
 
     private boolean isInfoValid(FreeForm eventData, String search, String source, String event) {
-        if(event != null && !eventData.get(Constants.EVENT).equals(event)){
+        if (event != null && !eventData.get(Constants.EVENT).equals(event)) {
             return false;
         }
         app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File) eventData.get(Constants.FILE);
@@ -358,7 +358,7 @@ public class ManagementArea {
     }
 
     private boolean isContainsSource(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity, String source) {
-        return source != null && fileEntity.absolutePath != null && FileUtil.isPathContainsInput(fileEntity.absolutePath,source);
+        return source != null && fileEntity.absolutePath != null && FileUtil.isPathContainsInput(fileEntity.absolutePath, source);
     }
 
     private boolean isContainsSearch(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File eventData, String search) {

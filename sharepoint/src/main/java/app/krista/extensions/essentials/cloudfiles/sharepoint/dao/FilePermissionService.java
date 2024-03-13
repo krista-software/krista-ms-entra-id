@@ -8,11 +8,7 @@ import com.microsoft.graph.requests.PermissionCollectionPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Service class for retrieving shared permissions on files using Microsoft Graph API.
@@ -25,26 +21,24 @@ public class FilePermissionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilePermissionService.class);
 
+    private static String toSentenceCase(String role) {
+        return role.substring(0, 1).toUpperCase() + role.substring(1).toLowerCase();
+    }
+
     public List<Map<String, Object>> getSharedWithPermissions(PermissionCollectionPage permissionCollectionPage) {
         try {
             List<Map<String, Object>> mapList = new ArrayList<>();
             while (permissionCollectionPage != null && !permissionCollectionPage.getCurrentPage().isEmpty()) {
                 if (permissionCollectionPage.additionalDataManager() != null) {
-                    for (Permission permission : permissionCollectionPage.getCurrentPage()) {
-                        if (permission.grantedTo != null || permission.grantedToIdentities != null) {
-                            List<Map<String, Object>> sharedUsers = findUsersInMap(mapList, permission);
-
-                            for (Map<String, Object> sharedUser : sharedUsers) {
-                                sharedUser.put("Permission", getPermissionString(permission));
-                            }
-                        }
-                    }
+                    permissionCollectionPage.getCurrentPage().stream()
+                            .filter(permission -> permission.grantedTo != null || permission.grantedToIdentities != null)
+                            .forEach(permission -> {
+                                List<Map<String, Object>> sharedUsers = findUsersInMap(mapList, permission);
+                                sharedUsers.forEach(sharedUser -> sharedUser.put("Permission", getPermissionString(permission)));
+                            });
                 }
-                if (permissionCollectionPage.getNextPage() != null) {
-                    permissionCollectionPage = permissionCollectionPage.getNextPage().buildRequest().get();
-                } else {
-                    break;
-                }
+                permissionCollectionPage = (permissionCollectionPage.getNextPage() != null) ?
+                        permissionCollectionPage.getNextPage().buildRequest().get() : null;
             }
             return mapList;
         } catch (GraphServiceException cause) {
@@ -87,10 +81,6 @@ public class FilePermissionService {
             return "owner".equals(permission.roles.get(0)) ? Constants.OWN : toSentenceCase(permission.roles.get(0));
         }
         return "";
-    }
-
-    private static String toSentenceCase(String role) {
-        return role.substring(0, 1).toUpperCase() + role.substring(1).toLowerCase();
     }
 
 }

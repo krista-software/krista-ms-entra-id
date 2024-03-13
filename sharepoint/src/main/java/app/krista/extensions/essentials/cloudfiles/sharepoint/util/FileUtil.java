@@ -61,7 +61,7 @@ public class FileUtil {
             }
             return stringBuilder.toString();
         } catch (IOException cause) {
-            throw new RuntimeException(cause);
+            throw new IllegalStateException(cause);
         }
     }
 
@@ -89,8 +89,8 @@ public class FileUtil {
         return filePath.getFileName() != null && filePath.getFileName().toString().contains(".");
     }
 
-    public static String getExtractBaseUrl(String URL) {
-        URI uri = URI.create(URL);
+    public static String getExtractBaseUrl(String url) {
+        URI uri = URI.create(url);
 
         // Extract the subdomain using host() and substring() methods
         String subdomain = uri.getHost();
@@ -180,7 +180,7 @@ public class FileUtil {
 
     public static String driveIdPath(String fullPath) {
         try {
-            String str[] = fullPath.split("/");
+            String str [] = fullPath.split("/");
             String drivePath = "/" + str[1] + "/" + (str[2]);
             return drivePath;
         } catch (RuntimeException cause) {

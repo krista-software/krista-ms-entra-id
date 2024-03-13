@@ -66,9 +66,9 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, Constants.SWITCH, success);
     }
 
-    public static FreeForm getInfoResponse(boolean Success, String message, FreeForm payload) {
+    public static FreeForm getInfoResponse(boolean success, String message, FreeForm payload) {
         payload.put(Constants.MESSAGE, "Text", message);
-        payload.put(Constants.SUCCESS, "Switch", Success);
+        payload.put(Constants.SUCCESS, "Switch", success);
         return payload;
     }
 

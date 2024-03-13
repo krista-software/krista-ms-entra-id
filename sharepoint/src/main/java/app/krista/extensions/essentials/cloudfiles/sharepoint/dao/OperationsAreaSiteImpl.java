@@ -51,7 +51,7 @@ public class OperationsAreaSiteImpl {
      * - File (optional): Details of the updated site if successful.
      * @throws GraphServiceException If an error occurs during communication with Microsoft Graph.
      */
-    public Map<String, Object> updateGroup(String groupName, String newGroupName) throws Exception {
+    public Map<String, Object> updateGroup(String groupName, String newGroupName) {
         Map<String, Object> payload = new HashMap<>();
         if (!operationsAreaUtilityService.validateSiteAndUpdatedNames(groupName, newGroupName, payload)) {
             return payload; // Early return if validation fails

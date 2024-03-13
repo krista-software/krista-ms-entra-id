@@ -146,8 +146,8 @@ public class OperationsAreaListImpl {
         return payload;
     }
 
-    private Map<String, Object> handleIfNotFound(Map<String, Object> payload, String Message) {
-        payload.put(Constants.MESSAGE, Message);
+    private Map<String, Object> handleIfNotFound(Map<String, Object> payload, String message) {
+        payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, false);
         return payload;
     }

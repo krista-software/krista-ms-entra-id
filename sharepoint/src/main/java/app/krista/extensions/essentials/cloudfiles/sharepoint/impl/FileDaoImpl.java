@@ -74,7 +74,7 @@ public class FileDaoImpl implements FileDao {
             try {
                 GraphServiceClient<Request> graphClient = clientProvider.
                         getUserRequestBuilder(null, null);
-                LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
+                List<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -110,15 +110,12 @@ public class FileDaoImpl implements FileDao {
         LOGGER.info("Searching for files with name: {}, selector: {}, page: {}, page size: {}", name, selector, pageIndex, pageSize);
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
-            if (pageIndex == 1) {
-                cachedFiles = new ArrayList<>();
-            }
+
             // Fetch more data if the cached data doesn't cover the full requested page
             if (cachedFiles.size() < (pageIndex - 1) * pageSize + pageSize) {
                 int totalFetched = cachedFiles.size();  // Start from the current cached count
                 while (totalFetched < (pageIndex - 1) * pageSize + pageSize && cachedFiles.size() < totalFetched + 25) {
                     LinkedList<SearchRequest> requestsList = new LinkedList<>();
-                    // Create a new SearchRequest instance within the loop
                     SearchRequest requests = fileSearchImpl.buildSearchRequest();
                     requests.query = fileSearchImpl.buildQueryString(name, selector);
                     requests.from = ((int) pageIndex - 1) * pageSize;  // Start from 0 for the first page, 10 for the second, and so on

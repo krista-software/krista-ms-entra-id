@@ -160,7 +160,8 @@ public class FileChangeInfoHandler {
                 return  Arrays.stream(Objects.requireNonNull(deltaCollectionPage.deltaLink())
                         .split("token")).collect(Collectors.toList()).get(1).substring(1);
 
-            } if (deltaCollectionPage.getNextPage() != null) {
+            }
+             if (deltaCollectionPage.getNextPage() != null) {
                 deltaCollectionPage = deltaCollectionPage.getNextPage().buildRequest().get();
             } else {
                 break;

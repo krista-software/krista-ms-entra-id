@@ -82,7 +82,7 @@ public class SiteImpl implements FileService {
 
     @Override
     public Boolean getIsFolder() {
-        return null;
+        return false ;
     }
 
     @Override

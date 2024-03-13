@@ -89,7 +89,7 @@ public class FileSearchFilterByRange {
         List<DrivePermissionImpl> resultPage = new ArrayList<>();
         try {
             GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(useEmail, accountID);
-            LinkedList<SearchRequest> requestsList = buildSearchRequestListForDate(fromDate, toDate, from, size);
+            List<SearchRequest> requestsList = buildSearchRequestListForDate(fromDate, toDate, from, size);
             SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
             if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -148,7 +148,7 @@ public class FileSearchFilterByRange {
         if (fromSize != null && toSize != null && fromSize != 0 && toSize != 0 && toSize > fromSize) {
             try {
                 GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(useEmail, accountID);
-                LinkedList<SearchRequest> requestsList = buildSearchRequestList(fromSize, toSize, pageIndex, pageSize);
+                List<SearchRequest> requestsList = buildSearchRequestList(fromSize, toSize, pageIndex, pageSize);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -165,7 +165,7 @@ public class FileSearchFilterByRange {
         return resultPage;
     }
 
-    public LinkedList<SearchRequest> buildSearchRequestList(Double fromSize, Double toSize, int pageIndex, int pageSize) {
+    public List<SearchRequest> buildSearchRequestList(Double fromSize, Double toSize, int pageIndex, int pageSize) {
         LinkedList<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
         buildSearchRequestForRest(fromSize, toSize, requests, pageIndex, pageSize);
@@ -173,7 +173,7 @@ public class FileSearchFilterByRange {
         return requestsList;
     }
 
-    public LinkedList<SearchRequest> buildSearchRequestListForDate(String fromDate, String toDate, int pageIndex, int pageSize) {
+    public List<SearchRequest> buildSearchRequestListForDate(String fromDate, String toDate, int pageIndex, int pageSize) {
         LinkedList<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
         buildSearchRequestForDate(fromDate, toDate, requests, pageIndex, pageSize);
@@ -215,21 +215,17 @@ public class FileSearchFilterByRange {
     }
 
     public void extractDrivePermissionsFromSearchResults(List<DrivePermissionImpl> resultPage, SearchEntityQueryCollectionPage page, GraphServiceClient<Request> graphClient) {
-        for (SearchResponse driveInPage : page.getCurrentPage()) {
-            if (driveInPage.hitsContainers != null) {
-                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-                    if (hitContainer.hits != null) {
-                        for (SearchHit hits : hitContainer.hits) {
-                            if (hits != null && hits.resource instanceof DriveItem) {
-                                resultPage.add(new DrivePermissionImpl((DriveItem) hits.resource, graphClient, fileSearchUtilityService, null));
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        page.getCurrentPage().stream()
+                .filter(response -> response.hitsContainers != null)
+                .flatMap(response -> response.hitsContainers.stream())
+                .filter(container -> container.hits != null)
+                .flatMap(container -> container.hits.stream())
+                .filter(hits -> hits != null && hits.resource instanceof DriveItem)
+                .map(hits -> new DrivePermissionImpl((DriveItem) hits.resource, graphClient, fileSearchUtilityService, null))
+                .forEach(resultPage::add);
     }
 
 }
+
 
 

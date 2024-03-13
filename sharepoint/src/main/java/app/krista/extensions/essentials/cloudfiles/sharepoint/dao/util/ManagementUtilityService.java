@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -93,7 +94,6 @@ public class ManagementUtilityService {
                 }
                 return driveItem;
             } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
                 throw new IllegalArgumentException(cause.getMessage(), cause);
             }
         } else {
@@ -108,7 +108,7 @@ public class ManagementUtilityService {
             filePath = fileSearchImpl.handleAbsolutePath(filePath, siteDomainPath);
             DriveItem driveItem = new DriveItem();  // Initialize the result page
             try {
-                LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
+                List<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -116,7 +116,6 @@ public class ManagementUtilityService {
                 }
                 return driveItem;
             } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
                 throw new IllegalArgumentException(cause.getMessage(), cause);
             }
         } else {
@@ -155,12 +154,12 @@ public class ManagementUtilityService {
     }
 
     public SearchEntityQueryCollectionPage buildSearchQuery(GraphServiceClient<Request> graphClient, LinkedList<SearchRequest> requestsList) {
-        SearchEntityQueryCollectionPage page = graphClient
+        return graphClient
                 .search()
                 .query(SearchEntityQueryParameterSet.newBuilder().withRequests(requestsList).build())
                 .buildRequest()
                 .post();
-        return page;
+
     }
 
     public DriveItem getRootFolderByAbsolutePath(String filePath, Boolean flag) {
@@ -170,7 +169,7 @@ public class ManagementUtilityService {
             DriveItem driveItem = new DriveItem();  // Initialize the result page
             try {
                 GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
-                LinkedList<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
+                List<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
                 SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -182,7 +181,6 @@ public class ManagementUtilityService {
                     return null;
                 }
             } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error("Error during file search: {} {} ", cause.getMessage(), cause);
                 throw new IllegalArgumentException("Error during file search : {} ", cause);
             }
         } else {

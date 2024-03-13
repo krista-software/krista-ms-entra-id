@@ -45,6 +45,7 @@ public class FileDetailsStore implements EntityStore<File> {
 
     @Override
     public void delete(String id) throws IOException {
+        throw new UnsupportedOperationException("This method is not implemented");
     }
 
     @Override
@@ -84,8 +85,7 @@ public class FileDetailsStore implements EntityStore<File> {
 
     @Override
     public List<String> lookup(Map<String, Object> map, List<String> list) throws IOException {
-        List<String> stringList = new ArrayList<>();
-        return stringList;
+        return new ArrayList<>();
     }
 
 }
