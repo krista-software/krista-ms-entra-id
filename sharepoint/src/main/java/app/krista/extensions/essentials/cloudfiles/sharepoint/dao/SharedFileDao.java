@@ -17,12 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 /**
  * This class provides functionality for sharing files in SharePoint using Microsoft Graph API.
@@ -54,7 +49,7 @@ public class SharedFileDao {
                 searchFileExecutor.getFileInfo(source, payload, true);
                 DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
                 if (driveItem != null) {
-                    processSharing(driveItem, source, share, payload);
+                    processSharing(driveItem, share, payload);
                     return payload;
                 }
                 ResponseUtil.errorResponse(false, Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH, payload);
@@ -72,7 +67,7 @@ public class SharedFileDao {
         return DriveItemCreateLinkParameterSet.newBuilder().withType(role).withScope("organization").withExpirationDateTime(null).withPassword(null).withMessage(null).withRetainInheritedPermissions(null).build();
     }
 
-    private void processSharing(DriveItem driveItem, String source, List<Map<String, Object>> share, Map<String, Object> payload) {
+    private void processSharing(DriveItem driveItem, List<Map<String, Object>> share, Map<String, Object> payload) {
         List<String> usersWithReadPermission = FileUtil.getUsersWithPermission(share, Constants.READ);
         List<String> usersWithWritePermission = FileUtil.getUsersWithPermission(share, Constants.WRITE);
 
@@ -138,13 +133,9 @@ public class SharedFileDao {
             Permission sharedFile = executePermission(driveID, id, parameterSet);
             return (sharedFile != null && sharedFile.link != null) ? sharedFile.link.webUrl : null;
         } catch (GraphServiceException cause) {
-            if (cause.getError() != null && cause.getError().error != null) {
-                LOGGER.info(cause.getMessage(), cause);
-                return cause.getMessage();
-            } else {
-                LOGGER.info(cause.getMessage(), cause);
-                return cause.getMessage();
-            }
+            LOGGER.info(cause.getMessage(), cause);
+            return (cause.getError() != null && cause.getError().error != null) ?
+                    cause.getMessage() : "An unexpected error occurred.";
         }
     }
 

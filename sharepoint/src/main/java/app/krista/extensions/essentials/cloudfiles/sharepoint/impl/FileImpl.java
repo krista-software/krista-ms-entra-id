@@ -1,8 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.DriveItem;
@@ -30,7 +28,7 @@ public class FileImpl implements FileService {
         this.driveItem = driveItem;
         this.graphClient = graphClient;
         this.fileSearchUtilityService = fileSearchUtilityService;
-        this.absolutePath =  sitePath!=null ? getFilePath(driveItem,sitePath) : null;
+        this.absolutePath = sitePath != null ? getFilePath(driveItem, sitePath) : null;
         this.driveMetaData = fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
     }
 
@@ -131,10 +129,10 @@ public class FileImpl implements FileService {
 
 
     private String getFilePath(DriveItem driveItem, String sitePath) {
-        if(driveItem.parentReference != null && driveItem.parentReference.path != null){
+        if (driveItem.parentReference != null && driveItem.parentReference.path != null) {
             String relativePath = FileUtil.getRootRelativeFilePath(driveItem.parentReference.path);
-            String modifiedRelativePath = relativePath.isBlank() ? "" : relativePath +"/";
-            return sitePath+"/"+modifiedRelativePath+driveItem.name;
+            String modifiedRelativePath = relativePath.isBlank() ? "" : relativePath + "/";
+            return sitePath + "/" + modifiedRelativePath + driveItem.name;
         }
         return null;
     }

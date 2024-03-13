@@ -6,8 +6,6 @@ import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -24,23 +22,8 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class FileSearchUtilityService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchUtilityService.class);
 
-    public FileSearchUtilityService() {
-    }
-
-    public DriveItem getDriveMetaData(DriveItem driveItem, GraphServiceClient<Request> graphClient) {
-        DriveItem driveMetaData = null;
-        if (driveItem != null && driveItem.parentReference.driveId != null && driveItem.parentReference.id != null) {
-
-            try {
-                driveMetaData = graphClient.drives(driveItem.parentReference.driveId).
-                        items(driveItem.id).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
-            } catch (Exception cause) {
-                return driveMetaData;
-            }
-        }
-        return driveMetaData;
+    private FileSearchUtilityService() {
     }
 
     public static String extractParentFolderNameFromUrl(String webUrl) {
@@ -102,6 +85,20 @@ public class FileSearchUtilityService {
         } else {
             return null;
         }
+    }
+
+    public DriveItem getDriveMetaData(DriveItem driveItem, GraphServiceClient<Request> graphClient) {
+        DriveItem driveMetaData = null;
+        if (driveItem != null && driveItem.parentReference.driveId != null && driveItem.parentReference.id != null) {
+
+            try {
+                driveMetaData = graphClient.drives(driveItem.parentReference.driveId).
+                        items(driveItem.id).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
+            } catch (Exception cause) {
+                return driveMetaData;
+            }
+        }
+        return driveMetaData;
     }
 
 }

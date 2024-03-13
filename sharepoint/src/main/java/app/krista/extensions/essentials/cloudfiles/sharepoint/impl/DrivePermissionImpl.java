@@ -28,15 +28,15 @@ public class DrivePermissionImpl implements FileService {
         this.graphClient = graphClient;
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.driveMetaData = this.fileSearchUtilityService.getDriveMetaData(driveItem, graphClient);
-        this.absolutePath =  sitePath!=null ? getFilePath(driveItem,sitePath) : null;
+        this.absolutePath = sitePath != null ? getFilePath(driveItem, sitePath) : null;
 
     }
 
     private String getFilePath(DriveItem driveItem, String sitePath) {
-        if(driveItem.parentReference != null && driveItem.parentReference.path != null){
+        if (driveItem.parentReference != null && driveItem.parentReference.path != null) {
             String relativePath = FileUtil.getRootRelativeFilePath(driveItem.parentReference.path);
-            String modifiedRelativePath = relativePath.isBlank() ? "" : relativePath +"/";
-            return sitePath+"/"+modifiedRelativePath+driveItem.name;
+            String modifiedRelativePath = relativePath.isBlank() ? "" : relativePath + "/";
+            return sitePath + "/" + modifiedRelativePath + driveItem.name;
         }
         return null;
     }

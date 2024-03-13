@@ -28,7 +28,8 @@ public class JavaFileHandleHelper {
             try {
                 outputFileHandle.setContent(new FileInputStream(file));
             } catch (IOException cause) {
-                throw new RuntimeException("Failed to store content to file handle", cause);
+                logger.error("Error occurred while converting java file to Krista file {} ", cause.getMessage());
+                throw new IllegalStateException("Failed to store content to file handle", cause);
             }
             return outputFileHandle.getFile();
         }

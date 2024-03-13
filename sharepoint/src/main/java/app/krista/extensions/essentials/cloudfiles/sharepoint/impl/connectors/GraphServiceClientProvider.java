@@ -129,7 +129,7 @@ public class GraphServiceClientProvider {
             }
             return getRestClient(driveId, userId, refreshToken);
         } catch (RuntimeException cause) {
-            System.err.println("Failed to get graph client " + cause.getClass().getName());
+            LOGGER.error("Failed to get graph client {}" ,cause.getClass().getName());
             throw cause;
         }
     }

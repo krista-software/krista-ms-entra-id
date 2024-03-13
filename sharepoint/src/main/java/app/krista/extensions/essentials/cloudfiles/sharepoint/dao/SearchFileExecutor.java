@@ -17,11 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class SearchFileExecutor {
@@ -29,7 +26,6 @@ public class SearchFileExecutor {
     private static final String ERROR_DURING_FILE_SEARCH = "Error during file search: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFileExecutor.class);
     private static final String PLEASE_PROVIDE_VALID_SITE_PATH = "Please provide valid site path";
-
     private final FileSearchImpl fileSearchImpl;
     private final GraphServiceClientProvider provider;
 
@@ -61,7 +57,6 @@ public class SearchFileExecutor {
 
     public void getFileInfo(String path, Map<String, Object> payload, boolean isSourcePath) {
         getFileInfo(path, payload, isSourcePath, null, null);
-
     }
 
     public void fetchFileDetailsByDriveID(String driveId, String relativeFilePath, boolean isSourcePath, Map<String, Object> payload, Boolean useMail, String accountID) {
@@ -136,7 +131,7 @@ public class SearchFileExecutor {
         payload.put(Constants.SUCCESS, false);
     }
 
-    public LinkedList<SearchRequest> buildSearchRequestsFromFile(String filePath) {
+    public List<SearchRequest> buildSearchRequestsFromFile(String filePath) {
         LinkedList<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
         buildSearchRequestForRest(filePath, requests);
@@ -161,7 +156,7 @@ public class SearchFileExecutor {
         LOGGER.info("Searching for files with filePath: {}", filePath);
         if (filePath != null) {
             try {
-                LinkedList<SearchRequest> requestsList = buildSearchRequestsFromFile(filePath);
+                List<SearchRequest> requestsList = buildSearchRequestsFromFile(filePath);
                 SearchEntityQueryCollectionPage page = buildSearchQuery(graphClient, requestsList);
 
                 if (page != null && !page.getCurrentPage().isEmpty()) {
@@ -187,35 +182,26 @@ public class SearchFileExecutor {
     }
 
     public void findDriveItemByFilePath(SearchEntityQueryCollectionPage page, Map<String, Object> payload) {
-        for (SearchResponse driveInPage : page.getCurrentPage()) {
-            if (driveInPage.hitsContainers != null) {
-                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
-                    if (hitContainer.hits != null) {
-                        for (SearchHit hits : hitContainer.hits) {
-                            if (hits != null && hits.resource instanceof DriveItem) {
-                                DriveItem driveItem = (DriveItem) hits.resource;
-                                if (driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
-                                    payload.put(Constants.DRIVE_ID, driveItem.parentReference.driveId);
-                                    payload.put(Constants.DRIVE_ITEM, driveItem);
-                                    payload.put(Constants.SUCCESS, true);
-                                    return;
-                                } else {
-                                    ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
-                                    return;
-                                }
-                            }else {
-                                ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
-                                return;
-                            }
-                        }
-                    } else {
-                        ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
-                        return;
-                    }
-                }
+        Optional<SearchHit> driveItem = page.getCurrentPage().stream()
+                .filter(response -> response.hitsContainers != null)
+                .flatMap(response -> response.hitsContainers.stream())
+                .filter(container -> container.hits != null)
+                .flatMap(container -> container.hits.stream())
+                .filter(hit -> hit != null && hit.resource instanceof DriveItem)
+                .findFirst();
+
+        if (driveItem.isPresent()) {
+            DriveItem item = (DriveItem) driveItem.get().resource;
+            if (item.parentReference != null && item.parentReference.driveId != null) {
+                payload.put(Constants.DRIVE_ID, item.parentReference.driveId);
+                payload.put(Constants.DRIVE_ITEM, item);
+                payload.put(Constants.SUCCESS, true);
+                return;
             }
         }
+        ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
     }
+
 
 }
 

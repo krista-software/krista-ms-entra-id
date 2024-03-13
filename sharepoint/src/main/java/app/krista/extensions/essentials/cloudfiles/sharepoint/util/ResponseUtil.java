@@ -48,7 +48,7 @@ public class ResponseUtil {
 
 
     public static void successResponse(boolean success, String message, Map<String, Object> payload) {
-        errorResponse(success,message,payload);
+        errorResponse(success, message, payload);
     }
 
     public static void getInfoResponse(int files, int folders, long size, String oldestFile, long oldestFileCreateDate, String newestFile, long newestFileCreteDate, String lastModifiedFileId, String lastModifiedFileName, long lastModifiedFileCreateDate, boolean success, String message, FreeForm payload) {
@@ -66,9 +66,9 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, Constants.SWITCH, success);
     }
 
-    public static FreeForm getInfoResponse(boolean Success, String message, FreeForm payload) {
+    public static FreeForm getInfoResponse(boolean success, String message, FreeForm payload) {
         payload.put(Constants.MESSAGE, "Text", message);
-        payload.put(Constants.SUCCESS, "Switch", Success);
+        payload.put(Constants.SUCCESS, "Switch", success);
         return payload;
     }
 
@@ -125,6 +125,13 @@ public class ResponseUtil {
     public static void errorResponse(boolean success, String message, Map<String, Object> payload) {
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);
+    }
+
+    public static Map<String, Object> buildPathValidationResult(boolean success, String message) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+        return payload;
     }
 
     public static void addDriveItemMessage(boolean isFileExist, boolean success, String message, Map<String, Object> payload) {

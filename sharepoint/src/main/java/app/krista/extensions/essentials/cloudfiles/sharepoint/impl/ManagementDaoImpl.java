@@ -1,8 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.*;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import org.jvnet.hk2.annotations.Service;
@@ -29,7 +27,7 @@ public class ManagementDaoImpl {
 
 
     @Inject
-    public ManagementDaoImpl( DriveFileService fileManagementDao,
+    public ManagementDaoImpl(DriveFileService fileManagementDao,
                              FolderManagementDao folderManagementDao, OperationsManagementDao operationsManagementDao,
                              SharedFileDao sharedFileDao, FileTransferService copyFileDao, FileDownloadService fileDownloadService,
                              FileUploadService fileUploadService, DriveTextFileManager driveTextFileService, FileVersionOperations fileVersionOperations) {

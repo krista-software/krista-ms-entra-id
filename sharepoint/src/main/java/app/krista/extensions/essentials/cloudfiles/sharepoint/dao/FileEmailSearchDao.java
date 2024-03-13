@@ -86,12 +86,12 @@ public class FileEmailSearchDao {
     }
 
     private SearchEntityQueryCollectionPage getSearchResult(GraphServiceClient<Request> graphClient, String email, int from, int size) {
-        LinkedList<SearchRequest> requestsList = buildSearchRequestList(email, from, size);
+        List<SearchRequest> requestsList = buildSearchRequestList(email, from, size);
         return fileSearchImpl.buildSearchQuery(graphClient, requestsList);
     }
 
-    public LinkedList<SearchRequest> buildSearchRequestList(String email, int from, int size) {
-        LinkedList<SearchRequest> requestsList = new LinkedList<>();
+    public List<SearchRequest> buildSearchRequestList(String email, int from, int size) {
+        List<SearchRequest> requestsList = new LinkedList<>();
         SearchRequest requests = buildSearchRequest();
         buildSearchRequestForRest(requests, email, from, size);
         requestsList.add(requests);

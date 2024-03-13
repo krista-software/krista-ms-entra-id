@@ -55,12 +55,6 @@ public class CopyFileUtilityService {
         }
     }
 
-    public boolean validateSourceAndTargetPathsForMove(String source, String target, Map<String, Object> payload) {
-        Boolean tag = true;
-        tag = validatePath(source, Constants.PROVIDE_VALID_SOURCE_PATH, payload);
-        tag = validatePath(target, Constants.PROVIDE_VALID_TARGET_PATH, payload);
-        return tag;
-    }
 
     protected Boolean validatePath(String path, String errorMessage, Map<String, Object> payload) {
         if (path == null || path.trim().isEmpty()) {
@@ -106,7 +100,7 @@ public class CopyFileUtilityService {
     }
 
     public void handleCopyFileException(Exception cause, Map<String, Object> payload) {
-        LOGGER.error(" Error : " + cause.getMessage());
+        LOGGER.error(" Error : {}" ,cause.getMessage());
         payload.put(Constants.MESSAGE, Objects.requireNonNull(cause.getMessage())
                 .contains("itemNotFound") ? Constants.FILE_NOT_FOUND : Constants.PROVIDE_VALID_TARGET_PATH);
         payload.put(Constants.SUCCESS, false);

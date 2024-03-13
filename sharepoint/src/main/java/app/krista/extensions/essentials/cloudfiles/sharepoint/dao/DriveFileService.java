@@ -220,7 +220,7 @@ public class DriveFileService {
                 String refinedRelativePath = FolderManagementDao.getRelativePath(sourcePath);
                 String sitePath = mapPayload.get(Constants.SOURCE_ROOT_PATH).toString();
                 getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath,
-                        files, useEmail, accountID, search, payload, sourcePath,sitePath);
+                        files, useEmail, accountID, search, payload, sitePath);
             }else{
                 payload.put(Constants.SUCCESS,Constants.SWITCH,false);
                 payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH));
@@ -246,7 +246,7 @@ public class DriveFileService {
         ResponseUtil.getInfoResponse(false, errorMessage, payload);
     }
 
-    public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload, String absolutePath, String sitePath) {
+    public void getRootFilesByDriveIDPath(String driveID, String relativePath, List<FileService> files, boolean useEmail, String accountID, String search, FreeForm payload,String sitePath) {
         try {
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(useEmail, accountID);
 
@@ -278,7 +278,8 @@ public class DriveFileService {
                 if (page.getNextPage() != null) {
                     page = page.getNextPage().buildRequest().get();
                 } else {
-                    ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, Constants.FILE_FETCHED_SUCCESSFULLY, payload);
+                    ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).
+                            collect(Collectors.toList()), true, Constants.FILE_FETCHED_SUCCESSFULLY, payload);
                     break;
                 }
             }

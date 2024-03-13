@@ -13,7 +13,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 >  - If we include only Documents in the absolute path instead of Shared Documents or use the complete absolute path, it
      will still function.
 
-
 #### 1. Copy
 
 - **Description**: Copy the provide file represented by the entity to the target location and Replace file or create
@@ -38,7 +37,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File has been copied successfully  |
 | Success            | Yes/No             | Yes                                |
 
-
 #### 2. Delete
 
 - **Description**: Delete the given file from the cloud storage provider.
@@ -54,7 +52,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|---------------------------|
 | Message            | Text               | File Deleted successfully |
 | Success            | Yes/No             | Yes                       |
-
 
 #### 3. Download as Link
 
@@ -72,7 +69,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Download Link      | Text               | {link}                               |
 | Message            | Text               | To Download file Please Click on URL |
 | Success            | Yes/No             | Yes                                  |
-
 
 #### 4. Download as Krista File
 
@@ -93,7 +89,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Krista File        | Krista File        | File            |
 | Message            | Text               | File Downloaded |
 | Success            | Yes/No             | Yes             |
-
 
 #### 5. Get Info
 
@@ -116,7 +111,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 > #### Limitation :
 > - This request returns the total size of files present inside folder.
 > - Size of folder and total size of files may differ because of following reasons.
-> - Folder sizes in SharePoint may not just reflect file sizes but include extra data like version history and system files.
+> - Folder sizes in SharePoint may not just reflect file sizes but include extra data like version history and system
+    files.
 > - The reported size might be bigger or less due to saved versions of files and items in the recycle bin.
 
 #### 6. Get Info Result
@@ -149,7 +145,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message                        | Text               | File Information         |
 | Success                        | Yes/No             | Yes                      |
 
-
 #### 7. Get Result
 
 - **Description**: Accept task ID as input and return List of Files.
@@ -171,7 +166,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File Information                         |
 | Success            | Yes/No             | Yes                                      |
 
-
 #### 8. List Files
 
 - **Description**: Produces a non-recursive list of files that is present within the folder denoted by the source path.
@@ -187,7 +181,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Example**              |
 |--------------------|--------------------|--------------------------|
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
-
 
 #### 9. List Folders
 
@@ -206,7 +199,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|--------------------------|
 | Task ID            | Text               | bdcqwveb84yt4y43y84yt284 |
 
-
 #### 10. Move
 
 - **Description**: Move a file on the drive from source to target where both denote a full file path.
@@ -224,7 +216,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : ABC, extension:.txt , ...} |
 | Message            | Text               | File Moved                         |
 | Success            | Yes/No             | Yes                                |
-
 
 #### 11. Read
 
@@ -247,7 +238,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               |              |
 | Success            | Yes/No             | Yes          |
 
-
 #### 12. Rename
 
 - **Description**: Renames the file given at the source file path to the name given.
@@ -264,7 +254,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 |--------------------|--------------------|-------------|
 | Message            | Text               |             |
 | Success            | Yes/No             | Yes         |
-
 
 #### 13. Share File
 
@@ -284,7 +273,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : ABC, extension:.txt , ...} |
 | Message            | Text               | File has been shared successfully  |
 | Success            | Yes/No             | Yes                                |
-
 
 #### 14. Write
 
@@ -310,7 +298,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File Uploaded Successfully         |
 | Success            | Yes/No             | Yes                                |
 
-
 #### 15. Write Text
 
 - **Description**: Uploads the file content to the cloud storage at the given target location as a plain text file.
@@ -328,7 +315,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : "ABC", extension:".txt" , ...} |
 | Message            | Text               | File Uploaded Successfully             |
 | Success            | Yes/No             | Yes                                    |
-
 
 #### 16. Changes Since
 
@@ -354,8 +340,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Success            | Yes/No               | Yes                                         |
 
 > #### Note :
->   - Changes Since Supports For SharePoint Folders and File.
-
+>   - The Changes Since request supports only sharepoint folders.
 
 #### 17. When a File is Changed
 
@@ -378,13 +363,16 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 > - The When a File is Changed request is System Triggered catalog request.
-> - If extension is upgraded to new version of SharePoint Extension, It is necessary to **Withdraw** all live conversation of the When File Is Change request and **Take Live** again  to continue receiving notification.
-> - The When a File is Changed request supports only **Created** and **Updated** events, **Deleted** and **Shared** events are not supported.
-> - The When a File is Changed request primarily focuses on monitoring folders rather than files. It does not support direct monitoring of files.
+> - If extension is upgraded to new version of SharePoint Extension, It is necessary to **Withdraw** all live
+    conversation of the When File Is Change request and **Take Live** again to continue receiving notification.
+> - The When a File is Changed request supports only **Created** and **Updated** events, **Deleted** and **Shared**
+    events are not supported.
+> - The When a File is Changed request primarily focuses on monitoring folders rather than files. It does not support
+    direct monitoring of files.
 > - The When a File is Changed request also notifies events occurred in sub folders.
-> - The average time for receiving event notifications is 5 minutes. However, the maximum time may vary based on the total number of files or folders within the monitored Folder.
+> - The average time for receiving event notifications is 5 minutes. However, the maximum time may vary based on the
+    total number of files or folders within the monitored Folder.
 > - File entity in response does not contain **Permissions** .
-
 
 ## SharePoint Area
 
@@ -411,7 +399,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 >   - Specify File Size in "bytes" when conducting size range searches.
 >   - The output limit for a list of files is capped at 500.
 
-
 #### 2. Fetch File By Modification Date Range
 
 - **Description**: This request retrieve files by specifying a range of modification dates. It returns the corresponding
@@ -432,7 +419,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 >   - The output limit for a list of files is capped at 500.
-
 
 #### 3. Get Shared Permission
 
@@ -524,8 +510,12 @@ Krista SharePoint extension supports the following Catalog Requests:
 >   - This request is intended to create a list within a SharePoint site. The list is successfully created, but it
       doesn't appear in the SharePoint navigation panel. The request provides the absolute path for accessing the list.
 
+>   - After creating a list, allow a minimum of 2 hours for the changes to take effect. Therefore, it is advisable to
+      wait for this period before attempting to utilize the "Delete" or "Update" list methods.
+
 > #### Limitations :
->  - Creating a list named **Documents** and **Shared Documents** is not possible, as it is a default list already existing.
+>  - Creating a list named **Documents** and **Shared Documents** is not possible, as it is a default list already
+     existing.
 
 #### 2. Delete List
 
@@ -562,6 +552,20 @@ Krista SharePoint extension supports the following Catalog Requests:
 > #### Note :
 >   - After creating a group, allow a minimum of 2 hours for the changes to take effect. Therefore, it is advisable to
       wait for this period before attempting to utilize the "Delete" or "Update" group methods.
+
+> #### Guidelines :
+
+> - Ensure the mail nickname comprises a combination of letters and numbers.
+> - Eliminate any special characters, spaces, hyphens, underscores, or periods from the nickname.
+> - If you want to create a group for a team called "Marketing123," the proper mail nickname would be:
+
+> - Example:
+> - 1. Incorrect: Marketing_123 (contains an underscore)
+> - 2. Incorrect: Marketing.123 (contains a period)
+> - 3. Incorrect: Marketing 123 (contains a space)
+
+> - Correct :
+> - 1. Marketing123
 
 #### 4. Delete Group
 
@@ -616,6 +620,10 @@ Krista SharePoint extension supports the following Catalog Requests:
 | File               | Entity             | {name : ABC, extension:.txt , ...} |
 | Message            | Text               | Group updated successfully         |
 | Success            | Yes/No             | Yes                                |
+
+> #### Note :
+> - The group update operation will modify the group name while retaining the original path unchanged. Microsoft does not
+alter the absolute path of the group when assigning a new name.
 
 ## Entity Requests
 

@@ -77,6 +77,10 @@ public class FileVersionOperations {
         try {
             String driveID = payload.get(Constants.DRIVE_ID).toString();
             DriveItem driveItem = (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM);
+            if(driveItem.file !=null){
+                payload.put(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_FOLDER_PATH);
+                return;
+            }
             DriveItemDeltaCollectionPage page = getUserRequestBuilder().drives(driveID).items(driveItem.id).delta().buildRequest().get();
             List<Map<String, Object>> result = new ArrayList<>();
             while (page != null && !page.getCurrentPage().isEmpty()) {
@@ -85,7 +89,7 @@ public class FileVersionOperations {
                 if (page.getNextPage() != null) {
                     page = page.getNextPage().buildRequest().get();
                 } else {
-                    ResponseUtil.changesSinceResponse(true, "Files Content", result, payload);
+                    ResponseUtil.changesSinceResponse(true, "Folder content fetched successfully.", result, payload);
                     break;
                 }
             }

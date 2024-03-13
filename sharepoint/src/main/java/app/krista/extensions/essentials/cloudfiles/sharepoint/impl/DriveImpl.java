@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;

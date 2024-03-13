@@ -67,6 +67,7 @@ public class FileUploadService {
 
     private void validateAndUploadFile(app.krista.model.base.File kristaFile, String targetPath,
                                        Map<String, Object> payload) {
+
         if (targetPath != null && !FileUtil.hasFileExtension(targetPath)) {
             searchFileExecutor.getFileInfo(targetPath, payload, true);
 
