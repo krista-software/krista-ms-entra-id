@@ -25,7 +25,7 @@ public class SearchFileExecutor {
 
     private static final String ERROR_DURING_FILE_SEARCH = "Error during file search: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFileExecutor.class);
-    private static final String PLEASE_PROVIDE_VALID_SITE_PATH = "Please provide valid site path";
+    private static final String PLEASE_PROVIDE_VALID_PATH = "Please, provide valid path";
     private final FileSearchImpl fileSearchImpl;
     private final GraphServiceClientProvider provider;
 
@@ -167,7 +167,7 @@ public class SearchFileExecutor {
                 ResponseUtil.errorResponse(false, Objects.requireNonNull(cause.getMessage())
                         .contains(Constants.ITEM_NOT_FOUND)
                         ? Constants.FILE_NOT_FOUND
-                        : PLEASE_PROVIDE_VALID_SITE_PATH, payload);
+                        : PLEASE_PROVIDE_VALID_PATH, payload);
             }
         }
 
@@ -182,24 +182,34 @@ public class SearchFileExecutor {
     }
 
     public void findDriveItemByFilePath(SearchEntityQueryCollectionPage page, Map<String, Object> payload) {
-        Optional<SearchHit> driveItem = page.getCurrentPage().stream()
-                .filter(response -> response.hitsContainers != null)
-                .flatMap(response -> response.hitsContainers.stream())
-                .filter(container -> container.hits != null)
-                .flatMap(container -> container.hits.stream())
-                .filter(hit -> hit != null && hit.resource instanceof DriveItem)
-                .findFirst();
-
-        if (driveItem.isPresent()) {
-            DriveItem item = (DriveItem) driveItem.get().resource;
-            if (item.parentReference != null && item.parentReference.driveId != null) {
-                payload.put(Constants.DRIVE_ID, item.parentReference.driveId);
-                payload.put(Constants.DRIVE_ITEM, item);
-                payload.put(Constants.SUCCESS, true);
-                return;
+        for (SearchResponse driveInPage : page.getCurrentPage()) {
+            if (driveInPage.hitsContainers != null) {
+                for (SearchHitsContainer hitContainer : driveInPage.hitsContainers) {
+                    if (hitContainer.hits != null) {
+                        for (SearchHit hits : hitContainer.hits) {
+                            if (hits != null && hits.resource instanceof DriveItem) {
+                                DriveItem driveItem = (DriveItem) hits.resource;
+                                if (driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
+                                    payload.put(Constants.DRIVE_ID, driveItem.parentReference.driveId);
+                                    payload.put(Constants.DRIVE_ITEM, driveItem);
+                                    payload.put(Constants.SUCCESS, true);
+                                    return;
+                                } else {
+                                    ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_PATH, payload);
+                                    return;
+                                }
+                            } else {
+                                ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_PATH, payload);
+                                return;
+                            }
+                        }
+                    } else {
+                        ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_PATH, payload);
+                        return;
+                    }
+                }
             }
         }
-        ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_SITE_PATH, payload);
     }
 
 
