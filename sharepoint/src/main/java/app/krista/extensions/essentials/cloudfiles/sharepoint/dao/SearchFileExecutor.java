@@ -193,13 +193,13 @@ public class SearchFileExecutor {
                                     payload.put(Constants.DRIVE_ID, driveItem.parentReference.driveId);
                                     payload.put(Constants.DRIVE_ITEM, driveItem);
                                     payload.put(Constants.SUCCESS, true);
-                                    return;
                                 } else {
                                     ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_PATH, payload);
-                                    return;
                                 }
                             } else {
                                 ResponseUtil.errorResponse(false, PLEASE_PROVIDE_VALID_PATH, payload);
+                            }
+                            if (!payload.isEmpty()) {
                                 return;
                             }
                         }
