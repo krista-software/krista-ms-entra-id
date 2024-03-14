@@ -28,10 +28,10 @@
 * KC-1869 [https://antbrains.atlassian.net/browse/KC-1462]  Share Point Extension Service Bettor error Message to User in configure Extension Screen.
 * KC-1507 [https://antbrains.atlassian.net/browse/KC-1507]  Download as file : Need to update the message
 * KE-1499 [https://antbrains.atlassian.net/browse/KE-1499]  When an empty folder is given, No data is returned in place of NA or Zero.
-* KS-728 [https://antbrains.atlassian.net/browse/KS-728]  SharePoint | Copy Share file does not work.
-* KS-727 [https://antbrains.atlassian.net/browse/KS-727]  SharePoint | Copy file in shared folder is broken.
+* KS-728 [https://antbrains.atlassian.net/browse/KS-728]  SharePoint : Copy Share file does not work.
+* KS-727 [https://antbrains.atlassian.net/browse/KS-727]  SharePoint : Copy file in shared folder is broken.
 * KE-1522 [https://antbrains.atlassian.net/browse/KE-1522]  SharePoint : Create List : The list is not visible on the UI
-* KE-1519 [https://antbrains.atlassian.net/browse/KE-1519] SharePoint: "When a file is changed" request is not triggering after updating or creating any file in SharePoint.
+* KE-1519 [https://antbrains.atlassian.net/browse/KE-1519]  SharePoint: "When a file is changed" request is not triggering after updating or creating any file in SharePoint.
 
 ## Known Issues
 
