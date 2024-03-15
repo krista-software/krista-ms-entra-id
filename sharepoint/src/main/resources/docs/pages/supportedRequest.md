@@ -629,6 +629,9 @@ alter the absolute path of the group when assigning a new name.
 
 #### Search By File
 
+> #### Limitation :
+> - The file entity search functionality may exhibit inaccuracies or fail to produce relevant results. Exercise caution when implementing or relying on this feature.
+
 - **Description**: This request returns list of file details.
 - **Input Parameters**:
 
@@ -649,6 +652,7 @@ alter the absolute path of the group when assigning a new name.
 >  - Parent Folder search are not supported in SharePoint Files Extension.
 >  - Size search are not supported in SharePoint Files Extension & for same have added catalog.
 >  - Is Folder search are not supported in SharePoint Files Extension.
+>  - File Entity Search does not support multiple field search through ask system step.
 
 * Output:
 

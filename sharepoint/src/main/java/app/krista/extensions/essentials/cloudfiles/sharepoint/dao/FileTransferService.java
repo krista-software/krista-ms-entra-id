@@ -62,11 +62,6 @@ public class FileTransferService {
     public Map<String, Object> copyFile(String source, String target, Boolean replace, boolean createFolder) {
         Map<String, Object> payload = new HashMap<>();
         try {
-
-            if (validatePath(source) || validatePath(target)) {
-                return ResponseUtil.buildPathValidationResult(false, validatePath(source) ? Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH : Constants.PLEASE_PROVIDE_VALID_TARGET_PATH);
-            }
-
             searchFileExecutor.getFileInfo(source, payload, true);
             if (payload.get(Constants.SUCCESS) != null && payload.get(Constants.SUCCESS).equals(Boolean.TRUE)) {
                 if (payload.get(Constants.IS_SOURCE_FILE_EXIST) != null && payload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
@@ -78,7 +73,11 @@ public class FileTransferService {
                     String updatedTarget = searchFileExecutor.getUpdatedFilePath(targetDriveIdPath);
                     searchFileExecutor.setPayloadIfInitialPathValidOrNot(updatedTarget, targetPayload, null, null);
                     String targetDriveId = targetPayload.get(Constants.DRIVE_ID) != null ? targetPayload.get(Constants.DRIVE_ID).toString() : null;
-
+                    if(targetDriveId == null){
+                        payload.put(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_TARGET_PATH);
+                        payload.put(Constants.SUCCESS,false);
+                        return payload;
+                    }
                     if (createFolder) {
                         createFolderInPath(targetDriveId, targetRelativeFilePath);
                     }
@@ -105,10 +104,6 @@ public class FileTransferService {
         return payload;
     }
 
-    private boolean validatePath(String path) {
-        return path == null || !FileUtil.hasFileExtension(path);
-    }
-
     /**
      * Moves a file from the source path to the target path, handling path validation, file existence checks, target folder validation, and potential errors.
      *
@@ -121,9 +116,11 @@ public class FileTransferService {
             if (payload.get(Constants.SUCCESS) != null && payload.get(Constants.SUCCESS).equals(Boolean.TRUE)) {
                 if (payload.get(Constants.IS_SOURCE_FILE_EXIST) != null && payload.get(Constants.IS_SOURCE_FILE_EXIST).equals(Boolean.TRUE)) {
                     DriveItem sourceDriveItem = (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM);
-                    searchFileExecutor.getFileInfo(target, payload, false);
-                    if (payload.get(Constants.IS_TARGET_FILE_EXIST) != null && payload.get(Constants.IS_TARGET_FILE_EXIST).equals(Boolean.TRUE)) {
-                        DriveItem targetDriveItem = (DriveItem) payload.get(Constants.TARGET_DRIVE_ITEM);
+                    Map<String, Object> targetPayload = new HashMap<>();
+                    searchFileExecutor.getFileInfo(target, targetPayload, false);
+                    if (targetPayload.get(Constants.IS_TARGET_FILE_EXIST) != null && targetPayload.get(Constants.IS_TARGET_FILE_EXIST).equals(Boolean.TRUE)) {
+                        DriveItem targetDriveItem = (DriveItem) targetPayload.get(Constants.TARGET_DRIVE_ITEM);
+                        payload.put(Constants.TARGET_ROOT_PATH,targetPayload.get(Constants.TARGET_ROOT_PATH));
                         executeMove(sourceDriveItem, targetDriveItem, payload);
                         return payload;
 
