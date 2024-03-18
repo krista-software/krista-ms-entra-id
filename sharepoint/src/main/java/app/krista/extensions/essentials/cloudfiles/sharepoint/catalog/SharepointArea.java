@@ -62,7 +62,7 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(useEmail,accountID);
+        validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSharedPermission(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -107,7 +107,7 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(useEmail,accountID);
+        validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSearchByMail(email, user, useEmail, accountID);
             try {
@@ -135,7 +135,7 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(useEmail,accountID);
+        validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getFileBySizeRange(fromSize, toSize, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
@@ -157,7 +157,7 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(useEmail,accountID);
+        validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getFileByDateRange(modificationDateRange, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
@@ -167,15 +167,10 @@ public class SharepointArea {
 
     /**
      Validates the refresh token.
-     @param useEmail A boolean indicating whether the email is to be used.
      @param accountID The account identifier.
      @throws MustAuthorizeException If refresh token is null then it will throw MustAuthorize Exception.
      */
-    private void validateRefreshToken(boolean useEmail, String accountID) {
-        boolean invokeAsUser = requestContext.invokeAsUser();
-
-        if (invokeAsUser) {
-            provider.getUserRequestBuilder(useEmail, accountID);
-        }
+    private void validateRefreshToken(String accountID) {
+        provider.getUserRequestBuilder(false, accountID);
     }
 }

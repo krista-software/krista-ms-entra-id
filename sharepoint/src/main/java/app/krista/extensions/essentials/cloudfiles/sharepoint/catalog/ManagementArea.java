@@ -118,7 +118,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(useEmail, accountID);
+        validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getInfo(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -192,7 +192,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(useEmail, accountID);
+        validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFileByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -213,7 +213,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(useEmail, accountID);
+        validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFoldersByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -378,16 +378,11 @@ public class ManagementArea {
 
     /**
      Validates the refresh token.
-     @param useEmail A boolean indicating whether the email is to be used.
      @param accountID The account identifier.
      @throws MustAuthorizeException If refresh token is null then it will throw MustAuthorize Exception.
      */
-    private void validateRefreshToken(boolean useEmail, String accountID) {
-        boolean invokeAsUser = requestContext.invokeAsUser();
-
-        if (invokeAsUser) {
-            provider.getUserRequestBuilder(useEmail, accountID);
-        }
+    private void validateRefreshToken(String accountID) {
+        provider.getUserRequestBuilder(false, accountID);
     }
 
 
