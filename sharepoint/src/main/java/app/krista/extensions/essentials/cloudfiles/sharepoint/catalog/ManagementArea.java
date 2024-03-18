@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog;
 
+import app.krista.extension.authorization.MustAuthorizeException;
 import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
@@ -117,11 +118,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        boolean invokeAsUser = requestContext.invokeAsUser();
-
-        if (invokeAsUser) {
-            provider.getUserRequestBuilder(useEmail, accountID);
-        }
+        validateRefreshToken(useEmail, accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getInfo(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -195,11 +192,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        boolean invokeAsUser = requestContext.invokeAsUser();
-
-        if (invokeAsUser) {
-            provider.getUserRequestBuilder(useEmail, accountID);
-        }
+        validateRefreshToken(useEmail, accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFileByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -220,17 +213,14 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        boolean invokeAsUser = requestContext.invokeAsUser();
-
-        if (invokeAsUser) {
-            provider.getUserRequestBuilder(useEmail, accountID);
-        }
+        validateRefreshToken(useEmail, accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFoldersByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
     }
+
 
 
     @CatalogRequest(
@@ -385,5 +375,20 @@ public class ManagementArea {
         }
         return search == null;
     }
+
+    /**
+     Validates the refresh token.
+     @param useEmail A boolean indicating whether the email is to be used.
+     @param accountID The account identifier.
+     @throws MustAuthorizeException If refresh token is null then it will throw MustAuthorize Exception.
+     */
+    private void validateRefreshToken(boolean useEmail, String accountID) {
+        boolean invokeAsUser = requestContext.invokeAsUser();
+
+        if (invokeAsUser) {
+            provider.getUserRequestBuilder(useEmail, accountID);
+        }
+    }
+
 
 }
