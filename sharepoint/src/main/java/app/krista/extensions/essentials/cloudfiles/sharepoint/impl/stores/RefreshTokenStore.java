@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores;
 
-import app.krista.extension.authorization.MustAuthorizeException;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.util.KeyValueStore;
 import org.jvnet.hk2.annotations.Service;
@@ -12,12 +11,9 @@ public final class RefreshTokenStore {
 
     private final KeyValueStore keyValueStore;
 
-    private final GraphServiceClientProvider provider;
-
     @Inject
-    public RefreshTokenStore(KeyValueStore keyValueStore, GraphServiceClientProvider provider) {
+    public RefreshTokenStore(KeyValueStore keyValueStore) {
         this.keyValueStore = keyValueStore;
-        this.provider = provider;
     }
 
     public void put(String key, String refToken) {
@@ -30,15 +26,6 @@ public final class RefreshTokenStore {
 
     public void remove(String key) {
         keyValueStore.remove(key);
-    }
-
-    /**
-     Validates the refresh token.
-     @param accountID The account identifier.
-     @throws MustAuthorizeException If refresh token is null then it will throw MustAuthorize Exception.
-     */
-    public void validateRefreshToken(String accountID) {
-        provider.getUserRequestBuilder(false, accountID);
     }
 
 }

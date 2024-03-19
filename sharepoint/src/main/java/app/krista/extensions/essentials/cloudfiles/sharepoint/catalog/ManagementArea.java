@@ -35,19 +35,17 @@ public class ManagementArea {
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
     private final GraphServiceClientProvider provider;
-    private final RefreshTokenStore refreshTokenStore;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public ManagementArea(EventHandler eventHandler,
                           ManagementDaoImpl managementDao, RequestContext requestContext,
-                          AuthorizationContext authorizationContext, GraphServiceClientProvider provider, RefreshTokenStore refreshTokenStore) {
+                          AuthorizationContext authorizationContext, GraphServiceClientProvider provider) {
         this.eventHandler = eventHandler;
         this.managementDao = managementDao;
         this.requestContext = requestContext;
         this.authorizationContext = authorizationContext;
         this.provider = provider;
-        this.refreshTokenStore = refreshTokenStore;
     }
 
     @CatalogRequest(
@@ -120,7 +118,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        refreshTokenStore.validateRefreshToken(accountID);
+        provider.validateToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getInfo(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -194,7 +192,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        refreshTokenStore.validateRefreshToken(accountID);
+        provider.validateToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFileByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -215,7 +213,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        refreshTokenStore.validateRefreshToken(accountID);
+        provider.validateToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFoldersByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
