@@ -74,6 +74,15 @@ public class GraphServiceClientProvider {
         return getGraphServiceClient(true, null);
     }
 
+    /**
+     Validates the refresh token.
+     @param accountId The account identifier.
+     @throws MustAuthorizeException If refresh token is null then it will throw MustAuthorize Exception.
+     */
+    public void validateToken(String accountId) {
+        getGraphServiceClient(false, accountId);
+    }
+
     private GraphServiceClient<Request> getGraphServiceClient(boolean useEmail, String accountID) {
         try {
             String userId = getUserId(useEmail, accountID);

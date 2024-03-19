@@ -5,6 +5,7 @@ import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.ManagementDaoImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
@@ -32,16 +33,18 @@ public class ManagementArea {
     private final ManagementDaoImpl managementDao;
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
+    private final GraphServiceClientProvider provider;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public ManagementArea(EventHandler eventHandler,
                           ManagementDaoImpl managementDao, RequestContext requestContext,
-                          AuthorizationContext authorizationContext) {
+                          AuthorizationContext authorizationContext, GraphServiceClientProvider provider) {
         this.eventHandler = eventHandler;
         this.managementDao = managementDao;
         this.requestContext = requestContext;
         this.authorizationContext = authorizationContext;
+        this.provider = provider;
     }
 
     @CatalogRequest(
@@ -114,6 +117,9 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getInfo(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -187,6 +193,9 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFileByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -207,6 +216,9 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFoldersByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -367,5 +379,6 @@ public class ManagementArea {
         }
         return search == null;
     }
+
 
 }
