@@ -62,7 +62,9 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        provider.validateToken(accountID);
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSharedPermission(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -107,7 +109,9 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        provider.validateToken(accountID);
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSearchByMail(email, user, useEmail, accountID);
             try {
@@ -135,7 +139,9 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        provider.validateToken(accountID);
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getFileBySizeRange(fromSize, toSize, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
@@ -157,7 +163,9 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        provider.validateToken(accountID);
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getFileByDateRange(modificationDateRange, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
