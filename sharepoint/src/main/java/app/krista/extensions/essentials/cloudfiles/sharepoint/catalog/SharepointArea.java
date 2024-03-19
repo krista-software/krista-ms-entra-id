@@ -7,6 +7,7 @@ import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.SharepointAreaImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.RefreshTokenStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.util.EventHandler;
@@ -35,18 +36,20 @@ public class SharepointArea {
     private final AuthorizationContext authorizationContext;
     private final FileDao fileDaoImpl;
     private final GraphServiceClientProvider provider;
+    private final RefreshTokenStore refreshTokenStore;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 
     @Inject
     public SharepointArea(SharepointAreaImpl sharepointAreaImpl, EventHandler eventHandler,
-                          RequestContext requestContext, AuthorizationContext authorizationContext, FileDao fileDaoImpl, GraphServiceClientProvider provider) {
+                          RequestContext requestContext, AuthorizationContext authorizationContext, FileDao fileDaoImpl, GraphServiceClientProvider provider, RefreshTokenStore refreshTokenStore) {
         this.sharepointAreaImpl = sharepointAreaImpl;
         this.eventHandler = eventHandler;
         this.requestContext = requestContext;
         this.authorizationContext = authorizationContext;
         this.fileDaoImpl = fileDaoImpl;
         this.provider = provider;
+        this.refreshTokenStore = refreshTokenStore;
     }
 
     @CatalogRequest(
@@ -62,7 +65,7 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(accountID);
+        refreshTokenStore.validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSharedPermission(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -107,7 +110,7 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(accountID);
+        refreshTokenStore.validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSearchByMail(email, user, useEmail, accountID);
             try {
@@ -135,7 +138,7 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(accountID);
+        refreshTokenStore.validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getFileBySizeRange(fromSize, toSize, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
@@ -157,7 +160,7 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(accountID);
+        refreshTokenStore.validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getFileByDateRange(modificationDateRange, useEmail, accountID, page, size);
             eventHandler.handleEvent(taskId, freeForm);
@@ -165,12 +168,4 @@ public class SharepointArea {
         return taskId;
     }
 
-    /**
-     Validates the refresh token.
-     @param accountID The account identifier.
-     @throws MustAuthorizeException If refresh token is null then it will throw MustAuthorize Exception.
-     */
-    private void validateRefreshToken(String accountID) {
-        provider.getUserRequestBuilder(false, accountID);
-    }
 }

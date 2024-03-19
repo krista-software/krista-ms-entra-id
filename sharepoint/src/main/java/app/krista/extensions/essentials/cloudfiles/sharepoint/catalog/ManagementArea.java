@@ -1,12 +1,12 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog;
 
-import app.krista.extension.authorization.MustAuthorizeException;
 import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.ManagementDaoImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.RefreshTokenStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
@@ -35,17 +35,19 @@ public class ManagementArea {
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
     private final GraphServiceClientProvider provider;
+    private final RefreshTokenStore refreshTokenStore;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public ManagementArea(EventHandler eventHandler,
                           ManagementDaoImpl managementDao, RequestContext requestContext,
-                          AuthorizationContext authorizationContext, GraphServiceClientProvider provider) {
+                          AuthorizationContext authorizationContext, GraphServiceClientProvider provider, RefreshTokenStore refreshTokenStore) {
         this.eventHandler = eventHandler;
         this.managementDao = managementDao;
         this.requestContext = requestContext;
         this.authorizationContext = authorizationContext;
         this.provider = provider;
+        this.refreshTokenStore = refreshTokenStore;
     }
 
     @CatalogRequest(
@@ -118,7 +120,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(accountID);
+        refreshTokenStore.validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getInfo(sourcePath, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -192,7 +194,7 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(accountID);
+        refreshTokenStore.validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFileByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
@@ -213,14 +215,13 @@ public class ManagementArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
-        validateRefreshToken(accountID);
+        refreshTokenStore.validateRefreshToken(accountID);
         executorService.submit(() -> {
             FreeForm freeForm = managementDao.getFoldersByPath(sourcePath, FileUtil.validateTextInput(search), useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;
     }
-
 
 
     @CatalogRequest(
@@ -374,15 +375,6 @@ public class ManagementArea {
             return true;
         }
         return search == null;
-    }
-
-    /**
-     Validates the refresh token.
-     @param accountID The account identifier.
-     @throws MustAuthorizeException If refresh token is null then it will throw MustAuthorize Exception.
-     */
-    private void validateRefreshToken(String accountID) {
-        provider.getUserRequestBuilder(false, accountID);
     }
 
 
