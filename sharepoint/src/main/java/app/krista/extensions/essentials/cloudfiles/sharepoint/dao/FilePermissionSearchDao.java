@@ -14,6 +14,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
+import com.microsoft.graph.requests.DriveItemCollectionPage;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
@@ -154,10 +155,10 @@ public class FilePermissionSearchDao {
 
     private List<FileService> fetchFiles(String permission, boolean useEmail, String accountID, DriveItem driveItem, Map<String, Object> mapPayLoad) {
         List<FileService> files = new ArrayList<>();
-        DriveItemDeltaCollectionPage page = clientProvider.getUserRequestBuilder(useEmail, accountID)
+        DriveItemCollectionPage page = clientProvider.getUserRequestBuilder(useEmail, accountID)
                 .drives(driveItem.parentReference.driveId)
                 .items(driveItem.id)
-                .delta()
+                .children()
                 .buildRequest()
                 .get();
         String sitePath = mapPayLoad.get(Constants.SOURCE_ROOT_PATH).toString();
