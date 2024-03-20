@@ -185,6 +185,9 @@ public class SharepointArea {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
         executorService.submit(() -> {
             FreeForm freeForm = sharepointAreaImpl.getSearchByPermission(siteName,permission, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);

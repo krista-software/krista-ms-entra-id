@@ -76,7 +76,6 @@ public class FilePermissionSearchDao {
         return payload;
     }
 
-
     private SearchEntityQueryCollectionPage getSearchResult(GraphServiceClient<Request> graphClient, int from, int size) {
         List<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath(from, size);
         return fileSearchImpl.buildSearchQuery(graphClient, requestsList);

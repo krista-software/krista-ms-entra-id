@@ -55,7 +55,6 @@ public class SearchFileExecutor {
         }
     }
 
-
     public void getFileInfo(String path, Map<String, Object> payload, boolean isSourcePath) {
         getFileInfo(path, payload, isSourcePath, null, null);
     }
