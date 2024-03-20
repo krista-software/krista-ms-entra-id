@@ -62,7 +62,7 @@ public class GraphServiceClientProvider {
         return getRestClient(driveId, !requestContext.invokeAsUser());
     }
 
-    public GraphServiceClient<Request> getGraphServiceClientForUser(Boolean useEmail, String accountID) throws IOException {
+    public GraphServiceClient<Request> getGraphServiceClientForUser(Boolean useEmail, String accountID) {
         if (useEmail != null) {
             return getGraphServiceClient(useEmail, useEmail ? null : accountID);
         } else {
@@ -185,14 +185,10 @@ public class GraphServiceClientProvider {
      * @throws IllegalStateException If a user context is required but not available.
      */
     public GraphServiceClient<Request> getUserRequestBuilder(Boolean useEmail, String accountID) {
-        try {
-            if (useEmail != null) {
-                return getGraphServiceClientForUser(useEmail, accountID);
-            }
-            return getGraphServiceClientForUser(null, null);
-        } catch (IOException cause) {
-            throw new IllegalStateException(cause);
+        if (useEmail != null) {
+            return getGraphServiceClientForUser(useEmail, accountID);
         }
+        return getGraphServiceClientForUser(null, null);
     }
 
 
