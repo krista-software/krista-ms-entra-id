@@ -177,7 +177,7 @@ public class FilePermissionSearchDao {
     }
 
     private void handleException(Exception cause, FreeForm payload) {
-        LOGGER.info(cause.getMessage(), cause);
+        LOGGER.error(cause.getMessage(), cause);
         ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
                 .contains(Constants.ITEM_NOT_FOUND)
                 ? Constants.FILE_NOT_FOUND
