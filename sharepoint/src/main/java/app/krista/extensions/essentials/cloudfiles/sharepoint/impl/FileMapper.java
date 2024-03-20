@@ -57,9 +57,8 @@ public class FileMapper implements FileService {
         if (driveItem.createdBy != null) {
             assert driveItem.createdBy.user != null;
             return driveItem.createdBy.user.displayName;
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -101,18 +100,18 @@ public class FileMapper implements FileService {
 
     @Override
     public String getCreatedBy() {
-        if (driveItem.createdBy == null) {
+        if (driveItem.createdBy == null ||  driveItem.createdBy.user == null) {
             return null;
         }
-        return driveItem.createdBy.user != null ? driveItem.createdBy.user.displayName : null;
+        return driveItem.createdBy.user.displayName;
     }
 
     @Override
     public String getModifiedBy() {
-        if (driveItem.lastModifiedBy == null) {
+        if (driveItem.lastModifiedBy == null ||  driveItem.lastModifiedBy.user == null) {
             return null;
         }
-        return driveItem.lastModifiedBy.user != null ? driveItem.lastModifiedBy.user.displayName : null;
+        return  driveItem.lastModifiedBy.user.displayName;
     }
 
 
