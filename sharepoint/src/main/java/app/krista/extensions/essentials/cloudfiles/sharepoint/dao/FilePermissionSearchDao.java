@@ -14,7 +14,6 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.DriveItemCollectionPage;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
@@ -137,46 +136,53 @@ public class FilePermissionSearchDao {
     public FreeForm fetchFilesWithPermissions(String permission, boolean useEmail, String accountID, DriveItem driveItem, Map<String, Object> mapPayLoad, FreeForm payload) {
         try {
             List<FileService> files = new ArrayList<>();
-            boolean unUsedPermission = permission.equalsIgnoreCase(Constants.READ_AND_WRITE);
-            if (!unUsedPermission) {
-
-                DriveItemDeltaCollectionPage page = clientProvider.getUserRequestBuilder(useEmail, accountID)
-                        .drives(driveItem.parentReference.driveId).
-                        items(driveItem.id).delta().buildRequest().get();
-
-                String sitePath = mapPayLoad.get(Constants.SOURCE_ROOT_PATH).toString();
-
-                while (page != null && !page.getCurrentPage().isEmpty()) {
-                    for (DriveItem driveInPage : page.getCurrentPage()) {
-                        if (driveInPage.name != null && !driveInPage.name.equals("root")) {
-                            iterateDriveItemWithPermission(permission, driveInPage, useEmail, accountID, files, sitePath);
-                        }
-                    }
-                    if (page.getNextPage() != null) {
-                        page = page.getNextPage().buildRequest().get();
-                    } else {
-                        ResponseUtil.listOfFileEntityResponse(files.stream()
-                                .map(File::fromFile)
-                                .collect(Collectors.toList()), true, "File With [ " + permission + " ] permission Fetched Successfully", payload);
-                        break;
-                    }
-                }
-
-                return payload;
+            boolean unusedPermission = permission.equalsIgnoreCase(Constants.READ_AND_WRITE);
+            if (!unusedPermission) {
+                files = fetchFiles(permission, useEmail, accountID, driveItem, mapPayLoad);
+                ResponseUtil.listOfFileEntityResponse(files.stream()
+                        .map(File::fromFile)
+                        .collect(Collectors.toList()), true, "File With [ " + permission + " ] permission Fetched Successfully", payload);
             } else {
                 ResponseUtil.listOfFileEntityResponse(files.stream()
                         .map(File::fromFile)
                         .collect(Collectors.toList()), false, "Permission [ " + permission + " ] is Not Supported in Sharepoint", payload);
-                return payload;
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
-            ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
-                    .contains(Constants.ITEM_NOT_FOUND)
-                    ? Constants.FILE_NOT_FOUND
-                    : Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH, payload);
+            handleException(cause, payload);
         }
         return payload;
+    }
+
+    private List<FileService> fetchFiles(String permission, boolean useEmail, String accountID, DriveItem driveItem, Map<String, Object> mapPayLoad) {
+        List<FileService> files = new ArrayList<>();
+        DriveItemDeltaCollectionPage page = clientProvider.getUserRequestBuilder(useEmail, accountID)
+                .drives(driveItem.parentReference.driveId)
+                .items(driveItem.id)
+                .delta()
+                .buildRequest()
+                .get();
+        String sitePath = mapPayLoad.get(Constants.SOURCE_ROOT_PATH).toString();
+        while (page != null && !page.getCurrentPage().isEmpty()) {
+            for (DriveItem driveInPage : page.getCurrentPage()) {
+                if (driveInPage.name != null && !driveInPage.name.equals("root")) {
+                    iterateDriveItemWithPermission(permission, driveInPage, useEmail, accountID, files, sitePath);
+                }
+            }
+            if (page.getNextPage() != null) {
+                page = page.getNextPage().buildRequest().get();
+            } else {
+                break;
+            }
+        }
+        return files;
+    }
+
+    private void handleException(Exception cause, FreeForm payload) {
+        LOGGER.info(cause.getMessage(), cause);
+        ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
+                .contains(Constants.ITEM_NOT_FOUND)
+                ? Constants.FILE_NOT_FOUND
+                : Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH, payload);
     }
 
 
