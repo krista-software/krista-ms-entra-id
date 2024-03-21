@@ -1,13 +1,13 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores.search.FileEntitySearchMapper;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.DriveItemCollectionPage;
@@ -19,9 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Service class for constructing Microsoft Graph API search queries and performing file searches.
@@ -43,53 +44,12 @@ public class FileSearchImpl {
 
 
     @Inject
-    public FileSearchImpl(GraphServiceClientProviderFactory factory, SharePointAttributes sharePointAttributes,
+    public FileSearchImpl(SharePointAttributes sharePointAttributes, GraphServiceClientProviderFactory factory,
                           GraphServiceClientProviderFactory clientProviderFactory, FileSearchUtilityService fileSearchUtilityService) {
         this.clientProvider = factory.create();
         this.sharePointAttributes = sharePointAttributes;
         this.clientProviderFactory = clientProviderFactory;
         this.fileSearchUtilityService = fileSearchUtilityService;
-    }
-
-    public List<SearchRequest> buildSearchRequestList(String filePath) {
-        LinkedList<SearchRequest> requestsList = new LinkedList<>();
-        SearchRequest requests = buildSearchRequest();
-        buildSearchRequestForRest(filePath, requests);
-        requestsList.add(requests);
-        return requestsList;
-    }
-
-    public SearchQuery buildQueryString(String name, String selector) {
-        SearchQuery query = new SearchQuery();
-        String domainName = getDomainName();
-        String personalDrivePath = getDomainPath(domainName, false);
-
-        if ("Extension".equals(selector)) {
-            query.queryString = "isDocument=true AND filetype:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        } else if ("Owner".equals(selector)) {
-            query.queryString = "CreatedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        } else if ("Absolute Path".equals(selector)) {
-            String siteDomainPath = getDomainPath(domainName, true);
-            name = handleAbsolutePath(name, siteDomainPath);
-            query.queryString = "path:\"" + name + "\"";
-        } else if ("Created By".equals(selector)) {
-            query.queryString = "CreatedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        } else if ("Modified By".equals(selector)) {
-            query.queryString = "ModifiedBy:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        } else if ("Created".equals(selector)) {
-            name = DriveUtil.doubleToDateConversion(name);
-            query.queryString = "Created = " + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        } else if ("Modified".equals(selector)) {
-            name = DriveUtil.doubleToDateConversion(name);
-            query.queryString = "LastModifiedTime = " + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        } else if ("Name".equals(selector) || "Base Name".equalsIgnoreCase(selector)) {
-            query.queryString = "isDocument=true AND fileName:" + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        } else if ("Size".equalsIgnoreCase(selector)) {
-            query.queryString = "isDocument=true AND Size >= 1 Size <= " + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        } else {
-            query.queryString = "isDocument=true AND " + name + " AND NOT path:\"" + personalDrivePath + "\"";
-        }
-        return query;
     }
 
     public String handleAbsolutePath(String name, String siteDomainPath) {
@@ -115,25 +75,8 @@ public class FileSearchImpl {
 
     public SearchRequest buildSearchRequest() {
         SearchRequest requests = new SearchRequest();
-        requests.entityTypes = Arrays.asList(EntityType.LIST, EntityType.LIST_ITEM,
-                EntityType.DRIVE, EntityType.DRIVE_ITEM);
-
-        // Fill in the rest of the request setup logic
-        LinkedList<SortProperty> sortProperties = new LinkedList<>();
-        SortProperty sort = new SortProperty();
-        sort.name = "LastModifiedTime";
-        sort.isDescending = false;
-        sortProperties.add(sort);
-        requests.sortProperties = sortProperties;
+        requests.entityTypes = List.of(EntityType.DRIVE_ITEM);
         return requests;
-    }
-
-    public void buildSearchRequestForRest(String filePath, SearchRequest requests) {
-        SearchQuery query = new SearchQuery();
-        query.queryString = "path:\"" + filePath + "\"";
-        requests.query = query;
-        requests.from = 0;
-        requests.size = 25;
     }
 
     public SearchEntityQueryCollectionPage buildSearchQuery(GraphServiceClient<Request> graphClient, List<SearchRequest> requestsList) {
@@ -144,56 +87,43 @@ public class FileSearchImpl {
                 .post();
     }
 
-    public void extractDriveFromSearchResults(List<DriveImpl> files, SearchEntityQueryCollectionPage page) {
-        page.getCurrentPage().stream()
-                .filter(driveInPage -> driveInPage.hitsContainers != null)
-                .flatMap(driveInPage -> driveInPage.hitsContainers.stream())
-                .filter(hitContainer -> hitContainer.hits != null)
-                .flatMap(hitContainer -> hitContainer.hits.stream())
-                .filter(hits -> hits != null && hits.resource instanceof DriveItem)
-                .map(hits -> (DriveItem) hits.resource)
-                .filter(driveItem -> driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/"))
-                .forEach(driveItem -> files.add(new DriveImpl(driveItem, null, clientProvider)));
+    public void extractDriveFromSearchResults(List<FileService> files, SearchEntityQueryCollectionPage page, Map<String, Boolean> moreResult, int pageSize) {
+        try {
+            page.getCurrentPage().stream()
+                    .filter(driveInPage -> driveInPage.hitsContainers != null)
+                    .flatMap(driveInPage -> driveInPage.hitsContainers.stream())
+                    .forEach(hitContainer -> {
+                        if (hitContainer.hits != null) {
+                            if (iterateSearchHits(files, moreResult, pageSize, hitContainer)) return;
+                        } else {
+                            moreResult.put(Constants.MORE_RESULT_AVAILABLE, Boolean.FALSE);
+                        }
+                    });
+        } catch (RuntimeException cause) {
+            LOGGER.error("Search Error : {}", cause.getMessage());
+        }
     }
 
-
-    public void extractDrivePermissionsFromSearchResults(List<DrivePermissionImpl> resultPage, SearchEntityQueryCollectionPage page,
-                                                         String filePath, GraphServiceClient<Request> graphClient) {
-        page.getCurrentPage().forEach(driveInPage -> {
-            if (driveInPage.hitsContainers != null) {
-                driveInPage.hitsContainers.forEach(hitContainer -> {
-                    if (hitContainer.hits != null) {
-                        hitContainer.hits.stream()
-                                .filter(hits -> hits != null && hits.resource instanceof DriveItem)
-                                .map(hits -> (DriveItem) hits.resource)
-                                .filter(driveItem -> driveItem.webUrl != null && driveItem.webUrl.equals(filePath))
-                                .findFirst()
-                                .ifPresent(driveItem ->
-                                        resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null))
-                                );
+    private boolean iterateSearchHits(List<FileService> files, Map<String, Boolean> moreResult, int pageSize, SearchHitsContainer hitContainer) {
+        Set<String> fileIdSet = new HashSet<>();
+        for (SearchHit hits : hitContainer.hits) {
+            if (hits != null && hits.resource instanceof DriveItem) {
+                DriveItem driveItem = (DriveItem) hits.resource;
+                if (driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/") && (!fileIdSet.contains(driveItem.id))) {
+                    fileIdSet.add(driveItem.id);
+                    if (files.size() == pageSize) {
+                        return true;
                     }
-                });
+                    files.add(new FileEntitySearchMapper(driveItem, null, getUserRequestBuilder()));
+                }
             }
-        });
+        }
+        if (files.size() < pageSize && Boolean.FALSE.equals(hitContainer.moreResultsAvailable)) {
+            moreResult.put(Constants.MORE_RESULT_AVAILABLE, Boolean.FALSE);
+            return true;
+        }
+        return false;
     }
-
-
-    public DriveItem findDriveItemByFilePath(SearchEntityQueryCollectionPage page, String filePath, DriveItem driveItem, boolean rootFolder) {
-        return page.getCurrentPage().stream()
-                .filter(driveInPage -> driveInPage.hitsContainers != null)
-                .flatMap(driveInPage -> driveInPage.hitsContainers.stream())
-                .filter(hitContainer -> hitContainer.hits != null)
-                .flatMap(hitContainer -> hitContainer.hits.stream())
-                .filter(hits -> hits != null && hits.resource instanceof DriveItem)
-                .map(hits -> (DriveItem) hits.resource)
-                .filter(drive -> {
-                    assert drive.parentReference != null;
-                    return drive.webUrl != null && ((drive.webUrl.equals(filePath) && !rootFolder) || (drive.webUrl.contains(filePath) && rootFolder));
-                })
-                .findFirst()
-                .orElse(driveItem);
-    }
-
 
     public String getDomainName() {
         String domainName = null;
@@ -253,6 +183,10 @@ public class FileSearchImpl {
         } catch (IllegalStateException cause) {
             LOGGER.error("Error processing DriveItem: {}", cause.getMessage());
         }
+    }
+
+    private GraphServiceClient<Request> getUserRequestBuilder() {
+        return clientProvider.getUserRequestBuilder(null, null);
     }
 
 }

@@ -1,18 +1,26 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl;
 
+import app.krista.extension.executor.SearchCondition;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores.search.FileEntitySearchMapper;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores.search.strategy.CustomFilterStrategy;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FilePermissionService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.FileSearchImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SearchFileExecutor;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileDao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import com.google.gson.JsonPrimitive;
 import com.microsoft.graph.http.GraphServiceException;
+import com.microsoft.graph.models.DriveItem;
+import com.microsoft.graph.models.SearchQuery;
 import com.microsoft.graph.models.SearchRequest;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.PermissionCollectionPage;
 import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
 import okhttp3.Request;
+import org.jetbrains.annotations.NotNull;
 import org.jvnet.hk2.annotations.ContractsProvided;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -32,14 +40,15 @@ import java.util.*;
 public class FileDaoImpl implements FileDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileDaoImpl.class);
-    private static List<DriveImpl> cachedFiles = new ArrayList<>();
     private final GraphServiceClientProvider clientProvider;
     private final FileSearchImpl fileSearchImpl;
+    private final SearchFileExecutor searchFileExecutor;
 
     @Inject
-    public FileDaoImpl(GraphServiceClientProviderFactory clientProviderFactory, FileSearchImpl fileSearchImpl) {
+    public FileDaoImpl(GraphServiceClientProviderFactory clientProviderFactory, FileSearchImpl fileSearchImpl, SearchFileExecutor searchFileExecutor) {
         this.clientProvider = clientProviderFactory.create();
         this.fileSearchImpl = fileSearchImpl;
+        this.searchFileExecutor = searchFileExecutor;
     }
 
     /**
@@ -59,42 +68,6 @@ public class FileDaoImpl implements FileDao {
     }
 
     /**
-     * Retrieves a file by its absolute path using Microsoft Graph search.
-     *
-     * @param filePath The absolute path of the file to retrieve.
-     * @return The {@link FileService} object representing the found file, or null if not found.
-     * @throws IllegalArgumentException If the file path is null or an error occurs during the search.
-     */
-    @Override
-    public FileService getFileByAbsolutePath(String filePath) {
-        LOGGER.info("Searching for files with filePath: {}", filePath);
-        if (filePath != null) {
-            filePath = filePath.replace(Constants.WHITE_SPACE, " ");
-            List<DrivePermissionImpl> resultPage = new ArrayList<>();  // Initialize the result page
-            try {
-                GraphServiceClient<Request> graphClient = clientProvider.
-                        getUserRequestBuilder(null, null);
-                List<SearchRequest> requestsList = fileSearchImpl.buildSearchRequestList(filePath);
-                SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
-
-                if (page != null && !page.getCurrentPage().isEmpty()) {
-                    fileSearchImpl.extractDrivePermissionsFromSearchResults(resultPage, page, filePath, graphClient);
-                }
-                if (!resultPage.isEmpty()) {
-                    return resultPage.get(0);
-                } else {
-                    return null;
-                }
-            } catch (GraphServiceException | IllegalArgumentException cause) {
-                LOGGER.error("Error during file search: {}", cause.getMessage(), cause);
-                throw new IllegalArgumentException(cause.getMessage(), cause);
-            }
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Retrieves a page of files filtered by name, selector, and pagination parameters.
      * Caches results for efficient retrieval of subsequent pages.
      *
@@ -106,47 +79,92 @@ public class FileDaoImpl implements FileDao {
      * @throws IllegalArgumentException If an invalid selector is provided.
      */
     @Override
-    public List<DriveImpl> getFilesByFilter(String name, String selector, long pageIndex, int pageSize) {
+    public List<FileService> getFilesByFilter(List<SearchCondition> conditions, String name, String selector, long pageIndex, int pageSize) {
         LOGGER.info("Searching for files with name: {}, selector: {}, page: {}, page size: {}", name, selector, pageIndex, pageSize);
         try {
-            GraphServiceClient<Request> graphClient = clientProvider.getUserRequestBuilder(null, null);
-
-            // Fetch more data if the cached data doesn't cover the full requested page
-            if (cachedFiles.size() < (pageIndex - 1) * pageSize + pageSize) {
-                int totalFetched = cachedFiles.size();  // Start from the current cached count
-                while (totalFetched < (pageIndex - 1) * pageSize + pageSize && cachedFiles.size() < totalFetched + 25) {
-                    LinkedList<SearchRequest> requestsList = new LinkedList<>();
-                    SearchRequest requests = fileSearchImpl.buildSearchRequest();
-                    requests.query = fileSearchImpl.buildQueryString(name, selector);
-                    requests.from = ((int) pageIndex - 1) * pageSize;  // Start from 0 for the first page, 10 for the second, and so on
-                    requests.size = Math.min(25, pageSize - cachedFiles.size() % pageSize);  // Adjust for partial page
-
-                    requestsList.add(requests);
-
-                    SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
-
-                    if (page != null && !page.getCurrentPage().isEmpty()) {
-                        List<DriveImpl> files = new ArrayList<>();  // Create a new list for each response
-                        fileSearchImpl.extractDriveFromSearchResults(files, page);
-                        cachedFiles.addAll(files);  // Add fetched files to cache
-                    } else {
-                        break;  // No more results available
-                    }
-                    totalFetched += page.getCurrentPage().size();
-                    if (page.getCurrentPage().size() < Math.min(25, pageSize - totalFetched % pageSize)) {
-                        break;
-                    }
-                }
-            }
-
-            // Extract the requested page from the cached results, accounting for partial data
-            int startIndex = (int) ((pageIndex - 1) * pageSize);
-            int endIndex = Math.min(startIndex + pageSize, cachedFiles.size());
-            return cachedFiles.subList(startIndex, endIndex);
+            final List<FileService> newCachedFiles = new ArrayList<>();
+            return getFileServices(conditions, name, selector, pageIndex, pageSize, newCachedFiles);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error("Error during file search: {} {} ", cause.getMessage(), cause);
             return Collections.emptyList();
         }
+    }
+
+    @NotNull
+    private List<FileService> getFileServices(List<SearchCondition> conditions, String name, String selector, long pageIndex, int pageSize, List<FileService> newCachedFiles) {
+        GraphServiceClient<Request> graphClient = getUserRequestBuilder();
+
+        while ((newCachedFiles.size()+((pageIndex - 1) * pageSize)) < (pageIndex - 1) * pageSize + pageSize) {
+
+            LinkedList<SearchRequest> requestsList = new LinkedList<>();
+            prepareRequestList(conditions, name, selector, (int) pageIndex, pageSize, requestsList);
+
+            Map<String ,Boolean> moreResultAvailable = new HashMap<>();
+
+            SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
+            moreResultAvailable.put(Constants.MORE_RESULT_AVAILABLE,Boolean.TRUE);
+            if (page != null && !page.getCurrentPage().isEmpty()) {
+                fileSearchImpl.extractDriveFromSearchResults(newCachedFiles, page, moreResultAvailable, pageSize);
+            } else {
+                break;
+            }
+            boolean iSMoreResultAvailable = moreResultAvailable.get(Constants.MORE_RESULT_AVAILABLE);
+            if(!iSMoreResultAvailable){
+                return newCachedFiles;
+            }
+            if (newCachedFiles.isEmpty() || newCachedFiles.size() < pageSize) {
+                pageIndex++;
+            }
+        }
+        return newCachedFiles;
+    }
+
+    private void prepareRequestList(List<SearchCondition> conditions, String name, String selector, int pageIndex, int pageSize, LinkedList<SearchRequest> requestsList) {
+        SearchRequest requests = fileSearchImpl.buildSearchRequest();
+        requests.query = buildQueryString(conditions, name, selector);
+        requests.from = (pageIndex - 1) * pageSize;
+        requests.size = 50;//(int)pageIndex * pageSize;  // Adjust for partial page
+        JsonPrimitive trimDuplicatesJson = new JsonPrimitive(true);
+        requests.additionalDataManager().put("trimDuplicates", trimDuplicatesJson);
+        requestsList.add(requests);
+    }
+
+    private SearchQuery buildQueryString(List<SearchCondition> conditions, String name, String selector) {
+        String domainName = fileSearchImpl.getDomainName();
+        String siteContoso = "https://" + domainName + ".sharepoint.com";
+        String path = "path:\"" + siteContoso + "\"";
+        SearchQuery query = new SearchQuery();
+        if (conditions != null && !conditions.isEmpty()) {
+            query.queryString = path;
+            for (SearchCondition condition : conditions) {
+                if (CustomFilterStrategy.excludeConditions(condition)) {
+                    continue;
+                }
+                CustomFilterStrategy.prepareSearchQuery(condition, query);
+            }
+        } else {
+            query.queryString = path;
+            if(name.equals(Constants.LOGICAL_NAME)) {
+                query.queryString = (query.queryString + " AND " + Constants.ALL);
+                return query;
+            }
+
+            CustomFilterStrategy.prepareSearchQuery(name, selector, query);
+        }
+        return query;
+    }
+
+    @Override
+    public FileService getFileByAbsolutePath(String path) {
+        Map<String, Object> payload = new HashMap<>();
+        searchFileExecutor.getFileInfo(path, payload, true);
+        String sitePath = payload.containsKey(Constants.SOURCE_ROOT_PATH) ? payload.get(Constants.SOURCE_ROOT_PATH).toString() : null;
+        return new FileEntitySearchMapper(payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null, sitePath, null);
+    }
+
+
+    private GraphServiceClient<Request> getUserRequestBuilder() {
+        return clientProvider.getUserRequestBuilder(null, null);
     }
 
 }

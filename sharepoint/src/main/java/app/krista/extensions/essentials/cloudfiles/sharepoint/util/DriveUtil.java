@@ -120,7 +120,7 @@ public class DriveUtil {
         Date date = new Date((long) inputDouble);
 
         // Format the date as "dd-MM-yyyy"
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
         String formattedDate = dateFormat.format(date);
 
         return formattedDate;

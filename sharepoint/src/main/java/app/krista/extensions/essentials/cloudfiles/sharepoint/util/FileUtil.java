@@ -9,10 +9,8 @@ import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +21,8 @@ import java.util.regex.Pattern;
 public class FileUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
+
+    private static final String DD_MM_YYYY_HH_MM_A = "dd/MM/yyyy, hh:mm a";
 
     private FileUtil() {
     }
@@ -142,6 +142,23 @@ public class FileUtil {
         }
 
         return drivePathBuilder.toString();
+    }
+
+
+    public static boolean isEqualDate(Long entityFieldValue, Long fieldValue) {
+        long epochTime1 = entityFieldValue; // First epoch time
+        long epochTime2 = fieldValue; // Second epoch time
+
+        // Convert epoch times to Date objects
+        Date date1 = new Date(epochTime1);
+        Date date2 = new Date(epochTime2);
+
+        // Format dates to compare only date components (day, month, year)
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DD_MM_YYYY_HH_MM_A);
+
+        String formattedDate1 = dateFormat.format(date1);
+        String formattedDate2 = dateFormat.format(date2);
+        return formattedDate1.equals(formattedDate2);
     }
 
     public static boolean isPathContainsInput(String path, String input) {

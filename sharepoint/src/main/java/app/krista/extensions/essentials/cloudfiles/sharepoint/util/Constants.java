@@ -8,8 +8,49 @@ public class Constants {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    public static final String GTE = "gte";
+
+    public static final String LTE = "lte";
+
+    public static final String GT = "gt";
+
+    public static final String LT = "lt";
+
+    public static final String EQUALS = "equals";
+
+    public static final String STARTSWITH = "startswith";
+
+    public static final String ENDSWITH = "endswith";
+
+    public static final String CONTAINS = "contains";
+
+    public static final String NOTEQUALS = "notequals";
+
+    public static final String MODIFIED = "Modified";
+
+    public static final String NAME = "Name";
+
+    public static final String EXTENSION = "Extension";
+
+    public static final String BASE_NAME = "Base Name";
+
+    public static final String OWNER = "Owner";
+
+    public static final String MORE_RESULT_AVAILABLE = "MoreResultAvailable";
+
+    public static final String PARENT_FOLDER = "Parent Folder";
+
+    public static final String ABSOLUTE_PATH = "Absolute Path";
+
+    public static final String IS_FOLDER = "Is Folder";
+
     public static final String CODE = "code";
 
+
+
+    public static final String ALL = "*";
+
+    public static final String LOGICAL_NAME = "logicalName";
     public static final String STATE = "state";
 
     public static final String INVALID_STATE_PARAMETERS = "Invalid state parameters!";
