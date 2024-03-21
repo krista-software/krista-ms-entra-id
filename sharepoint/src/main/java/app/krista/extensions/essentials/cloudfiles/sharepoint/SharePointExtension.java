@@ -37,7 +37,7 @@ import java.util.Map;
 @Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
 @Field.Text(value = Constants.TENANT_ID, isSecured = true)
 @Field.Text(value = Constants.EMAIL)
-@Extension(version = "2.0.0-rc8")
+@Extension(version = "2.0.1-rc1")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {
 
