@@ -27,7 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Collections;
+import java.util.ArrayList;
 
 /**
  * Implementation of FileDao interface for Microsoft Graph API file operations, including creation, retrieval, and search.
@@ -94,22 +99,22 @@ public class FileDaoImpl implements FileDao {
     private List<FileService> getFileServices(List<SearchCondition> conditions, String name, String selector, long pageIndex, int pageSize, List<FileService> newCachedFiles) {
         GraphServiceClient<Request> graphClient = getUserRequestBuilder();
 
-        while ((newCachedFiles.size()+((pageIndex - 1) * pageSize)) < (pageIndex - 1) * pageSize + pageSize) {
+        SearchRequest requests = fileSearchImpl.buildSearchRequest();
+        requests.query = buildQueryString(conditions, name, selector);
 
-            LinkedList<SearchRequest> requestsList = new LinkedList<>();
-            prepareRequestList(conditions, name, selector, (int) pageIndex, pageSize, requestsList);
-
-            Map<String ,Boolean> moreResultAvailable = new HashMap<>();
+        while ((newCachedFiles.size() + ((pageIndex - 1) * pageSize)) < (pageIndex - 1) * pageSize + pageSize) {
+            LinkedList<SearchRequest> requestsList = prepareRequestList((int) pageIndex, pageSize, requests);
+            Map<String, Boolean> moreResultAvailable = new HashMap<>();
 
             SearchEntityQueryCollectionPage page = fileSearchImpl.buildSearchQuery(graphClient, requestsList);
-            moreResultAvailable.put(Constants.MORE_RESULT_AVAILABLE,Boolean.TRUE);
+            moreResultAvailable.put(Constants.MORE_RESULT_AVAILABLE, Boolean.TRUE);
             if (page != null && !page.getCurrentPage().isEmpty()) {
                 fileSearchImpl.extractDriveFromSearchResults(newCachedFiles, page, moreResultAvailable, pageSize);
             } else {
                 break;
             }
             boolean iSMoreResultAvailable = moreResultAvailable.get(Constants.MORE_RESULT_AVAILABLE);
-            if(!iSMoreResultAvailable){
+            if (!iSMoreResultAvailable) {
                 return newCachedFiles;
             }
             if (newCachedFiles.isEmpty() || newCachedFiles.size() < pageSize) {
@@ -119,14 +124,15 @@ public class FileDaoImpl implements FileDao {
         return newCachedFiles;
     }
 
-    private void prepareRequestList(List<SearchCondition> conditions, String name, String selector, int pageIndex, int pageSize, LinkedList<SearchRequest> requestsList) {
-        SearchRequest requests = fileSearchImpl.buildSearchRequest();
-        requests.query = buildQueryString(conditions, name, selector);
+    private LinkedList<SearchRequest> prepareRequestList(int pageIndex, int pageSize, SearchRequest requests) {
+        LinkedList<SearchRequest> requestsList = new LinkedList<>();
         requests.from = (pageIndex - 1) * pageSize;
-        requests.size = 50;//(int)pageIndex * pageSize;  // Adjust for partial page
+        requests.size = 50;
         JsonPrimitive trimDuplicatesJson = new JsonPrimitive(true);
         requests.additionalDataManager().put("trimDuplicates", trimDuplicatesJson);
         requestsList.add(requests);
+
+        return requestsList;
     }
 
     private SearchQuery buildQueryString(List<SearchCondition> conditions, String name, String selector) {
@@ -144,7 +150,7 @@ public class FileDaoImpl implements FileDao {
             }
         } else {
             query.queryString = path;
-            if(name.equals(Constants.LOGICAL_NAME)) {
+            if (name.equals(Constants.LOGICAL_NAME)) {
                 query.queryString = (query.queryString + " AND " + Constants.ALL);
                 return query;
             }

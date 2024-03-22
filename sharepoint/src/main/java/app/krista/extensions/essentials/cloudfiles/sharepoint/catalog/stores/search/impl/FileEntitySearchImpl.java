@@ -6,6 +6,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.SearchFileExec
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.DriveItemCollectionPage;
@@ -17,7 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Collections;
 
 @Service
 public class FileEntitySearchImpl {
@@ -59,7 +64,7 @@ public class FileEntitySearchImpl {
         DriveItem driveItem = payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null;
         if (driveItem != null) {
             String sitePath = payload.containsKey(Constants.SOURCE_ROOT_PATH) ? payload.get(Constants.SOURCE_ROOT_PATH).toString() : " ";
-            return getDriveItemCollectionPageByPath(driveItem, getUserRequestBuilder(), sitePath);
+            return getDriveItemCollectionPageByPath(driveItem, FileUtil.getUserRequestBuilder(provider), sitePath);
         }
         return Collections.emptyList();
     }
@@ -85,7 +90,7 @@ public class FileEntitySearchImpl {
                 return files;
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
         }
         return Collections.emptyList();
     }
@@ -95,9 +100,5 @@ public class FileEntitySearchImpl {
         return driveItem.name.equals("root")
                 ? graphClient.drives(driveItem.parentReference.driveId).root().children().buildRequest().get()
                 : graphClient.drives(driveItem.parentReference.driveId).items(driveItem.id).children().buildRequest().get();
-    }
-
-    private GraphServiceClient<Request> getUserRequestBuilder() {
-        return provider.getUserRequestBuilder(null, null);
     }
 }

@@ -2,6 +2,8 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import com.microsoft.graph.requests.DriveItemRequestBuilder;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +12,11 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -192,12 +198,16 @@ public class FileUtil {
     }
 
     public static DriveItemRequestBuilder getRootUserRequestBuilder(GraphServiceClientProvider provider, String driveID) {
-        return provider.getUserRequestBuilder(null, null).drives(driveID).root();
+        return getUserRequestBuilder(provider).drives(driveID).root();
+    }
+
+    public static GraphServiceClient<Request> getUserRequestBuilder(GraphServiceClientProvider provider) {
+        return provider.getUserRequestBuilder(null, null);
     }
 
     public static String driveIdPath(String fullPath) {
         try {
-            String str [] = fullPath.split("/");
+            String str[] = fullPath.split("/");
             String drivePath = "/" + str[1] + "/" + (str[2]);
             return drivePath;
         } catch (RuntimeException cause) {
@@ -206,17 +216,18 @@ public class FileUtil {
         }
     }
 
-    public static String getLastPathElement(String path){
+    public static String getLastPathElement(String path) {
         return path.substring(path.lastIndexOf("/") + 1);
     }
+
     public static void failedToReadTextFile(Map<String, Object> payload) {
         payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
         payload.put(Constants.SUCCESS, false);
     }
 
     public static String preparePath(String filePath) {
-        if(filePath!=null){
-            return filePath.replace("%20"," ");
+        if (filePath != null) {
+            return filePath.replace("%20", " ");
         }
         return null;
     }
