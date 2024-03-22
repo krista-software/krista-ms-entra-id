@@ -101,7 +101,7 @@ public class FileDaoImpl implements FileDao {
 
         SearchRequest requests = fileSearchImpl.buildSearchRequest();
         requests.query = buildQueryString(conditions, name, selector);
-
+        //condition in while repeats loop till list of FileService has Size equal pageSize and till last record is iterated.
         while ((newCachedFiles.size() + ((pageIndex - 1) * pageSize)) < (pageIndex - 1) * pageSize + pageSize) {
             LinkedList<SearchRequest> requestsList = prepareRequestList((int) pageIndex, pageSize, requests);
             Map<String, Boolean> moreResultAvailable = new HashMap<>();

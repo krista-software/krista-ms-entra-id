@@ -207,16 +207,12 @@ public class FileUtilTest {
         assertEquals(expectedPath, FileEntitySearchMapper.extractSitePathFromURL(url));
     }
 
-    //https://kristasoft.sharepoint.com/sites/Testingkunal/Shared Documents/Test folder
-
     @Test
     public void testExtractFoldersFromURLWithNoSiteSegment2() {
         String url = "https://contoso.sharepoint.com/sites/Testingkunal/Shared Documents/Test folder";
         String expectedPath = "/Testingkunal/Shared Documents";
         assertEquals(expectedPath, FileEntitySearchMapper.extractSitePathFromURL(url));
     }
-
-
 
     @Test
     public void testExtractPathAfterSitesWithValidURL() {
