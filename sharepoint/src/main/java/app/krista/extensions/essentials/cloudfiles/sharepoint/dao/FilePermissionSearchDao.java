@@ -3,8 +3,6 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FilePermissionDaoUtil;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DriveSharedPermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileMapper;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -13,19 +11,18 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.model.base.FreeForm;
 import com.microsoft.graph.http.GraphServiceException;
-import com.microsoft.graph.models.*;
+import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.DriveItemCollectionPage;
-import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
-import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.requests.SearchEntityQueryCollectionPage;
-import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,22 +30,16 @@ public class FilePermissionSearchDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilePermissionSearchDao.class);
     private final GraphServiceClientProvider clientProvider;
-    private final FileSearchImpl fileSearchImpl;
     private final SharePointAttributes sharePointAttributes;
-    private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
-    private final GraphServiceClientProviderFactory clientProviderFactory;
 
 
     @Inject
-    public FilePermissionSearchDao(GraphServiceClientProviderFactory clientProviderFactory, FileSearchImpl fileSearchImpl,
-                                   SharePointAttributes sharePointAttributes, FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, GraphServiceClientProviderFactory clientProviderFactory1) {
+    public FilePermissionSearchDao(GraphServiceClientProviderFactory clientProviderFactory,
+                                   SharePointAttributes sharePointAttributes, SearchFileExecutor searchFileExecutor) {
         this.clientProvider = clientProviderFactory.create();
-        this.fileSearchImpl = fileSearchImpl;
         this.sharePointAttributes = sharePointAttributes;
-        this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
-        this.clientProviderFactory = clientProviderFactory1;
     }
 
     /**
@@ -76,62 +67,6 @@ public class FilePermissionSearchDao {
         }
         return payload;
     }
-
-    private SearchEntityQueryCollectionPage getSearchResult(GraphServiceClient<Request> graphClient, int from, int size) {
-        List<SearchRequest> requestsList = buildSearchRequestListWithAbsolutePath(from, size);
-        return fileSearchImpl.buildSearchQuery(graphClient, requestsList);
-    }
-
-    private boolean hasPermission(File fileEntity, String permission) {
-        return fileEntity.permissions != null && fileEntity.permissions.equalsIgnoreCase(permission);
-    }
-
-    public List<SearchRequest> buildSearchRequestListWithAbsolutePath(int from, int size) {
-        LinkedList<SearchRequest> requestsList = new LinkedList<>();
-        SearchRequest requests = buildSearchRequest();
-        buildSearchRequestForRest(requests, from, size);
-        requestsList.add(requests);
-        return requestsList;
-    }
-
-    public SearchRequest buildSearchRequest() {
-        SearchRequest requests = new SearchRequest();
-        requests.entityTypes = Arrays.asList(EntityType.LIST, EntityType.DRIVE, EntityType.DRIVE_ITEM);
-
-        // Fill in the rest of the request setup logic
-        LinkedList<SortProperty> sortProperties = new LinkedList<>();
-        SortProperty sort = new SortProperty();
-        sort.name = "LastModifiedTime";
-        sort.isDescending = false;
-        sortProperties.add(sort);
-        requests.sortProperties = sortProperties;
-        return requests;
-    }
-
-    public void extractDriveFromSearchResultsUsingPath(List<DriveSharedPermissionImpl> files, SearchEntityQueryCollectionPage page, GraphServiceClient<Request> graphClient) {
-        page.getCurrentPage().stream()
-                .filter(response -> response.hitsContainers != null)
-                .flatMap(response -> response.hitsContainers.stream())
-                .filter(container -> container.hits != null)
-                .flatMap(container -> container.hits.stream())
-                .filter(hits -> hits != null && hits.resource instanceof DriveItem)
-                .map(hits -> (DriveItem) hits.resource)
-                .filter(driveItem -> driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/"))
-                .map(driveItem -> new DriveSharedPermissionImpl(driveItem, graphClient, sharePointAttributes, fileSearchUtilityService, null))
-                .forEach(files::add);
-    }
-
-
-    public void buildSearchRequestForRest(SearchRequest requests, int from, int size) {
-        String domainName = fileSearchImpl.getDomainName();
-        String siteDomainPath = fileSearchImpl.getDomainPath(domainName, false);
-        SearchQuery query = new SearchQuery();
-        query.queryString = domainName + " AND NOT path:\"" + siteDomainPath + "\"";
-        requests.query = query;
-        requests.from = from;
-        requests.size = size;
-    }
-
 
     public FreeForm fetchFilesWithPermissions(String permission, boolean useEmail, String accountID, DriveItem driveItem, Map<String, Object> mapPayLoad, FreeForm payload) {
         try {
@@ -178,7 +113,7 @@ public class FilePermissionSearchDao {
     }
 
     private void handleException(Exception cause, FreeForm payload) {
-        LOGGER.error(cause.getMessage(), cause);
+        LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage(), cause);
         ResponseUtil.getInfoResponse(false, Objects.requireNonNull(cause.getMessage())
                 .contains(Constants.ITEM_NOT_FOUND)
                 ? Constants.FILE_NOT_FOUND
@@ -199,7 +134,7 @@ public class FilePermissionSearchDao {
                 }
             }
         } catch (RuntimeException cause) {
-            LOGGER.error(cause.getMessage());
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
         }
 
     }
