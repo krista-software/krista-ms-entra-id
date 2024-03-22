@@ -36,7 +36,6 @@ public class SharepointArea {
     private final GraphServiceClientProvider provider;
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-
     @Inject
     public SharepointArea(SharepointAreaImpl sharepointAreaImpl, EventHandler eventHandler,
                           RequestContext requestContext, AuthorizationContext authorizationContext, FileDao fileDaoImpl, GraphServiceClientProvider provider) {
@@ -173,4 +172,26 @@ public class SharepointArea {
         return taskId;
     }
 
+    @CatalogRequest(
+            id = "localDomainRequest_b40ef456-730e-4306-9aff-c202f661aa6f",
+            name = "Search By Permission",
+            description = "Retrieve a list of files based on different permission levels such as read, write, and owner access.",
+            area = "Sharepoint",
+            type = CatalogRequest.Type.QUERY_SYSTEM)
+    @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public String searchByPermission(
+            @Field.PickOne(name = "Permission", values = {"Read","Write","Own"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission,
+            @Field.Text(name = "Folder Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String folderPath) {
+        final String taskId = UUID.randomUUID().toString();
+        boolean useEmail = !requestContext.invokeAsUser();
+        String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
+        if (!useEmail) {
+            provider.validateToken(accountID);
+        }
+        executorService.submit(() -> {
+            FreeForm freeForm = sharepointAreaImpl.getSearchByPermission(folderPath,permission, useEmail, accountID);
+            eventHandler.handleEvent(taskId, freeForm);
+        });
+        return taskId;
+    }
 }

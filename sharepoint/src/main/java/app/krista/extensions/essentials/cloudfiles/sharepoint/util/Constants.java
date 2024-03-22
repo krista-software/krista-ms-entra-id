@@ -404,6 +404,9 @@ public class Constants {
 
     public static final String DOCUMENT_LIBRARY = "documentLibrary";
 
+    public static final String READ_AND_WRITE = "Read and Write";
+
+
 
     private Constants() {
     }
