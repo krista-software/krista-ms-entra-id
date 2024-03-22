@@ -37,6 +37,7 @@ public class FileSearchImpl {
     public static final String ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL = "Added DrivePermission for created by user with email: {}";
     public static final String ADDED_DRIVE_PERMISSION_FOR_MODIFIED_BY_USER_WITH_EMAIL = "Added DrivePermission for modified by user with email: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchImpl.class);
+    public static final String SHAREPOINT_COM_PERSONAL = "sharepoint.com/personal/";
     private final GraphServiceClientProvider clientProvider;
     private final SharePointAttributes sharePointAttributes;
     private final GraphServiceClientProviderFactory clientProviderFactory;
@@ -109,7 +110,7 @@ public class FileSearchImpl {
         for (SearchHit hits : hitContainer.hits) {
             if (hits != null && hits.resource instanceof DriveItem) {
                 DriveItem driveItem = (DriveItem) hits.resource;
-                if (driveItem.webUrl != null && !driveItem.webUrl.contains("sharepoint.com/personal/") && (!fileIdSet.contains(driveItem.id))) {
+                if (driveItem.webUrl != null && !driveItem.webUrl.contains(SHAREPOINT_COM_PERSONAL) && (!fileIdSet.contains(driveItem.id))) {
                     fileIdSet.add(driveItem.id);
                     if (files.size() == pageSize) {
                         return true;

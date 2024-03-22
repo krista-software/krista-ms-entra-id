@@ -3,12 +3,15 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores.se
 import app.krista.extension.executor.SearchCondition;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores.search.FileEntityCondition;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores.search.FileSearchStrategyFactory;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import com.microsoft.graph.models.SearchQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CustomFilterStrategy {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomFilterStrategy.class);
@@ -88,7 +91,7 @@ public class CustomFilterStrategy {
             double doubleNumber = Double.parseDouble(updatedValue);
             return (long) doubleNumber;
         } catch (NumberFormatException casue) {
-           LOGGER.error("Error parsing the string to long: {} " , casue.getMessage());
+            LOGGER.error("Error parsing the string to long: {} ", casue.getMessage());
         }
         return 0;
     }
@@ -97,13 +100,16 @@ public class CustomFilterStrategy {
         return query.queryString + " AND " + fieldType + ":\"" + matchPattern + "\"";
     }
 
-    public static boolean excludeConditions(SearchCondition condition) {
-        return condition.getFieldName().equals(FileSearchStrategyFactory.MODIFIED_BY)
-                || condition.getFieldName().equals(FileSearchStrategyFactory.CREATED_BY)
-                || condition.getFieldName().equals(FileSearchStrategyFactory.IS_FOLDER)
-                || condition.getFieldName().equals(FileSearchStrategyFactory.ABSOLUTE_PATH)
-                || condition.getFieldName().equals(FileSearchStrategyFactory.PARENT_FOLDER)
-                || condition.getFieldName().equals(Constants.LOGICAL_NAME);
 
+    public static boolean excludeConditions(SearchCondition condition) {
+        Set<String> set = new HashSet<>(Arrays.asList(
+                FileSearchStrategyFactory.MODIFIED_BY,
+                FileSearchStrategyFactory.CREATED_BY,
+                FileSearchStrategyFactory.IS_FOLDER,
+                FileSearchStrategyFactory.ABSOLUTE_PATH,
+                FileSearchStrategyFactory.PARENT_FOLDER,
+                Constants.LOGICAL_NAME
+        ));
+        return set.contains(condition.getFieldName());
     }
 }

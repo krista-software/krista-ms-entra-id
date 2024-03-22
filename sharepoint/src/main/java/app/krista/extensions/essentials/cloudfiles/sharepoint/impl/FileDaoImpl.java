@@ -113,8 +113,8 @@ public class FileDaoImpl implements FileDao {
             } else {
                 break;
             }
-            boolean iSMoreResultAvailable = moreResultAvailable.get(Constants.MORE_RESULT_AVAILABLE);
-            if (!iSMoreResultAvailable) {
+            boolean isMoreResultAvailable = moreResultAvailable.get(Constants.MORE_RESULT_AVAILABLE);
+            if (!isMoreResultAvailable) {
                 return newCachedFiles;
             }
             if (newCachedFiles.isEmpty() || newCachedFiles.size() < pageSize) {

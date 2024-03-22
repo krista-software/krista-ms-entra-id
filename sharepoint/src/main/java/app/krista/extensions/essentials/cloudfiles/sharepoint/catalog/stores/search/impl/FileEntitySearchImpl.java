@@ -74,31 +74,40 @@ public class FileEntitySearchImpl {
         try {
             List<FileService> files = new ArrayList<>();
             if (driveItem.folder != null && driveItem.folder.childCount != 0) {
-                DriveItemCollectionPage page = getDriveItemCollectionPage(driveItem, graphClient);
-                while (page != null && !page.getCurrentPage().isEmpty()) {
-                    for (DriveItem driveInPage : page.getCurrentPage()) {
-                        files.add(new FileEntitySearchMapper(driveInPage, sitePath, graphClient));
-                    }
-                    if (page.getNextPage() != null) {
-                        page = page.getNextPage().buildRequest().get();
-                    } else {
-                        return files;
-                    }
-                }
+                getListofFileService(driveItem, graphClient, sitePath, files);
             } else {
                 files.add(new FileEntitySearchMapper(driveItem, sitePath, graphClient));
-                return files;
             }
+            return files;
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
         }
         return Collections.emptyList();
     }
 
+    private static void getListofFileService(DriveItem driveItem, GraphServiceClient<Request> graphClient, String sitePath, List<FileService> files) {
+        DriveItemCollectionPage page = getDriveItemCollectionPage(driveItem, graphClient);
+        while (page != null && !page.getCurrentPage().isEmpty()) {
+            for (DriveItem driveInPage : page.getCurrentPage()) {
+                files.add(new FileEntitySearchMapper(driveInPage, sitePath, graphClient));
+            }
+            if (page.getNextPage() != null) {
+                page = page.getNextPage().buildRequest().get();
+            } else {
+                break;
+            }
+        }
+    }
+
     @Nullable
     private static DriveItemCollectionPage getDriveItemCollectionPage(DriveItem driveItem, GraphServiceClient<Request> graphClient) {
-        return driveItem.name.equals("root")
-                ? graphClient.drives(driveItem.parentReference.driveId).root().children().buildRequest().get()
-                : graphClient.drives(driveItem.parentReference.driveId).items(driveItem.id).children().buildRequest().get();
+        try {
+            return driveItem.name.equals("root")
+                    ? graphClient.drives(driveItem.parentReference.driveId).root().children().buildRequest().get()
+                    : graphClient.drives(driveItem.parentReference.driveId).items(driveItem.id).children().buildRequest().get();
+        } catch (GraphServiceException | IllegalArgumentException cause) {
+            LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
+        }
+        return null;
     }
 }

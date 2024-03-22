@@ -20,6 +20,9 @@ import java.util.*;
 
 public class DriveUtil {
 
+    public static final String YYYY_MM_DD_T_HH_MM = "yyyy-MM-dd'T'HH:mm";
+    public static final String YYYY_MM_DD = "yyyy-MM-dd";
+
     private DriveUtil() {
     }
 
@@ -120,7 +123,7 @@ public class DriveUtil {
         Date date = new Date((long) inputDouble);
 
         // Format the date as "dd-MM-yyyy"
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM);
         String formattedDate = dateFormat.format(date);
 
         return formattedDate;
@@ -128,7 +131,7 @@ public class DriveUtil {
 
     public static String getModifiedDate(long from) {
         Date date = new Date(from);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat dateFormat = new SimpleDateFormat(YYYY_MM_DD);
         dateFormat.setTimeZone(TimeZone.getTimeZone("IST"));
         return dateFormat.format(date);
     }

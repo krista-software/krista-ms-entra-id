@@ -46,8 +46,6 @@ public class Constants {
 
     public static final String CODE = "code";
 
-
-
     public static final String ALL = "*";
 
     public static final String LOGICAL_NAME = "logicalName";
