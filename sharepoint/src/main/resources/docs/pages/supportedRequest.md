@@ -486,6 +486,29 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Message            | Text               | File Information                     |
 | Success            | Yes/No             | Yes                                  |
 
+#### 6. Search By Permission
+
+- **Description**: Retrieve a list of files based on different permission levels such as read, write, and owner access.
+- **Input Parameters**:
+
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                                         |
+|--------------------|--------------------|---------------|---------------------------------------------------------------------|
+| Site Name          | Text               | Yes           | /Engineering/Shared Documents/SharePoint Test/abc/March Leaves.xlsx |
+| Permission         | Pick One           | Yes           | Read OR Write OR Own                                                |
+
+> #### Note :
+> - This request is applicable for Folder and Site Path.
+
+
+- **Output**:
+
+| **Parameter Name** | **Parameter Type** | **Example**                          |
+|--------------------|--------------------|--------------------------------------|
+| Files              | List&lt;Entity>    | [{name : ABC, extension:.txt , ...}] |
+| Message            | Text               | File Information                     |
+| Success            | Yes/No             | Yes                                  |
+
+
 ## Operation Area
 
 #### 1. Create List
