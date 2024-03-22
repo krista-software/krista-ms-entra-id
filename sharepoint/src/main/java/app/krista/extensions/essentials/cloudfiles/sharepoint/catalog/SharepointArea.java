@@ -181,7 +181,7 @@ public class SharepointArea {
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String searchByPermission(
             @Field.PickOne(name = "Permission", values = {"Read","Write","Own"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String permission,
-            @Field.Text(name = "Site Name", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String siteName) {
+            @Field.Text(name = "Folder Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String folderPath) {
         final String taskId = UUID.randomUUID().toString();
         boolean useEmail = !requestContext.invokeAsUser();
         String accountID = authorizationContext.getAuthorizedAccount().getAccountId();
@@ -189,7 +189,7 @@ public class SharepointArea {
             provider.validateToken(accountID);
         }
         executorService.submit(() -> {
-            FreeForm freeForm = sharepointAreaImpl.getSearchByPermission(siteName,permission, useEmail, accountID);
+            FreeForm freeForm = sharepointAreaImpl.getSearchByPermission(folderPath,permission, useEmail, accountID);
             eventHandler.handleEvent(taskId, freeForm);
         });
         return taskId;

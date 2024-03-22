@@ -47,13 +47,13 @@ public class FilePermissionSearchDao {
      *
      * @return A FreeForm object containing the list of files with the specified permission or error messages.
      */
-    public FreeForm getSearchByPermission(String site, String permission, boolean useEmail, String accountID) {
+    public FreeForm getSearchByPermission(String folderPath, String permission, boolean useEmail, String accountID) {
         LOGGER.info("Searching for files with permission: {} ", permission);
         FreeForm payload = new FreeForm();
         Map<String, Object> mapPayload = new HashMap<>();
         if (permission != null) {
             try {
-                searchFileExecutor.getFileInfo(site, mapPayload, true, useEmail, accountID);
+                searchFileExecutor.getFileInfo(folderPath, mapPayload, true, useEmail, accountID);
                 DriveItem driveItem = (mapPayload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM) : null);
                 if (driveItem == null) {
                     payload.put(Constants.MESSAGE, Constants.TEXT, Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH);
