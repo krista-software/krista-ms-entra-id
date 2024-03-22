@@ -70,17 +70,13 @@ public class FilePermissionSearchDao {
 
     public FreeForm fetchFilesWithPermissions(String permission, boolean useEmail, String accountID, DriveItem driveItem, Map<String, Object> mapPayLoad, FreeForm payload) {
         try {
-            List<FileService> files = new ArrayList<>();
-            boolean unusedPermission = permission.equalsIgnoreCase(Constants.READ_AND_WRITE);
-            if (!unusedPermission) {
-                files = fetchFiles(permission, useEmail, accountID, driveItem, mapPayLoad);
+            List<FileService> files =  fetchFiles(permission, useEmail, accountID, driveItem, mapPayLoad);
+            if(!files.isEmpty()){
                 ResponseUtil.listOfFileEntityResponse(files.stream()
                         .map(File::fromFile)
-                        .collect(Collectors.toList()), true, "File With [ " + permission + " ] permission Fetched Successfully", payload);
-            } else {
-                ResponseUtil.listOfFileEntityResponse(files.stream()
-                        .map(File::fromFile)
-                        .collect(Collectors.toList()), false, "Permission [ " + permission + " ] is Not Supported in Sharepoint", payload);
+                        .collect(Collectors.toList()), true, "Files with [ " + permission + " ] permission Fetched Successfully", payload);
+            }else{
+                ResponseUtil.getInfoResponse(false,"Files with [ " + permission + " ] permission are not available",payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
             handleException(cause, payload);
