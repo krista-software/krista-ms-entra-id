@@ -494,7 +494,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                                         |
 |--------------------|--------------------|---------------|---------------------------------------------------------------------|
 | Site Name          | Text               | Yes           | /Engineering/Shared Documents/SharePoint Test/abc/March Leaves.xlsx |
-| Permission         | Text               | Yes           | Read OR Write OR Own                                                |
+| Permission         | Pick One           | Yes           | Read OR Write OR Own                                                |
 
 > #### Note :
 > - This request is applicable for Folder and Site Path.
