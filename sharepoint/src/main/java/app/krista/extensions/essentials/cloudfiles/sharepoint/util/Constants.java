@@ -26,23 +26,7 @@ public class Constants {
 
     public static final String NOTEQUALS = "notequals";
 
-    public static final String MODIFIED = "Modified";
-
-    public static final String NAME = "Name";
-
-    public static final String EXTENSION = "Extension";
-
-    public static final String BASE_NAME = "Base Name";
-
-    public static final String OWNER = "Owner";
-
     public static final String MORE_RESULT_AVAILABLE = "MoreResultAvailable";
-
-    public static final String PARENT_FOLDER = "Parent Folder";
-
-    public static final String ABSOLUTE_PATH = "Absolute Path";
-
-    public static final String IS_FOLDER = "Is Folder";
 
     public static final String CODE = "code";
 
@@ -125,8 +109,6 @@ public class Constants {
 
     public static final String IS_TARGET_FILE_EXIST = "isTargetFileExist";
 
-    public static final String IS_FOLDER_EXIST = "isFolderExist";
-
     public static final String PARENT_REFERENCE = "parentReference";
 
     public static final String ID = "id";
@@ -134,8 +116,6 @@ public class Constants {
     public static final String FILE_HAS_BEEN_COPIED = "File has been copied successfully";
 
     public static final String PROVIDE_VALID_SOURCE_PATH = "Provide Valid source Path";
-
-    public static final String PROVIDE_VALID_TARGET_PATH = "Provide Valid target Path";
 
     public static final String ITEM_NOT_FOUND = "itemNotFound";
 
@@ -232,8 +212,6 @@ public class Constants {
     public static final String NO_FILE_FOUND_IN_DATE_RANGE = "No File found within date range";
 
     public static final String INVALID_FOLDER_PATH = "Please provide a valid path, the folder was not found";
-
-    public static final String SOURCE_OR_TARGET_PATHS_CANT_BE_NULL = "Source OR Target paths cannot be null or empty";
 
     public static final String LIST_CREATED = "created";
 
@@ -336,8 +314,6 @@ public class Constants {
     public static final int BAD_REQUEST = 400;
 
     public static final int INTERNAL_SERVER_ERROR = 500;
-
-    public static final String FOLDER_NOT_FOUND = "Folder Not Found";
 
     public static final String INVALID_INPUT = "Invalid Input";
 
@@ -442,9 +418,6 @@ public class Constants {
     public static final String ownerMailUrl = "https://graph.microsoft.com/v1.0/me";
 
     public static final String DOCUMENT_LIBRARY = "documentLibrary";
-
-    public static final String READ_AND_WRITE = "Read and Write";
-
 
 
     private Constants() {
