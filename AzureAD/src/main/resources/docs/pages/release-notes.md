@@ -1,15 +1,15 @@
 ### Release Notes - Azure AD Extension
 
-## Version 2.0.2
+## Version 2.0.3
 
 - **Developer Name** : Aradhya Gudadhe
-- **Krista Service APIs Java** : 1.0.92
-- **Global Catalog Version** : 1.0.41
-- **Appliance Release Version** : 3.2.5
+- **Krista Service APIs Java** : 1.0.97
+- **Global Catalog Version** : 1.0.44
+- **Appliance Release Version** : 3.2.8
 
 
 ## Resolved Bugs
-* **Not Available**
+* [KE-1515](https://antbrains.atlassian.net/browse/KE-1515) Azure AD Better error Message to User In configure Extension Screen.
 
 ## Known Issues
 
