@@ -1,11 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
-
-import app.krista.extension.executor.Invoker;
-import app.krista.extension.request.RoutingInfo;
-import app.krista.extension.request.protos.http.HttpProtocol;
-
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileChangeResourceUtil;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileHierarchyBuilder;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
@@ -22,10 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,31 +37,31 @@ public class FileChangeInfoHandler {
         this.fileSearchUtilityService = fileSearchUtilityService;
     }
 
-    public Map<String, Object> getChangeFileEvent(String subscriptionId) {
+    public List<Map<String, Object>> getChangeFileEvent(String subscriptionId) {
         Map<String, Object> payload = new HashMap<>();
         try {
             DriveItemDeltaCollectionPage oldDeltaCollectionPage = FileChangeResourceUtil.getFileChangeResource(subscriptionId);
             if(oldDeltaCollectionPage == null){
                 payload.put(Constants.MESSAGE, Constants.EMPTY);
-                return payload;
+                return List.of(payload);
             }
             String driveID = extractDriveID(oldDeltaCollectionPage);
             String itemId = extractItemId(oldDeltaCollectionPage);
             String monitoredPath = FileChangeResourceUtil.getPathBySubscription(subscriptionId);
             if(monitoredPath == null){
                 payload.put(Constants.MESSAGE, Constants.EMPTY);
-                return payload;
+                return List.of(payload);
             }
             String sitePath = FileUtil.driveIdPath(monitoredPath);
-            processDeltaLinkItems(oldDeltaCollectionPage, payload,sitePath);
+            List<Map<String, Object>> payloadList = processDeltaLinkItems(oldDeltaCollectionPage, payload,sitePath);
             FileChangeResourceUtil.addFileMetaData(subscriptionId, createFileChangeResource(driveID,itemId));
-            return payload;
+            return payloadList;
 
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage(), cause);
             ResponseUtil.errorResponse(false, Constants.FILE_NOT_FOUND, payload);
         }
-        return payload;
+        return List.of(payload);
     }
 
     private DriveItemDeltaCollectionPage createFileChangeResource(String driveID, String itemId) {
@@ -80,18 +73,50 @@ public class FileChangeInfoHandler {
         }
     }
 
-    private void processDeltaLinkItems(DriveItemDeltaCollectionPage oldDeltaCollectionPage, Map<String, Object> payload, String sitePath) {
+    private  List<Map<String, Object>> processDeltaLinkItems(DriveItemDeltaCollectionPage oldDeltaCollectionPage, Map<String, Object> payload, String sitePath) {
         try {
             payload.put(Constants.EVENT, Constants.NO_CHANGE);
             String token = getDeltaLinkToken(oldDeltaCollectionPage);
             String driveID = extractDriveID(oldDeltaCollectionPage);
             String itemId = extractItemId(oldDeltaCollectionPage);
             DriveItemDeltaCollectionPage trackChanges = getDeltaCollectionWithToken(token,driveID,itemId);
-            compareWithChanges(trackChanges, payload,driveID,itemId,sitePath);
+            List<DriveItem> trackDriveItems = getListFromTrack(trackChanges,driveID,itemId);
+            List<DriveItem> changedDriveItems = FileHierarchyBuilder.buildHierarchy(trackDriveItems);
+            return prepareEvent(changedDriveItems,payload,sitePath);
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info(cause.getMessage(), cause);
             payload.put(Constants.EVENT, Constants.NO_CHANGE);
         }
+        return List.of(payload);
+    }
+
+    private List<Map<String, Object>> prepareEvent(List<DriveItem> changedDriveItems, Map<String, Object> payload, String sitePath) {
+        List<Map<String, Object>> map = new ArrayList<>();
+        if(!changedDriveItems.isEmpty()) {
+            for (DriveItem driveItem  : changedDriveItems) {
+                if (driveItem.lastModifiedDateTime != null && driveItem.createdDateTime != null
+                        && driveItem.lastModifiedDateTime.equals(driveItem.createdDateTime)) {
+                    map.add(ResponseUtil.addCreatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));
+                } else {
+                    map.add(ResponseUtil.addUpdatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));
+                }
+            }
+        }
+        return !map.isEmpty() ? map : List.of(payload);
+    }
+
+    private List<DriveItem> getListFromTrack(DriveItemDeltaCollectionPage trackChange, String driveID, String itemId) {
+        List<DriveItem> driveItemList = new ArrayList<>();
+        while (trackChange != null && !trackChange.getCurrentPage().isEmpty()) {
+            driveItemList.addAll(trackChange.getCurrentPage());
+            DriveItemDeltaCollectionPage nextDelta = getDeltaCollectionWithToken(getDeltaLinkToken(trackChange), driveID, itemId);
+            if (nextDelta != null) {
+                trackChange = nextDelta;
+            } else {
+                return driveItemList;
+            }
+        }
+        return driveItemList;
     }
 
     @Nullable
@@ -117,26 +142,6 @@ public class FileChangeInfoHandler {
             return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).id);
         }
         return  null;
-    }
-
-    private void compareWithChanges(DriveItemDeltaCollectionPage trackChange, Map<String, Object> payload, String driveID, String itemId, String sitePath) {
-        while (trackChange != null && !trackChange.getCurrentPage().isEmpty()) {
-            DriveItemDeltaCollectionPage nextDelta = getDeltaCollectionWithToken(getDeltaLinkToken(trackChange), driveID, itemId);
-            if(nextDelta == null){
-                DriveItem driveItem = trackChange.getCurrentPage().get(trackChange.getCurrentPage().size()-1);
-                if(driveItem.lastModifiedDateTime != null && driveItem.createdDateTime != null
-                && driveItem.lastModifiedDateTime.equals(driveItem.createdDateTime)){
-                    ResponseUtil.addCreatedFile(driveItem, payload,provider.getUserRequestBuilder(null,null),fileSearchUtilityService,sitePath);
-                }else{
-                    ResponseUtil.addUpdatedFile(driveItem, payload,provider.getUserRequestBuilder(null,null),fileSearchUtilityService,sitePath);
-                }
-            }
-            if (nextDelta != null) {
-                trackChange = nextDelta;
-            } else {
-                break;
-            }
-        }
     }
 
     private DriveItemDeltaCollectionPage getDeltaCollectionWithToken(String token, String driveID, String itemId) {
@@ -169,6 +174,5 @@ public class FileChangeInfoHandler {
         }
         return "";
     }
-
 
 }

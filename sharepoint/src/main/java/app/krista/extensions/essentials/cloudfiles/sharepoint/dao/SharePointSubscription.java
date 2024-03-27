@@ -36,7 +36,7 @@ public class SharePointSubscription {
 
     public static Subscription createSubscription(String routingUrl, GraphServiceClientProvider provider, String siteId, String listId) {
         try {
-            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://1670-125-19-87-178.ngrok-free.app") : routingUrl, siteId, listId);
+            Subscription subscription = setSubscriptionParameters(routingUrl.contains("https://extension.local.eng.krista.app") ? routingUrl.replace("https://extension.local.eng.krista.app", "https://bdf4-2409-40c2-101b-f156-5cb4-a5d9-3d22-8550.ngrok-free.app") : routingUrl, siteId, listId);
             return provider.getGraphServiceClientForAdmin().subscriptions().buildRequest().post(subscription);
         } catch (ClientException | ParseException cause) {
             lOGGER.error("Error occurred while creating subscription : {}", cause.getMessage());

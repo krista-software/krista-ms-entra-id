@@ -185,23 +185,24 @@ public final class AuthenticationResource {
         JsonArray array = notification.get(Constants.VALUE).getAsJsonArray();
         if(!array.isEmpty()) {
             String subscriptionId = array.get(0).getAsJsonObject().get("subscriptionId").getAsString();
-            Map<String, Object> payload = fileChangeInfoHandler.getChangeFileEvent(subscriptionId);
-            if (payload.containsKey(Constants.MESSAGE) && payload.get(Constants.MESSAGE).equals(Constants.EMPTY)) {
-                FreeForm freeForm = new FreeForm();
-                freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, false);
-                eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
-            } else {
-                if (isDuplicateFile(payload)) {
-                    return Response.status(201).build();
+            List<Map<String, Object>> payloadList = fileChangeInfoHandler.getChangeFileEvent(subscriptionId);
+            for(Map<String, Object> payload : payloadList) {
+                if (payload.containsKey(Constants.MESSAGE) && payload.get(Constants.MESSAGE).equals(Constants.EMPTY)) {
+                    FreeForm freeForm = new FreeForm();
+                    freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, false);
+                    eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
+                } else {
+                    if (isDuplicateFile(payload)) {
+                        return Response.status(200).build();
+                    }
+                    FreeForm freeForm = new FreeForm();
+                    ResponseUtil.addEventToFreeForm(payload, freeForm);
+                    freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, true);
+                    eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
                 }
-                FreeForm freeForm = new FreeForm();
-                ResponseUtil.addEventToFreeForm(payload, freeForm);
-                freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, true);
-                eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
             }
-            return Response.status(200).build();
         }
-        return Response.status(201).build();
+        return Response.status(200).build();
     }
 
     @POST
