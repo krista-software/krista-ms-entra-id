@@ -653,29 +653,34 @@ alter the absolute path of the group when assigning a new name.
 #### Search By File
 
 > #### Limitation :
-> - The file entity search functionality may exhibit inaccuracies or fail to produce relevant results. Exercise caution when implementing or relying on this feature.
+> - The file entity search functionality may fail to produce relevant results. Exercise caution when implementing or relying on this feature.
 
 - **Description**: This request returns list of file details.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                     |
-|--------------------|--------------------|---------------|---------------------------------|
-| Name               | Text               | No            | Sample.xlsx                     |
-| Base Name          | Text               | No            | Sample                          |
-| Extension          | Text               | No            | xlsx                            |
-| Absolute Path      | Text               | No            | /siteName/Shared Documents/file |
-| Owner              | Text               | No            | John Doe                        |
-| Created            | Date               | No            | 2023-12-29 T03 \: 43 \: 26Z     |
-| Modified           | Date               | No            | 2023-12-29 T03 \: 54 \: 26Z     |
-| Modified By        | Text               | No            | John Doe                        |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                                               |
+|--------------------|--------------------|---------------|-----------------------------------------------------------|
+| Name               | Text               | No            | Sample.xlsx                                               |
+| Base Name          | Text               | No            | Sample                                                    |
+| Extension          | Text               | No            | xlsx                                                      |
+| Parent Folder      | Text               | No            | site/Shared Document/ABC                                  |
+| Absolute Path      | Text               | No            | site/Shared Document/ABC/Sample.xlsx                      |
+| Owner              | Text               | No            | John Doe                                                  |
+| Created            | Date               | No            | 2023-12-29 T03 \: 43 \: 26Z to 2024-1-20 T03 \: 43 \: 26Z |
+| Modified           | Date               | No            | 2023-12-29 T03 \: 54 \: 26Z to 2024-1-20 T03 \: 43 \: 26Z |
+| Size               | Number             | No            | 2000 bytes to 500000 bytes                                |
+| Is Folder          | Yes/No             | No            | No                                                        |
 
 > #### Note :
->  - Files can also be searched by using relative path. For example, you can use this -- /siteName/list Name/file
->  - Tags are not supported in SharePoint Files Extension.
->  - Parent Folder search are not supported in SharePoint Files Extension.
->  - Size search are not supported in SharePoint Files Extension & for same have added catalog.
->  - Is Folder search are not supported in SharePoint Files Extension.
->  - File Entity Search does not support multiple field search through ask system step.
+
+> - Entity search using Permission is not supported.
+> - Response of entity search does not support **Permissions** and **Shared With**.
+> - **Tags** are not Supported in SharePoint extension.
+> - **Is Folder** is Supported using Ask System Step only in SharePoint extension.
+> - **Created By** and **Modified By** are not Supported in SharePoint extension.
+> - **Size**, **Modified** and **Created** search is supported using Ask System Step.
+> - For Example : By using Ask System filters Size >= 2000 and Size <= 5000.
+> - The average time of response may vary based on the total number of files or folders to be fetched.
 
 * Output:
 
