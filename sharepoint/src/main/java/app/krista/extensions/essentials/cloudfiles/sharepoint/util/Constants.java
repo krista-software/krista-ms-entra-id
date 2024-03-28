@@ -33,6 +33,7 @@ public class Constants {
     public static final String ALL = "*";
 
     public static final String LOGICAL_NAME = "logicalName";
+
     public static final String STATE = "state";
 
     public static final String INVALID_STATE_PARAMETERS = "Invalid state parameters!";
@@ -224,6 +225,8 @@ public class Constants {
     public static final String SITE_RESOURCE = "/sites/";
 
     public static final String LIST_RESOURCE = "/lists/";
+
+    public static final String SLASH = "/";
 
     public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "File downloaded successfully. Please click on the following URL to access the file";
 

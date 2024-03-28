@@ -26,7 +26,6 @@ public class FileSearchStrategyFactory {
             case Constants.SIZE:
                 return new SizeSearchStrategy();
             case MODIFIED:
-                return new DateSearchStrategy();
             case CREATED:
                 return new DateSearchStrategy();
             case NAME:

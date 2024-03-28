@@ -124,9 +124,7 @@ public class DriveUtil {
 
         // Format the date as "dd-MM-yyyy"
         SimpleDateFormat dateFormat = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM);
-        String formattedDate = dateFormat.format(date);
-
-        return formattedDate;
+        return dateFormat.format(date);
     }
 
     public static String getModifiedDate(long from) {

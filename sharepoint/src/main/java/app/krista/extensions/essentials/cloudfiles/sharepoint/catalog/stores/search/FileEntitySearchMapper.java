@@ -1,6 +1,7 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores.search;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
@@ -121,8 +122,8 @@ public class FileEntitySearchMapper implements FileService {
     private String getFilePath(DriveItem driveItem, String sitePath) {
         if (driveItem.parentReference != null && driveItem.parentReference.path != null) {
             String relativePath = FileUtil.getRootRelativeFilePath(driveItem.parentReference.path);
-            String modifiedRelativePath = relativePath.isBlank() ? "" : relativePath + "/";
-            return sitePath + "/" + modifiedRelativePath + driveItem.name;
+            String modifiedRelativePath = relativePath.isBlank() ? "" : relativePath + Constants.SLASH;
+            return sitePath + Constants.SLASH + modifiedRelativePath + driveItem.name;
         }
         return null;
     }
@@ -151,18 +152,18 @@ public class FileEntitySearchMapper implements FileService {
 
     public static String extractSitePathFromURL(String url) {
         String extractedPath = "";
-        int sitesIndex = url.indexOf("/sites/");
+        int sitesIndex = url.indexOf(Constants.SITE_RESOURCE);
         if (sitesIndex != -1) {
-            int startIndex = sitesIndex + "/sites/".length();
-            int endIndex = url.indexOf("/", startIndex);
+            int startIndex = sitesIndex + Constants.SITE_RESOURCE.length();
+            int endIndex = url.indexOf(Constants.SLASH, startIndex);
             if (endIndex != -1) {
-                int secondEndIndex = url.indexOf("/", endIndex + 1);
+                int secondEndIndex = url.indexOf(Constants.SLASH, endIndex + 1);
                 if (secondEndIndex != -1) {
                     extractedPath = url.substring(startIndex, secondEndIndex);
                 } else {
                     extractedPath = url.substring(startIndex);
                 }
-                extractedPath = "/" + extractedPath.replace("%20", " "); // Replace %20 with space
+                extractedPath = Constants.SLASH + extractedPath.replace("%20", " "); // Replace %20 with space
             }
         }
         return extractedPath;
