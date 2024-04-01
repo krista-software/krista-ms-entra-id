@@ -38,6 +38,7 @@ public final class AuthenticationResource {
 
     public static final String USER_AUTHENTICATED_SUCCESSFULLY_PLEASE_PROCEED_WITH_REQUEST = "User Authenticated Successfully. Please proceed with the request.";
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationResource.class);
+    public static final int STATUS_200 = 200;
     private final SharePointAttributeStore sharePointAttributeStore;
     private final RefreshTokenStore refreshTokenStore;
     private final GraphServiceClientProviderFactory providerFactory;
@@ -193,7 +194,7 @@ public final class AuthenticationResource {
                     eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
                 } else {
                     if (isDuplicateFile(payload)) {
-                        return Response.status(200).build();
+                        return Response.status(STATUS_200).build();
                     }
                     FreeForm freeForm = new FreeForm();
                     ResponseUtil.addEventToFreeForm(payload, freeForm);
@@ -202,7 +203,7 @@ public final class AuthenticationResource {
                 }
             }
         }
-        return Response.status(200).build();
+        return Response.status(STATUS_200).build();
     }
 
     @POST
