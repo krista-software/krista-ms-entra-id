@@ -63,7 +63,7 @@ public class FileChangeInfoHandler {
             return payloadList;
 
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
+            LOGGER.error("Error occurred while processing file change event : {}",cause.getMessage(), cause);
             ResponseUtil.errorResponse(false, Constants.FILE_NOT_FOUND, payload);
         }
         return List.of(payload);
@@ -73,8 +73,8 @@ public class FileChangeInfoHandler {
         try {
             return provider.getUserRequestBuilder(null, null).drives(driveID).items(itemId).delta().buildRequest().get();
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
-            throw new RuntimeException("Error Occurred During Subscription");
+            LOGGER.error("Error occurred during subscription : {}" ,cause.getMessage(), cause);
+            throw new RuntimeException();
         }
     }
 
@@ -84,6 +84,7 @@ public class FileChangeInfoHandler {
             String token = getDeltaLinkToken(oldDeltaCollectionPage);
             String driveID = extractDriveID(oldDeltaCollectionPage);
             String itemId = extractItemId(oldDeltaCollectionPage);
+
             DriveItemDeltaCollectionPage trackChanges = getDeltaCollectionWithToken(token,driveID,itemId);
             List<DriveItem> trackDriveItems = getListFromTrack(trackChanges,driveID,itemId);
             List<DriveItem> changedDriveItems = FileHierarchyBuilder.buildHierarchy(trackDriveItems);
@@ -159,7 +160,7 @@ public class FileChangeInfoHandler {
                     .buildRequest()
                     .get();
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.error("Error Caused while collecting Delta Token Collection : {}", cause.getMessage());
+            LOGGER.info("Track change delta collection has reached last page");
         }
         return null;
     }

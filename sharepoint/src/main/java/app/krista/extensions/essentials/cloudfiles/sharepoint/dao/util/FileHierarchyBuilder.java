@@ -26,16 +26,17 @@ public class FileHierarchyBuilder {
             }
         }
 
-        for (int i = 1; i < driveItems.size(); i++) {
-            DriveItem item = driveItems.get(i);
-            if (item.parentReference != null && item.parentReference.id != null) {
-                FileNode parent = map.get(item.parentReference.id);
-                FileNode current = map.get(item.id);
-                if (parent != null && current != null) {
-                    parent.addChild(current);
-                }
-            }
-        }
+        driveItems.stream()
+                .skip(1)
+                .forEach(item -> {
+                    if (item.parentReference != null && item.parentReference.id != null) {
+                        FileNode parent = map.get(item.parentReference.id);
+                        FileNode current = map.get(item.id);
+                        if (parent != null && current != null) {
+                            parent.addChild(current);
+                        }
+                    }
+                });
 
         return findLeafNodes(root);
     }
