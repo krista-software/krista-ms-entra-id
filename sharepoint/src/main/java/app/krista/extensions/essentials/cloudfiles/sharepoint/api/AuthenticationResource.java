@@ -194,7 +194,7 @@ public final class AuthenticationResource {
                     eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
                 } else {
                     if (isDuplicateFile(payload)) {
-                        return Response.status(STATUS_200).build();
+                        return Response.ok().build();
                     }
                     FreeForm freeForm = new FreeForm();
                     ResponseUtil.addEventToFreeForm(payload, freeForm);
@@ -210,7 +210,7 @@ public final class AuthenticationResource {
     @Path("/lifecycleNotification")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response lifecycleValidation(@QueryParam(Constants.VALIDATION_TOKEN) String validationToken) {
-        return Response.status(200).type(MediaType.TEXT_PLAIN).entity(validationToken.trim()).build();
+        return Response.status(STATUS_200).type(MediaType.TEXT_PLAIN).entity(validationToken.trim()).build();
     }
 
     @POST
@@ -218,7 +218,7 @@ public final class AuthenticationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response lifecycleNotification(JsonObject notification) {
         this.notificationProcessQueue.add(new Notification(Notification.NotificationType.LIFECYCLE, notification));
-        return Response.status(202).build();
+        return Response.status(STATUS_200).build();
     }
 
 }
