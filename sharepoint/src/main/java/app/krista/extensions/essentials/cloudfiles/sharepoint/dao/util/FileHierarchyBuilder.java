@@ -15,12 +15,12 @@ public class FileHierarchyBuilder {
     public static List<DriveItem> buildHierarchy(List<DriveItem> driveItems) {
         if(driveItems.isEmpty()) return Collections.emptyList();
 
-        Map<String, FileNode> map = new HashMap<>();
+        Map<String, FileNode> fileNodeMap = new HashMap<>();
         FileNode root = null;
 
         for (DriveItem item : driveItems) {
             FileNode node = new FileNode(item.id, item);
-            map.put(item.id, node);
+            fileNodeMap.put(item.id, node);
             if (root == null) {
                 root = node;
             }
@@ -30,8 +30,8 @@ public class FileHierarchyBuilder {
                 .skip(1)
                 .forEach(item -> {
                     if (item.parentReference != null && item.parentReference.id != null) {
-                        FileNode parent = map.get(item.parentReference.id);
-                        FileNode current = map.get(item.id);
+                        FileNode parent = fileNodeMap.get(item.parentReference.id);
+                        FileNode current = fileNodeMap.get(item.id);
                         if (parent != null && current != null) {
                             parent.addChild(current);
                         }
