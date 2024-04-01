@@ -7,15 +7,18 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.Notificat
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.NotificationProcessQueue;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.RefreshTokenStore;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.SharePointAttributeStore;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import app.krista.extensions.util.EventHandler;
 import app.krista.ksdk.authentication.AuthorizationListener;
 import app.krista.ksdk.context.AuthorizationContext;
+import app.krista.model.base.FreeForm;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.microsoft.graph.http.GraphServiceException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -23,15 +26,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-
-import app.krista.model.base.FreeForm;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 @Path("/")
 public final class AuthenticationResource {
@@ -156,12 +158,12 @@ public final class AuthenticationResource {
     }
 
     private boolean isFileExist(Map<String, Object> payload) {
-        for(Map<String, Object> file : fileStore){
-            app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileStoreEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File)file.get(Constants.FILE);
+        for (Map<String, Object> file : fileStore) {
+            app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileStoreEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File) file.get(Constants.FILE);
             String fileStoreEvent = file.get(Constants.EVENT).toString();
-            app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File)payload.get(Constants.FILE);
+            app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File) payload.get(Constants.FILE);
             String fileEvent = payload.get(Constants.EVENT).toString();
-            if(fileEntity==null || fileEntity.absolutePath.equals(fileStoreEntity.absolutePath) && fileEvent.equals(fileStoreEvent) && fileEntity.modified.equals(fileStoreEntity.modified)){
+            if (fileEntity == null || fileEntity.absolutePath.equals(fileStoreEntity.absolutePath) && fileEvent.equals(fileStoreEvent) && fileEntity.modified.equals(fileStoreEntity.modified)) {
                 return true;
             }
         }
@@ -184,18 +186,17 @@ public final class AuthenticationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response subscriptionNotification(@NotNull JsonObject notification) {
         JsonArray array = notification.get(Constants.VALUE).getAsJsonArray();
-        if(!array.isEmpty()) {
+        if (!array.isEmpty()) {
             String subscriptionId = array.get(0).getAsJsonObject().get("subscriptionId").getAsString();
             List<Map<String, Object>> payloadList = fileChangeInfoHandler.getChangeFileEvent(subscriptionId);
-            for(Map<String, Object> payload : payloadList) {
+            for (Map<String, Object> payload : payloadList) {
                 if (payload.containsKey(Constants.MESSAGE) && payload.get(Constants.MESSAGE).equals(Constants.EMPTY)) {
                     FreeForm freeForm = new FreeForm();
                     freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, false);
                     eventHandler.handleEvent(Constants.FILE_RECEIVED, freeForm);
+                } else if (isDuplicateFile(payload)) {
+                    return Response.ok().build();
                 } else {
-                    if (isDuplicateFile(payload)) {
-                        return Response.ok().build();
-                    }
                     FreeForm freeForm = new FreeForm();
                     ResponseUtil.addEventToFreeForm(payload, freeForm);
                     freeForm.put(Constants.SHAREPOINT_FILE_ID, Constants.SWITCH, true);

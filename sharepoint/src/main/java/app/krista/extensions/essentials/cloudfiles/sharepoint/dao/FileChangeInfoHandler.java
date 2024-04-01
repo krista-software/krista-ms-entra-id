@@ -97,7 +97,7 @@ public class FileChangeInfoHandler {
     }
 
     private List<Map<String, Object>> prepareEvent(List<DriveItem> changedDriveItems, Map<String, Object> payload, String sitePath) {
-        List<Map<String, Object>> map = new ArrayList<>();
+        List<Map<String, Object>> eventMap = new ArrayList<>();
         if(!changedDriveItems.isEmpty()) {
             for (DriveItem driveItem  : changedDriveItems) {
                 if(driveItem.name == null){
@@ -105,13 +105,13 @@ public class FileChangeInfoHandler {
                 }
                 if (driveItem.lastModifiedDateTime != null && driveItem.createdDateTime != null
                         && driveItem.lastModifiedDateTime.equals(driveItem.createdDateTime)) {
-                    map.add(ResponseUtil.addCreatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));
+                    eventMap.add(ResponseUtil.addCreatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));
                 } else {
-                    map.add(ResponseUtil.addUpdatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));
+                    eventMap.add(ResponseUtil.addUpdatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));
                 }
             }
         }
-        return !map.isEmpty() ? map : List.of(payload);
+        return !eventMap.isEmpty() ? eventMap : List.of(payload);
     }
 
     private List<DriveItem> getListFromTrack(DriveItemDeltaCollectionPage trackChange, String driveID, String itemId) {
