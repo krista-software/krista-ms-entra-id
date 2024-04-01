@@ -8,7 +8,31 @@ public class Constants {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    public static final String GTE = "gte";
+
+    public static final String LTE = "lte";
+
+    public static final String GT = "gt";
+
+    public static final String LT = "lt";
+
+    public static final String EQUALS = "equals";
+
+    public static final String STARTSWITH = "startswith";
+
+    public static final String ENDSWITH = "endswith";
+
+    public static final String CONTAINS = "contains";
+
+    public static final String NOTEQUALS = "notequals";
+
+    public static final String MORE_RESULT_AVAILABLE = "MoreResultAvailable";
+
     public static final String CODE = "code";
+
+    public static final String ALL = "*";
+
+    public static final String LOGICAL_NAME = "logicalName";
 
     public static final String STATE = "state";
 
@@ -86,8 +110,6 @@ public class Constants {
 
     public static final String IS_TARGET_FILE_EXIST = "isTargetFileExist";
 
-    public static final String IS_FOLDER_EXIST = "isFolderExist";
-
     public static final String PARENT_REFERENCE = "parentReference";
 
     public static final String ID = "id";
@@ -95,8 +117,6 @@ public class Constants {
     public static final String FILE_HAS_BEEN_COPIED = "File has been copied successfully";
 
     public static final String PROVIDE_VALID_SOURCE_PATH = "Provide Valid source Path";
-
-    public static final String PROVIDE_VALID_TARGET_PATH = "Provide Valid target Path";
 
     public static final String ITEM_NOT_FOUND = "itemNotFound";
 
@@ -194,8 +214,6 @@ public class Constants {
 
     public static final String INVALID_FOLDER_PATH = "Please provide a valid path, the folder was not found";
 
-    public static final String SOURCE_OR_TARGET_PATHS_CANT_BE_NULL = "Source OR Target paths cannot be null or empty";
-
     public static final String LIST_CREATED = "created";
 
     public static final String CREATED = "Created";
@@ -207,6 +225,8 @@ public class Constants {
     public static final String SITE_RESOURCE = "/sites/";
 
     public static final String LIST_RESOURCE = "/lists/";
+
+    public static final String SLASH = "/";
 
     public static final String TO_DOWNLOAD_FILE_PLEASE_CLICK_ON_URL = "File downloaded successfully. Please click on the following URL to access the file";
 
@@ -297,8 +317,6 @@ public class Constants {
     public static final int BAD_REQUEST = 400;
 
     public static final int INTERNAL_SERVER_ERROR = 500;
-
-    public static final String FOLDER_NOT_FOUND = "Folder Not Found";
 
     public static final String INVALID_INPUT = "Invalid Input";
 
@@ -403,9 +421,6 @@ public class Constants {
     public static final String ownerMailUrl = "https://graph.microsoft.com/v1.0/me";
 
     public static final String DOCUMENT_LIBRARY = "documentLibrary";
-
-    public static final String READ_AND_WRITE = "Read and Write";
-
 
 
     private Constants() {

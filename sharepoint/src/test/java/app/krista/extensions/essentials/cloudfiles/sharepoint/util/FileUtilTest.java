@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.stores.search.FileEntitySearchMapper;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -183,4 +184,55 @@ public class FileUtilTest {
 
         assertNull(extractedSiteID);
     }
+
+
+    @Test
+    public void testExtractFoldersFromURLWithValidURL() {
+        String url = "https://contoso.sharepoint.com/sites/cs/Customer%20Success%202/Forms/DispForm.aspx?ID=28868";
+        String expectedPath = "/cs/Customer Success 2";
+        assertEquals(expectedPath, FileEntitySearchMapper.extractSitePathFromURL(url));
+    }
+
+    @Test
+    public void testExtractFoldersFromURLWithDifferentValidURL() {
+        String url = "https://example.com/sites/test/ABC/XYZ/Forms/DispForm.aspx?ID=12345";
+        String expectedPath = "/test/ABC";
+        assertEquals(expectedPath, FileEntitySearchMapper.extractSitePathFromURL(url));
+    }
+
+    @Test
+    public void testExtractFoldersFromURLWithNoSiteSegment() {
+        String url = "https://anothersite.org/Forms/DispForm.aspx?ID=54321";
+        String expectedPath = "";
+        assertEquals(expectedPath, FileEntitySearchMapper.extractSitePathFromURL(url));
+    }
+
+    @Test
+    public void testExtractFoldersFromURLWithNoSiteSegment2() {
+        String url = "https://contoso.sharepoint.com/sites/Testingkunal/Shared Documents/Test folder";
+        String expectedPath = "/Testingkunal/Shared Documents";
+        assertEquals(expectedPath, FileEntitySearchMapper.extractSitePathFromURL(url));
+    }
+
+    @Test
+    public void testExtractPathAfterSitesWithValidURL() {
+        String url = "https://contoso.sharepoint.com/sites/Testingkunal/Shared Documents/Test folder";
+        String expectedPath = "/Testingkunal/Shared Documents/Test folder";
+        assertEquals(expectedPath, FileEntitySearchMapper.extractFullPath(url));
+    }
+
+    @Test
+    public void testExtractPathAfterSitesWithAnotherValidURL() {
+        String url = "https://example.com/sites/Test/AnotherFolder";
+        String expectedPath = "/Test/AnotherFolder";
+        assertEquals(expectedPath, FileEntitySearchMapper.extractFullPath(url));
+    }
+
+    @Test
+    public void testExtractPathAfterSitesWithEmptyURL() {
+        String url = "";
+        String expectedPath = "";
+        assertEquals(expectedPath, FileEntitySearchMapper.extractFullPath(url));
+    }
+
 }

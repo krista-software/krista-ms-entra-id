@@ -2,6 +2,8 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import com.microsoft.graph.requests.DriveItemRequestBuilder;
+import com.microsoft.graph.requests.GraphServiceClient;
+import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,10 +11,12 @@ import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +27,8 @@ import java.util.regex.Pattern;
 public class FileUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
+
+    private static final String DD_MM_YYYY_HH_MM_A = "dd/MM/yyyy, hh:mm a";
 
     private FileUtil() {
     }
@@ -144,6 +150,23 @@ public class FileUtil {
         return drivePathBuilder.toString();
     }
 
+
+    public static boolean isEqualDate(Long entityFieldValue, Long fieldValue) {
+        long epochTime1 = entityFieldValue; // First epoch time
+        long epochTime2 = fieldValue; // Second epoch time
+
+        // Convert epoch times to Date objects
+        Date date1 = new Date(epochTime1);
+        Date date2 = new Date(epochTime2);
+
+        // Format dates to compare only date components (day, month, year)
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DD_MM_YYYY_HH_MM_A);
+
+        String formattedDate1 = dateFormat.format(date1);
+        String formattedDate2 = dateFormat.format(date2);
+        return formattedDate1.equals(formattedDate2);
+    }
+
     public static boolean isPathContainsInput(String path, String input) {
         // Split path and input into tokens
         String[] pathTokens = path.split("/");
@@ -175,12 +198,16 @@ public class FileUtil {
     }
 
     public static DriveItemRequestBuilder getRootUserRequestBuilder(GraphServiceClientProvider provider, String driveID) {
-        return provider.getUserRequestBuilder(null, null).drives(driveID).root();
+        return getUserRequestBuilder(provider).drives(driveID).root();
+    }
+
+    public static GraphServiceClient<Request> getUserRequestBuilder(GraphServiceClientProvider provider) {
+        return provider.getUserRequestBuilder(null, null);
     }
 
     public static String driveIdPath(String fullPath) {
         try {
-            String str [] = fullPath.split("/");
+            String str[] = fullPath.split("/");
             String drivePath = "/" + str[1] + "/" + (str[2]);
             return drivePath;
         } catch (RuntimeException cause) {
@@ -189,17 +216,18 @@ public class FileUtil {
         }
     }
 
-    public static String getLastPathElement(String path){
+    public static String getLastPathElement(String path) {
         return path.substring(path.lastIndexOf("/") + 1);
     }
+
     public static void failedToReadTextFile(Map<String, Object> payload) {
         payload.put(Constants.MESSAGE, Constants.FAILED_TO_READ_TEXTFILE);
         payload.put(Constants.SUCCESS, false);
     }
 
     public static String preparePath(String filePath) {
-        if(filePath!=null){
-            return filePath.replace("%20"," ");
+        if (filePath != null) {
+            return filePath.replace("%20", " ");
         }
         return null;
     }
