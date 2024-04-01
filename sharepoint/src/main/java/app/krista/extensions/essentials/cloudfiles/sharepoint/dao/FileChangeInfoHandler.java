@@ -80,7 +80,7 @@ public class FileChangeInfoHandler {
 
     private  List<Map<String, Object>> processDeltaLinkItems(DriveItemDeltaCollectionPage oldDeltaCollectionPage, Map<String, Object> payload, String sitePath) {
         try {
-            payload.put(Constants.EVENT, Constants.NO_CHANGE);
+            payload.put(Constants.EVENT, Constants.EMPTY);
             String token = getDeltaLinkToken(oldDeltaCollectionPage);
             String driveID = extractDriveID(oldDeltaCollectionPage);
             String itemId = extractItemId(oldDeltaCollectionPage);
@@ -90,8 +90,8 @@ public class FileChangeInfoHandler {
             List<DriveItem> changedDriveItems = FileHierarchyBuilder.buildHierarchy(trackDriveItems);
             return prepareEvent(changedDriveItems,payload,sitePath);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info(cause.getMessage(), cause);
-            payload.put(Constants.EVENT, Constants.NO_CHANGE);
+            LOGGER.info("Error occurred while processing delta items : {} ",cause.getMessage(), cause);
+            payload.put(Constants.EVENT, Constants.EMPTY);
         }
         return List.of(payload);
     }
@@ -100,6 +100,9 @@ public class FileChangeInfoHandler {
         List<Map<String, Object>> map = new ArrayList<>();
         if(!changedDriveItems.isEmpty()) {
             for (DriveItem driveItem  : changedDriveItems) {
+                if(driveItem.name == null){
+                    continue;
+                }
                 if (driveItem.lastModifiedDateTime != null && driveItem.createdDateTime != null
                         && driveItem.lastModifiedDateTime.equals(driveItem.createdDateTime)) {
                     map.add(ResponseUtil.addCreatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));

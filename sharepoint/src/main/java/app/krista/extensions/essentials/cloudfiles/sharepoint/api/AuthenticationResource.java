@@ -161,7 +161,7 @@ public final class AuthenticationResource {
             String fileStoreEvent = file.get(Constants.EVENT).toString();
             app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = (app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File)payload.get(Constants.FILE);
             String fileEvent = payload.get(Constants.EVENT).toString();
-            if(fileEntity.absolutePath.equals(fileStoreEntity.absolutePath) && fileEvent.equals(fileStoreEvent) && fileEntity.modified.equals(fileStoreEntity.modified)){
+            if(fileEntity==null || fileEntity.absolutePath.equals(fileStoreEntity.absolutePath) && fileEvent.equals(fileStoreEvent) && fileEntity.modified.equals(fileStoreEntity.modified)){
                 return true;
             }
         }
