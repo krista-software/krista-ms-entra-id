@@ -30,6 +30,8 @@ import java.util.*;
 public class SharedFileDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharedFileDao.class);
+    public static final String EDIT = "edit";
+    public static final String VIEW = "view";
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
@@ -63,8 +65,17 @@ public class SharedFileDao {
         return payload;
     }
 
-    private DriveItemCreateLinkParameterSet getParameterSet(String role) {
-        return DriveItemCreateLinkParameterSet.newBuilder().withType(role).withScope("organization").withExpirationDateTime(null).withPassword(null).withMessage(null).withRetainInheritedPermissions(null).build();
+    private DriveItemCreateLinkParameterSet getParameterSet(String role, List<DriveRecipient> recipientsList) {
+        return DriveItemCreateLinkParameterSet.newBuilder()
+                .withType(role)
+                .withScope("organization")
+                .withSendNotification(true)
+                .withRecipients(recipientsList)
+                .withExpirationDateTime(null)
+                .withPassword(null)
+                .withMessage(null)
+                .withRetainInheritedPermissions(null)
+                .build();
     }
 
     private void processSharing(DriveItem driveItem, List<Map<String, Object>> share, Map<String, Object> payload) {
@@ -73,10 +84,10 @@ public class SharedFileDao {
 
         Map<String, List<String>> usersWithPermission = new LinkedHashMap<>();
         if (!usersWithReadPermission.isEmpty()) {
-            usersWithPermission.put("view", usersWithReadPermission);
+            usersWithPermission.put(VIEW, usersWithReadPermission);
         }
         if (!usersWithWritePermission.isEmpty()) {
-            usersWithPermission.put("edit", usersWithWritePermission);
+            usersWithPermission.put(EDIT, usersWithWritePermission);
         }
 
         for (Map.Entry<String, List<String>> users : usersWithPermission.entrySet()) {
@@ -84,6 +95,7 @@ public class SharedFileDao {
         }
 
         String message = payload.getOrDefault(Constants.MESSAGE, "File has been shared successfully").toString();
+        payload.put(Constants.MESSAGE,message);
         if (message.contains("currently restricted") || message.contains("invalid email address")) {
             return;
         }
@@ -100,20 +112,21 @@ public class SharedFileDao {
 
     private void grantPermissions(String role, List<String> usersList, DriveItem driveItem, Map<String, Object> payload) {
         try {
-            DriveItemCreateLinkParameterSet parameterSet = getParameterSet(role);
-            String sharingLink = getSharingLink(driveItem.parentReference.driveId, driveItem.id, parameterSet);
-            assert sharingLink != null;
-            if (sharingLink.contains(Constants.ACCESS_DENIED)) {
-                ResponseUtil.errorResponse(false, Constants.FILE_IS_TO_SHARE_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT, payload);
-                return;
-            }
-            String encodedSharingUrl = getEncodedSharingURL(sharingLink);
             List<DriveRecipient> recipientsList = new LinkedList<>();
             for (String user : usersList) {
                 DriveRecipient driveRecipient = new DriveRecipient();
                 driveRecipient.email = user;
                 recipientsList.add(driveRecipient);
             }
+            DriveItemCreateLinkParameterSet parameterSet = getParameterSet(role,recipientsList);
+            String sharingLink = getSharingLink(driveItem.parentReference.driveId, driveItem.id, parameterSet);
+            assert sharingLink != null;
+            if (sharingLink.contains(Constants.ACCESS_DENIED)) {
+                ResponseUtil.errorResponse(false, Constants.FILE_IS_TO_SHARE_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT, payload);
+                return;
+            }
+
+            String encodedSharingUrl = getEncodedSharingURL(sharingLink);
             provider.getGraphServiceClientForAdmin().shares(encodedSharingUrl).permission().grant(PermissionGrantParameterSet.newBuilder().withRoles(List.of(role)).withRecipients(recipientsList).build()).buildRequest().post();
 
         } catch (GraphServiceException | IllegalArgumentException cause) {

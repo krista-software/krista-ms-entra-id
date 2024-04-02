@@ -24,15 +24,19 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, success);
     }
 
-    public static void addUpdatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
+    public static Map<String, Object> addUpdatedFile(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
+        Map<String, Object> payload = new HashMap<>();
         app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService,sitePath));
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.EVENT, Constants.UPDATED);
+        return payload;
     }
-    public static void addCreatedFile(DriveItem driveItem, Map<String, Object> payload, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
+    public static Map<String, Object> addCreatedFile(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
+        Map<String, Object> payload = new HashMap<>();
         app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService,sitePath));
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.EVENT, Constants.CREATED);
+        return payload;
     }
 
     public static void addEventToFreeForm(Map<String, Object> payload, FreeForm form) {
