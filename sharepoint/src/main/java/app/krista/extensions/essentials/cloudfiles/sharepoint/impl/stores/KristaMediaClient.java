@@ -41,10 +41,7 @@ public class KristaMediaClient {
         it will take krista's file object as input and returns java.io.File object
      */
 
-    /*
-        This method is used to upload a file into krista's media server
-        it will take java.io.File object as input and returns krista's file object
-     */
+
     public app.krista.model.base.File toKristaFile(File file) throws IOException {
         if (isUnsupportedFileFormat(file.getName())) {
             String zipFilePath = zipDir + file.getName().substring(0, file.getName().lastIndexOf(".")) + ".zip";
@@ -56,6 +53,12 @@ public class KristaMediaClient {
             return fileHandle.getFile();
         }
     }
+
+
+    /*
+        This method is used to upload a file into krista's media server
+        it will take java.io.File object as input and returns krista's file object
+     */
 
     public File toJavaFile(app.krista.model.base.File file) throws IOException {
 
