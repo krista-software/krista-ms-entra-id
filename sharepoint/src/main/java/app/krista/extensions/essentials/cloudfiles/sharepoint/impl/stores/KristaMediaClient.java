@@ -52,7 +52,6 @@ public class KristaMediaClient {
      * @throws IOException If an I/O error occurs.
      */
 
-
     public app.krista.model.base.File toKristaFile(File file) throws IOException {
         if (isUnsupportedFileFormat(file.getName())) {
             String zipFilePath = zipDir + file.getName().substring(0, file.getName().lastIndexOf(".")) + ".zip";
@@ -73,6 +72,7 @@ public class KristaMediaClient {
      * @return The Krista file object.
      * @throws IOException If an I/O error occurs.
      */
+
     public File toJavaFile(app.krista.model.base.File file) throws IOException {
         try (FileHandle fileHandle = fileRepository.getFile(file)) {
             InputStream content = fileHandle.getContent();
@@ -87,10 +87,12 @@ public class KristaMediaClient {
      * @param fileName The name of the file.
      * @return True if the file format is unsupported, otherwise false.
      */
+
     private boolean isUnsupportedFileFormat(String fileName) {
         String fileExtension = getFileExtension(fileName);
         return unSupportedFileFormats.contains(fileExtension);
     }
+
 
     /**
      * Converts an input stream to a file.
@@ -100,6 +102,7 @@ public class KristaMediaClient {
      * @return The file with the content of the input stream.
      * @throws IOException If an I/O error occurs.
      */
+
     private File convertInputStreamToFile(InputStream inputStream, File input) throws IOException {
         try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(input))) {
             byte[] buffer = new byte[4096];
@@ -119,6 +122,7 @@ public class KristaMediaClient {
      * @return The file extension.
      * @throws IllegalArgumentException If the file format is unsupported.
      */
+
     private String getFileExtension(String fileName) {
         if (fileName.contains(".")) {
             return fileName.substring((fileName.lastIndexOf(".") + 1));
