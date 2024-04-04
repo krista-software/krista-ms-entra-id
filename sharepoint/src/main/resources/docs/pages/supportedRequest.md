@@ -81,6 +81,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 > #### Note :
 > - Download as Krista File supports Files Up to 50 MB.
+> - Please note that if you attempt to download any file with the following extensions: html, php5, pht, phtml, shtml,
+    asa, cer, asax, swf, xap, jsp, exe, or js, the file will be downloaded in a zip format.
 
 - **Output**:
 
@@ -499,7 +501,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 > #### Note :
 > - This request is applicable for Folder and Site Path.
 
-
 - **Output**:
 
 | **Parameter Name** | **Parameter Type** | **Example**                          |
@@ -507,7 +508,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Files              | List&lt;Entity>    | [{name : ABC, extension:.txt , ...}] |
 | Message            | Text               | File Information                     |
 | Success            | Yes/No             | Yes                                  |
-
 
 ## Operation Area
 
@@ -533,8 +533,8 @@ Krista SharePoint extension supports the following Catalog Requests:
 >   - This request is intended to create a list within a SharePoint site. The list is successfully created, but it
       doesn't appear in the SharePoint navigation panel. The request provides the absolute path for accessing the list.
 
->   - After creating a list, allow a minimum of 2 hours for the changes to take effect. Therefore, it is advisable to
-      wait for this period before attempting to utilize the "Delete" or "Update" list methods.
+> - After creating a list, allow a minimum of 2 hours for the changes to take effect. Therefore, it is advisable to
+    wait for this period before attempting to utilize the "Delete" or "Update" list methods.
 
 > #### Limitations :
 >  - Creating a list named **Documents** and **Shared Documents** is not possible, as it is a default list already
@@ -583,12 +583,16 @@ Krista SharePoint extension supports the following Catalog Requests:
 > - If you want to create a group for a team called "Marketing123," the proper mail nickname would be:
 
 > - Example:
-> - 1. Incorrect: Marketing_123 (contains an underscore)
-> - 2. Incorrect: Marketing.123 (contains a period)
-> - 3. Incorrect: Marketing 123 (contains a space)
+> -
+1. Incorrect: Marketing_123 (contains an underscore)
+> -
+2. Incorrect: Marketing.123 (contains a period)
+> -
+3. Incorrect: Marketing 123 (contains a space)
 
 > - Correct :
-> - 1. Marketing123
+> -
+1. Marketing123
 
 #### 4. Delete Group
 
@@ -645,15 +649,17 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Success            | Yes/No             | Yes                                |
 
 > #### Note :
-> - The group update operation will modify the group name while retaining the original path unchanged. Microsoft does not
-alter the absolute path of the group when assigning a new name.
+> - The group update operation will modify the group name while retaining the original path unchanged. Microsoft does
+    not
+    alter the absolute path of the group when assigning a new name.
 
 ## Entity Requests
 
 #### Search By File
 
 > #### Limitation :
-> - The file entity search functionality may fail to produce relevant results. Exercise caution when implementing or relying on this feature.
+> - The file entity search functionality may fail to produce relevant results. Exercise caution when implementing or
+    relying on this feature.
 
 - **Description**: This request returns list of file details.
 - **Input Parameters**:

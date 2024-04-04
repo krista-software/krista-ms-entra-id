@@ -2,7 +2,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.JavaFileHandleHelper;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores.KristaMediaClient;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.DriveUtil;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
@@ -33,14 +33,14 @@ public class FileDownloadService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileDownloadService.class);
     private static final String MICROSOFT_GRAPH_DOWNLOAD_URL = "@microsoft.graph.downloadUrl";
     private final GraphServiceClientProvider provider;
-    private final JavaFileHandleHelper javaFileHandleHelper;
+    private final KristaMediaClient kristaMediaClient;
     private final SearchFileExecutor searchFileExecutor;
 
 
     @Inject
-    public FileDownloadService(GraphServiceClientProviderFactory factory, JavaFileHandleHelper javaFileHandleHelper, SearchFileExecutor searchFileExecutor) {
+    public FileDownloadService(GraphServiceClientProviderFactory factory, KristaMediaClient kristaMediaClient, SearchFileExecutor searchFileExecutor) {
         this.provider = factory.create();
-        this.javaFileHandleHelper = javaFileHandleHelper;
+        this.kristaMediaClient = kristaMediaClient;
         this.searchFileExecutor = searchFileExecutor;
     }
 
@@ -64,8 +64,7 @@ public class FileDownloadService {
                 } else {
                     setInvalidPathMessage(payload);
                 }
-            }
-            else {
+            } else {
                 setInvalidPathMessage(payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -132,7 +131,7 @@ public class FileDownloadService {
             InputStream inputStream = provider.getUserRequestBuilder(null, null)
                     .drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
             java.io.File content = DriveUtil.getFileFromInputStream(inputStream, driveItem.name);
-            app.krista.model.base.File kristaFile = javaFileHandleHelper.convertJavaFileToKristaFile(content);
+            app.krista.model.base.File kristaFile = kristaMediaClient.toKristaFile(content);
             payload.put(Constants.KRISTA_FILE, kristaFile);
             payload.put(Constants.SUCCESS, true);
             payload.put(Constants.MESSAGE, Constants.FILE_DOWNLOADED_SUCCESSFULLY);
