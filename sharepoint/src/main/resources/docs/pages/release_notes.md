@@ -15,7 +15,7 @@
 * [KE-1527] SharePoint: Not able to get below file format information using “File” entity.
 * [KE-1538] SharePoint: "When a file is changed" the conversation is triggered only once, even if the user uploads multiple files at a time.
 * [KE-1553] Adding support of New Media Server.
-* [KE-1640]  SharePoint: Removed unsupported search fields from the entity
+* [KE-1640] SharePoint: Removed unsupported search fields from the entity
 
 ## Known Issues
 

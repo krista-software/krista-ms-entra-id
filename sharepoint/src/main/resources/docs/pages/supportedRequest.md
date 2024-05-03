@@ -676,7 +676,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 > - Response of entity search does not support **Permissions** and **Shared With**.
 > - **Tags** are not Supported in SharePoint extension.
 > - **Is Folder** is Supported using Ask System Step only in SharePoint extension.
-> - **Created By** and **Modified By** are not Supported in SharePoint extension.
 > - **Size**, **Modified** and **Created** search is supported using Ask System Step.
 > - For Example : By using Ask System filters Size >= 2000 and Size <= 5000.
 > - The average time of response may vary based on the total number of files or folders to be fetched.
