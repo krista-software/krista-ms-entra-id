@@ -653,7 +653,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 > - The file entity search functionality may fail to produce relevant results. Exercise caution when implementing or
     relying on this feature.
 > - For better search results it is recommended to use **Absolute Path** with **contains** as operator in **Ask a System** Step.
->  - Absolute Path should contain at-least Site name and Directory name, for example : /Site Name/Shared Document.
+> - Absolute Path should contain at-least Site name and Directory name, for example : /Site Name/Shared Document.
 
 - **Description**: This request returns list of file details.
 - **Input Parameters**:
