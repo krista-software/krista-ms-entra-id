@@ -530,14 +530,13 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Success            | Yes/No             | Yes                                |
 
 > #### Note :
->   - This request is intended to create a list within a SharePoint site. The list is successfully created, but it
-      doesn't appear in the SharePoint navigation panel. The request provides the absolute path for accessing the list.
-
+> - This request is intended to create a list within a SharePoint site. The list is successfully created, but it
+   doesn't appear in the SharePoint navigation panel. The request provides the absolute path for accessing the list.
 > - After creating a list, allow a minimum of 2 hours for the changes to take effect. Therefore, it is advisable to
     wait for this period before attempting to utilize the "Delete" or "Update" list methods.
 
 > #### Limitations :
->  - Creating a list named **Documents** and **Shared Documents** is not possible, as it is a default list already
+>  - Creating a list named **Documents** or **Shared Documents** is not possible, as it is a default list already
      existing.
 
 #### 2. Delete List
@@ -577,22 +576,15 @@ Krista SharePoint extension supports the following Catalog Requests:
       wait for this period before attempting to utilize the "Delete" or "Update" group methods.
 
 > #### Guidelines :
-
 > - Ensure the mail nickname comprises a combination of letters and numbers.
 > - Eliminate any special characters, spaces, hyphens, underscores, or periods from the nickname.
 > - If you want to create a group for a team called "Marketing123," the proper mail nickname would be:
+>  - **Example:**
+>    1. **Incorrect:** Marketing_123 (contains an underscore)
+>    2. **Incorrect:** Marketing.123 (contains a period)
+>    3. **Incorrect:** Marketing 123 (contains a space)
+>    4. **Correct:** Marketing123
 
-> - Example:
-> -
-1. Incorrect: Marketing_123 (contains an underscore)
-> -
-2. Incorrect: Marketing.123 (contains a period)
-> -
-3. Incorrect: Marketing 123 (contains a space)
-
-> - Correct :
-> -
-1. Marketing123
 
 #### 4. Delete Group
 
@@ -680,7 +672,6 @@ Krista SharePoint extension supports the following Catalog Requests:
 | Is Folder          | Yes/No             | No            | No                                                        |
 
 > #### Note :
-
 > - Entity search using Permission is not supported.
 > - Response of entity search does not support **Permissions** and **Shared With**.
 > - **Tags** are not Supported in SharePoint extension.
