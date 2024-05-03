@@ -55,7 +55,6 @@ public class File {
     @Field(name = "Size", type = "Number", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Double size;
 
-    @Searchable
     @Field.PickOne(name = "Permissions", values = {"Read","Write","Read and Write","Own"}, required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String permissions;
 
@@ -70,11 +69,9 @@ public class File {
     @Field.Desc(name = "Shared With", type = "[ { User Email: Email, Permission: PickOne(Read|Write|Read and Write|Own) } ]",required = false)
     public List<Map<String, Object>> sharedWith;
 
-    @Searchable
     @Field.Text(name = "Created By", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String createdBy;
 
-    @Searchable
     @Field.Text(name = "Modified By", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String modifiedBy;
 
