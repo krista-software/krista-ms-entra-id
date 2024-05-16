@@ -26,14 +26,14 @@ public class ResponseUtil {
 
     public static Map<String, Object> addUpdatedFile(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
         Map<String, Object> payload = new HashMap<>();
-        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService,sitePath));
+        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null, sitePath));
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.EVENT, Constants.UPDATED);
         return payload;
     }
     public static Map<String, Object> addCreatedFile(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
         Map<String, Object> payload = new HashMap<>();
-        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService,sitePath));
+        app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null, sitePath));
         payload.put(Constants.FILE, fileEntity);
         payload.put(Constants.EVENT, Constants.CREATED);
         return payload;

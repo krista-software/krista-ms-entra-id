@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -39,13 +40,15 @@ public class FolderManagementDao {
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
+    private final SharePointAttributes sharePointAttributes;
 
     @Inject
     public FolderManagementDao(GraphServiceClientProviderFactory factory,
-                               FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
+                               FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, SharePointAttributes sharePointAttributes) {
         this.provider = factory.create();
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
+        this.sharePointAttributes = sharePointAttributes;
     }
 
     /**
@@ -91,10 +94,10 @@ public class FolderManagementDao {
                     for (DriveItem driveInPage : page.getCurrentPage()) {
                         if (search != null && !search.isEmpty() && driveInPage.folder != null &&
                                 driveInPage.name != null && driveInPage.name.contains(search)) {
-                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, sitePath));
+                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, sharePointAttributes, sitePath));
                         }
                         if (search != null && search.isBlank() && driveInPage.folder != null) {
-                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, sitePath));
+                            files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, sharePointAttributes, sitePath));
                         }
                     }
                     if (page.getNextPage() != null) {

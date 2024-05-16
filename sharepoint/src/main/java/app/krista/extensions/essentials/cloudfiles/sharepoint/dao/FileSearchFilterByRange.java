@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
@@ -39,13 +40,15 @@ public class FileSearchFilterByRange {
     private final GraphServiceClientProvider clientProvider;
     private final FileSearchImpl fileSearchImpl;
     private final FileSearchUtilityService fileSearchUtilityService;
+    private final SharePointAttributes sharePointAttributes;
 
 
     @Inject
-    public FileSearchFilterByRange(GraphServiceClientProviderFactory factory, FileSearchImpl fileSearchImpl, FileSearchUtilityService fileSearchUtilityService) {
+    public FileSearchFilterByRange(GraphServiceClientProviderFactory factory, FileSearchImpl fileSearchImpl, FileSearchUtilityService fileSearchUtilityService, SharePointAttributes sharePointAttributes) {
         this.clientProvider = factory.create();
         this.fileSearchImpl = fileSearchImpl;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.sharePointAttributes = sharePointAttributes;
     }
 
     /**
@@ -71,7 +74,7 @@ public class FileSearchFilterByRange {
 
             List<DrivePermissionImpl> drivePermissions = getFileByDateRange(fromDate, toDate, payload, useEmail, accountID, from, size);
             if (drivePermissions != null) {
-                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, "Files and Folders within specified date range is fetched successfully.", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_DATE_RANGE, payload);
                 return payload;
@@ -119,7 +122,7 @@ public class FileSearchFilterByRange {
 
             List<DrivePermissionImpl> drivePermissions = getFileBySizeRange(fromSize, toSize, payload, useEmail, accountID, from, size);
             if (drivePermissions != null && !drivePermissions.isEmpty()) {
-                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
+                ResponseUtil.listOfFileEntityResponse(drivePermissions.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, "Files and Folders within specified size range is fetched successfully.", payload);
             } else {
                 handleInvalidError(Constants.NO_FILE_FOUND_IN_SIZE_RANGE, payload);
                 return payload;
@@ -221,7 +224,7 @@ public class FileSearchFilterByRange {
                 .filter(container -> container.hits != null)
                 .flatMap(container -> container.hits.stream())
                 .filter(hits -> hits != null && hits.resource instanceof DriveItem)
-                .map(hits -> new DrivePermissionImpl((DriveItem) hits.resource, graphClient, fileSearchUtilityService, null))
+                .map(hits -> new DrivePermissionImpl((DriveItem) hits.resource, graphClient, fileSearchUtilityService, sharePointAttributes, null))
                 .forEach(resultPage::add);
     }
 

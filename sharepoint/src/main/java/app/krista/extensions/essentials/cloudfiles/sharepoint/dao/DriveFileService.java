@@ -1,8 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.service.FileService;
@@ -42,14 +42,16 @@ public class DriveFileService {
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
+    private final SharePointAttributes sharePointAttributes;
 
 
     @Inject
     public DriveFileService(GraphServiceClientProviderFactory factory,
-                            FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
+                            FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, SharePointAttributes sharePointAttributes) {
         this.provider = factory.create();
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
+        this.sharePointAttributes = sharePointAttributes;
     }
 
     /**
@@ -254,7 +256,7 @@ public class DriveFileService {
             if (driveItem != null && driveItem.id != null && driveItem.folder != null) {
                 iterateAndAddFilesToCollection(files, search, driveID, relativePath, useEmail, accountID, payload,sitePath);
             } else {
-                files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, sitePath));
+                files.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, sharePointAttributes, sitePath));
                 ResponseUtil.listOfFileEntityResponse(files.stream().map(app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File::fromFile).collect(Collectors.toList()), true, " ", payload);
             }
         } catch (GraphServiceException | IllegalArgumentException cause) {
@@ -271,7 +273,7 @@ public class DriveFileService {
             while (page != null && !page.getCurrentPage().isEmpty()) {
                 for (DriveItem driveInPage : page.getCurrentPage()) {
                     if (isSearchCriteriaMatched(search, driveInPage)) {
-                        files.add(new FileImpl(driveInPage, graphClient, sitePath, fileSearchUtilityService));
+                        files.add(new DrivePermissionImpl(driveInPage, graphClient, fileSearchUtilityService, sharePointAttributes, sitePath));
                     }
                 }
 

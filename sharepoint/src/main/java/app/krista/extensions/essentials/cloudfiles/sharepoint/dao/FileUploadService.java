@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
@@ -40,14 +41,16 @@ public class FileUploadService {
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
     private final KristaMediaClient kristaMediaClient;
+    private final SharePointAttributes sharePointAttributes;
 
     @Inject
     public FileUploadService(GraphServiceClientProviderFactory factory,
-                             FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, KristaMediaClient kristaMediaClient) {
+                             FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, KristaMediaClient kristaMediaClient, SharePointAttributes sharePointAttributes) {
         this.provider = factory.create();
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
         this.kristaMediaClient = kristaMediaClient;
+        this.sharePointAttributes = sharePointAttributes;
     }
 
     /**
@@ -109,7 +112,7 @@ public class FileUploadService {
 
                 if (uploadedDriveItem != null) {
                     String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
-                    File fileEntity = File.fromFile(new DrivePermissionImpl(uploadedDriveItem, graphClient, fileSearchUtilityService, sitePath));
+                    File fileEntity = File.fromFile(new DrivePermissionImpl(uploadedDriveItem, graphClient, fileSearchUtilityService, sharePointAttributes, sitePath));
                     payload.put(Constants.FILE, fileEntity);
                     payload.put(Constants.MESSAGE, Constants.FILE_UPLOADED_SUCCESSFULLY);
                     payload.put(Constants.SUCCESS, true);

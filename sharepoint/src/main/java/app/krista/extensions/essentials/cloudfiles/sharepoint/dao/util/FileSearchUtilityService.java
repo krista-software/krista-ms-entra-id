@@ -2,10 +2,13 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util;
 
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.FileUtil;
+import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.requests.GraphServiceClient;
 import okhttp3.Request;
 import org.jvnet.hk2.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -22,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class FileSearchUtilityService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileSearchUtilityService.class);
 
     private FileSearchUtilityService() {
     }
@@ -89,13 +93,13 @@ public class FileSearchUtilityService {
 
     public DriveItem getDriveMetaData(DriveItem driveItem, GraphServiceClient<Request> graphClient) {
         DriveItem driveMetaData = null;
-        if (driveItem != null && driveItem.parentReference.driveId != null && driveItem.parentReference.id != null) {
+        if (driveItem != null && driveItem.parentReference != null && driveItem.parentReference.driveId != null) {
 
             try {
                 driveMetaData = graphClient.drives(driveItem.parentReference.driveId).
                         items(driveItem.id).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
-            } catch (Exception cause) {
-                return driveMetaData;
+            } catch (GraphServiceException | IllegalArgumentException cause) {
+                LOGGER.error("Error while fetching Drive Item {} {} :", cause, cause.getMessage());
             }
         }
         return driveMetaData;
