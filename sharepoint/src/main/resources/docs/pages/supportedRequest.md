@@ -511,6 +511,9 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 ## Operation Area
 
+> #### Note : 
+>  All requests in the Operation Area related to creating, updating, and deleting groups/sites, as well as response generated as File Entity, may not include all fields of the File Entity.
+
 #### 1. Create List
 
 - **Description**: This request is used to initiate the creation of a new list within the specified SharePoint site.

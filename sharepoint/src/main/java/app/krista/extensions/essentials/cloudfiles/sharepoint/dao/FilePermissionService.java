@@ -1,10 +1,12 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.IdentitySet;
 import com.microsoft.graph.models.Permission;
 import com.microsoft.graph.requests.PermissionCollectionPage;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,54 @@ public class FilePermissionService {
 
     private static String toSentenceCase(String role) {
         return role.substring(0, 1).toUpperCase() + role.substring(1).toLowerCase();
+    }
+
+    public static String getOwnerPermissions(PermissionCollectionPage permissionCollectionPage, SharePointAttributes sharePointAttributes) {
+        try {
+            while (permissionCollectionPage != null && !permissionCollectionPage.getCurrentPage().isEmpty()) {
+                Permission permissionGranted = permissionCollectionPage.getCurrentPage().get(permissionCollectionPage.getCurrentPage().size() - 1);
+                String grantedToPermission = fetchPermissionFromGrantedTo(sharePointAttributes, permissionGranted);
+                if (grantedToPermission != null) return grantedToPermission;
+                String identityPermission = fetchPermissionFromIdentities(permissionCollectionPage, sharePointAttributes);
+                if (identityPermission != null) return identityPermission;
+
+                if (permissionCollectionPage.getNextPage() != null) {
+                    permissionCollectionPage = permissionCollectionPage.getNextPage().buildRequest().get();
+                } else {
+                    break;
+                }
+            }
+        } catch (GraphServiceException cause) {
+            throw new IllegalArgumentException(cause.getMessage(), cause);
+        }
+        return null;
+    }
+
+    @Nullable
+    private static String fetchPermissionFromGrantedTo(SharePointAttributes sharePointAttributes, Permission permissionGranted) {
+        if (permissionGranted != null && permissionGranted.grantedTo != null && permissionGranted.grantedTo.user != null) {
+            String email = permissionGranted.grantedTo.user.additionalDataManager().get(Constants.EMAIL) != null
+                    ? permissionGranted.grantedTo.user.additionalDataManager().get(Constants.EMAIL).getAsString() : permissionGranted.grantedTo.user.displayName;
+
+            return email.equals(sharePointAttributes.getMailId()) ? Constants.OWN : Constants.WRITE;
+        }
+        return null;
+    }
+
+    @Nullable
+    private static String fetchPermissionFromIdentities(PermissionCollectionPage permissionCollectionPage, SharePointAttributes sharePointAttributes) {
+        for (Permission permission : permissionCollectionPage.getCurrentPage()) {
+            if (permission != null && permission.grantedToIdentities != null && permission.roles != null) {
+                for (IdentitySet identity : permission.grantedToIdentities) {
+                    if (identity.user != null) {
+                        String email = identity.user.additionalDataManager().get(Constants.EMAIL) != null
+                                ? identity.user.additionalDataManager().get(Constants.EMAIL).getAsString() : "";
+                        return email.equals(sharePointAttributes.getMailId()) ? toSentenceCase(permission.roles.toString()) : " ";
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public List<Map<String, Object>> getSharedWithPermissions(PermissionCollectionPage permissionCollectionPage) {

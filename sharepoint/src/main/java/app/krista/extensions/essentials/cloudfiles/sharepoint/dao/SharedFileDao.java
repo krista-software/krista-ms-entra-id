@@ -1,7 +1,8 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants;
@@ -35,12 +36,14 @@ public class SharedFileDao {
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
+    private final SharePointAttributes sharePointAttributes;
 
     @Inject
-    public SharedFileDao(GraphServiceClientProviderFactory factory, FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
+    public SharedFileDao(GraphServiceClientProviderFactory factory, FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, SharePointAttributes sharePointAttributes) {
         this.provider = factory.create();
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
+        this.sharePointAttributes = sharePointAttributes;
     }
 
 
@@ -102,7 +105,7 @@ public class SharedFileDao {
         DriveItem upadatedDriveItem = getFileWithPermissions(driveItem.parentReference.driveId, driveItem.id);
 
         String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
-        payload.put(Constants.FILE, app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File.fromFile(new FileImpl(upadatedDriveItem, provider.getUserRequestBuilder(null, null), sitePath, fileSearchUtilityService)));
+        payload.put(Constants.FILE, app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File.fromFile(new DrivePermissionImpl(upadatedDriveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sharePointAttributes, sitePath)));
         payload.put(Constants.SUCCESS, true);
     }
 

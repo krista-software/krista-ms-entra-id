@@ -1,11 +1,11 @@
 # Release Notes - Krista SharePoint Extension
 
-## Version 2.0.1
+## Version 2.0.2
 
-- **Developer Name** :Aradhya Guadadhe
+- **Developer Name** :Chetan Sonawane
 - **Krista Service APIs Java** : 1.0.94
-- **Global Catalog Version** : 1.0.44
-- **Appliance Release Version** : 3.3.1
+- **Global Catalog Version** : 1.0.45
+- **Appliance Release Version** : 3.3.2
 
 ## Resolved Bugs
 

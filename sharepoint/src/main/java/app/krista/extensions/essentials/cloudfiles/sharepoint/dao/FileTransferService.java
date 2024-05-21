@@ -1,8 +1,9 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.dao;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.SharePointAttributes;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.FileImpl;
+import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.RestClient;
@@ -45,13 +46,15 @@ public class FileTransferService {
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
     private final SearchFileExecutor searchFileExecutor;
+    private final SharePointAttributes sharePointAttributes;
 
     @Inject
     public FileTransferService(GraphServiceClientProviderFactory factory,
-                               FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor) {
+                               FileSearchUtilityService fileSearchUtilityService, SearchFileExecutor searchFileExecutor, SharePointAttributes sharePointAttributes) {
         this.provider = factory.create();
         this.fileSearchUtilityService = fileSearchUtilityService;
         this.searchFileExecutor = searchFileExecutor;
+        this.sharePointAttributes = sharePointAttributes;
     }
 
     /**
@@ -192,7 +195,7 @@ public class FileTransferService {
                     .buildRequest().expand(Constants.PERMISSIONS).get();
             String sitePath = payload.get(Constants.TARGET_ROOT_PATH).toString();
             ResponseUtil.fileEntityResponse(File
-                            .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null), sitePath, fileSearchUtilityService))
+                            .fromFile(new DrivePermissionImpl(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sharePointAttributes, sitePath))
                     , true, Constants.FILE_HAS_BEEN_COPIED, payload);
         } else if ("inProgress".equalsIgnoreCase(status)) {
             ResponseUtil.errorResponse(true, Constants.COPY_IN_PROGRESS, payload);
@@ -211,7 +214,7 @@ public class FileTransferService {
                         .buildRequest().expand(Constants.PERMISSIONS).get();
                 String sitePath = payload.get(Constants.TARGET_ROOT_PATH).toString();
                 ResponseUtil.fileEntityResponse(File
-                                .fromFile(new FileImpl(driveItem, provider.getUserRequestBuilder(null, null), sitePath, fileSearchUtilityService))
+                                .fromFile(new DrivePermissionImpl(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sharePointAttributes, sitePath))
                         , true, Constants.FILE_HAS_BEEN_MOVED, payload);
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.info(cause.getMessage(), cause);
