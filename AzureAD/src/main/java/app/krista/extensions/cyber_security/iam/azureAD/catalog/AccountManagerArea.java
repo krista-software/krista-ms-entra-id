@@ -96,19 +96,33 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field(name = "Password", type = "Text", required = false, attributes = {}, options = {})
     public String resetPassword(
-            @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) throws InterruptedException {
-        try {
-            return account.resetPassword(id);
-        } catch (ClientException cause) {
-            int statusCode = ((GraphServiceException) cause.getCause()).getResponseCode();
-            if (statusCode == 403) {
-                Thread.sleep(3000);
+            @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) {
+        int maxAttempts = 3;
+        int attempts = 0;
+
+        while (attempts < maxAttempts) {
+            try {
                 return account.resetPassword(id);
-            } else {
-                throw new RuntimeException("Error occurred while reset password", cause);
+            } catch (ClientException cause) {
+                int statusCode = ((GraphServiceException) cause.getCause()).getResponseCode();
+                if (statusCode == 403) {
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException interruptedException) {
+                            Thread.currentThread().interrupt();
+                            throw new RuntimeException("Thread interrupted during sleep", interruptedException);
+                        }
+                    } else {
+                        throw new RuntimeException("Max attempts reached. Error occurred while resetting password", cause);
+                    }
+                } else {
+                    throw new RuntimeException("Error occurred while resetting password", cause);
+                }
             }
         }
+        return null;
 
     }
-
 }
