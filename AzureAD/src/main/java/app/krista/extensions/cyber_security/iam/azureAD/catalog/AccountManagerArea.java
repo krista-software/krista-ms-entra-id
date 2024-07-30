@@ -7,6 +7,10 @@ import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
+import com.microsoft.graph.core.ClientException;
+import com.microsoft.graph.http.GraphServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -21,6 +25,7 @@ public
 class AccountManagerArea {
 
     private final Accounts account;
+    private static final Logger logger = LoggerFactory.getLogger(AccountManagerArea.class);
 
     @Inject
     public AccountManagerArea(AccountImpl account) {
@@ -91,8 +96,19 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field(name = "Password", type = "Text", required = false, attributes = {}, options = {})
     public String resetPassword(
-            @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) {
-        return account.resetPassword(id);
+            @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) throws InterruptedException {
+        try {
+            return account.resetPassword(id);
+        } catch (ClientException cause) {
+            int statusCode = ((GraphServiceException) cause.getCause()).getResponseCode();
+            if (statusCode == 403) {
+                Thread.sleep(3000);
+                return account.resetPassword(id);
+            } else {
+                throw new RuntimeException("Error occurred while reset password", cause);
+            }
+        }
+
     }
 
 }
