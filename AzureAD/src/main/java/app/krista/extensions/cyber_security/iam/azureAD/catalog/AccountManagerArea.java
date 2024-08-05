@@ -99,30 +99,42 @@ class AccountManagerArea {
             @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) {
         int maxAttempts = 3;
         int attempts = 0;
+        int backoffTime = 3000; // initial backoff time in milliseconds
 
         while (attempts < maxAttempts) {
             try {
                 return account.resetPassword(id);
             } catch (ClientException cause) {
-                int statusCode = ((GraphServiceException) cause.getCause()).getResponseCode();
-                if (statusCode == 403) {
-                    attempts++;
-                    if (attempts < maxAttempts) {
-                        try {
-                            Thread.sleep(3000);
-                        } catch (InterruptedException interruptedException) {
-                            Thread.currentThread().interrupt();
-                            throw new RuntimeException("Thread interrupted during sleep", interruptedException);
+                Throwable rootCause = cause.getCause();
+                if (rootCause instanceof GraphServiceException) {
+                    GraphServiceException graphEx = (GraphServiceException) rootCause;
+                    int statusCode = graphEx.getResponseCode();
+
+                    if (statusCode == 403) {
+                        attempts++;
+                        if (attempts < maxAttempts) {
+                            try {
+                                Thread.sleep(backoffTime);
+                                backoffTime *= 2; // exponential backoff
+                            } catch (InterruptedException interruptedException) {
+                                Thread.currentThread().interrupt();
+                                logger.error("Thread interrupted during sleep", interruptedException);
+                                throw new RuntimeException("Thread interrupted during sleep", interruptedException);
+                            }
+                        } else {
+                            logger.error("Max attempts reached. Error occurred while resetting password", cause);
+                            throw new RuntimeException("Max attempts reached. Error occurred while resetting password", cause);
                         }
                     } else {
-                        throw new RuntimeException("Max attempts reached. Error occurred while resetting password", cause);
+                        logger.error("Error occurred while resetting password", cause);
+                        throw new RuntimeException("Error occurred while resetting password", cause);
                     }
                 } else {
-                    throw new RuntimeException("Error occurred while resetting password", cause);
+                    logger.error("Unexpected error occurred while resetting password", cause);
+                    throw new RuntimeException("Unexpected error occurred while resetting password", cause);
                 }
             }
         }
         return null;
-
     }
 }
