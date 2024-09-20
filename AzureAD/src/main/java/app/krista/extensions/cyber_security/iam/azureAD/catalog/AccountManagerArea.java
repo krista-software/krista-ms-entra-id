@@ -7,6 +7,10 @@ import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
+import com.microsoft.graph.core.ClientException;
+import com.microsoft.graph.http.GraphServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -21,6 +25,7 @@ public
 class AccountManagerArea {
 
     private final Accounts account;
+    private static final Logger logger = LoggerFactory.getLogger(AccountManagerArea.class);
 
     @Inject
     public AccountManagerArea(AccountImpl account) {
@@ -92,7 +97,44 @@ class AccountManagerArea {
     @Field(name = "Password", type = "Text", required = false, attributes = {}, options = {})
     public String resetPassword(
             @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) {
-        return account.resetPassword(id);
-    }
+        int maxAttempts = 3;
+        int attempts = 0;
+        int backoffTime = 3000; // initial backoff time in milliseconds
 
+        while (attempts < maxAttempts) {
+            try {
+                return account.resetPassword(id);
+            } catch (ClientException cause) {
+                Throwable rootCause = cause.getCause();
+                if (rootCause instanceof GraphServiceException) {
+                    GraphServiceException graphEx = (GraphServiceException) rootCause;
+                    int statusCode = graphEx.getResponseCode();
+
+                    if (statusCode == 403) {
+                        attempts++;
+                        if (attempts < maxAttempts) {
+                            try {
+                                Thread.sleep(backoffTime);
+                                backoffTime *= 2; // exponential backoff
+                            } catch (InterruptedException interruptedException) {
+                                Thread.currentThread().interrupt();
+                                logger.error("Thread interrupted during sleep", interruptedException);
+                                throw new RuntimeException("Thread interrupted during sleep", interruptedException);
+                            }
+                        } else {
+                            logger.error("Max attempts reached. Error occurred while resetting password", cause);
+                            throw new RuntimeException("Max attempts reached. Error occurred while resetting password", cause);
+                        }
+                    } else {
+                        logger.error("Error occurred while resetting password", cause);
+                        throw new RuntimeException("Error occurred while resetting password", cause);
+                    }
+                } else {
+                    logger.error("Unexpected error occurred while resetting password", cause);
+                    throw new RuntimeException("Unexpected error occurred while resetting password", cause);
+                }
+            }
+        }
+        return null;
+    }
 }
