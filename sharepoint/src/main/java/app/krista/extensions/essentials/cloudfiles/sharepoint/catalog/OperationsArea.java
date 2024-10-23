@@ -38,6 +38,7 @@ public class OperationsArea {
         return operationsAreaImpl.createList(siteName, listName);
     }
 
+
     @CatalogRequest(
             id = "localDomainRequest_4fe8e573-df22-4c9b-81a5-bec735a687c3",
             name = "Delete List",
