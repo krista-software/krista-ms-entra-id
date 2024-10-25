@@ -19,12 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,39 +27,41 @@ public class FileChangeInfoHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileChangeInfoHandler.class);
     private final GraphServiceClientProvider provider;
     private final FileSearchUtilityService fileSearchUtilityService;
+    private final GraphServiceClientProvider clientProvider;
 
     @Inject
-    public FileChangeInfoHandler(GraphServiceClientProviderFactory factory, FileSearchUtilityService fileSearchUtilityService) {
-        this(factory.create(), fileSearchUtilityService);
+    public FileChangeInfoHandler(GraphServiceClientProviderFactory factory, FileSearchUtilityService fileSearchUtilityService, GraphServiceClientProvider clientProvider) {
+        this(factory.create(), fileSearchUtilityService, clientProvider);
     }
 
-    public FileChangeInfoHandler(GraphServiceClientProvider provider, FileSearchUtilityService fileSearchUtilityService) {
+    public FileChangeInfoHandler(GraphServiceClientProvider provider, FileSearchUtilityService fileSearchUtilityService, GraphServiceClientProvider clientProvider) {
         this.provider = provider;
         this.fileSearchUtilityService = fileSearchUtilityService;
+        this.clientProvider = clientProvider;
     }
 
     public List<Map<String, Object>> getChangeFileEvent(String subscriptionId) {
         Map<String, Object> payload = new HashMap<>();
         try {
             DriveItemDeltaCollectionPage oldDeltaCollectionPage = FileChangeResourceUtil.getFileChangeResource(subscriptionId);
-            if(oldDeltaCollectionPage == null){
+            if (oldDeltaCollectionPage == null) {
                 payload.put(Constants.MESSAGE, Constants.EMPTY);
                 return List.of(payload);
             }
             String driveID = extractDriveID(oldDeltaCollectionPage);
             String itemId = extractItemId(oldDeltaCollectionPage);
             String monitoredPath = FileChangeResourceUtil.getPathBySubscription(subscriptionId);
-            if(monitoredPath == null){
+            if (monitoredPath == null) {
                 payload.put(Constants.MESSAGE, Constants.EMPTY);
                 return List.of(payload);
             }
             String sitePath = FileUtil.driveIdPath(monitoredPath);
-            List<Map<String, Object>> payloadList = processDeltaLinkItems(oldDeltaCollectionPage, payload,sitePath);
-            FileChangeResourceUtil.addFileMetaData(subscriptionId, createFileChangeResource(driveID,itemId));
+            List<Map<String, Object>> payloadList = processDeltaLinkItems(oldDeltaCollectionPage, payload, sitePath);
+            FileChangeResourceUtil.addFileMetaData(subscriptionId, createFileChangeResource(driveID, itemId));
             return payloadList;
 
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.error("Error occurred while processing file change event : {}",cause.getMessage(), cause);
+            LOGGER.error("Error occurred while processing file change event : {}", cause.getMessage(), cause);
             ResponseUtil.errorResponse(false, Constants.FILE_NOT_FOUND, payload);
         }
         return List.of(payload);
@@ -74,24 +71,24 @@ public class FileChangeInfoHandler {
         try {
             return provider.getUserRequestBuilder(null, null).drives(driveID).items(itemId).delta().buildRequest().get();
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.error("Error occurred during subscription : {}" ,cause.getMessage(), cause);
+            LOGGER.error("Error occurred during subscription : {}", cause.getMessage(), cause);
             throw new RuntimeException();
         }
     }
 
-    private  List<Map<String, Object>> processDeltaLinkItems(DriveItemDeltaCollectionPage oldDeltaCollectionPage, Map<String, Object> payload, String sitePath) {
+    private List<Map<String, Object>> processDeltaLinkItems(DriveItemDeltaCollectionPage oldDeltaCollectionPage, Map<String, Object> payload, String sitePath) {
         try {
             payload.put(Constants.EVENT, Constants.EMPTY);
             String token = getDeltaLinkToken(oldDeltaCollectionPage);
             String driveID = extractDriveID(oldDeltaCollectionPage);
             String itemId = extractItemId(oldDeltaCollectionPage);
 
-            DriveItemDeltaCollectionPage trackChanges = getDeltaCollectionWithToken(token,driveID,itemId);
-            List<DriveItem> trackDriveItems = getListFromTrack(trackChanges,driveID,itemId);
+            DriveItemDeltaCollectionPage trackChanges = getDeltaCollectionWithToken(token, driveID, itemId);
+            List<DriveItem> trackDriveItems = getListFromTrack(trackChanges, driveID, itemId);
             List<DriveItem> changedDriveItems = FileHierarchyBuilder.buildHierarchy(trackDriveItems);
-            return prepareEvent(changedDriveItems,payload,sitePath);
+            return prepareEvent(changedDriveItems, payload, sitePath);
         } catch (GraphServiceException | IllegalArgumentException cause) {
-            LOGGER.info("Error occurred while processing delta items : {} ",cause.getMessage(), cause);
+            LOGGER.info("Error occurred while processing delta items : {} ", cause.getMessage(), cause);
             payload.put(Constants.EVENT, Constants.EMPTY);
         }
         return List.of(payload);
@@ -99,9 +96,11 @@ public class FileChangeInfoHandler {
 
     private List<Map<String, Object>> prepareEvent(List<DriveItem> changedDriveItems, Map<String, Object> payload, String sitePath) {
         List<Map<String, Object>> eventMap = new ArrayList<>();
-        if(!changedDriveItems.isEmpty()) {
-            for (DriveItem driveItem  : changedDriveItems) {
-                if(driveItem.name == null){
+        if (!changedDriveItems.isEmpty()) {
+            for (DriveItem driveItem : changedDriveItems) {
+                if (driveItem.name == null) {
+                    // continue;
+                    clientProvider.getRestClient(null).get("https://graph.microsoft.com/v1.0/sites/" + driveItem.parentReference.siteId + "/recycleBin");
                     DriveItemCollectionPage recycleBinItems = provider.getUserRequestBuilder(null, null).customRequest("/drives/" + driveItem.parentReference.driveId + "/recycleBin", DriveItemCollectionPage.class).buildRequest().get();
                     // Filter results by fileId (you can do this manually in the code since the SDK doesn't offer a method)
                     for (DriveItem item : recycleBinItems.getCurrentPage()) {
@@ -138,27 +137,25 @@ public class FileChangeInfoHandler {
 
     @Nullable
     private static String extractDriveID(DriveItemDeltaCollectionPage oldDeltaCollectionPage) {
-        if(oldDeltaCollectionPage.getCurrentPage()!= null
+        if (oldDeltaCollectionPage.getCurrentPage() != null
                 && !oldDeltaCollectionPage.getCurrentPage().isEmpty()
-        && oldDeltaCollectionPage.getCurrentPage().get(0) != null
+                && oldDeltaCollectionPage.getCurrentPage().get(0) != null
                 && oldDeltaCollectionPage.getCurrentPage().get(0).parentReference != null
-        && oldDeltaCollectionPage.getCurrentPage().get(0).parentReference.driveId != null)
-        {
-           return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).parentReference).driveId;
+                && oldDeltaCollectionPage.getCurrentPage().get(0).parentReference.driveId != null) {
+            return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).parentReference).driveId;
         }
-        return  null;
+        return null;
     }
 
     @Nullable
     private static String extractItemId(DriveItemDeltaCollectionPage oldDeltaCollectionPage) {
-        if(oldDeltaCollectionPage.getCurrentPage()!= null
+        if (oldDeltaCollectionPage.getCurrentPage() != null
                 && !oldDeltaCollectionPage.getCurrentPage().isEmpty()
                 && oldDeltaCollectionPage.getCurrentPage().get(0) != null
-                && oldDeltaCollectionPage.getCurrentPage().get(0).id != null)
-        {
+                && oldDeltaCollectionPage.getCurrentPage().get(0).id != null) {
             return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).id);
         }
-        return  null;
+        return null;
     }
 
     private DriveItemDeltaCollectionPage getDeltaCollectionWithToken(String token, String driveID, String itemId) {
@@ -178,12 +175,12 @@ public class FileChangeInfoHandler {
 
     private String getDeltaLinkToken(DriveItemDeltaCollectionPage deltaCollectionPage) {
         while (deltaCollectionPage != null && !deltaCollectionPage.getCurrentPage().isEmpty()) {
-            if(deltaCollectionPage.deltaLink() != null){
-                return  Arrays.stream(Objects.requireNonNull(deltaCollectionPage.deltaLink())
+            if (deltaCollectionPage.deltaLink() != null) {
+                return Arrays.stream(Objects.requireNonNull(deltaCollectionPage.deltaLink())
                         .split("token")).collect(Collectors.toList()).get(1).substring(1);
 
             }
-             if (deltaCollectionPage.getNextPage() != null) {
+            if (deltaCollectionPage.getNextPage() != null) {
                 deltaCollectionPage = deltaCollectionPage.getNextPage().buildRequest().get();
             } else {
                 break;
