@@ -11,6 +11,7 @@ import app.krista.extensions.essentials.cloudfiles.sharepoint.util.ResponseUtil;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.models.DriveItemDeltaParameterSet;
+import com.microsoft.graph.requests.DriveItemCollectionPage;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
 import org.jetbrains.annotations.Nullable;
 import org.jvnet.hk2.annotations.Service;
@@ -101,7 +102,14 @@ public class FileChangeInfoHandler {
         if(!changedDriveItems.isEmpty()) {
             for (DriveItem driveItem  : changedDriveItems) {
                 if(driveItem.name == null){
-                    continue;
+                    DriveItemCollectionPage recycleBinItems = provider.getUserRequestBuilder(null, null).customRequest("/drives/" + driveItem.parentReference.driveId + "/recycleBin", DriveItemCollectionPage.class).buildRequest().get();
+                    // Filter results by fileId (you can do this manually in the code since the SDK doesn't offer a method)
+                    for (DriveItem item : recycleBinItems.getCurrentPage()) {
+                        assert item.id != null;
+                        if (item.id.equals(driveItem.id)) {
+                            LOGGER.debug("DriveItem found in recycle bin: {}", item.name);
+                        }
+                    }
                 }
                 if (driveItem.lastModifiedDateTime != null && driveItem.createdDateTime != null
                         && driveItem.lastModifiedDateTime.equals(driveItem.createdDateTime)) {

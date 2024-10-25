@@ -31,6 +31,7 @@ public class ResponseUtil {
         payload.put(Constants.EVENT, Constants.UPDATED);
         return payload;
     }
+
     public static Map<String, Object> addCreatedFile(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
         Map<String, Object> payload = new HashMap<>();
         app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null, sitePath));
@@ -84,7 +85,16 @@ public class ResponseUtil {
         payload.put(Constants.RESULT, result);
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);
+
+        // Loop through result to find the date
+        for (Map<String, Object> map : result) {
+            if (map.containsKey("Date")) { // Assuming "date" is the key where the date is stored
+                payload.put("Date1", map.get("Date"));
+                break; // Assuming you only want the first match, break after finding the date
+            }
+        }
     }
+
 
     public static Map<String, Object> createResultContent(String path, long date, String update) {
         Map<String, Object> resultContent = new LinkedHashMap<>();
@@ -159,11 +169,11 @@ public class ResponseUtil {
         payload.put(Constants.IS_FILE_EXIST, isFileExist);
     }
 
-    public static Map<String,Object> preparePayloadResponse(File file, boolean success, String message) {
-        Map<String,Object> payload = new HashMap<>();
-        payload.put(Constants.FILE,file);
-        payload.put(Constants.SUCCESS,success);
-        payload.put(Constants.MESSAGE,message);
+    public static Map<String, Object> preparePayloadResponse(File file, boolean success, String message) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(Constants.FILE, file);
+        payload.put(Constants.SUCCESS, success);
+        payload.put(Constants.MESSAGE, message);
         return payload;
     }
 }
