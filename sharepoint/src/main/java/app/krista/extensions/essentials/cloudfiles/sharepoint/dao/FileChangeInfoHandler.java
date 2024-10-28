@@ -100,7 +100,7 @@ public class FileChangeInfoHandler {
             for (DriveItem driveItem : changedDriveItems) {
                 if (driveItem.name == null) {
                     // continue;
-                    clientProvider.getRestClient(null).get("https://graph.microsoft.com/v1.0/sites/" + driveItem.parentReference.siteId + "/recycleBin");
+                    clientProvider.getRestClient(null).get("https://kristasoft.sharepoint.com/sites/Engineering/_api/site/RecycleBin");
                     DriveItemCollectionPage recycleBinItems = provider.getUserRequestBuilder(null, null).customRequest("/drives/" + driveItem.parentReference.driveId + "/recycleBin", DriveItemCollectionPage.class).buildRequest().get();
                     // Filter results by fileId (you can do this manually in the code since the SDK doesn't offer a method)
                     for (DriveItem item : recycleBinItems.getCurrentPage()) {

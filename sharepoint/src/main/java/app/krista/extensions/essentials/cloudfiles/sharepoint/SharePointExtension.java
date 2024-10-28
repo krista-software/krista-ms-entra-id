@@ -147,7 +147,7 @@ public class SharePointExtension {
                 String listName = FileUtil.getLastPathElement(payload.get(Constants.SOURCE_ROOT_PATH).toString());
                 String listId = getListIdFromSite(siteId, listName, provider);
                 if (listId != null) {
-                    Subscription subscription = SharePointSubscription.createSubscription(routingUrl.replace("https://extension.local.eng.krista.app", "https://d927-125-19-87-178.ngrok-free.app"), clientProviderFactory.create(sharePointAttributes), siteId, listId);
+                    Subscription subscription = SharePointSubscription.createSubscription(routingUrl.replace("https://extension.local.eng.krista.app", " https://ff8f-150-129-202-36.ngrok-free.app"), clientProviderFactory.create(sharePointAttributes), siteId, listId);
                     setFileResourceMetaData(path, driveItem, subscription);
                 } else {
                     throw new IllegalStateException(Constants.INVALID_INPUT);
