@@ -85,12 +85,10 @@ public class ResponseUtil {
         payload.put(Constants.RESULT, result);
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);
-
-        // Loop through result to find the date
         for (Map<String, Object> map : result) {
-            if (map.containsKey("Date")) { // Assuming "date" is the key where the date is stored
-                payload.put("Date1", map.get("Date"));
-                break; // Assuming you only want the first match, break after finding the date
+            if (map.containsKey("Date")) {
+                payload.put("Date", map.get("Date"));
+                break;
             }
         }
     }

@@ -13,12 +13,15 @@ import com.microsoft.graph.models.DriveItem;
 import com.microsoft.graph.models.DriveItemDeltaParameterSet;
 import com.microsoft.graph.requests.DriveItemCollectionPage;
 import com.microsoft.graph.requests.DriveItemDeltaCollectionPage;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.jetbrains.annotations.Nullable;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,16 +93,26 @@ public class FileChangeInfoHandler {
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.info("Error occurred while processing delta items : {} ", cause.getMessage(), cause);
             payload.put(Constants.EVENT, Constants.EMPTY);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return List.of(payload);
     }
 
-    private List<Map<String, Object>> prepareEvent(List<DriveItem> changedDriveItems, Map<String, Object> payload, String sitePath) {
+    private List<Map<String, Object>> prepareEvent(List<DriveItem> changedDriveItems, Map<String, Object> payload, String sitePath) throws IOException {
         List<Map<String, Object>> eventMap = new ArrayList<>();
         if (!changedDriveItems.isEmpty()) {
             for (DriveItem driveItem : changedDriveItems) {
                 if (driveItem.name == null) {
                     // continue;
+
+                    OkHttpClient client = new OkHttpClient();
+                    Request request = new Request.Builder()
+                            .url("https://kristasoft.sharepoint.com/sites/Engineering/_api/site/RecycleBin")
+                            .get()
+                            .build();
+                    client.newCall(request).execute();
+                    //return handleResponse(client.newCall(request).execute());
                     clientProvider.getRestClient(null).get("https://kristasoft.sharepoint.com/sites/Engineering/_api/site/RecycleBin");
                     DriveItemCollectionPage recycleBinItems = provider.getUserRequestBuilder(null, null).customRequest("/drives/" + driveItem.parentReference.driveId + "/recycleBin", DriveItemCollectionPage.class).buildRequest().get();
                     // Filter results by fileId (you can do this manually in the code since the SDK doesn't offer a method)
