@@ -85,12 +85,6 @@ public class ResponseUtil {
         payload.put(Constants.RESULT, result);
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);
-        for (Map<String, Object> map : result) {
-            if (map.containsKey("Date")) {
-                payload.put("Date", map.get("Date"));
-                break;
-            }
-        }
     }
 
 
