@@ -108,7 +108,7 @@ public class ManagementArea {
     @CatalogRequest(
             id = "localDomainRequest_8d92b36c-792d-4cfe-b63d-c1dededbf075",
             name = "Get Info",
-            description = "Accepts the source of the file and returns a Task ID, which will be further used to retrieve result information.",
+            description = "Use the Get Info Result catalog request to retrieve results.",
             area = "Management",
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
@@ -160,7 +160,7 @@ public class ManagementArea {
     @CatalogRequest(
             id = "localDomainRequest_39c4d468-6f5f-4176-a241-a01dcadad9a0",
             name = "Get Result",
-            description = "Accept task ID as input and return List of Files",
+            description = "Accept task ID as input and return List of Files and List Folders",
             area = "Management",
             type = CatalogRequest.Type.WAIT_FOR_EVENT)
     @Field.Desc(name = "Files", type = "[ Entity(File) ]", required = false)
@@ -183,7 +183,7 @@ public class ManagementArea {
     @CatalogRequest(
             id = "localDomainRequest_f5f0a870-d4ab-4194-b673-1142f21c005a",
             name = "List Files",
-            description = "Produces a non-recursive list of files that is present within the folder denoted by the source path",
+            description = "Use the Get Result catalog request to retrieve results",
             area = "Management",
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
@@ -206,7 +206,7 @@ public class ManagementArea {
     @CatalogRequest(
             id = "localDomainRequest_3f16a853-5d28-4af7-8d4c-6f8eab2d341a",
             name = "List Folders",
-            description = "Produces a non-recursive list of folders that is present within the folder denoted by the source path",
+            description = "Use the Get Result catalog request to retrieve results",
             area = "Management",
             type = CatalogRequest.Type.QUERY_SYSTEM)
     @Field.Text(name = "Task ID", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})

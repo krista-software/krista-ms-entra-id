@@ -75,7 +75,7 @@ public class SharepointArea {
     @CatalogRequest(
             id = "localDomainRequest_940bb32f-25ac-499b-b52f-816c8600ec49",
             name = "Get Response",
-            description = "Accept task ID as input and return List of Files",
+            description = "This request is used for all requests within the SharePoint area.",
             area = "Sharepoint",
             type = CatalogRequest.Type.WAIT_FOR_EVENT)
     @Field.Desc(name = "Files", type = "[ Entity(File) ]", required = false)
