@@ -321,7 +321,7 @@ public class ManagementArea {
             description = "This endpoint produces a list of recent updates within a specified folder since a given date. The updates include information about the path, file status (e.g., Created, Updated, Deleted), and can be filtered using an optional regex in the search variable.",
             area = "Management",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "Result", type = "[ { Path: Text, Update: PickOne(Created|Updated|Deleted), Date: Date } ]", required = false)
+    @Field.Desc(name = "Result", type = "[ Entity(ChangesSince) ]", required = false)
     @Field.Boolean(name = "Success", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Map<String, Object> changesSince(

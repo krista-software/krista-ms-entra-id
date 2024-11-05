@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.ChangesSince;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
@@ -87,6 +88,13 @@ public class ResponseUtil {
         payload.put(Constants.SUCCESS, success);
     }
 
+
+    public static void changesSinceResponseEntity(boolean success, String message, List<Map<String, Object>> result, Map<String, Object> payload) {
+        List<ChangesSince> changesSinceList = ChangesSince.from(result);
+        payload.put(Constants.RESULT, changesSinceList);
+        payload.put(Constants.MESSAGE, message);
+        payload.put(Constants.SUCCESS, success);
+    }
 
     public static Map<String, Object> createResultContent(String path, long date, String update) {
         Map<String, Object> resultContent = new LinkedHashMap<>();
