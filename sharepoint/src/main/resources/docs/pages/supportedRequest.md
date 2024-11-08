@@ -170,7 +170,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 8. List Files
 
-- **Description**: Use the Get Result catalog request to retrieve results.
+- **Description**: Use the **Get Result** catalog request to retrieve results.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                        |
@@ -186,7 +186,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 9. List Folders
 
-- **Description**: Use the Get Result catalog request to retrieve results.
+- **Description**: Use the **Get Result** catalog request to retrieve results.
   path.
 - **Input Parameters**:
 
