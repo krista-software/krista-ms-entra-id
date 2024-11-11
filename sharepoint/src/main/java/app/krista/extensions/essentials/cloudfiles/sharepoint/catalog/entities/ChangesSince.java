@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static app.krista.extensions.essentials.cloudfiles.sharepoint.util.Constants.*;
+
 @Domain(id = "catEntryDomain_30c63e77-37f2-4a1d-afd8-f6bfda07ad57",
         name = "Cloud Files",
         ecosystemId = "catEntryEcosystem_84b53163-327b-4b1b-8c96-9334d292f9f5",
@@ -15,24 +17,26 @@ import java.util.Map;
 @Custom
 public class ChangesSince {
 
+
     @Field.Text(name = "Path", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String path;
 
-    @Field.PickOne(name = "Update", values = {"Created", "Updated", "Deleted"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.PickOne(name = UPDATE, values = {"Created", "Updated", "Deleted"}, required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public String update;
 
-    @Field.Date(name = "Date", required = true, includeTimeOfDay = true, allowPast = true, allowToday = true, allowFuture = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Date(name = DATE, required = true, includeTimeOfDay = true, allowPast = true, allowToday = true, allowFuture = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Long date;
 
     public static List<ChangesSince> from(List<Map<String, Object>> result) {
         List<ChangesSince> changesSinceList = new ArrayList<>();
         for (Map<String, Object> map : result) {
             ChangesSince changesSince = new ChangesSince();
-            changesSince.path = (String) map.get("Path");
-            changesSince.update = (String) map.get("Update");
-            changesSince.date = (Long) map.get("Date");
+            changesSince.path = map.get(PATH) != null ? (String) map.get(PATH) : "";
+            changesSince.update = map.get(UPDATE) != null ? (String) map.get(UPDATE) : "";
+            changesSince.date = map.get(DATE) instanceof Long ? (Long) map.get(DATE) : null;
             changesSinceList.add(changesSince);
         }
         return changesSinceList;
     }
+
 }
