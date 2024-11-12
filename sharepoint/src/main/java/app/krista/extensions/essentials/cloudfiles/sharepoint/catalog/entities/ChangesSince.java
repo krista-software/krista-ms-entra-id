@@ -14,7 +14,7 @@ import static app.krista.extensions.essentials.cloudfiles.sharepoint.util.Consta
         ecosystemId = "catEntryEcosystem_84b53163-327b-4b1b-8c96-9334d292f9f5",
         ecosystemName = "Essentials",
         ecosystemVersion = "7814b7e8-6b0f-4825-bd72-f6a1613be2a2")
-@Entity(name = "ChangesSince", id = "localDomainEntity_dbed2233-a2a3-4a43-9619-24ae89e2f460", primaryKey = "Path", options = {})
+@Entity(name = "ChangesSince", id = "localDomainEntity_dbed2233-a2a3-4a43-9619-24ae89e2f460", primaryKey = "Path", supportStore = false, options = {})
 @Custom
 public class ChangesSince {
 
