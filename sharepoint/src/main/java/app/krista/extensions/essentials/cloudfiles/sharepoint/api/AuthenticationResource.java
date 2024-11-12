@@ -129,7 +129,7 @@ public final class AuthenticationResource {
 
     private boolean hasUserAccess(GraphServiceClientProvider clientProvider) {
         try {
-            clientProvider.getUserRequestBuilder(null, null).me().mailFolders().buildRequest().get();
+            clientProvider.getUserRequestBuilder(null, null).me().buildRequest().get();
             return true;
         } catch (GraphServiceException ignore) {
             LOGGER.debug(Constants.IGNORED_EXCEPTION);

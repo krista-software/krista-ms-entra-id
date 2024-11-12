@@ -169,7 +169,7 @@ public class FileChangeInfoHandler {
                         .split("token")).collect(Collectors.toList()).get(1).substring(1);
 
             }
-             if (deltaCollectionPage.getNextPage() != null) {
+            if (deltaCollectionPage.getNextPage() != null) {
                 deltaCollectionPage = deltaCollectionPage.getNextPage().buildRequest().get();
             } else {
                 break;

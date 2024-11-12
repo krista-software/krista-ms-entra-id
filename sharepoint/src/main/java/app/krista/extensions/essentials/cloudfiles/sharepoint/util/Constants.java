@@ -64,7 +64,7 @@ public class Constants {
 
     public static final String HASH = "#";
 
-    public static final String REQUIRED_SCOPE = "openid offline_access Mail.Send Mail.ReadWrite Mail.Send.Shared Mail.ReadWrite.Shared Group.ReadWrite.All GroupMember.Read.All User.Read User.Read.All";
+    public static final String REQUIRED_SCOPE = "openid offline_access profile ";
 
     public static final String FILE_ALREADY_EXIST = "A file with this name already exists, Please choose a different file name";
 
@@ -421,7 +421,6 @@ public class Constants {
     public static final String ownerMailUrl = "https://graph.microsoft.com/v1.0/me";
 
     public static final String DOCUMENT_LIBRARY = "documentLibrary";
-
 
     private Constants() {
     }

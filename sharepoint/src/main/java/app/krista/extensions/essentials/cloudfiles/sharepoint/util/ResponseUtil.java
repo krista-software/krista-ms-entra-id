@@ -1,5 +1,6 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.util;
 
+import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.ChangesSince;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.dao.util.FileSearchUtilityService;
 import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.DrivePermissionImpl;
@@ -31,6 +32,7 @@ public class ResponseUtil {
         payload.put(Constants.EVENT, Constants.UPDATED);
         return payload;
     }
+
     public static Map<String, Object> addCreatedFile(DriveItem driveItem, GraphServiceClient<Request> graphClient, FileSearchUtilityService fileSearchUtilityService, String sitePath) {
         Map<String, Object> payload = new HashMap<>();
         app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File fileEntity = File.fromFile(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, null, sitePath));
@@ -80,8 +82,12 @@ public class ResponseUtil {
         payload.put("Size", "Number", size);
     }
 
-    public static void changesSinceResponse(boolean success, String message, List<Map<String, Object>> result, Map<String, Object> payload) {
-        payload.put(Constants.RESULT, result);
+
+    public static void changesSinceResponseEntity(boolean success, String message, List<Map<String, Object>> result, Map<String, Object> payload) {
+        message = (message != null) ? message : "";
+        result = (result != null) ? result : Collections.emptyList();
+        List<ChangesSince> changesSinceList = ChangesSince.from(result);
+        payload.put(Constants.RESULT, changesSinceList);
         payload.put(Constants.MESSAGE, message);
         payload.put(Constants.SUCCESS, success);
     }
@@ -159,11 +165,11 @@ public class ResponseUtil {
         payload.put(Constants.IS_FILE_EXIST, isFileExist);
     }
 
-    public static Map<String,Object> preparePayloadResponse(File file, boolean success, String message) {
-        Map<String,Object> payload = new HashMap<>();
-        payload.put(Constants.FILE,file);
-        payload.put(Constants.SUCCESS,success);
-        payload.put(Constants.MESSAGE,message);
+    public static Map<String, Object> preparePayloadResponse(File file, boolean success, String message) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(Constants.FILE, file);
+        payload.put(Constants.SUCCESS, success);
+        payload.put(Constants.MESSAGE, message);
         return payload;
     }
 }

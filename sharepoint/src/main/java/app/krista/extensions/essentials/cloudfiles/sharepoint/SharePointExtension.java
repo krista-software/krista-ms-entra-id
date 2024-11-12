@@ -38,7 +38,7 @@ import java.util.Objects;
 @Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
 @Field.Text(value = Constants.TENANT_ID, isSecured = true)
 @Field.Text(value = Constants.EMAIL)
-@Extension(version = "2.0.2-rc1")
+@Extension(version = "2.0.3-rc1")
 @StaticResource(path = "docs", file = "docs")
 public class SharePointExtension {
 

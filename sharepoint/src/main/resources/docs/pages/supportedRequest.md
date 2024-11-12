@@ -94,7 +94,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 5. Get Info
 
-- **Description**: Accepts Source of File and return Task ID which will further used in Get Info Result .
+- **Description**: Use the **Get Info Result** catalog request to retrieve results.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                        |
@@ -170,7 +170,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 8. List Files
 
-- **Description**: Produces a non-recursive list of files that is present within the folder denoted by the source path.
+- **Description**: Use the **Get Result** catalog request to retrieve results.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                        |
@@ -186,8 +186,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 9. List Folders
 
-- **Description**: Produces a non-recursive list of folders that is present within the folder denoted by the source.
-  path.
+- **Description**: Use the **Get Result** catalog request to retrieve results.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                        |
@@ -469,7 +468,7 @@ Krista SharePoint extension supports the following Catalog Requests:
 
 #### 5. Get Response
 
-- **Description**: Accept task ID as input and return List of Files.
+- **Description**: This request is used for all requests within the SharePoint area.
 - **Input Parameters**:
 
 | **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**              |
