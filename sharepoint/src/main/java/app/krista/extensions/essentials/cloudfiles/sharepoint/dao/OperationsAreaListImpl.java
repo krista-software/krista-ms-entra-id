@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class provides operations for managing SharePoint lists, including creating, deleting, and updating lists.
@@ -41,7 +42,7 @@ public class OperationsAreaListImpl {
      */
     public Map<String, Object> createList(String siteName, String listName) {
         Map<String, Object> payload = new HashMap<>();
-        if (!operationsAreaUtilityService.validateSiteAndListNames(siteName, listName, payload)) {
+        if (operationsAreaUtilityService.validateSiteAndListNames(siteName, listName, payload)) {
             return payload; // Early return if validation fails
         }
         if(listName.equals(Constants.SHARED_DOCUMENTS)){
@@ -59,7 +60,7 @@ public class OperationsAreaListImpl {
 
             List microsoftGraphList = buildMicrosoftGraphList(listName);
 
-            List createdList = graphClient.sites(existingSite.id).lists().buildRequest().post(microsoftGraphList);
+            List createdList = graphClient.sites(Objects.requireNonNull(existingSite.id)).lists().buildRequest().post(microsoftGraphList);
 
             OperationsAreaUtilityService.processResponse(createdList, payload, Constants.LIST_CREATED);
         } catch (Exception cause) {
@@ -86,7 +87,7 @@ public class OperationsAreaListImpl {
      */
     public Map<String, Object> deleteList(String siteName, String listName) {
         Map<String, Object> payload = new HashMap<>();
-        if (!operationsAreaUtilityService.validateSiteAndListNames(siteName, listName, payload)) {
+        if (operationsAreaUtilityService.validateSiteAndListNames(siteName, listName, payload)) {
             return payload; // Early return if validation fails
         }
         try {
@@ -102,7 +103,7 @@ public class OperationsAreaListImpl {
                 return handleIfNotFound(payload, "List '" + listName + "' not found while deleting list");
             }
 
-            graphClient.sites(existingSite.id).lists(existingList.id).buildRequest().delete();
+            graphClient.sites(Objects.requireNonNull(existingSite.id)).lists(Objects.requireNonNull(existingList.id)).buildRequest().delete();
 
             payload.put(Constants.SUCCESS, true);
             payload.put(Constants.MESSAGE, existingList.displayName + Constants.LIST_DELETED_SUCCESSFULLY);
@@ -136,7 +137,7 @@ public class OperationsAreaListImpl {
 
             existingList.displayName = displayName;
             existingList.description = description;
-            List updatedList = graphClient.sites(existingSite.id).lists(existingList.id).buildRequest().patch(existingList);
+            List updatedList = graphClient.sites(Objects.requireNonNull(existingSite.id)).lists(Objects.requireNonNull(existingList.id)).buildRequest().patch(existingList);
 
             OperationsAreaUtilityService.processResponse(updatedList, payload, "modified"); // Use the processResponse method for clarity
         } catch (Exception cause) {

@@ -49,11 +49,8 @@ public class DriveUtil {
     }
 
     public static byte[] getByteArray(File file) throws IOException {
-        try (FileInputStream fl = new FileInputStream(file)) {
-            byte[] arr = new byte[(int) file.length()];
-            while (fl.read(arr) > 0) {
-            }
-            return arr;
+        try (FileInputStream fis = new FileInputStream(file)) {
+            return fis.readAllBytes();
         }
     }
 
@@ -135,7 +132,7 @@ public class DriveUtil {
     }
 
     public static String getTokenExtractor(String url) {
-        String token = null;
+        String token;
         try {
             URI uri = new URI(url);
             String query = uri.getQuery();

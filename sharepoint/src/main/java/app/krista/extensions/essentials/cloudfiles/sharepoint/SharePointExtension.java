@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Field.Text(value = Constants.CLIENT_ID)
 @Field.Text(value = Constants.CLIENT_SECRET, isSecured = true)
@@ -139,7 +140,7 @@ public class SharePointExtension {
             DriveItem driveItem = payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null;
             if (driveItem != null) {
                 GraphServiceClient<Request> provider = clientProviderFactory.create(sharePointAttributes).getUserRequestBuilder(null, null);
-                String siteId = driveItem.parentReference.siteId;
+                String siteId = Objects.requireNonNull(driveItem.parentReference).siteId;
                 if (siteId == null && driveItem.name != null && driveItem.name.equals("root")) {
                     String siteName = FileUtil.extractSecondLastFolder(driveItem.webUrl != null ? driveItem.webUrl : "");
                     siteId = getSiteIdBySiteName(siteName, provider);
@@ -170,8 +171,8 @@ public class SharePointExtension {
     private DriveItemDeltaCollectionPage getDeltaCollectionPage(DriveItem driveItem) {
         try {
             return clientProviderFactory.create(sharePointAttributes).
-                    getUserRequestBuilder(null, null).drives(driveItem.parentReference.driveId)
-                    .items(driveItem.id).delta().buildRequest().get();
+                    getUserRequestBuilder(null, null).drives(Objects.requireNonNull(driveItem.parentReference.driveId))
+                    .items(Objects.requireNonNull(driveItem.id)).delta().buildRequest().get();
         } catch (GraphServiceException cause) {
             LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
         }

@@ -54,7 +54,7 @@ public class FilePermissionService {
             String email = permissionGranted.grantedTo.user.additionalDataManager().get(Constants.EMAIL) != null
                     ? permissionGranted.grantedTo.user.additionalDataManager().get(Constants.EMAIL).getAsString() : permissionGranted.grantedTo.user.displayName;
 
-            return email.equals(sharePointAttributes.getMailId()) ? Constants.OWN : Constants.WRITE;
+            return Objects.requireNonNull(email).equals(sharePointAttributes.getMailId()) ? Constants.OWN : Constants.WRITE;
         }
         return null;
     }
@@ -101,7 +101,7 @@ public class FilePermissionService {
         List<Map<String, Object>> result = new ArrayList<>();
 
         if (permission.grantedTo != null) {
-            result.add(findOrCreateUser(mapList, permission.grantedTo.user.displayName));
+            result.add(findOrCreateUser(mapList, Objects.requireNonNull(permission.grantedTo.user).displayName));
         } else if (permission.grantedToIdentities != null) {
             for (IdentitySet identitySet : permission.grantedToIdentities) {
                 if (identitySet.user != null) {

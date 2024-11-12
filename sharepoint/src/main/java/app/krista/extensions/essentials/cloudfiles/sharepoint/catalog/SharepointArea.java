@@ -34,7 +34,7 @@ public class SharepointArea {
     private final AuthorizationContext authorizationContext;
     private final FileDao fileDaoImpl;
     private final GraphServiceClientProvider provider;
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public SharepointArea(SharepointAreaImpl sharepointAreaImpl, EventHandler eventHandler,

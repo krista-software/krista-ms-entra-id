@@ -102,7 +102,7 @@ public class SharedFileDao {
         if (message.contains("currently restricted") || message.contains("invalid email address")) {
             return;
         }
-        DriveItem upadatedDriveItem = getFileWithPermissions(driveItem.parentReference.driveId, driveItem.id);
+        DriveItem upadatedDriveItem = getFileWithPermissions(Objects.requireNonNull(driveItem.parentReference).driveId, driveItem.id);
 
         String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
         payload.put(Constants.FILE, app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities.File.fromFile(new DrivePermissionImpl(upadatedDriveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sharePointAttributes, sitePath)));
@@ -122,7 +122,7 @@ public class SharedFileDao {
                 recipientsList.add(driveRecipient);
             }
             DriveItemCreateLinkParameterSet parameterSet = getParameterSet(role,recipientsList);
-            String sharingLink = getSharingLink(driveItem.parentReference.driveId, driveItem.id, parameterSet);
+            String sharingLink = getSharingLink(Objects.requireNonNull(driveItem.parentReference).driveId, driveItem.id, parameterSet);
             assert sharingLink != null;
             if (sharingLink.contains(Constants.ACCESS_DENIED)) {
                 ResponseUtil.errorResponse(false, Constants.FILE_IS_TO_SHARE_CURRENTLY_RESTRICTED_FOR_ASSISTANCE_CONTACT_YOUR_ADMINISTRATOR_OR_SUPPORT, payload);

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,28 +36,28 @@ public class FileDetailsStore implements EntityStore<File> {
     }
 
     @Override
-    public File create(Map<String, Object> map) throws IOException {
+    public File create(Map<String, Object> map) {
         lOGGER.info("This request is not supported");
         return new File();
     }
 
     @Override
-    public File get(String id) throws IOException {
+    public File get(String id) {
         return File.fromFile(fileDao.getFileByAbsolutePath(id));
     }
 
     @Override
-    public File update(File fileDetails) throws IOException {
+    public File update(File fileDetails) {
         return new File();
     }
 
     @Override
-    public void delete(String id) throws IOException {
+    public void delete(String id) {
         throw new UnsupportedOperationException("This method is not implemented");
     }
 
     @Override
-    public boolean contains(String id) throws IOException {
+    public boolean contains(String id) {
         return false;
     }
 
@@ -104,7 +105,7 @@ public class FileDetailsStore implements EntityStore<File> {
         for (SearchCondition condition : conditions) {
             if (condition.getFieldName().equals(FileSearchStrategyFactory.ABSOLUTE_PATH) || condition.getFieldName().equals(FileSearchStrategyFactory.PARENT_FOLDER)) {
                 FileSearchStrategy searchStrategy = FileSearchStrategyFactory.getStrategy(condition);
-                fileDetails.addAll(searchStrategy.search(fileEntitySearch, condition, pageIndex, pageSize));
+                fileDetails.addAll(Objects.requireNonNull(searchStrategy).search(fileEntitySearch, condition, pageIndex, pageSize));
                 flag = false;
             }
         }
@@ -115,12 +116,12 @@ public class FileDetailsStore implements EntityStore<File> {
     }
 
     @Override
-    public long count(List<SearchCondition> list) throws IOException {
+    public long count(List<SearchCondition> list) {
         return 0;
     }
 
     @Override
-    public List<String> lookup(Map<String, Object> map, List<String> list) throws IOException {
+    public List<String> lookup(Map<String, Object> map, List<String> list) {
         return new ArrayList<>();
     }
 

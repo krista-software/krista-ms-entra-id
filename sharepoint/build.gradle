@@ -64,8 +64,8 @@ configurations {
 }
 
 dependencies {
-    annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.94'
-    compileOnly 'app.krista:krista-apis:1.0.94' // defines the Krista Service APIs
+    annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.105'
+    compileOnly 'app.krista:krista-apis:1.0.105' // defines the Krista Service APIs
     compileOnly 'org.glassfish.hk2:hk2-api:3.0.3' // used to define scope of objects
     implementation 'com.microsoft.graph:microsoft-graph:5.80.0'
     implementation 'com.microsoft.graph:microsoft-graph-auth:0.3.0'

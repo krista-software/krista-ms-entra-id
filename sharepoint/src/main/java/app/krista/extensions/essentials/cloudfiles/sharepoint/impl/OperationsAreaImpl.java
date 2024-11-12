@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -110,7 +111,7 @@ public class OperationsAreaImpl {
      */
 
     public Map<String, Object> createGroup(String groupName, String mailNickName) {
-        String ownerMail = null;
+        String ownerMail;
 
         try {
             RestClient restClient = clientProvider.getRestClient(null);
@@ -192,7 +193,7 @@ public class OperationsAreaImpl {
     private String getOwnerMail(RestClient restClient) throws IOException {
         String ownerMail = null;
         okhttp3.Response response = restClient.getWithHeader(Constants.ownerMailUrl);
-        String responseBody = response.body().string();
+        String responseBody = Objects.requireNonNull(response.body()).string();
         JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
         if (jsonObject != null && jsonObject.has(Constants.mail)) {
             ownerMail = jsonObject.get(Constants.mail).getAsString();

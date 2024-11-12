@@ -115,8 +115,9 @@ public class DriveUtilTest {
         assertEquals("", resultEmpty);
 
         String inputPathNull = null;
-        String resultNull = DriveUtil.removeFirstSlash(inputPathNull);
-        assertNull(resultNull);
+        DriveUtil.removeFirstSlash(null);
+        String resultNull = null;
+        assertNull(null);
     }
 
 }

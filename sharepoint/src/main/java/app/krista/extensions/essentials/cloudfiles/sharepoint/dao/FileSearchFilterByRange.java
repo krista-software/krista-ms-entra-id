@@ -65,10 +65,6 @@ public class FileSearchFilterByRange {
             }
             String fromDate = DriveUtil.getModifiedDate(modificationDateRange.getFrom());
             String toDate = DriveUtil.getModifiedDate(modificationDateRange.getTo());
-            if (fromDate == null && toDate == null) {
-                handleInvalidError(Constants.DATE_RANGE_CANT_BE_EMPTY, payload);
-                return payload;
-            }
             int from = pageIndex != null && pageIndex >= 0 ? pageIndex.intValue() : 0;
             int size = pageSize != null && pageSize <= 500 ? pageSize.intValue() : 500;
 

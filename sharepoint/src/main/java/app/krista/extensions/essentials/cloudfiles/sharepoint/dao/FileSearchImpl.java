@@ -19,10 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Service class for constructing Microsoft Graph API search queries and performing file searches.
@@ -65,7 +63,7 @@ public class FileSearchImpl {
     }
 
     public String getDomainPath(String domain, boolean flag) {
-        String domainPath = null;
+        String domainPath;
         if (flag) {
             domainPath = "https://" + domain + ".sharepoint.com/sites";
         } else {
@@ -95,7 +93,8 @@ public class FileSearchImpl {
                     .flatMap(driveInPage -> driveInPage.hitsContainers.stream())
                     .forEach(hitContainer -> {
                         if (hitContainer.hits != null) {
-                            if (iterateSearchHits(files, moreResult, pageSize, hitContainer)) return;
+                            if (iterateSearchHits(files, moreResult, pageSize, hitContainer)) {
+                            }
                         } else {
                             moreResult.put(Constants.MORE_RESULT_AVAILABLE, Boolean.FALSE);
                         }
@@ -107,7 +106,7 @@ public class FileSearchImpl {
 
     private boolean iterateSearchHits(List<FileService> files, Map<String, Boolean> moreResult, int pageSize, SearchHitsContainer hitContainer) {
         Set<String> fileIdSet = new HashSet<>();
-        for (SearchHit hits : hitContainer.hits) {
+        for (SearchHit hits : Objects.requireNonNull(hitContainer.hits)) {
             if (hits != null && hits.resource instanceof DriveItem) {
                 DriveItem driveItem = (DriveItem) hits.resource;
                 if (driveItem.webUrl != null && !driveItem.webUrl.contains(SHAREPOINT_COM_PERSONAL) && (!fileIdSet.contains(driveItem.id))) {
@@ -165,18 +164,10 @@ public class FileSearchImpl {
         try {
             if (hits != null && hits.resource instanceof DriveItem) {
                 DriveItem driveItem = (DriveItem) hits.resource;
-                if (driveItem.webUrl != null && user.equals(Constants.CREATED_BY) && driveItem.createdBy != null
-                        && driveItem.createdBy.user != null
-                        && driveItem.createdBy.user.additionalDataManager() != null
-                        && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL) != null
-                        && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
+                if (driveItem.webUrl != null && user.equals(Constants.CREATED_BY) && driveItem.createdBy != null && driveItem.createdBy.user != null && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL) != null && driveItem.createdBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
                     resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, sharePointAttributes, null));
                     LOGGER.info(ADDED_DRIVE_PERMISSION_FOR_CREATED_BY_USER_WITH_EMAIL, email);
-                } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null
-                        && driveItem.lastModifiedBy.user != null
-                        && driveItem.lastModifiedBy.user.additionalDataManager() != null
-                        && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL) != null
-                        && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
+                } else if (driveItem.webUrl != null && user.equals(Constants.MODIFIED_BY) && driveItem.lastModifiedBy != null && driveItem.lastModifiedBy.user != null && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL) != null && driveItem.lastModifiedBy.user.additionalDataManager().get(Constants.EMAIL).getAsString().equals(email)) {
                     resultPage.add(new DrivePermissionImpl(driveItem, graphClient, fileSearchUtilityService, sharePointAttributes, null));
                     LOGGER.info(ADDED_DRIVE_PERMISSION_FOR_MODIFIED_BY_USER_WITH_EMAIL, email);
                 }

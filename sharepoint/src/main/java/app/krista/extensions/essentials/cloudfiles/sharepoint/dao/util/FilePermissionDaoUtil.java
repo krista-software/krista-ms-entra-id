@@ -73,7 +73,7 @@ public class FilePermissionDaoUtil {
         PermissionCollectionPage permissionCollectionPage = driveItem.permissions;
         String siteId = driveItem.parentReference != null ? driveItem.parentReference.siteId : null;
 
-        permissionCollectionPage.getCurrentPage().forEach(permission -> {
+        Objects.requireNonNull(permissionCollectionPage).getCurrentPage().forEach(permission -> {
             if (permission.grantedToV2 != null) {
                 handlePermissionV2(permission.grantedToV2, mapList, graphServiceClient, siteId, permission, false);
             } else if (permission.grantedToIdentitiesV2 != null) {
@@ -94,7 +94,7 @@ public class FilePermissionDaoUtil {
             return;
         }
         if (email.isBlank()) {
-            email = getSiteUserWithNoRecords(permission.grantedToV2);
+            email = getSiteUserWithNoRecords(Objects.requireNonNull(permission.grantedToV2));
         }
         Map<String, Object> sharedUser = new HashMap<>();
         if (isIdentitySet) {
@@ -130,7 +130,7 @@ public class FilePermissionDaoUtil {
         PermissionCollectionPage permissionCollectionPage = driveItem.permissions;
         String siteId = driveItem.parentReference != null ? driveItem.parentReference.siteId : null;
 
-        permissionCollectionPage.getCurrentPage().forEach(permission -> {
+        Objects.requireNonNull(permissionCollectionPage).getCurrentPage().forEach(permission -> {
             if (permission.grantedTo != null) {
                 handlePermission(permission.grantedTo, mapList, graphServiceClient, siteId, permission, false);
             } else if (permission.grantedToIdentities != null) {
@@ -142,10 +142,10 @@ public class FilePermissionDaoUtil {
 
     private static String getMailFromGrantedTo(IdentitySet set, List<Map<String, Object>> mapList, GraphServiceClient<Request> graphServiceClient, String siteId, Permission permission) {
         try {
-            if (set.user.additionalDataManager().get(Constants.EMAIL) != null) {
+            if (Objects.requireNonNull(set.user).additionalDataManager().get(Constants.EMAIL) != null) {
                 return set.user.additionalDataManager().get(Constants.EMAIL).getAsString();
             } else {
-                return set.user.displayName.contains(VISITORS)
+                return Objects.requireNonNull(set.user.displayName).contains(VISITORS)
                         ? set.user.displayName
                         : setUsersInShared(permission, set.user.displayName, mapList, siteId, graphServiceClient).toString();
             }
@@ -174,11 +174,11 @@ public class FilePermissionDaoUtil {
         try {
             if (displayName.endsWith("Owners")) {
                 // Check owners:
-                DirectoryObjectCollectionWithReferencesPage owners = graphServiceClient.groups(group.id).owners().buildRequest().get();
+                DirectoryObjectCollectionWithReferencesPage owners = graphServiceClient.groups(Objects.requireNonNull(group.id)).owners().buildRequest().get();
                 setOwnersPermission(owners, listSharedUser);
             } else {
                 // Check members:
-                DirectoryObjectCollectionWithReferencesPage members = graphServiceClient.groups(group.id).members().buildRequest().get();
+                DirectoryObjectCollectionWithReferencesPage members = graphServiceClient.groups(Objects.requireNonNull(group.id)).members().buildRequest().get();
                 setMembersPermission(members, listSharedUser, permission);
             }
         } catch (RuntimeException cause) {
@@ -243,7 +243,7 @@ public class FilePermissionDaoUtil {
                         String email = permissionGranted.grantedTo.user.additionalDataManager().get(Constants.EMAIL) != null
                                 ? permissionGranted.grantedTo.user.additionalDataManager().get(Constants.EMAIL).getAsString() : permissionGranted.grantedTo.user.displayName;
 
-                        return email.contains(sharePointAttributes.getMailId()) ? Constants.OWN : Constants.WRITE;
+                        return Objects.requireNonNull(email).contains(sharePointAttributes.getMailId()) ? Constants.OWN : Constants.WRITE;
                     }
                     for (Permission permission : permissionCollectionPage.getCurrentPage()) {
                         if (permission != null && permission.grantedToIdentities != null && permission.roles != null) {

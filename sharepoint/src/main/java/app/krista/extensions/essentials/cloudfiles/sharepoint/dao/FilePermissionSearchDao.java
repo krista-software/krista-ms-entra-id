@@ -87,8 +87,8 @@ public class FilePermissionSearchDao {
     private List<FileService> fetchFiles(String permission, boolean useEmail, String accountID, DriveItem driveItem, Map<String, Object> mapPayLoad) {
         List<FileService> files = new ArrayList<>();
         DriveItemCollectionPage page = clientProvider.getUserRequestBuilder(useEmail, accountID)
-                .drives(driveItem.parentReference.driveId)
-                .items(driveItem.id)
+                .drives(Objects.requireNonNull(driveItem.parentReference.driveId))
+                .items(Objects.requireNonNull(driveItem.id))
                 .children()
                 .buildRequest()
                 .get();
@@ -120,9 +120,9 @@ public class FilePermissionSearchDao {
     private void iterateDriveItemWithPermission(String permission, DriveItem driveInPage, boolean useEmail, String accountID, List<FileService> files, String sitePath) {
         try {
             DriveItem item = clientProvider.getUserRequestBuilder(useEmail, accountID)
-                    .drives(driveInPage.parentReference.driveId).items(driveInPage.id).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
+                    .drives(Objects.requireNonNull(driveInPage.parentReference.driveId)).items(Objects.requireNonNull(driveInPage.id)).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
 
-            List<Map<String, Object>> mapList = FilePermissionDaoUtil.getSharedPermissions(item, clientProvider.getUserRequestBuilder(useEmail, accountID));
+            List<Map<String, Object>> mapList = FilePermissionDaoUtil.getSharedPermissions(Objects.requireNonNull(item), clientProvider.getUserRequestBuilder(useEmail, accountID));
 
             for (Map<String, Object> map : mapList) {
                 if (map.get(Constants.USER_EMAIL).equals(sharePointAttributes.getMailId()) && map.get(Constants.PERMISSION).equals(permission)) {

@@ -55,7 +55,7 @@ public class OperationsManagementDao {
                 assert Objects.requireNonNull(driveItem).parentReference != null;
                 assert driveItem.id != null;
                 provider.getUserRequestBuilder(null, null).
-                        drives(driveItem.parentReference.driveId).
+                        drives(Objects.requireNonNull(driveItem.parentReference.driveId)).
                         items(driveItem.id)
                         .buildRequest().delete();
                 ResponseUtil.errorResponse(true, Constants.FILE_DELETED_SUCCESSFULLY, payload);
@@ -102,7 +102,7 @@ public class OperationsManagementDao {
     private void renameDriveItem(String targetFileName, DriveItem drive, Map<String, Object> payload) {
         DriveItem driveItem = new DriveItem();
         driveItem.name = targetFileName;
-        provider.getUserRequestBuilder(null, null).drives(drive.parentReference.driveId).items(drive.id).buildRequest().patch(driveItem);
+        provider.getUserRequestBuilder(null, null).drives(Objects.requireNonNull(drive.parentReference.driveId)).items(Objects.requireNonNull(drive.id)).buildRequest().patch(driveItem);
         setFileRenamedSuccessfullyMessage(payload);
     }
 

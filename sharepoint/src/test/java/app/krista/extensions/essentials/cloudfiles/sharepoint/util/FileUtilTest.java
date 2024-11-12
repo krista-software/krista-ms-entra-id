@@ -94,9 +94,7 @@ public class FileUtilTest {
                 throw new IOException("Simulated IOException");
             }
         };
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            FileUtil.readFile(inputStream);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> FileUtil.readFile(inputStream));
         assertEquals(IOException.class, exception.getCause().getClass());
     }
 

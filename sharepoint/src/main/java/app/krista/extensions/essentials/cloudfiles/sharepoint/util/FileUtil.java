@@ -12,11 +12,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Date;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,10 +118,8 @@ public class FileUtil {
             while (pathAfterRoot.startsWith("/")) {
                 pathAfterRoot = pathAfterRoot.substring(1);
             }
-            return pathAfterRoot;
-        } else {
-            return pathAfterRoot;
         }
+        return pathAfterRoot;
     }
 
     public static String validateTextInput(String input) {
@@ -207,9 +201,8 @@ public class FileUtil {
 
     public static String driveIdPath(String fullPath) {
         try {
-            String str[] = fullPath.split("/");
-            String drivePath = "/" + str[1] + "/" + (str[2]);
-            return drivePath;
+            String[] str = fullPath.split("/");
+            return "/" + str[1] + "/" + (str[2]);
         } catch (RuntimeException cause) {
             LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
             return Constants.CONTENT;

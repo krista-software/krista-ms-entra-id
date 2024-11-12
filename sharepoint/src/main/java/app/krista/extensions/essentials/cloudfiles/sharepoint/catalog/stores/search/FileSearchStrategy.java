@@ -9,6 +9,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FileSearchStrategy {
-    List<File> search(FileEntitySearchImpl fileEntitySearch, SearchCondition condition, long pageIndex, int pageSize) throws IOException;
+    List<File> search(FileEntitySearchImpl fileEntitySearch, SearchCondition condition, long pageIndex, int pageSize);
     List<File> fieldFilter(List<File> fileEntityList, SearchCondition condition);
 }

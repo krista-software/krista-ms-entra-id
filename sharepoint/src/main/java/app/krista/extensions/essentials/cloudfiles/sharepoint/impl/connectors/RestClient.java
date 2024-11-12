@@ -38,9 +38,9 @@ public class RestClient {
     public static final String APPLICATION_JSON = "application/json";
     public static final String STATUS_CODE_IS = "Status code is ";
     private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
-    String accessToken;
-    String driveId;
-    String instanceUrl;
+    final String accessToken;
+    final String driveId;
+    final String instanceUrl;
 
 
     public RestClient(String accessToken, String driveId) {

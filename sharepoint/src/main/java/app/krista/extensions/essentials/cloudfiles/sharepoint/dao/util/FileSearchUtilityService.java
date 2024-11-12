@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Utility service class for file-related search operations using Microsoft Graph API.
@@ -41,18 +42,14 @@ public class FileSearchUtilityService {
     }
 
     private static String decodeUrlComponent(String encodedComponent) {
-        try {
-            return URLDecoder.decode(encodedComponent, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException cause) {
-            return encodedComponent;
-        }
+        return URLDecoder.decode(encodedComponent, StandardCharsets.UTF_8);
     }
 
     public static String getAbsolutePath(DriveItem driveMetaData, DriveItem driveItem) {
         if (driveItem != null && driveItem.webUrl != null && !driveItem.webUrl.contains(".aspx")) {
             return driveItem.webUrl;
         } else if (driveMetaData != null && driveMetaData.webUrl != null && driveItem != null) {
-            if (driveMetaData.webUrl.contains(driveMetaData.name)) {
+            if (driveMetaData.webUrl.contains(Objects.requireNonNull(driveMetaData.name))) {
                 return driveMetaData.webUrl;
             }
             return driveMetaData.webUrl + (driveItem.name != null ? "/" + driveItem.name : "");
@@ -97,7 +94,7 @@ public class FileSearchUtilityService {
 
             try {
                 driveMetaData = graphClient.drives(driveItem.parentReference.driveId).
-                        items(driveItem.id).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
+                        items(Objects.requireNonNull(driveItem.id)).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
             } catch (GraphServiceException | IllegalArgumentException cause) {
                 LOGGER.error("Error while fetching Drive Item {} {} :", cause, cause.getMessage());
             }

@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class ExtensionSearchStrategy implements FileSearchStrategy {
     @Override
-    public List<File> search(FileEntitySearchImpl fileEntitySearch, SearchCondition condition, long pageIndex, int pageSize) throws IOException {
+    public List<File> search(FileEntitySearchImpl fileEntitySearch, SearchCondition condition, long pageIndex, int pageSize) {
         return Collections.emptyList();
     }
 

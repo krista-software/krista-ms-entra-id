@@ -1,6 +1,5 @@
 package app.krista.extensions.essentials.cloudfiles.sharepoint.impl.stores;
 
-import app.krista.extensions.essentials.cloudfiles.sharepoint.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.util.KeyValueStore;
 import org.jvnet.hk2.annotations.Service;
 
