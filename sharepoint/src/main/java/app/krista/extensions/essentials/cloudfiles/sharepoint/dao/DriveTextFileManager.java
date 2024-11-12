@@ -61,7 +61,7 @@ public class DriveTextFileManager {
                 searchFileExecutor.getFileInfo(source, payload, true);
                 if ((boolean) payload.get(Constants.SUCCESS)) {
                     DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
-                    readTxtFileFromSource(payload, driveItem);
+                    readTxtFileFromSource(payload, Objects.requireNonNull(driveItem));
                 } else {
                     invalidPath(payload);
                 }
@@ -79,7 +79,7 @@ public class DriveTextFileManager {
                 FileUtil.getBaseName(driveItem.name).get(1).equalsIgnoreCase("txt")) {
 
             InputStream inputStream = provider.getUserRequestBuilder(null, null)
-                    .drives(driveItem.parentReference.driveId).items(driveItem.id).content().buildRequest().get();
+                    .drives(Objects.requireNonNull(driveItem.parentReference.driveId)).items(Objects.requireNonNull(driveItem.id)).content().buildRequest().get();
 
             payload.put(Constants.CONTENT, FileUtil.readFile(inputStream));
             payload.put(Constants.MESSAGE, Constants.FILE_READ_SUCCESS);
@@ -101,7 +101,7 @@ public class DriveTextFileManager {
             if (target != null && FileUtil.hasFileExtension(target) && target.endsWith(".txt")) {
 
                 String path = DriveUtil.validatePath(target);
-                String parentPath = FileUtil.getParentPath(path);
+                String parentPath = FileUtil.getParentPath(Objects.requireNonNull(path));
                 searchFileExecutor.getFileInfo(parentPath, payload, true);
 
                 if ((boolean) payload.get(Constants.SUCCESS)) {
@@ -132,7 +132,7 @@ public class DriveTextFileManager {
         if (fileName != null) {
             java.io.File javaFile = FileUtil.createTxtFile(fileName, fileContent);
             GraphServiceClient<Request> graphClient = provider.getUserRequestBuilder(null, null);
-            DriveItem uploadFile = graphClient.drives(driveItem.parentReference.driveId).items(driveItem.id).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
+            DriveItem uploadFile = graphClient.drives(Objects.requireNonNull(driveItem.parentReference.driveId)).items(Objects.requireNonNull(driveItem.id)).itemWithPath(javaFile.getName()).content().buildRequest().put(DriveUtil.getByteArray(javaFile));
             String sitePath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
             if (uploadFile != null) {
                 File fileEntity = File.fromFile(new DrivePermissionImpl(uploadFile, graphClient, fileSearchUtilityService, sharePointAttributes, sitePath));

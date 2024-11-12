@@ -82,7 +82,7 @@ public class FileTransferService {
                         return payload;
                     }
                     if (createFolder) {
-                        createFolderInPath(targetDriveId, targetRelativeFilePath);
+                        createFolderInPath(targetDriveId, Objects.requireNonNull(targetRelativeFilePath));
                     }
                     searchFileExecutor.getFileInfo(target, payload, false);
                     if (payload.get(Constants.IS_TARGET_FILE_EXIST) != null && payload.get(Constants.IS_TARGET_FILE_EXIST).equals(Boolean.TRUE)) {
@@ -242,7 +242,7 @@ public class FileTransferService {
                     String parentPath = FileUtil.getParentPath(relativePathBuilder.toString());
                     DriveItemRequestBuilder builder = FileUtil.getRootUserRequestBuilder(provider, targetDriveId);
                     if (parentPath != null && !parentPath.isEmpty()) {
-                        builder = builder.itemWithPath(FileUtil.getParentPath(relativePathBuilder.toString()));
+                        builder = builder.itemWithPath(Objects.requireNonNull(FileUtil.getParentPath(relativePathBuilder.toString())));
                     }
                     builder.children().buildRequest().post(DriveUtil.getDriveItemForItem(folderName));
                 }
@@ -255,9 +255,9 @@ public class FileTransferService {
     private void executeMove(DriveItem source, DriveItem target, Map<String, Object> payload) throws IOException {
         if (source != null) {
             String endpoint = source.id;
-            Response moveResponse = getRestClient(source.parentReference.driveId).
+            Response moveResponse = getRestClient(Objects.requireNonNull(source.parentReference).driveId).
                     executeHttpMethods(endpoint, Constants.PATCH_METHOD,
-                            createRequestBody(target.id, target.parentReference.driveId, source.name));
+                            createRequestBody(target.id, Objects.requireNonNull(target.parentReference).driveId, source.name));
             prepareMovedResponse(moveResponse, target.parentReference.driveId, payload);
         }
     }
@@ -269,8 +269,8 @@ public class FileTransferService {
             if (Boolean.TRUE.equals(replace)) {
                 endpoint += MICROSOFT_GRAPH_CONFLICT_BEHAVIOR_REPLACE;
             }
-            Response copyResponse = getRestClient(source.parentReference.driveId)
-                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, target.parentReference.driveId, source.name));
+            Response copyResponse = getRestClient(Objects.requireNonNull(source.parentReference).driveId)
+                    .executeHttpMethods(endpoint, Constants.POST_METHOD, createRequestBody(target.id, Objects.requireNonNull(target.parentReference).driveId, source.name));
             prepareCopyResponse(copyResponse, target.parentReference.driveId, payload);
         }
     }

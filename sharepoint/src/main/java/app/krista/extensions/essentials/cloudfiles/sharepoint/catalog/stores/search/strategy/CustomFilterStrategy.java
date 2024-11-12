@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class CustomFilterStrategy {
@@ -35,7 +36,7 @@ public class CustomFilterStrategy {
         switch (fieldName) {
             case FileSearchStrategyFactory.NAME:
             case FileSearchStrategyFactory.BASE_NAME:
-                if (query.queryString.contains(FILENAME)) {
+                if (Objects.requireNonNull(query.queryString).contains(FILENAME)) {
                     break;
                 }
                 query.queryString = appendQueryString(query, matchPattern, FILENAME);

@@ -77,7 +77,7 @@ public class FileUploadService {
             if ((boolean) payload.get(Constants.SUCCESS)) {
                 DriveItem driveItem = (payload.containsKey(Constants.SOURCE_DRIVE_ITEM) ? (DriveItem) payload.get(Constants.SOURCE_DRIVE_ITEM) : null);
                 assert Objects.requireNonNull(driveItem).parentReference != null;
-                uploadFileByPathByDriveID(driveItem.parentReference.driveId, kristaFile, payload, driveItem);
+                uploadFileByPathByDriveID(Objects.requireNonNull(driveItem.parentReference).driveId, kristaFile, payload, driveItem);
             } else {
                 setInvalidPathMessage(payload);
             }

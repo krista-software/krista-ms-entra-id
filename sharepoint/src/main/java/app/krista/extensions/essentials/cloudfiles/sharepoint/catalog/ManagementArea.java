@@ -34,7 +34,7 @@ public class ManagementArea {
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
     private final GraphServiceClientProvider provider;
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Inject
     public ManagementArea(EventHandler eventHandler,

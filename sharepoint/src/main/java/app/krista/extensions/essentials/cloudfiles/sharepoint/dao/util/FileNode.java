@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileNode {
-    private String id;
-    private List<FileNode> children;
+    private final String id;
+    private final List<FileNode> children;
 
-    private DriveItem driveItem;
+    private final DriveItem driveItem;
 
     public FileNode(String id, DriveItem driveItem) {
         this.id = id;

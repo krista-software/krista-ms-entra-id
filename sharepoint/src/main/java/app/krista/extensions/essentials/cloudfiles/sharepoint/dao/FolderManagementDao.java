@@ -69,7 +69,7 @@ public class FolderManagementDao {
                 DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
                 sourcePath = getRelativePath(sourcePath);
                 String sitePath = mapPayload.get(Constants.SOURCE_ROOT_PATH).toString();
-                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, sourcePath, files, useEmail, accountID, search, payload,sitePath);
+                getRootFilesByDriveIDPath(Objects.requireNonNull(driveItem.parentReference).driveId, sourcePath, files, useEmail, accountID, search, payload,sitePath);
             } else{
                 payload.put(Constants.SUCCESS,Constants.SWITCH,false);
                 payload.put(Constants.MESSAGE,Constants.TEXT,mapPayload.getOrDefault(Constants.MESSAGE,Constants.PLEASE_PROVIDE_VALID_SOURCE_PATH));

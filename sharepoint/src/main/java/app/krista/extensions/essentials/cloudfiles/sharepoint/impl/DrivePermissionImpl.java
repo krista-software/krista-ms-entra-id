@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Vaibhav Choudhary
@@ -153,10 +154,10 @@ public class DrivePermissionImpl implements FileService {
 
     private String getFullFilePath(DriveItem driveItem) {
         try {
-            if (driveItem.webUrl.contains(".aspx?")) {
-                DriveItem item = graphClient.drives(driveItem.parentReference.driveId).
-                        items(driveItem.id).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
-                return getFilePath(item, FileEntitySearchMapper.extractSitePathFromURL(driveItem.webUrl));
+            if (Objects.requireNonNull(driveItem.webUrl).contains(".aspx?")) {
+                DriveItem item = graphClient.drives(Objects.requireNonNull(driveItem.parentReference.driveId)).
+                        items(Objects.requireNonNull(driveItem.id)).buildRequest().expand(Constants.QUERY_PERMISSIONS).get();
+                return getFilePath(Objects.requireNonNull(item), FileEntitySearchMapper.extractSitePathFromURL(driveItem.webUrl));
 
             } else {
                 return FileEntitySearchMapper.extractFullPath(driveItem.webUrl);

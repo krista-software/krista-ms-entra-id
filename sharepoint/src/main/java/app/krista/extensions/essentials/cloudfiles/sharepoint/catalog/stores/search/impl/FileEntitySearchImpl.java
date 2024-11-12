@@ -18,11 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Collections;
+import java.util.*;
 
 @Service
 public class FileEntitySearchImpl {
@@ -102,9 +98,9 @@ public class FileEntitySearchImpl {
     @Nullable
     private static DriveItemCollectionPage getDriveItemCollectionPage(DriveItem driveItem, GraphServiceClient<Request> graphClient) {
         try {
-            return driveItem.name.equals("root")
-                    ? graphClient.drives(driveItem.parentReference.driveId).root().children().buildRequest().get()
-                    : graphClient.drives(driveItem.parentReference.driveId).items(driveItem.id).children().buildRequest().get();
+            return Objects.requireNonNull(driveItem.name).equals("root")
+                    ? graphClient.drives(Objects.requireNonNull(driveItem.parentReference.driveId)).root().children().buildRequest().get()
+                    : graphClient.drives(Objects.requireNonNull(driveItem.parentReference.driveId)).items(Objects.requireNonNull(driveItem.id)).children().buildRequest().get();
         } catch (GraphServiceException | IllegalArgumentException cause) {
             LOGGER.error(Constants.ERROR_OCCURRED_DURING_FETCHING_DETAILS, cause.getMessage());
         }

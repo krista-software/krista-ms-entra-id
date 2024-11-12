@@ -21,10 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class FileVersionOperations {
@@ -46,17 +43,17 @@ public class FileVersionOperations {
 
     @NotNull
     private static String getParentPathToCompare(DriveItem driveItem) {
-        return driveItem.parentReference.path != null
+        return Objects.requireNonNull(driveItem.parentReference).path != null
                 ? driveItem.parentReference.path + "/" + driveItem.name
                 : "/drives/" + driveItem.parentReference.driveId + "/root:";
     }
 
     private static boolean isSearchMatch(String search, DriveItem driveInPage) {
-        return (!search.isEmpty() && driveInPage.name.contains(search)) || search.isBlank();
+        return (!search.isEmpty() && Objects.requireNonNull(driveInPage.name).contains(search)) || search.isBlank();
     }
 
     private static String getRootRelativeFilePath(DriveItem driveInPage) {
-        String path = FileUtil.getRootRelativeFilePath(driveInPage.parentReference.path);
+        String path = FileUtil.getRootRelativeFilePath(Objects.requireNonNull(driveInPage.parentReference.path));
         return path != null && !path.isBlank()
                 ? "/" + FileUtil.getRootRelativeFilePath(driveInPage.parentReference.path)
                 : "";
@@ -81,7 +78,7 @@ public class FileVersionOperations {
                 payload.put(Constants.MESSAGE, Constants.PLEASE_PROVIDE_VALID_FOLDER_PATH);
                 return;
             }
-            DriveItemDeltaCollectionPage page = getUserRequestBuilder().drives(driveID).items(driveItem.id).delta().buildRequest().get();
+            DriveItemDeltaCollectionPage page = getUserRequestBuilder().drives(driveID).items(Objects.requireNonNull(driveItem.id)).delta().buildRequest().get();
             List<Map<String, Object>> result = new ArrayList<>();
             while (page != null && !page.getCurrentPage().isEmpty()) {
                 String rootPath = payload.get(Constants.SOURCE_ROOT_PATH).toString();
@@ -119,7 +116,7 @@ public class FileVersionOperations {
     }
 
     private void processDriveItem(List<Map<String, Object>> result, DriveItem driveInPage, String rootPath) {
-        DriveItemVersionCollectionPage driveItemVersionCollectionPage = getUserRequestBuilder().drives(driveInPage.parentReference.driveId).items(driveInPage.id).versions().buildRequest().get();
+        DriveItemVersionCollectionPage driveItemVersionCollectionPage = getUserRequestBuilder().drives(Objects.requireNonNull(driveInPage.parentReference.driveId)).items(Objects.requireNonNull(driveInPage.id)).versions().buildRequest().get();
         if (driveItemVersionCollectionPage != null
                 && !driveItemVersionCollectionPage.getCurrentPage().isEmpty()
                 && driveItemVersionCollectionPage.getCurrentPage().size() > 1) {

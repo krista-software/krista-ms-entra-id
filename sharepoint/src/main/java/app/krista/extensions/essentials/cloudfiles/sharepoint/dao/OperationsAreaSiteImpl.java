@@ -67,7 +67,7 @@ public class OperationsAreaSiteImpl {
             }
             Group updateGroup = new Group();
             updateGroup.displayName = newGroupName;
-            graphClient.groups(existingGroup.id).buildRequest().patch(updateGroup); // 204 No Content
+            graphClient.groups(Objects.requireNonNull(existingGroup.id)).buildRequest().patch(updateGroup); // 204 No Content
         } catch (GraphServiceException cause) {
             LOGGER.error("Error occurred while updating group");
             throw new IllegalStateException(cause.getMessage());
@@ -86,7 +86,7 @@ public class OperationsAreaSiteImpl {
      */
     public Map<String, Object> deleteGroup(String groupName) {
         Map<String, Object> payload = new HashMap<>();
-        if (!operationsAreaUtilityService.validateSiteNames(groupName, payload)) {
+        if (operationsAreaUtilityService.validateSiteNames(groupName, payload)) {
             return payload; // Early return if validation fails
         }
         try {

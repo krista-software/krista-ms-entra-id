@@ -98,7 +98,7 @@ public class FileDownloadService {
                 if (downloadAsLink != null && downloadAsLink) {
                     handleDownloadLink(payload, driveItem, absolutePath);
                 } else if (downloadAsKristaFile != null && downloadAsKristaFile && driveItem.size != null &&
-                        driveItem.size > (1024 * 1024 * 50L)) { // This line indicated that if file size is more than 50 MB then it able to download as link
+                        driveItem.size > (1024 * 1024 * 50L)) { // This line indicated that if file size is more than 50 MB then should be able to download as link
                     handleDownloadAsKristaFile(payload, driveItem, path);
                 } else {
                     handleDownload(payload, driveItem);

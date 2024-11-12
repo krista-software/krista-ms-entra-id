@@ -103,8 +103,7 @@ public class FileChangeInfoHandler {
                 if(driveItem.name == null){
                     continue;
                 }
-                if (driveItem.lastModifiedDateTime != null && driveItem.createdDateTime != null
-                        && driveItem.lastModifiedDateTime.equals(driveItem.createdDateTime)) {
+                if (driveItem.lastModifiedDateTime != null && driveItem.lastModifiedDateTime.equals(driveItem.createdDateTime)) {
                     eventMap.add(ResponseUtil.addCreatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));
                 } else {
                     eventMap.add(ResponseUtil.addUpdatedFile(driveItem, provider.getUserRequestBuilder(null, null), fileSearchUtilityService, sitePath));
@@ -130,23 +129,18 @@ public class FileChangeInfoHandler {
 
     @Nullable
     private static String extractDriveID(DriveItemDeltaCollectionPage oldDeltaCollectionPage) {
-        if(oldDeltaCollectionPage.getCurrentPage()!= null
-                && !oldDeltaCollectionPage.getCurrentPage().isEmpty()
-                && oldDeltaCollectionPage.getCurrentPage().get(0) != null
-                && oldDeltaCollectionPage.getCurrentPage().get(0).parentReference != null
-                && oldDeltaCollectionPage.getCurrentPage().get(0).parentReference.driveId != null)
+        oldDeltaCollectionPage.getCurrentPage();
+        if(!oldDeltaCollectionPage.getCurrentPage().isEmpty() && oldDeltaCollectionPage.getCurrentPage().get(0) != null && oldDeltaCollectionPage.getCurrentPage().get(0).parentReference != null && Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).parentReference).driveId != null)
         {
-            return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).parentReference).driveId;
+           return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).parentReference).driveId;
         }
         return  null;
     }
 
     @Nullable
     private static String extractItemId(DriveItemDeltaCollectionPage oldDeltaCollectionPage) {
-        if(oldDeltaCollectionPage.getCurrentPage()!= null
-                && !oldDeltaCollectionPage.getCurrentPage().isEmpty()
-                && oldDeltaCollectionPage.getCurrentPage().get(0) != null
-                && oldDeltaCollectionPage.getCurrentPage().get(0).id != null)
+        oldDeltaCollectionPage.getCurrentPage();
+        if(!oldDeltaCollectionPage.getCurrentPage().isEmpty() && oldDeltaCollectionPage.getCurrentPage().get(0) != null && oldDeltaCollectionPage.getCurrentPage().get(0).id != null)
         {
             return Objects.requireNonNull(oldDeltaCollectionPage.getCurrentPage().get(0).id);
         }

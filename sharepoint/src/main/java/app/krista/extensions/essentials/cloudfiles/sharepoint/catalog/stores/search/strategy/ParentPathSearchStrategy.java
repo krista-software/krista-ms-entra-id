@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class ParentPathSearchStrategy implements FileSearchStrategy {
     @Override
-    public List<File> search(FileEntitySearchImpl fileEntitySearch, SearchCondition condition, long pageIndex, int pageSize) throws IOException {
+    public List<File> search(FileEntitySearchImpl fileEntitySearch, SearchCondition condition, long pageIndex, int pageSize) {
         String matchPattern = FileEntityCondition.getMatchPattern(condition);
         String operator = FileEntityCondition.getOperator(condition);
         return fileEntitySearch.getFilesByParentFolder(matchPattern)

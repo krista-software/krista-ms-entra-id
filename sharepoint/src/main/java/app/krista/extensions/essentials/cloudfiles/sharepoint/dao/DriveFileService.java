@@ -101,7 +101,7 @@ public class DriveFileService {
 
     private DriveItemCollectionPage driveItemCollectionPageProvider(String sourcePath, boolean useEmail, String accountID, DriveItem driveItem) {
         return provider.getUserRequestBuilder(useEmail, accountID)
-                .drives(driveItem.parentReference.driveId)
+                .drives(Objects.requireNonNull(driveItem.parentReference.driveId))
                 .root()
                 .itemWithPath(sourcePath)
                 .children()
@@ -221,7 +221,7 @@ public class DriveFileService {
                 DriveItem driveItem = (DriveItem) mapPayload.get(Constants.SOURCE_DRIVE_ITEM);
                 String refinedRelativePath = FolderManagementDao.getRelativePath(sourcePath);
                 String sitePath = mapPayload.get(Constants.SOURCE_ROOT_PATH).toString();
-                getRootFilesByDriveIDPath(driveItem.parentReference.driveId, refinedRelativePath,
+                getRootFilesByDriveIDPath(Objects.requireNonNull(driveItem.parentReference).driveId, refinedRelativePath,
                         files, useEmail, accountID, search, payload, sitePath);
             }else{
                 payload.put(Constants.SUCCESS,Constants.SWITCH,false);

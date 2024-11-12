@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Utility service class for performing operations related to SharePoint sites and lists
@@ -39,7 +40,7 @@ public class OperationsAreaUtilityService {
 
     public static List getList(GraphServiceClient<Request> graphClient, Site existingSite, String listName) {
         try {
-            return graphClient.sites(existingSite.id).lists(listName).buildRequest().get();
+            return graphClient.sites(Objects.requireNonNull(existingSite.id)).lists(listName).buildRequest().get();
         } catch (Exception cause) {
             return null;
         }
@@ -119,20 +120,20 @@ public class OperationsAreaUtilityService {
         if (siteName == null || siteName.isEmpty()) {
             payload.put(Constants.MESSAGE, Constants.SITE_NAME_CANNOT_BE_NULL);
             payload.put(Constants.SUCCESS, false);
-            return false;
+            return true;
         }
 
         if (listName == null || listName.isEmpty()) {
             payload.put(Constants.MESSAGE, Constants.LIST_NAME_CANNOT_BE_NULL);
             payload.put(Constants.SUCCESS, false);
-            return false;
+            return true;
         }
-        return true; // Validation successful
+        return false; // Validation successful
     }
 
     public boolean validateSiteAndListAndUpdatedNames(String siteName, String listName, Map<String, Object> payload,
                                                       String displayName) {
-        if (!validateSiteAndListNames(siteName, listName, payload)) {
+        if (validateSiteAndListNames(siteName, listName, payload)) {
             return false;
         }
 
@@ -148,13 +149,13 @@ public class OperationsAreaUtilityService {
         if (siteName == null || siteName.isEmpty()) {
             payload.put(Constants.MESSAGE, Constants.SITE_NAME_CANNOT_BE_NULL);
             payload.put(Constants.SUCCESS, false);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public boolean validateSiteAndUpdatedNames(String siteName, String newSiteName, Map<String, Object> payload) {
-        if (!validateSiteNames(siteName, payload)) {
+        if (validateSiteNames(siteName, payload)) {
             return false;
         }
         if (newSiteName == null || newSiteName.isEmpty()) {
