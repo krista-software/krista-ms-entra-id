@@ -3,6 +3,7 @@ package app.krista.extensions.essentials.cloudfiles.sharepoint.catalog.entities;
 import app.krista.extension.impl.anno.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,9 @@ public class ChangesSince {
     public Long date;
 
     public static List<ChangesSince> from(List<Map<String, Object>> result) {
+        if (result == null || result.isEmpty()) {
+            return Collections.emptyList();
+        }
         List<ChangesSince> changesSinceList = new ArrayList<>();
         for (Map<String, Object> map : result) {
             ChangesSince changesSince = new ChangesSince();

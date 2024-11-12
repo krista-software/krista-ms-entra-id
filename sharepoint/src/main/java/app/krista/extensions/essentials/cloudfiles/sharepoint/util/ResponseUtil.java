@@ -82,14 +82,10 @@ public class ResponseUtil {
         payload.put("Size", "Number", size);
     }
 
-    public static void changesSinceResponse(boolean success, String message, List<Map<String, Object>> result, Map<String, Object> payload) {
-        payload.put(Constants.RESULT, result);
-        payload.put(Constants.MESSAGE, message);
-        payload.put(Constants.SUCCESS, success);
-    }
-
 
     public static void changesSinceResponseEntity(boolean success, String message, List<Map<String, Object>> result, Map<String, Object> payload) {
+        message = (message != null) ? message : "";
+        result = (result != null) ? result : Collections.emptyList();
         List<ChangesSince> changesSinceList = ChangesSince.from(result);
         payload.put(Constants.RESULT, changesSinceList);
         payload.put(Constants.MESSAGE, message);
