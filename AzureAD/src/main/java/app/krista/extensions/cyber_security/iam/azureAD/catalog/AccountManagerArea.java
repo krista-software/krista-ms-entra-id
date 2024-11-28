@@ -1,6 +1,7 @@
 package app.krista.extensions.cyber_security.iam.azureAD.catalog;
 
 
+import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
@@ -30,6 +31,46 @@ class AccountManagerArea {
     @Inject
     public AccountManagerArea(AccountImpl account) {
         this.account = account;
+    }
+
+
+    @CatalogRequest(
+            id = "localDomainRequest_e42ee430-a2ea-47ff-afcf-00d8ab303e5b",
+            name = "Activate or Deactivate an Account",
+            description = "Required User ID or User Mail to Activate or Deactivate an Account",
+            area = "Account Manager",
+            type = CatalogRequest.Type.CHANGE_SYSTEM)
+    @Field.Desc(name = "Account", type = "Entity(Account)",required = false)
+    public Account activateOrDeactivateAnAccount(
+            @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Boolean deactivate,
+            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrID) {
+        return account.activateOrDeactivateAccount(userMailOrID,deactivate);
+    }
+
+    @CatalogRequest(
+            id = "localDomainRequest_30716250-b09b-4706-b565-61c113715a31",
+            name = "Add Group to Account",
+            description = "Requires User Id or User Mail and Group Mail",
+            area = "Account Manager",
+            type = CatalogRequest.Type.CHANGE_SYSTEM)
+    @Field.Desc(name = "Account", type = "Entity(Account)",required = false)
+    public Account addGroupToAccount(
+            @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrId,
+            @Field.Text(name = "Group Mail", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupMail) {
+        return account.addGroupToAccount(userMailOrId,groupMail);
+    }
+
+    @CatalogRequest(
+            id = "localDomainRequest_d29d95b8-315f-438b-988d-6e70722fe889",
+            name = "Remove Group from Account",
+            description = "Required User Mail or ID and Group Mail",
+            area = "Account Manager",
+            type = CatalogRequest.Type.CHANGE_SYSTEM)
+    @Field.Boolean(name = "Removed", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public Boolean removeGroupFromAccount(
+            @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrId,
+            @Field.Text(name = "Group Mail", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupMail) {
+        return account.removeGroupFromAccount(userMailOrId, groupMail);
     }
 
     @CatalogRequest(
