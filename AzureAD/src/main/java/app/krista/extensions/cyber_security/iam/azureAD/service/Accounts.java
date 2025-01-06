@@ -22,7 +22,7 @@ public interface Accounts {
 
     Account activateOrDeactivateAccount(String userMailOrID, Boolean deactivate);
 
-    Account addGroupToAccount(String userMailOrId, String groupMail);
+    Account addAccountToGroup(String userMailOrId, String groupMail);
 
-    Boolean removeGroupFromAccount(String userMailOrId, String groupMail);
+    Boolean removeAccountFromGroup(String userMailOrId, String groupMail);
 }

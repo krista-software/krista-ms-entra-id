@@ -80,7 +80,8 @@ public class AccountImpl implements Accounts {
         try {
             provider.getGraphServiceClient().users(email).buildRequest().patch(user);
             User updatedUser = provider.getGraphServiceClient().users(email).buildRequest().get();
-            updatedUser.mail = email;
+            assert updatedUser != null;
+            updatedUser.mail = Objects.requireNonNullElse(updatedUser.mail, email);
             return Account.from(updatedUser);
         } catch (ClientException cause) {
             log.error("Failed to update user: {}", cause.getMessage(), cause);
@@ -125,13 +126,11 @@ public class AccountImpl implements Accounts {
             User user = new User();
             user.accountEnabled = !deactivate; //Deactivate Input is True, hence we are setting it as False
             log.info("User Account Deactivating Initialised: {}", user.accountEnabled);
+
             provider.getGraphServiceClient().users(userMailOrID).buildRequest().patch(user);
             log.info("User Account Deactivating Completed");
-            User updatedUser = provider.getGraphServiceClient().users(userMailOrID).buildRequest().get();
-            assert updatedUser != null;
-            updatedUser.mail = userMailOrID;
-            log.info("User Account Deactivated User Fetched");
-            return Account.from(updatedUser);
+
+            return getUser(userMailOrID);
         } catch (ClientException cause) {
             log.error("Failed to Deactivate User: {}", cause.getMessage());
             throw new ClientException("Failed to Deactivate user: Please provide a valid email or a valid ID", cause);
@@ -139,25 +138,24 @@ public class AccountImpl implements Accounts {
     }
 
     @Override
-    public Account addGroupToAccount(String userMailOrId, String groupMail) {
+    public Account addAccountToGroup(String userMailOrId, String groupId) {
         try {
-            DirectoryObject group = new DirectoryObject();
-            group.id = getGroupIdMail(groupMail);
-            log.info("Group Id Fetched: {}", group.id);
+
+            DirectoryObject member = new DirectoryObject();
+            member.id = getUser(userMailOrId).id;
+            log.info("User Id  assigned to Member : {}", member.id);
+
             DirectoryObjectCollectionReferenceRequestBuilder directoryObjectCollectionReferenceRequestBuilder
-                        = provider.getGraphServiceClient().users(userMailOrId).memberOf().references();
+                        = provider.getGraphServiceClient().groups(groupId).members().references();
 
             if(directoryObjectCollectionReferenceRequestBuilder != null){
-                directoryObjectCollectionReferenceRequestBuilder.buildRequest().post(group);
-                log.info("Group Added to User");
+                directoryObjectCollectionReferenceRequestBuilder.buildRequest().post(member);
+                log.info("User Added to group");
             }else {
                 log.info("Group References are Null or Empty");
             }
-            User updatedUser = provider.getGraphServiceClient().users(userMailOrId).buildRequest().get();
-            assert updatedUser != null;
-            updatedUser.mail = userMailOrId;
-            log.info("User Fetched");
-            return Account.from(updatedUser);
+
+            return getUser(userMailOrId);
         } catch (ClientException cause) {
             log.error("Failed to add Group To Account: {}", cause.getMessage());
             throw new ClientException("Failed to add Group To Account: Please provide a valid email or a valid ID", cause);
@@ -165,37 +163,24 @@ public class AccountImpl implements Accounts {
     }
 
     @Override
-    public Boolean removeGroupFromAccount(String userMailOrId, String groupMail) {
+    public Boolean removeAccountFromGroup(String userMailOrId, String groupId) {
         try {
-            String groupId = getGroupIdMail(groupMail);
-            log.info("Group Id Fetched: {}", groupId);
+            String userId = getUser(userMailOrId).id;
+            log.info("User id fetched: {}", userId);
             DirectoryObjectReferenceRequestBuilder objectReferenceRequestBuilder
-                    = provider.getGraphServiceClient().groups(groupId).members(userMailOrId).reference();
+                    = provider.getGraphServiceClient().groups(groupId).members(userId).reference();
             if(objectReferenceRequestBuilder != null){
                 objectReferenceRequestBuilder.buildRequest().delete();
                 log.info("Group Removed to User");
+                return true;
             }else {
                 log.info("Group Reference is Null or Empty");
                 return false;
             }
-            User updatedUser = provider.getGraphServiceClient().users(userMailOrId).buildRequest().get();
-            assert updatedUser != null;
-            updatedUser.mail = userMailOrId;
-            log.info("User Fetched");
-            return true;
+
         } catch (ClientException cause) {
             log.error("Failed to Remove Group To Account: {}", cause.getMessage());
             throw new ClientException("Failed to Remove Group To Account: Please provide a valid email or a valid ID", cause);
-        }
-    }
-
-    private String getGroupIdMail(String groupMail) {
-        try {
-            Group group = provider.getGraphServiceClient().groups(groupMail).buildRequest().get();
-            return group.id;
-        } catch (ClientException cause) {
-            log.error("Failed to get Group Id by Group Mail : {}", cause.getMessage());
-            throw new ClientException("Failed to get Group Id by Group Mail: Please provide a valid email", cause);
         }
     }
 

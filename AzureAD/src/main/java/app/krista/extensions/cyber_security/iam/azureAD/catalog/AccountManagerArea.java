@@ -49,28 +49,28 @@ class AccountManagerArea {
 
     @CatalogRequest(
             id = "localDomainRequest_30716250-b09b-4706-b565-61c113715a31",
-            name = "Add Group to Account",
-            description = "Requires User Id or User Mail and Group Mail",
+            name = "Add Account to Group",
+            description = "Requires User Id or User Mail and Group Object Id",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Account", type = "Entity(Account)",required = false)
     public Account addGroupToAccount(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrId,
-            @Field.Text(name = "Group Mail", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupMail) {
-        return account.addGroupToAccount(userMailOrId,groupMail);
+            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupObjectId) {
+        return account.addAccountToGroup(userMailOrId,groupObjectId);
     }
 
     @CatalogRequest(
             id = "localDomainRequest_d29d95b8-315f-438b-988d-6e70722fe889",
-            name = "Remove Group from Account",
-            description = "Required User Mail or ID and Group Mail",
+            name = "Remove Account From Group",
+            description = "Required User Mail or ID and Group Object Id",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Boolean(name = "Removed", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
     public Boolean removeGroupFromAccount(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrId,
-            @Field.Text(name = "Group Mail", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupMail) {
-        return account.removeGroupFromAccount(userMailOrId, groupMail);
+            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupObjectId) {
+        return account.removeAccountFromGroup(userMailOrId, groupObjectId);
     }
 
     @CatalogRequest(

@@ -102,13 +102,13 @@
 
 #### 7. Add Group to Account
 
-- **Description**: Allows User to Add Group to Account, requires User Id or User Mail and Group Mail
+- **Description**: Allows User to Add Group to Account, requires User Id or User Mail and Group Object Id.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**            |
-|--------------------|--------------------|---------------|------------------------|
-| Group Mail         | Text               | Yes           | group1@kristasoft.info |
-| User Mail or ID    | Text               | Yes           | user1@kristasoft.info  |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                          |
+|--------------------|--------------------|---------------|--------------------------------------|
+| Group Object Id    | Text               | Yes           | 0e831f0a-b85f-4971-80b5-34f2324b2598 |
+| User Mail or ID    | Text               | Yes           | user1@kristasoft.info                |
 
 - **Output Parameters**:
 
@@ -118,13 +118,13 @@
 
 #### 8. Remove Group from Account
 
-- **Description**: Allows User to Remove Group to Account, Required User Mail or ID and Group Mail.
+- **Description**: Allows User to Remove Group to Account, Required User Mail or ID and Group Object Id.
 - **Input Parameters**:
 
-| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**            |
-|--------------------|--------------------|---------------|------------------------|
-| Group Mail         | Text               | Yes           | group1@kristasoft.info |
-| User Mail or ID    | Text               | Yes           | user1@kristasoft.info  |
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                          |
+|--------------------|--------------------|---------------|--------------------------------------|
+| Group Object Id    | Text               | Yes           | 0e831f0a-b85f-4971-80b5-34f2324b2598 |
+| User Mail or ID    | Text               | Yes           | user1@kristasoft.info                |
 
 - **Output Parameters**:
 
