@@ -133,7 +133,7 @@ public class AccountImpl implements Accounts {
             return getUser(userMailOrID);
         } catch (ClientException cause) {
             log.error("Failed to Deactivate User: {}", cause.getMessage());
-            throw new ClientException("Failed to Deactivate User, Please provide a valid email or a valid ID", cause);
+            throw new ClientException("Failed to Deactivate User. Please provide a valid email address or a valid ID.", cause);
         }
     }
 
@@ -158,7 +158,7 @@ public class AccountImpl implements Accounts {
             return getUser(userMailOrId);
         } catch (ClientException cause) {
             log.error("Failed to add an Account to Group: {}", cause.getMessage());
-            throw new ClientException("Failed to add an Account to Group, Please provide a valid email, valid userId or valid group objectId ", cause);
+            throw new ClientException("Failed to add an Account to the Group. Please provide a valid email address, a valid user ID, or a valid group object ID.", cause);
         }
     }
 
@@ -180,7 +180,7 @@ public class AccountImpl implements Accounts {
 
         } catch (ClientException cause) {
             log.error("Failed to Remove an Account from Group: {}", cause.getMessage());
-            throw new ClientException("Failed to Remove an Account from Group, Please provide a valid email or a valid Id", cause);
+            throw new ClientException("Failed to remove an Account from Group. Please provide a valid email address, a valid user ID, or a valid group object ID.", cause);
         }
     }
 
