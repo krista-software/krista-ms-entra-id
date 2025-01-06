@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Domain(id = "catEntryDomain_5fd12694-66b1-4cd2-8141-c41f02716c3a",
         name = "IAM",
@@ -49,7 +50,7 @@ class AccountManagerArea {
 
     @CatalogRequest(
             id = "localDomainRequest_30716250-b09b-4706-b565-61c113715a31",
-            name = "Add Account to Group",
+            name = "Add an Account to Group",
             description = "Requires User Id or User Mail and Group Object Id",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
@@ -62,7 +63,7 @@ class AccountManagerArea {
 
     @CatalogRequest(
             id = "localDomainRequest_d29d95b8-315f-438b-988d-6e70722fe889",
-            name = "Remove Account From Group",
+            name = "Remove an Account From Group",
             description = "Required User Mail or ID and Group Object Id",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
@@ -75,7 +76,7 @@ class AccountManagerArea {
 
     @CatalogRequest(
             id = "localDomainRequest_1079ad63-576a-4aca-9897-230c2ed51f87",
-            name = "CreateAccount",
+            name = "Create an Account",
             description = "Create User in Azure Active Directory",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
@@ -91,8 +92,8 @@ class AccountManagerArea {
 
     @CatalogRequest(
             id = "localDomainRequest_05582946-848b-466c-bc41-75f14413dedf",
-            name = "UpdateAccount",
-            description = "Update Account in Azure Active Directory",
+            name = "Update an Account",
+            description = "Update an Account in Azure Active Directory",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Updated Entity", type = "Entity(Account)", required = false)
@@ -101,13 +102,14 @@ class AccountManagerArea {
             @Field(name = "Mobile Number", type = "Text", required = false, attributes = {}, options = {}) String mobileNumber,
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field.Desc(name = "Extra Field", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraField) {
-        return account.updateUser(name, mobileNumber, email, extraField);
+        return account.updateUser(
+                Objects.requireNonNullElse(name,""), Objects.requireNonNullElse(mobileNumber,""), email, extraField);
     }
 
     @CatalogRequest(
             id = "localDomainRequest_a8cf8efe-56f8-40a7-be91-da8aa945195f",
-            name = "DeleteAccount",
-            description = "Delete Account in Azure Active Directory",
+            name = "Delete an Account",
+            description = "Delete an Account in Azure Active Directory",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field(name = "Deleted", type = "Switch", required = false, attributes = {}, options = {})
