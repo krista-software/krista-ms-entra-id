@@ -7,8 +7,11 @@ import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 import com.microsoft.graph.core.ClientException;
 import com.microsoft.graph.models.AuthenticationMethodResetPasswordParameterSet;
+import com.microsoft.graph.models.DirectoryObject;
 import com.microsoft.graph.models.PasswordProfile;
 import com.microsoft.graph.models.User;
+import com.microsoft.graph.requests.DirectoryObjectCollectionReferenceRequestBuilder;
+import com.microsoft.graph.requests.DirectoryObjectReferenceRequestBuilder;
 import com.microsoft.graph.requests.UserCollectionPage;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -79,9 +82,7 @@ public class AccountImpl implements Accounts {
         }
         try {
             provider.getGraphServiceClient().users(email).buildRequest().patch(user);
-            User updatedUser = provider.getGraphServiceClient().users(email).buildRequest().get();
-            updatedUser.mail = email;
-            return Account.from(updatedUser);
+            return getUser(email);
         } catch (ClientException cause) {
             log.error("Failed to update user: {}", cause.getMessage(), cause);
             throw new ClientException("Failed to update user: Please provide a valid email or a valid ID", cause);
@@ -115,6 +116,71 @@ public class AccountImpl implements Accounts {
         } catch (ClientException cause) {
             log.error("Failed to delete user: {}", cause.getMessage());
             throw new ClientException("Failed to delete user: Please provide a valid email or a valid ID", cause);
+        }
+    }
+
+
+    @Override
+    public Account activateOrDeactivateAccount(String userMailOrID, Boolean deactivate) {
+        try {
+            User user = new User();
+            user.accountEnabled = !deactivate; //Deactivate Input is True, hence we are setting it as False
+            log.info("User Account Deactivating Initialised: {}", user.accountEnabled);
+
+            provider.getGraphServiceClient().users(userMailOrID).buildRequest().patch(user);
+            log.info("User Account Deactivating Completed");
+
+            return getUser(userMailOrID);
+        } catch (ClientException cause) {
+            log.error("Failed to Deactivate User: {}", cause.getMessage());
+            throw new ClientException("Failed to Deactivate User. Please provide a valid email address or a valid ID.", cause);
+        }
+    }
+
+    @Override
+    public Account addAccountToGroup(String userMailOrId, String groupId) {
+        try {
+
+            DirectoryObject member = new DirectoryObject();
+            member.id = getUser(userMailOrId).id;
+            log.info("User Id  assigned to Member : {}", member.id);
+
+            DirectoryObjectCollectionReferenceRequestBuilder directoryObjectCollectionReferenceRequestBuilder
+                    = provider.getGraphServiceClient().groups(groupId).members().references();
+
+            if (directoryObjectCollectionReferenceRequestBuilder != null) {
+                directoryObjectCollectionReferenceRequestBuilder.buildRequest().post(member);
+                log.info("User added to Group");
+            } else {
+                log.info("Group references are Null or Empty");
+            }
+
+            return getUser(userMailOrId);
+        } catch (ClientException cause) {
+            log.error("Failed to add an Account to Group: {}", cause.getMessage());
+            throw new ClientException("Failed to add an Account to the Group. Please provide a valid email address, a valid user ID, or a valid group object ID.", cause);
+        }
+    }
+
+    @Override
+    public Boolean removeAccountFromGroup(String userMailOrId, String groupId) {
+        try {
+            String userId = getUser(userMailOrId).id;
+            log.info("User Id fetched: {}", userId);
+            DirectoryObjectReferenceRequestBuilder objectReferenceRequestBuilder
+                    = provider.getGraphServiceClient().groups(groupId).members(userId).reference();
+            if (objectReferenceRequestBuilder != null) {
+                objectReferenceRequestBuilder.buildRequest().delete();
+                log.info("User Removed from Group");
+                return true;
+            } else {
+                log.info("Group reference is Null or Empty");
+                return false;
+            }
+
+        } catch (ClientException cause) {
+            log.error("Failed to Remove an Account from Group: {}", cause.getMessage());
+            throw new ClientException("Failed to remove an Account from Group. Please provide a valid email address, a valid user ID, or a valid group object ID.", cause);
         }
     }
 

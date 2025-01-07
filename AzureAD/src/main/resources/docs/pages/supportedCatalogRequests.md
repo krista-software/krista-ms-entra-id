@@ -7,9 +7,8 @@
 - **Description**: This request will help you in creating an account, and it returns the details of the newly created account.
 - **Input Parameters**: In extra fields following fields are supported - Job Title, Given Name, Office Location, Surname.
 
-|                    |                                                                   |               |                                  |
-|--------------------|-------------------------------------------------------------------|---------------|----------------------------------|
 | **Parameter Name** | **Parameter Type**                                                | **Mandatory** | **Example**                      |
+|--------------------|-------------------------------------------------------------------|---------------|----------------------------------|
 | Name               | Text                                                              | Yes           | user1                            |
 | Email              | Text                                                              | Yes           | user1@kristasoft.info            |
 | Mobile Number      | Text                                                              | Yes           | 7777696969                       |
@@ -17,9 +16,8 @@
 
 - **Output Parameters**:
 
-|                    |                    | 
-|--------------------|--------------------|
 | **Parameter Name** | **Parameter Type** | 
+|--------------------|--------------------| 
 | User Id            | Text               | 
 | Default Password   | Text               |
 
@@ -28,9 +26,8 @@
 - **Description**: With this request you can update an account, and it returns Account entity of the updated account.
 - **Input Parameters**: In extra fields following fields are supported - Job Title, Given Name, Office Location, Surname.
 
-|                    |                                                                   |               |                                  |
-|--------------------|-------------------------------------------------------------------|---------------|----------------------------------|
 | **Parameter Name** | **Parameter Type**                                                | **Mandatory** | **Example**                      |
+|--------------------|-------------------------------------------------------------------|---------------|----------------------------------|
 | Name               | Text                                                              | Yes           | user1                            |
 | Email              | Text                                                              | Yes           | user1@kristasoft.info            |
 | Mobile Number      | Text                                                              | Yes           | 7777696969                       |
@@ -38,9 +35,8 @@
 
 - **Output Parameters**:
 
-|                    |                    |
-|--------------------|--------------------|
 | **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------|
 | Updated Entity     | Account Entity     | 
 
 #### 3. Delete Account
@@ -48,16 +44,14 @@
 - **Description**: This request can delete an account by ID or UserPrincipalName, and it returns true or false according to the status of delete.
 - **Input Parameters**:
 
-|                           |                                                                   |               |                                                               |
-|---------------------------|-------------------------------------------------------------------|---------------|---------------------------------------------------------------|
 | **Parameter Name**        | **Parameter Type**                                                | **Mandatory** | **Example**                                                   |
+|---------------------------|-------------------------------------------------------------------|---------------|---------------------------------------------------------------|
 | ID or User Principal Name | Text                                                              | Yes           | user1@kristasoft.info or 2b451f76-96d1-4f62-aef1-a056584bb791 |
 
 - **Output Parameters**:
 
-|                    |                    |
-|--------------------|--------------------|
 | **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------|
 | Deleted            | Switch             | 
 
 #### 4. Reset Password
@@ -65,16 +59,14 @@
 - **Description**: This request returns the one time login password for user after login through this password, User have to set a new password.
 - **Input Parameters**:
 
-|                            |                                                                   |               |                                                                |
-|----------------------------|-------------------------------------------------------------------|---------------|----------------------------------------------------------------|
 | **Parameter Name**         | **Parameter Type**                                                | **Mandatory** | **Example**                                                    |
+|----------------------------|-------------------------------------------------------------------|---------------|----------------------------------------------------------------|
 | ID or User Principal Name  | Text                                                              | Yes           | user1@kristasoft.info or 2b451f76-96d1-4f62-aef1-a056584bb791  |
 
 - **Output Parameters**:
 
-|                    |                    |
-|--------------------|--------------------|
 | **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------|
 | Password           | Text               | 
 
 #### 5. Get User Details by ID or Email
@@ -82,17 +74,63 @@
 - **Description**: This request returns the details of the User.
 - **Input Parameters**:
 
-|                            |                                                                   |               |                                                                  |
-|----------------------------|-------------------------------------------------------------------|---------------|------------------------------------------------------------------|
 | **Parameter Name**         | **Parameter Type**                                                | **Mandatory** | **Example**                                                      |
+|----------------------------|-------------------------------------------------------------------|---------------|------------------------------------------------------------------|
 | ID or User Principal Name  | Text                                                              | Yes           | user1@kristasoft.info or 2b451f76-96d1-4f62-aef1-a056584bb791    |
 
 - **Output Parameters**:
 
-|                    |                    |
-|--------------------|--------------------|
-| **Parameter Name** | **Parameter Type** | 
+| **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------| 
 | Result             | Account Entity     | 
+
+#### 6. Activate or Deactivate an Account
+
+- **Description**: Allows User to activate or deactivate account, Select Yes to Deactivate.
+- **Input Parameters**: 
+
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**           |
+|--------------------|--------------------|---------------|-----------------------|
+| Deactivate         | Switch             | Yes           | Yes                   |
+| User Mail or ID    | Text               | Yes           | user1@kristasoft.info |
+
+- **Output Parameters**:
+
+| **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------|
+| Account            | Account Entity     | 
+
+#### 7. Add Group to Account
+
+- **Description**: Allows User to Add Group to Account, requires User Id or User Mail and Group Object Id.
+- **Input Parameters**:
+
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                          |
+|--------------------|--------------------|---------------|--------------------------------------|
+| Group Object Id    | Text               | Yes           | 0e831f0a-b85f-4971-80b5-34f2324b2598 |
+| User Mail or ID    | Text               | Yes           | user1@kristasoft.info                |
+
+- **Output Parameters**:
+
+| **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------|
+| Account            | Account Entity     | 
+
+#### 8. Remove Group from Account
+
+- **Description**: Allows User to Remove Group to Account, Required User Mail or ID and Group Object Id.
+- **Input Parameters**:
+
+| **Parameter Name** | **Parameter Type** | **Mandatory** | **Example**                          |
+|--------------------|--------------------|---------------|--------------------------------------|
+| Group Object Id    | Text               | Yes           | 0e831f0a-b85f-4971-80b5-34f2324b2598 |
+| User Mail or ID    | Text               | Yes           | user1@kristasoft.info                |
+
+- **Output Parameters**:
+
+| **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------|
+| Removed            | Switch             | 
 
 ## Entity Requests
 
@@ -106,8 +144,7 @@
 - **Input Parameters**: NA
 - **Output Parameters**:
 
-|                    |                    |
-|--------------------|--------------------|
-| **Parameter Name** | **Parameter Type** | 
+| **Parameter Name** | **Parameter Type** |
+|--------------------|--------------------| 
 | Account            | List<Account>      | 
 

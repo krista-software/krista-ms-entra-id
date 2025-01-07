@@ -1,16 +1,22 @@
 ### Release Notes - Azure AD Extension
 
-## Version 2.0.4
+## Version 2.0.5
 
-- **Developer Name** : Aradhya Gudadhe
 - **Krista Service APIs Java** : 1.0.102
-- **Global Catalog Version** : 1.0.50
-- **Appliance Release Version** : 3.3.5
+- **Global Catalog Version** : 1.0.53
+- **Appliance Release Version** : 3.4.2
+
+## Enhancement Highlights
+
+#### Key Highlights of Version 2.0.5
+
+* **Activate or Deactivate an Account** This request allows admin to activate or deactivate account.
+* **Add an Account to Group** (Requires Group.ReadWrite.All permission) Allows admin to add user/account to respective group using group object id and user id or user mail. 
+* * **Remove an Account From Group** (Requires Group.ReadWrite.All permission) Allows admin to remove user/account from respective group using group object id and user id or user mail.
 
 
 ## Resolved Bugs
-* [KE-1515] : Azure AD Better error Message to User In configure Extension Screen.
-* [KE-1775] : AzureAD(2.0.3):Reset password request is intermittently not functioning. 
+NA
 
 ## Known Issues
 

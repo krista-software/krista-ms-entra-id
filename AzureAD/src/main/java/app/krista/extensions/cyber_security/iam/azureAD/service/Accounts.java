@@ -19,4 +19,10 @@ public interface Accounts {
     Account getUser(String id);
 
     String resetPassword(String id);
+
+    Account activateOrDeactivateAccount(String userMailOrID, Boolean deactivate);
+
+    Account addAccountToGroup(String userMailOrId, String groupMail);
+
+    Boolean removeAccountFromGroup(String userMailOrId, String groupMail);
 }

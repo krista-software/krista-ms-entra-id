@@ -46,6 +46,7 @@
   * openid
   * offline_access
   * User.ReadWrite.All
+  * Group.ReadWrite.All
   * UserAuthenticationMethod.ReadWrite.All
 
   ![Select Permission](../_media/selectPermissions.png)
