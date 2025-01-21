@@ -28,6 +28,8 @@ import java.util.Objects;
 public
 class AccountManagerArea {
 
+    public static final String ACCOUNT_STATUS = "Account Status";
+    public static final String MESSAGE = "Message";
     private final Accounts account;
     private static final Logger logger = LoggerFactory.getLogger(AccountManagerArea.class);
 
@@ -52,15 +54,15 @@ class AccountManagerArea {
             boolean accountStatus = account.activateOrDeactivateAccount(userMailOrID, deactivate);
             String statusMessage =  deactivate ? "Deactivated" : "Activated";
             return Map.of(
-                    "Account Status", accountStatus,
-                    "Message" , "Account "+statusMessage+ " Successfully");
+                    ACCOUNT_STATUS, accountStatus,
+                    MESSAGE, "Account "+statusMessage+ " Successfully");
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception e){
             logger.error("Error Occurred during Activate or Deactivate an Account : {}", e.getMessage(), e);
             return Map.of(
-                    "Account Status", false,
-                    "Message" , e.getMessage());
+                    ACCOUNT_STATUS, false,
+                    MESSAGE, e.getMessage());
         }
     }
 

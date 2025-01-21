@@ -239,7 +239,7 @@ public class AccountImpl implements Accounts {
             }
 
         } catch (Exception e) {
-            log.error("Error occurred while fetching list of group for userId : {}", userId);
+            log.error("Error occurred while fetching list of group for userId : {}", e.getMessage(), e);
         }
         return userGroupName;
     }
