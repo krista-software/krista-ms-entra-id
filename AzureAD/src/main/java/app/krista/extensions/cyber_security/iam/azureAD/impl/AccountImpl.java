@@ -122,10 +122,8 @@ public class AccountImpl implements Accounts {
             log.info("User Account Deactivating Initialised: {}", user.accountEnabled);
 
             provider.getGraphServiceClient().users(userMailOrID).buildRequest().patch(user);
-            log.info("User Account Deactivating Completed");
-
-            User userDetails = getUserDetails(userMailOrID);
-            return (userDetails != null && userDetails.accountEnabled != null) ? userDetails.accountEnabled : false;
+            log.info("User Account Activation/Deactivation Completed");
+            return !deactivate;
 
         } catch (ClientException cause) {
             log.error("Failed to Deactivate User: {}", cause.getMessage());
@@ -194,7 +192,7 @@ public class AccountImpl implements Accounts {
         try {
             User userDetails = getUserDetails(id);
             if (userDetails != null) {
-                List<String> userGroups = getUserGroups(id);
+                List<Map<String, String>> userGroups = getUserGroups(id);
                 Map<String, Object> map = new LinkedHashMap<>();
                 map.put("User Mail Id", userDetails.mail);
                 map.put("User Name", userDetails.displayName);
@@ -216,8 +214,8 @@ public class AccountImpl implements Accounts {
     }
 
     @Nullable
-    public List<String> getUserGroups(String userId) {
-        List<String> userGroupName = new ArrayList<>();
+    public List<Map<String, String>> getUserGroups(String userId) {
+        List<Map<String, String>> userGroupName = new ArrayList<>();
         try {
             DirectoryObjectCollectionWithReferencesPage directoryObjCollWithRefPage
                     = provider.getGraphServiceClient()
@@ -232,7 +230,10 @@ public class AccountImpl implements Accounts {
                 for (DirectoryObject directoryObject : memberOf) {
                     if (directoryObject instanceof Group) {
                         Group group = (Group) directoryObject;
-                        userGroupName.add(Objects.requireNonNullElse(group.mail, "NA"));
+                        Map<String, String> map = new LinkedHashMap<>();
+                        map.put("Group Mail Id", Objects.requireNonNullElse(group.mail, "NA"));
+                        map.put("Group Id", Objects.requireNonNullElse(group.id, "NA"));
+                        userGroupName.add(map);
                     }
                 }
             }
