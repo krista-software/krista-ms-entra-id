@@ -1,6 +1,7 @@
 package app.krista.extensions.cyber_security.iam.azureAD.catalog;
 
 
+import app.krista.extension.authorization.MustAuthorizeException;
 import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,11 +43,43 @@ class AccountManagerArea {
             description = "Required User ID or User Mail to Activate or Deactivate an Account",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "Account", type = "Entity(Account)",required = false)
-    public Account activateOrDeactivateAnAccount(
+    @Field.Boolean(name = "Account Status", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    public Map<String, Object> activateOrDeactivateAnAccount(
             @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Boolean deactivate,
-            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrID) {
-        return account.activateOrDeactivateAccount(userMailOrID,deactivate);
+            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrID){
+        try {
+            boolean accountStatus = account.activateOrDeactivateAccount(userMailOrID, deactivate);
+            String statusMessage =  deactivate ? "Deactivated" : "Activated";
+            return Map.of(
+                    "Account Status", accountStatus,
+                    "Message" , "Account "+statusMessage+ " Successfully");
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception e){
+            logger.error("Error Occurred during Activate or Deactivate an Account : {}", e.getMessage(), e);
+            return Map.of(
+                    "Account Status", false,
+                    "Message" , e.getMessage());
+        }
+    }
+
+    @CatalogRequest(
+            id = "localDomainRequest_9945dea1-a854-4871-ad09-85f335bea91a",
+            name = "Get List of Groups",
+            description = "Get List of Groups",
+            area = "Account Manager",
+            type = CatalogRequest.Type.CHANGE_SYSTEM)
+    @Field.Desc(name = "Group List", type = "[ { Group Mail Id: Text, Group Id: Text } ]",required = false)
+    public List<Map<String, String>> getListOfGroups(){
+        try {
+            return account.getAllGroups();
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception e){
+            logger.error("Error Occurred during Get List of Groups : {}", e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     @CatalogRequest(
@@ -54,11 +88,18 @@ class AccountManagerArea {
             description = "Requires User Id or User Mail and Group Object Id",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "Account", type = "Entity(Account)",required = false)
-    public Account addGroupToAccount(
+    @Field.Desc(name = "Account Info", type = "{ User Mail Id: Text, User Name: Text, Group List: [ Text ], User Id: Text }",required = false)
+    public Map<String, Object> addAnAccountToGroup(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrId,
             @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupObjectId) {
-        return account.addAccountToGroup(userMailOrId,groupObjectId);
+        try {
+            return account.addAccountToGroup(userMailOrId, groupObjectId);
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception e) {
+            logger.error("Error Occurred during Add an Account to Group : {}", e.getMessage(), e);
+            return Collections.emptyMap();
+        }
     }
 
     @CatalogRequest(
@@ -71,7 +112,14 @@ class AccountManagerArea {
     public Boolean removeGroupFromAccount(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrId,
             @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupObjectId) {
-        return account.removeAccountFromGroup(userMailOrId, groupObjectId);
+        try {
+            return account.removeAccountFromGroup(userMailOrId, groupObjectId);
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception e) {
+            logger.error("Error Occurred during Add an Account to Group : {}", e.getMessage(), e);
+            return false;
+        }
     }
 
     @CatalogRequest(
@@ -87,7 +135,14 @@ class AccountManagerArea {
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field(name = "Mobile Number", type = "Text", required = true, attributes = {}, options = {}) String mobileNumber,
             @Field.Desc(name = "Extra Fields", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraFields) {
-        return account.createUser(name, email, mobileNumber, extraFields);
+        try {
+            return account.createUser(name, email, mobileNumber, extraFields);
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception e){
+            logger.error("Error Occurred during Create an Account : {}", e.getMessage(), e);
+            return Map.of("User Id", "", "Default Password", "");
+        }
     }
 
     @CatalogRequest(
@@ -102,8 +157,15 @@ class AccountManagerArea {
             @Field(name = "Mobile Number", type = "Text", required = false, attributes = {}, options = {}) String mobileNumber,
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field.Desc(name = "Extra Field", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraField) {
-        return account.updateUser(
-                Objects.requireNonNullElse(name,""), Objects.requireNonNullElse(mobileNumber,""), email, extraField);
+        try {
+            return account.updateUser(
+                    Objects.requireNonNullElse(name,""), Objects.requireNonNullElse(mobileNumber,""), email, extraField);
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception e){
+            logger.error("Error Occurred during Update an Account : {}", e.getMessage(), e);
+            return new Account();
+        }
     }
 
     @CatalogRequest(
@@ -115,8 +177,14 @@ class AccountManagerArea {
     @Field(name = "Deleted", type = "Switch", required = false, attributes = {}, options = {})
     public Boolean deleteAccount(
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email) {
-        return account.deleteUser(email);
-
+        try {
+            return account.deleteUser(email);
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception e){
+            logger.error("Error Occurred during Delete an Account : {}", e.getMessage(), e);
+            return false;
+        }
     }
 
     @CatalogRequest(
@@ -128,7 +196,14 @@ class AccountManagerArea {
     @Field.Desc(name = "Result", type = "Entity(Account)", required = false)
     public Account getUserDetailsByIDOrEmail(
             @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) {
-        return account.getUser(id);
+        try {
+            return account.getUser(id);
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception e){
+            logger.error("Error Occurred during Get User Details by ID or Email : {}", e.getMessage(), e);
+            return new Account();
+        }
     }
 
     @CatalogRequest(

@@ -12,7 +12,8 @@
 
 * **Activate or Deactivate an Account** This request allows admin to activate or deactivate account.
 * **Add an Account to Group** (Requires Group.ReadWrite.All permission) Allows admin to add user/account to respective group using group object id and user id or user mail. 
-* * **Remove an Account From Group** (Requires Group.ReadWrite.All permission) Allows admin to remove user/account from respective group using group object id and user id or user mail.
+* **Remove an Account From Group** (Requires Group.ReadWrite.All permission) Allows admin to remove user/account from respective group using group object id and user id or user mail.
+* **Get List of Groups** Requires Group.ReadWrite.All permission) Used to Fetch List of Group Available.
 
 
 ## Resolved Bugs

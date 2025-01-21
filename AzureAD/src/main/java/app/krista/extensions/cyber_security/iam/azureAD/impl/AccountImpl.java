@@ -6,22 +6,16 @@ import app.krista.extensions.cyber_security.iam.azureAD.impl.connectors.GraphSer
 import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 import com.microsoft.graph.core.ClientException;
-import com.microsoft.graph.models.AuthenticationMethodResetPasswordParameterSet;
-import com.microsoft.graph.models.DirectoryObject;
-import com.microsoft.graph.models.PasswordProfile;
-import com.microsoft.graph.models.User;
-import com.microsoft.graph.requests.DirectoryObjectCollectionReferenceRequestBuilder;
-import com.microsoft.graph.requests.DirectoryObjectReferenceRequestBuilder;
-import com.microsoft.graph.requests.UserCollectionPage;
+import com.microsoft.graph.models.*;
+import com.microsoft.graph.requests.*;
+import org.jetbrains.annotations.Nullable;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class AccountImpl implements Accounts {
@@ -121,7 +115,7 @@ public class AccountImpl implements Accounts {
 
 
     @Override
-    public Account activateOrDeactivateAccount(String userMailOrID, Boolean deactivate) {
+    public Boolean activateOrDeactivateAccount(String userMailOrID, Boolean deactivate) {
         try {
             User user = new User();
             user.accountEnabled = !deactivate; //Deactivate Input is True, hence we are setting it as False
@@ -130,7 +124,9 @@ public class AccountImpl implements Accounts {
             provider.getGraphServiceClient().users(userMailOrID).buildRequest().patch(user);
             log.info("User Account Deactivating Completed");
 
-            return getUser(userMailOrID);
+            User userDetails = getUserDetails(userMailOrID);
+            return (userDetails != null && userDetails.accountEnabled != null) ? userDetails.accountEnabled : false;
+
         } catch (ClientException cause) {
             log.error("Failed to Deactivate User: {}", cause.getMessage());
             throw new ClientException("Failed to Deactivate User. Please provide a valid email address or a valid ID.", cause);
@@ -138,7 +134,7 @@ public class AccountImpl implements Accounts {
     }
 
     @Override
-    public Account addAccountToGroup(String userMailOrId, String groupId) {
+    public Map<String, Object> addAccountToGroup(String userMailOrId, String groupId) {
         try {
 
             DirectoryObject member = new DirectoryObject();
@@ -155,7 +151,7 @@ public class AccountImpl implements Accounts {
                 log.info("Group references are Null or Empty");
             }
 
-            return getUser(userMailOrId);
+            return getUserForGroups(userMailOrId);
         } catch (ClientException cause) {
             log.error("Failed to add an Account to Group: {}", cause.getMessage());
             throw new ClientException("Failed to add an Account to the Group. Please provide a valid email address, a valid user ID, or a valid group object ID.", cause);
@@ -193,6 +189,100 @@ public class AccountImpl implements Accounts {
             throw new ClientException("Invalid user Id" + id, cause);
         }
     }
+
+    public Map<String, Object> getUserForGroups(String id) {
+        try {
+            User userDetails = getUserDetails(id);
+            if (userDetails != null) {
+                List<String> userGroups = getUserGroups(id);
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("User Mail Id", userDetails.mail);
+                map.put("User Name", userDetails.displayName);
+                map.put("Group List", Objects.requireNonNullElse(userGroups, List.of()));
+                map.put("User Id", userDetails.id);
+                return map;
+            }
+
+            return Collections.emptyMap();
+        } catch (ClientException cause) {
+            throw new ClientException("Invalid user Id" + id, cause);
+        }
+    }
+
+
+    @Nullable
+    private User getUserDetails(String id) {
+        return provider.getGraphServiceClient().users(id).buildRequest().get();
+    }
+
+    @Nullable
+    public List<String> getUserGroups(String userId) {
+        List<String> userGroupName = new ArrayList<>();
+        try {
+            DirectoryObjectCollectionWithReferencesPage directoryObjCollWithRefPage
+                    = provider.getGraphServiceClient()
+                    .users(userId)
+                    .memberOf()
+                    .buildRequest()
+                    .get();
+
+            List<DirectoryObject> memberOf = (directoryObjCollWithRefPage != null) ? directoryObjCollWithRefPage.getCurrentPage() : null;
+
+            if (memberOf != null) {
+                for (DirectoryObject directoryObject : memberOf) {
+                    if (directoryObject instanceof Group) {
+                        Group group = (Group) directoryObject;
+                        userGroupName.add(Objects.requireNonNullElse(group.mail, "NA"));
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Error occurred while fetching list of group for userId : {}", userId);
+        }
+        return userGroupName;
+    }
+
+    @Override
+    public List<Map<String, String>> getAllGroups() {
+        List<Map<String, String>> allGroups = new ArrayList<>();
+        try {
+            // Start with the initial request for groups
+            GroupCollectionPage groupCollectionPage = provider.getGraphServiceClient()
+                    .groups()
+                    .buildRequest()
+                    .get();
+
+            // Loop through pages of results
+            while (groupCollectionPage != null) {
+                // Add current page's group mail IDs to the list
+                List<Group> currentPage = groupCollectionPage.getCurrentPage();
+
+                if (currentPage != null) {
+                    for (Group group : currentPage) {
+                        if (group.mail != null) {// Only add if mail is not null
+                            allGroups.add(getGroupMap(group.mail, group.id));
+                        }
+                    }
+                }
+
+                // Get the next page, if available
+                GroupCollectionRequestBuilder nextPage = groupCollectionPage.getNextPage();
+                groupCollectionPage = nextPage != null ? nextPage.buildRequest().get() : null;
+            }
+        } catch (Exception e) {
+            log.error("Error occurred while fetching all groups {}", e.getMessage(), e);
+        }
+        return allGroups;
+    }
+
+    private Map<String, String> getGroupMap(String mail, String id) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("Group Mail Id", mail);
+        map.put("Group Id", id);
+        return map;
+    }
+
 
     public String resetPassword(String id) {
         String randomPassword = generateRandomPassword();

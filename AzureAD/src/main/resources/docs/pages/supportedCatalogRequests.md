@@ -132,6 +132,17 @@
 |--------------------|--------------------|
 | Removed            | Switch             | 
 
+#### 9. Get List of Groups
+
+- **Description**: Allows Admin to Fetch List of Group.
+
+- **Output Parameters**:
+
+| **Parameter Name** | **Parameter Type** | **Example**                                              |
+|--------------------|--------------------|----------------------------------------------------------|
+| Group List         | MultiField         | [{group1@kristasoft.info, dhcbw84gbbv29g9292bbvw}, ....] |
+
+
 ## Entity Requests
 
 ### The Azure AD Extension supports the following entity requests
