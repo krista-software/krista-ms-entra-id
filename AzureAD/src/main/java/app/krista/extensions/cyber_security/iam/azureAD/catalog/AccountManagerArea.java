@@ -58,11 +58,11 @@ class AccountManagerArea {
                     MESSAGE, "Account "+statusMessage+ " Successfully");
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception e){
-            logger.error("Error Occurred during Activate or Deactivate an Account : {}", e.getMessage(), e);
+        } catch (Exception cause){
+            logger.error("Error Occurred during Activate or Deactivate an Account : {}", cause.getMessage(), cause);
             return Map.of(
                     ACCOUNT_STATUS, false,
-                    MESSAGE, e.getMessage());
+                    MESSAGE, cause.getMessage());
         }
     }
 
@@ -78,8 +78,8 @@ class AccountManagerArea {
             return account.getAllGroups();
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception e){
-            logger.error("Error Occurred during Get List of Groups : {}", e.getMessage(), e);
+        } catch (Exception cause){
+            logger.error("Error Occurred during Get List of Groups : {}", cause.getMessage(), cause);
             return Collections.emptyList();
         }
     }
@@ -98,8 +98,8 @@ class AccountManagerArea {
             return account.addAccountToGroup(userMailOrId, groupObjectId);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception e) {
-            logger.error("Error Occurred during Add an Account to Group : {}", e.getMessage(), e);
+        } catch (Exception cause) {
+            logger.error("Error Occurred during Add an Account to Group : {}", cause.getMessage(), cause);
             return Collections.emptyMap();
         }
     }
@@ -118,8 +118,8 @@ class AccountManagerArea {
             return account.removeAccountFromGroup(userMailOrId, groupObjectId);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception e) {
-            logger.error("Error Occurred during Add an Account to Group : {}", e.getMessage(), e);
+        } catch (Exception cause) {
+            logger.error("Error Occurred during Add an Account to Group : {}", cause.getMessage(), cause);
             return false;
         }
     }
@@ -141,8 +141,8 @@ class AccountManagerArea {
             return account.createUser(name, email, mobileNumber, extraFields);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception e){
-            logger.error("Error Occurred during Create an Account : {}", e.getMessage(), e);
+        } catch (Exception cause){
+            logger.error("Error Occurred during Create an Account : {}", cause.getMessage(), cause);
             return Map.of("User Id", "", "Default Password", "");
         }
     }
@@ -164,8 +164,8 @@ class AccountManagerArea {
                     Objects.requireNonNullElse(name,""), Objects.requireNonNullElse(mobileNumber,""), email, extraField);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception e){
-            logger.error("Error Occurred during Update an Account : {}", e.getMessage(), e);
+        } catch (Exception cause){
+            logger.error("Error Occurred during Update an Account : {}", cause.getMessage(), cause);
             return new Account();
         }
     }
@@ -183,8 +183,8 @@ class AccountManagerArea {
             return account.deleteUser(email);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception e){
-            logger.error("Error Occurred during Delete an Account : {}", e.getMessage(), e);
+        } catch (Exception cause){
+            logger.error("Error Occurred during Delete an Account : {}", cause.getMessage(), cause);
             return false;
         }
     }
@@ -202,8 +202,8 @@ class AccountManagerArea {
             return account.getUser(id);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception e){
-            logger.error("Error Occurred during Get User Details by ID or Email : {}", e.getMessage(), e);
+        } catch (Exception cause){
+            logger.error("Error Occurred during Get User Details by ID or Email : {}", cause.getMessage(), cause);
             return new Account();
         }
     }
@@ -240,22 +240,18 @@ class AccountManagerArea {
                                 Thread.currentThread().interrupt();
                                 logger.error("Thread interrupted during sleep", interruptedException);
                                 return interruptedException.getMessage();
-                               // throw new RuntimeException("Thread interrupted during sleep", interruptedException);
                             }
                         } else {
                             logger.error("Max attempts reached. Error occurred while resetting password", cause);
                             return cause.getMessage();
-                            //throw new RuntimeException("Max attempts reached. Error occurred while resetting password", cause);
                         }
                     } else {
                         logger.error("Error occurred while resetting password", cause);
                         return cause.getMessage();
-                        //throw new RuntimeException("Error occurred while resetting password", cause);
                     }
                 } else {
                     logger.error("Unexpected error occurred while resetting password", cause);
                     return cause.getMessage();
-                    //throw new RuntimeException("Unexpected error occurred while resetting password", cause);
                 }
             }
         }
