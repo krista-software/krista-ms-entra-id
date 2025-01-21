@@ -237,22 +237,26 @@ class AccountManagerArea {
                             } catch (InterruptedException interruptedException) {
                                 Thread.currentThread().interrupt();
                                 logger.error("Thread interrupted during sleep", interruptedException);
-                                throw new RuntimeException("Thread interrupted during sleep", interruptedException);
+                                return interruptedException.getMessage();
+                               // throw new RuntimeException("Thread interrupted during sleep", interruptedException);
                             }
                         } else {
                             logger.error("Max attempts reached. Error occurred while resetting password", cause);
-                            throw new RuntimeException("Max attempts reached. Error occurred while resetting password", cause);
+                            return cause.getMessage();
+                            //throw new RuntimeException("Max attempts reached. Error occurred while resetting password", cause);
                         }
                     } else {
                         logger.error("Error occurred while resetting password", cause);
-                        throw new RuntimeException("Error occurred while resetting password", cause);
+                        return cause.getMessage();
+                        //throw new RuntimeException("Error occurred while resetting password", cause);
                     }
                 } else {
                     logger.error("Unexpected error occurred while resetting password", cause);
-                    throw new RuntimeException("Unexpected error occurred while resetting password", cause);
+                    return cause.getMessage();
+                    //throw new RuntimeException("Unexpected error occurred while resetting password", cause);
                 }
             }
         }
-        return null;
+        return "No Records";
     }
 }
