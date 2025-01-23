@@ -20,9 +20,11 @@ public interface Accounts {
 
     String resetPassword(String id);
 
-    Account activateOrDeactivateAccount(String userMailOrID, Boolean deactivate);
+    Boolean activateOrDeactivateAccount(String userMailOrID, Boolean deactivate);
 
-    Account addAccountToGroup(String userMailOrId, String groupMail);
+    Map<String ,Object> addAccountToGroup(String userMailOrId, String groupMail);
 
     Boolean removeAccountFromGroup(String userMailOrId, String groupMail);
+
+    List<Map<String, String>> getAllGroups();
 }

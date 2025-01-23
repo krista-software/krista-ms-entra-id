@@ -90,7 +90,7 @@ public final class AzureADAttributes {
             oAuth20Service = new ServiceBuilder(clientId)
                     .apiSecret(clientSecret)
                     .callback(getCallbackUrl())
-                    .defaultScope("openid offline_access https://graph.microsoft.com/User.Read")
+                    .defaultScope("openid offline_access User.Read Group.ReadWrite.All UserAuthenticationMethod.ReadWrite.All User.ReadWrite.All")
                     .build(MicrosoftAzureActiveDirectory20Api.custom(tenantId));
         }
         return oAuth20Service;

@@ -112,9 +112,9 @@
 
 - **Output Parameters**:
 
-| **Parameter Name** | **Parameter Type** |
-|--------------------|--------------------|
-| Account            | Account Entity     | 
+| **Parameter Name** | **Parameter Type**                                                                                                                                 |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| Account Info       | { User Mail Id: user1@kristasoft.info, User Name: user1, Group List: [ { Group Mail Id: group1, Group Id: 0e831f0a-b85f-4971-80b5-34f2324b2598 } ] | 
 
 #### 8. Remove Group from Account
 
@@ -131,6 +131,17 @@
 | **Parameter Name** | **Parameter Type** |
 |--------------------|--------------------|
 | Removed            | Switch             | 
+
+#### 9. Get List of Groups
+
+- **Description**: Allows Admin to Fetch List of Group.
+
+- **Output Parameters**:
+
+| **Parameter Name** | **Parameter Type** | **Example**                                              |
+|--------------------|--------------------|----------------------------------------------------------|
+| Group List         | MultiField         | [{group1@kristasoft.info, dhcbw84gbbv29g9292bbvw}, ....] |
+
 
 ## Entity Requests
 
