@@ -238,23 +238,19 @@ class AccountManagerArea {
                                 backoffTime *= 2; // exponential backoff
                             } catch (InterruptedException interruptedException) {
                                 Thread.currentThread().interrupt();
-                                logger.error("Thread interrupted during sleep", interruptedException);
-                                return interruptedException.getMessage();
+                                logger.error("Thread interrupted during sleep : {}", interruptedException.getMessage(), interruptedException);
                             }
                         } else {
-                            logger.error("Max attempts reached. Error occurred while resetting password", cause);
-                            return cause.getMessage();
+                            logger.error("Max attempts reached. Error occurred while resetting password : {}", cause.getMessage(), cause);
                         }
                     } else {
-                        logger.error("Error occurred while resetting password", cause);
-                        return cause.getMessage();
+                        logger.error("Error occurred while resetting password : {}", cause.getMessage(), cause);
                     }
                 } else {
-                    logger.error("Unexpected error occurred while resetting password", cause);
-                    return cause.getMessage();
+                    logger.error("Unexpected error occurred while resetting password : {}", cause.getMessage(), cause);
                 }
             }
         }
-        return "No Records";
+        return "";
     }
 }
