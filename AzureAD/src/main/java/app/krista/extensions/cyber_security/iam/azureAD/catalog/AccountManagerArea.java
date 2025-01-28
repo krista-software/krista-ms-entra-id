@@ -74,6 +74,7 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Group List", type = "[ { Group Mail Id: Text, Group Id: Text } ]",required = false)
     public List<Map<String, String>> getListOfGroups(){
+        logger.debug("Get List of Groups Initiated");
         try {
             return account.getAllGroups();
         } catch (MustAuthorizeException authorizeException) {
