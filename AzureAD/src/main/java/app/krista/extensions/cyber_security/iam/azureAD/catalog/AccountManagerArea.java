@@ -246,9 +246,11 @@ class AccountManagerArea {
                         }
                     } else {
                         logger.error("Error occurred while resetting password : {}", cause.getMessage(), cause);
+                        break;
                     }
                 } else {
                     logger.error("Unexpected error occurred while resetting password : {}", cause.getMessage(), cause);
+                    break;
                 }
             }
         }

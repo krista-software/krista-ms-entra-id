@@ -17,7 +17,7 @@ import java.util.Map;
 @Field.Text(value = AzureADAttributes.CLIENT_SECRET, isSecured = true)
 @Field.Text(value = AzureADAttributes.TENANT_ID, isSecured = true)
 @Field.Text(value = AzureADAttributes.EMAIL)
-@Extension(version = "2.0.5-rc3")
+@Extension(version = "2.0.5-rc4")
 @StaticResource(path = "docs", file = "docs")
 public final
 class AzureADExtension {

@@ -98,7 +98,8 @@
 
 | **Parameter Name** | **Parameter Type** |
 |--------------------|--------------------|
-| Account            | Account Entity     | 
+| Account Status     | Switch             | 
+| Message            | Text               | 
 
 #### 7. Add Group to Account
 
