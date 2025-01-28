@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.net.http.HttpResponse;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -218,7 +220,7 @@ class AccountManagerArea {
     @Field(name = "Password", type = "Text", required = false, attributes = {}, options = {})
     public String resetPassword(
             @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) {
-        int maxAttempts = 3;
+        final int maxAttempts = 3;
         int attempts = 0;
         int backoffTime = 3000; // initial backoff time in milliseconds
 
@@ -227,33 +229,37 @@ class AccountManagerArea {
                 return account.resetPassword(id);
             } catch (ClientException cause) {
                 Throwable rootCause = cause.getCause();
+
                 if (rootCause instanceof GraphServiceException) {
                     GraphServiceException graphEx = (GraphServiceException) rootCause;
                     int statusCode = graphEx.getResponseCode();
-
-                    if (statusCode == 403) {
+                    if (statusCode == Response.Status.FORBIDDEN.getStatusCode()) {
                         attempts++;
                         if (attempts < maxAttempts) {
-                            try {
-                                Thread.sleep(backoffTime);
-                                backoffTime *= 2; // exponential backoff
-                            } catch (InterruptedException interruptedException) {
-                                Thread.currentThread().interrupt();
-                                logger.error("Thread interrupted during sleep : {}", interruptedException.getMessage(), interruptedException);
-                            }
+                            sleepWithBackoff(backoffTime);
+                            backoffTime *= 2; // exponential backoff
                         } else {
-                            logger.error("Max attempts reached. Error occurred while resetting password : {}", cause.getMessage(), cause);
+                            logger.error("Max attempts reached. Error occurred while resetting password: {}", cause.getMessage(), cause);
                         }
                     } else {
-                        logger.error("Error occurred while resetting password : {}", cause.getMessage(), cause);
+                        logger.error("GraphServiceException occurred while resetting password: {}", cause.getMessage(), cause);
                         break;
                     }
                 } else {
-                    logger.error("Unexpected error occurred while resetting password : {}", cause.getMessage(), cause);
+                    logger.error("Unexpected error occurred while resetting password: {}", cause.getMessage(), cause);
                     break;
                 }
             }
         }
         return "";
+    }
+
+    private void sleepWithBackoff(int backoffTime) {
+        try {
+            Thread.sleep(backoffTime);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Thread interrupted during sleep: {}", e.getMessage(), e);
+        }
     }
 }
