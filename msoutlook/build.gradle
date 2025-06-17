@@ -1,0 +1,102 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.kristasoft.extensions.customer.default'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+configurations {
+    implementation {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+tasks.register("updateVersion") {
+    doFirst {
+        def buildNumberFile = rootProject.file('build-nr.txt')
+        def buildNr = buildNumberFile.canRead() ? buildNumberFile.text.trim() : "0"
+        def newBuildNr = Integer.parseInt(buildNr) + 1
+
+        println "Building extension version: ${version}-${newBuildNr}"
+
+        // Update buildNr.txt with the new build number
+        buildNumberFile.text = newBuildNr
+
+        // Set system property with the updated version
+        System.clearProperty("extensionVersion")
+        System.setProperty("extensionVersion", "${version}-${newBuildNr}")
+    }
+}
+
+tasks.compileJava {
+    dependsOn 'clean', 'updateVersion'
+}
+
+System.setProperty("extensionVersion", version.toString())
+
+repositories {
+    maven {
+        url "https://extension.qa-in.eng.krista.app/extension/api/3VpG0bqnNf7TYPxbpv25gQ_e_e/rest/repository"
+    }
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+  //  annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.115-rc4' // used to generate the extension.json
+  //  compileOnly 'app.krista:krista-apis:1.0.115-rc4' // defines the Krista Service APIs
+    compileOnly 'org.glassfish.hk2:hk2-api:2.6.1' // used to define scope of objects
+    implementation 'com.microsoft.azure:msal4j:1.21.0'
+    implementation 'com.google.code.gson:gson:2.13.1'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
+
+    // Test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.hamcrest:hamcrest-core:1.3'
+  //  testImplementation 'app.krista:krista-apis:1.0.115-rc3'
+
+
+}
+
+tasks.register("createSourceDir") {
+    dependsOn 'processResources'
+    doLast {
+        mkdir "$projectDir/build/classes/java/main/META-INF/project"
+    }
+}
+
+tasks.register("copyGradleFile", Copy) {
+    dependsOn 'createSourceDir'
+    from("$projectDir/build.gradle")
+    into("$projectDir/build/classes/java/main/META-INF/project/")
+}
+
+tasks.register("includeSources", Copy) {
+    dependsOn 'copyGradleFile'
+    from("$projectDir/src")
+    into("$projectDir/build/classes/java/main/META-INF/project/src")
+}
+
+tasks.jar {
+    dependsOn 'includeSources'
+    manifest {
+
+    }
+    from {
+        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Fix task dependencies to prevent compileTestJava from conflicting with custom tasks
+tasks.compileTestJava {
+    mustRunAfter 'copyGradleFile', 'includeSources'
+}
