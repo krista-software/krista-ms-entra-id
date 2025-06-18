@@ -10,12 +10,20 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class MicrosoftGraphApiServiceImpl implements GraphApiService {
     private static final Logger LOGGER = Logger.getLogger(MicrosoftGraphApiServiceImpl.class.getName());
     private static final int CONNECTION_TIMEOUT_MS = 10000;
     private static final int READ_TIMEOUT_MS = 10000;
+    private static final Gson GSON = new Gson();
 
     @Override
     public void testConnectivity(AccessToken token, String graphApiBaseUrl) throws GraphApiException {
@@ -38,6 +46,46 @@ public class MicrosoftGraphApiServiceImpl implements GraphApiService {
         
         // If you have a specific user ID, you could use:
         // String endpoint = graphApiBaseUrl + "/users/{user-id}/messages?$top=1";
+    }
+    
+    @Override
+    public Map<String, Object> executeGraphApiRequest(AccessToken token, String apiUrl) throws GraphApiException {
+        LOGGER.info("Executing Graph API request: " + apiUrl);
+        
+        try {
+            // Create connection
+            HttpURLConnection connection = createGraphConnection(apiUrl, token);
+            
+            // Check response code
+            int responseCode = connection.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                String errorDetails = getErrorDetails(connection);
+                throw new GraphApiException("Graph API request failed with status code " + responseCode + 
+                                           ": " + errorDetails);
+            }
+            
+            // Read response
+            try (InputStream inputStream = connection.getInputStream();
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                
+                // Parse JSON response to Map
+                String jsonResponse = response.toString();
+                return parseJsonToMap(jsonResponse);
+            }
+            
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "IO error executing Graph API request", e);
+            throw new GraphApiException("IO error executing Graph API request: " + e.getMessage(), e);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unexpected error executing Graph API request", e);
+            throw new GraphApiException("Unexpected error executing Graph API request: " + e.getMessage(), e);
+        }
     }
     
     private HttpURLConnection createGraphConnection(String endpoint, AccessToken token) throws IOException {
@@ -69,6 +117,16 @@ public class MicrosoftGraphApiServiceImpl implements GraphApiService {
             return response.toString();
         } catch (IOException e) {
             return "Error reading error details: " + e.getMessage();
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> parseJsonToMap(String jsonString) {
+        try {
+            return GSON.fromJson(jsonString, Map.class);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Error parsing JSON response, returning empty map", e);
+            return new HashMap<>();
         }
     }
 }
