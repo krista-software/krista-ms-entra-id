@@ -22,6 +22,9 @@ public class MicrosoftTokenServiceImpl implements TokenService {
 
     @Override
     public AccessToken acquireToken(OutlookConfiguration config) throws AuthenticationException {
+        // Validate configuration
+        validateConfiguration(config);
+        
         try {
             ConfidentialClientApplication app = buildConfidentialClientApplication(config);
             ClientCredentialParameters parameters = buildClientCredentialParameters();
@@ -41,6 +44,27 @@ public class MicrosoftTokenServiceImpl implements TokenService {
         } catch (TimeoutException e) {
             LOGGER.severe("Token acquisition timed out after " + TOKEN_TIMEOUT_SECONDS + " seconds");
             throw new AuthenticationException("Token acquisition timed out", e);
+        } catch (IllegalArgumentException e) {
+            LOGGER.severe("Invalid configuration parameter: " + e.getMessage());
+            throw new AuthenticationException("Invalid configuration parameter: " + e.getMessage(), e);
+        }
+    }
+    
+    private void validateConfiguration(OutlookConfiguration config) throws AuthenticationException {
+        if (config == null) {
+            throw new AuthenticationException("Configuration cannot be null", null);
+        }
+        
+        if (config.getClientId() == null || config.getClientId().trim().isEmpty()) {
+            throw new AuthenticationException("Client ID cannot be null or empty", null);
+        }
+        
+        if (config.getClientSecret() == null || config.getClientSecret().trim().isEmpty()) {
+            throw new AuthenticationException("Client Secret cannot be null or empty", null);
+        }
+        
+        if (config.getAuthorityUrl() == null || config.getAuthorityUrl().trim().isEmpty()) {
+            throw new AuthenticationException("Authority URL cannot be null or empty", null);
         }
     }
     
