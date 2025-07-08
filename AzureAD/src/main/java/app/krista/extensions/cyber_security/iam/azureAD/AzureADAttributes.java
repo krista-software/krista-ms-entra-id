@@ -1,67 +1,74 @@
 package app.krista.extensions.cyber_security.iam.azureAD;
 
-import app.krista.extension.executor.Invoker;
-import app.krista.extension.request.RoutingInfo;
-import app.krista.extension.request.protos.http.HttpProtocol;
-import app.krista.extension.util.InvokerAttributes;
+import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import org.jvnet.hk2.annotations.Service;
-
-import javax.inject.Inject;
+import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
-@Service
+import static app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants.*;
+import static app.krista.extensions.cyber_security.iam.azureAD.impl.util.Validators.addAttributeIfNotNull;
+
 public final class AzureADAttributes {
 
-    public static final String CLIENT_ID = "clientId";
-    public static final String CLIENT_SECRET = "clientSecret";
-    public static final String TENANT_ID = "tenantId";
+    @SerializedName(EMAIL)
+    private final String email;
+    @SerializedName(ALLOW_MAIL_ALERT)
+    private final boolean allowMailAlert;
+    @SerializedName(CLIENT_ID)
+    private final String clientId;
+    @SerializedName(CLIENT_SECRET)
+    private final String clientSecret;
+    @SerializedName(AUTH_TYPE)
+    private final String authType;
+    @SerializedName(TENANT_ID)
+    private final String tenantId;
 
-    public static final String EMAIL = "email";
     private final String routingUrl;
-    private String mail;
-    private String clientId;
-    private String clientSecret;
-    private String tenantId;
-    private OAuth20Service oAuth20Service;
+    private String publicClientId;
+    private String publicClientSecret;
 
-    @Inject
-    public AzureADAttributes(Invoker invoker) {
-        this(invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE),
-                invoker.getAttributes());
-    }
-
-    public AzureADAttributes(String routingUrl, Map<String, Object> attributes) {
-        this(routingUrl, InvokerAttributes.getStringOrNull(attributes, CLIENT_ID),
-                InvokerAttributes.getStringOrNull(attributes, CLIENT_SECRET),
-                InvokerAttributes.getStringOrNull(attributes, TENANT_ID),
-                InvokerAttributes.getStringOrNull(attributes, EMAIL));
-    }
-
-    public AzureADAttributes(String routingUrl, String clientId, String clientSecret, String tenantId, String email) {
-        this.routingUrl = routingUrl;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
+    public AzureADAttributes(String clientId, String clientSecret, String tenantId, String email, boolean allowMailAlert,
+                             String authType, String routingUrl) {
+        loadPublicConfig();
+        this.clientId = clientId == null ? publicClientId : clientId;
+        this.clientSecret = clientSecret == null ? publicClientSecret : clientSecret;
         this.tenantId = tenantId;
-        this.mail = email;
+        this.email = email;
+        this.allowMailAlert = allowMailAlert;
+        this.authType = authType;
+        this.routingUrl = routingUrl.replace(LOCAL_EXTN_URL, LOCAL_EXTN_REPLACE_URL);
     }
 
-    public static AzureADAttributes create(Invoker invoker, Map<String, Object> attributes) {
-        return new AzureADAttributes(
-                invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE),
-                attributes);
+    public static AzureADAttributes create(JsonObject authPayload, String baseurl) {
+        String authType = authPayload.get("authType").getAsString();
+        if (Constants.PUBLIC.equals(authType)) {
+            return new AzureADAttributes(null, null, null, authPayload.get(EMAIL).getAsString(),
+                    authPayload.get(ALLOW_MAIL_ALERT).getAsBoolean(), authType, baseurl);
+        } else if (Constants.PRIVATE.equals(authType)) {
+            return new AzureADAttributes(authPayload.get(CLIENT_ID).getAsString(), authPayload.get(CLIENT_SECRET).getAsString(),
+                    authPayload.get(TENANT_ID).getAsString(), authPayload.get(EMAIL).getAsString(), authPayload.get(ALLOW_MAIL_ALERT).getAsBoolean(),
+                    authType, baseurl);
+        } else {
+            throw new IllegalArgumentException(UNSUPPORTED_AUTH);
+        }
     }
 
-    /**
-     * @param newAttributes This function updates the attributes provided by user
-     */
-    public void update(Map<String, Object> newAttributes) {
-        clientId = InvokerAttributes.getStringOrNull(newAttributes, CLIENT_ID);
-        clientSecret = InvokerAttributes.getStringOrNull(newAttributes, CLIENT_SECRET);
-        tenantId = InvokerAttributes.getStringOrNull(newAttributes, TENANT_ID);
-        mail = InvokerAttributes.getStringOrNull(newAttributes, EMAIL);
+    private void loadPublicConfig() {
+        Properties properties = new Properties();
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+            properties.load(inputStream);
+            this.publicClientId = properties.getProperty("public.clientId");
+            this.publicClientSecret = properties.getProperty("public.clientSecret");
+        } catch (IOException cause) {
+            throw new RuntimeException("Failed to load public configuration file.", cause);
+        }
     }
 
     public String getClientId() {
@@ -76,23 +83,53 @@ public final class AzureADAttributes {
         return tenantId;
     }
 
-
-    public String getEmail() {
-        return mail;
+    public String getCallbackEndPoint() {
+        if (Constants.PUBLIC.equals(authType)) {
+            return routingUrl.replaceAll("/extension/api/.*", DEFAULT_CALLBACK_PATH);
+        } else if (Constants.PRIVATE.equals(authType)) {
+            return routingUrl + "/rest/azuread/callback";
+        } else {
+            return EMPTY_STRING;
+        }
     }
 
-    public String getCallbackUrl() {
-        return routingUrl + "/rest/azuread/callback";
+    public String getForwardPath() {
+        if (Constants.PUBLIC.equals(authType)) {
+            return routingUrl + EXTENSION_FORWARD_PATH;
+        } else {
+            return EMPTY_STRING;
+        }
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public boolean isAllowMailAlert() {
+        return allowMailAlert;
+    }
+
+    public String getAuthType() {
+        return authType;
     }
 
     public synchronized OAuth20Service getOAuth20Service() {
-        if (oAuth20Service == null) {
-            oAuth20Service = new ServiceBuilder(clientId)
-                    .apiSecret(clientSecret)
-                    .callback(getCallbackUrl())
-                    .defaultScope("openid offline_access User.Read Group.ReadWrite.All UserAuthenticationMethod.ReadWrite.All User.ReadWrite.All")
-                    .build(MicrosoftAzureActiveDirectory20Api.custom(tenantId));
-        }
-        return oAuth20Service;
+        return new ServiceBuilder(clientId)
+                .apiSecret(clientSecret)
+                .callback(getCallbackEndPoint())
+                .defaultScope("openid offline_access User.Read Group.ReadWrite.All UserAuthenticationMethod.ReadWrite.All User.ReadWrite.All")
+                .build(MicrosoftAzureActiveDirectory20Api.custom(tenantId));
     }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> attributesMap = new HashMap<>();
+        addAttributeIfNotNull(attributesMap, CLIENT_ID, getClientId());
+        addAttributeIfNotNull(attributesMap, CLIENT_SECRET, getClientSecret());
+        addAttributeIfNotNull(attributesMap, TENANT_ID, getTenantId());
+        addAttributeIfNotNull(attributesMap, ALLOW_MAIL_ALERT, isAllowMailAlert());
+        addAttributeIfNotNull(attributesMap, EMAIL, getEmail());
+        addAttributeIfNotNull(attributesMap, AUTH_TYPE, getAuthType());
+        return attributesMap;
+    }
+
 }

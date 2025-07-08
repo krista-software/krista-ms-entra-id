@@ -8,6 +8,7 @@ import app.krista.extension.request.ProtoResponse;
 import app.krista.extension.request.protos.http.HttpRequest;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.stores.AzureADAttributesStore;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
+import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.model.field.NamedField;
 import app.krista.model.field.NamedValuedField;
 import com.github.scribejava.core.oauth.OAuth20Service;
@@ -18,12 +19,17 @@ import java.util.*;
 
 public class AzureADRequestAuthenticator implements RequestAuthenticator {
 
+    public static final String EXTENSION_OAUTH_VERIFICATION_PATH_V3 = "/outlook/v3/oauth/callback";
+    public static final String EXTENSION_OAUTH_VERIFICATION_PATH_V2 = "/outlook/callback";
+    public static final String OUTLOOK_MAIL_NOTIFICATION = "/outlook/mailNotification";
     private final AzureADAttributesStore azureADAttributesStore;
-    private final AzureADAttributes azureADAttributes;
+    private final String invokerId;
+    private final AuthorizationContext authorizationContext;
 
-    public AzureADRequestAuthenticator(AzureADAttributesStore azureADAttributesStore, AzureADAttributes azureADAttributes) {
+    public AzureADRequestAuthenticator(AzureADAttributesStore azureADAttributesStore, String invokerId, AuthorizationContext authorizationContext) {
         this.azureADAttributesStore = azureADAttributesStore;
-        this.azureADAttributes = azureADAttributes;
+        this.invokerId = invokerId;
+        this.authorizationContext = authorizationContext;
     }
 
     @Override
@@ -95,7 +101,8 @@ public class AzureADRequestAuthenticator implements RequestAuthenticator {
             effectiveAzureADAttributes = azureADAttributesStore.load(authContextId);
             state = userId + "#" + authContextId;
         } else {
-            effectiveAzureADAttributes = azureADAttributes;
+            // Load attributes using invokerId like in OutlookRequestAuthenticator
+            effectiveAzureADAttributes = azureADAttributesStore.load(invokerId);
             state = userId;
         }
         OAuth20Service oAuth20Service = effectiveAzureADAttributes.getOAuth20Service();
