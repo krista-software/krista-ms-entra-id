@@ -47,11 +47,11 @@ class AccountManagerArea {
             description = "Required User ID or User Mail to Activate or Deactivate an Account",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Boolean(name = "Account Status", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
-    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Boolean(name = "Account Status", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns true if the account operation was successful, false if it failed")}, options = {})
+    @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns a descriptive message about the operation result (e.g., 'Account Activated Successfully')")}, options = {})
     public Map<String, Object> activateOrDeactivateAnAccount(
-            @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) Boolean deactivate,
-            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrID){
+            @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Set to true to deactivate the account, false to activate it")}, options = {}) Boolean deactivate,
+            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Azure AD")}, options = {}) String userMailOrID){
         try {
             boolean accountStatus = account.activateOrDeactivateAccount(userMailOrID, deactivate);
             String statusMessage =  deactivate ? "Deactivated" : "Activated";
@@ -95,8 +95,8 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Account Info", type = "{ User Mail Id: Text, User Name: Text, Group List: [ { Group Mail Id: Text, Group Id: Text } ], User Id: Text }",required = false)
     public Map<String, Object> addAnAccountToGroup(
-            @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrId,
-            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupObjectId) {
+            @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to add to the group")}, options = {}) String userMailOrId,
+            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format)")}, options = {}) String groupObjectId) {
         try {
             return account.addAccountToGroup(userMailOrId, groupObjectId);
         } catch (MustAuthorizeException authorizeException) {
@@ -113,10 +113,10 @@ class AccountManagerArea {
             description = "Required User Mail or ID and Group Object Id",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Boolean(name = "Removed", required = false, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {})
+    @Field.Boolean(name = "Removed", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns true if the user was successfully removed from the group, false if the operation failed")}, options = {})
     public Boolean removeGroupFromAccount(
-            @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String userMailOrId,
-            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S")}, options = {}) String groupObjectId) {
+            @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to remove from the group")}, options = {}) String userMailOrId,
+            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format) to remove the user from")}, options = {}) String groupObjectId) {
         try {
             return account.removeAccountFromGroup(userMailOrId, groupObjectId);
         } catch (MustAuthorizeException authorizeException) {
@@ -133,8 +133,8 @@ class AccountManagerArea {
             description = "Create User in Azure Active Directory",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field(name = "User Id", type = "Text", required = false, attributes = {}, options = {})
-    @Field(name = "Default Password", type = "Text", required = false, attributes = {}, options = {})
+    @Field(name = "User Id", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "The unique Azure AD object ID assigned to the newly created user account")}, options = {})
+    @Field(name = "Default Password", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "The temporary password generated for the new user account (user must change on first login)")}, options = {})
     public Map<String, Object> createAccount(
             @Field(name = "Name", type = "Text", required = true, attributes = {}, options = {}) String name,
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
@@ -179,9 +179,9 @@ class AccountManagerArea {
             description = "Delete an Account in Azure Active Directory",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field(name = "Deleted", type = "Switch", required = false, attributes = {}, options = {})
+    @Field(name = "Deleted", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns true if the user account was successfully deleted from Azure AD, false if the operation failed")}, options = {})
     public Boolean deleteAccount(
-            @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email) {
+            @Field(name = "Email", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the email address of the user account to permanently delete from Azure AD")}, options = {}) String email) {
         try {
             return account.deleteUser(email);
         } catch (MustAuthorizeException authorizeException) {
@@ -200,7 +200,7 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Result", type = "Entity(Account)", required = false)
     public Account getUserDetailsByIDOrEmail(
-            @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) {
+            @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to retrieve their account details")}, options = {}) String id) {
         try {
             return account.getUser(id);
         } catch (MustAuthorizeException authorizeException) {
@@ -217,9 +217,9 @@ class AccountManagerArea {
             description = "Reset Account Password",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field(name = "Password", type = "Text", required = false, attributes = {}, options = {})
+    @Field(name = "Password", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns the new temporary password generated for the user (user must change this password on next login)")}, options = {})
     public String resetPassword(
-            @Field(name = "Id", type = "Text", required = true, attributes = {}, options = {}) String id) {
+            @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to reset their password and generate a temporary password")}, options = {}) String id) {
         final int maxAttempts = 3;
         int attempts = 0;
         int backoffTime = 3000; // initial backoff time in milliseconds

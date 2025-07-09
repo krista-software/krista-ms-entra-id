@@ -1,43 +1,72 @@
 package app.krista.extensions.cyber_security.iam.azureAD.api;
 
+import app.krista.extension.authorization.MustAuthorizeException;
+import app.krista.extension.executor.Invoker;
+import app.krista.extension.request.RoutingInfo;
+import app.krista.extension.request.protos.http.HttpProtocol;
 import app.krista.extensions.cyber_security.iam.azureAD.AzureADAttributes;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.stores.AzureADAttributesStore;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.stores.RefreshTokenStore;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
+import app.krista.extensions.cyber_security.iam.azureAD.impl.util.AuthenticationResponse;
 import app.krista.ksdk.authentication.AuthorizationListener;
 import app.krista.ksdk.context.AuthorizationContext;
+import app.krista.model.field.NamedValuedField;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.oauth.OAuth20Service;
+import com.google.gson.JsonObject;
 import com.microsoft.graph.http.GraphServiceException;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import static app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants.*;
+import static com.github.scribejava.core.model.OAuthConstants.CODE;
+import static com.github.scribejava.core.model.OAuthConstants.STATE;
 
 @Path("/")
 public final class AuthenticationResource {
 
-    private static final String CODE = "code";
-    private static final String STATE = "state";
+    public static final String USER_AUTHENTICATED_SUCCESSFULLY_PLEASE_PROCEED_WITH_REQUEST = "User Authenticated Successfully. Please proceed with the request.";
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationResource.class);
+    private static final String AUTHORIZATION_PROMPT = "Authorize yourself and click 'Validate Attributes' before saving changes to proceed further.";
+    private static final String FAILED_TO_SAVE_ATTRIBUTES = "Failed to save attributes";
+
     private final AzureADAttributesStore azureADAttributesStore;
     private final RefreshTokenStore refreshTokenStore;
     private final GraphServiceClientProviderFactory providerFactory;
     private final AuthorizationContext context;
     private final AuthorizationListener authorizationListener;
+    private final String baseRoutingUrl;
+    private final String invokerId;
+    private final Invoker invoker;
 
     @Inject
-    public AuthenticationResource(AzureADAttributesStore azureADAttributesStore, RefreshTokenStore refreshTokenStore, GraphServiceClientProviderFactory providerFactory, AuthorizationContext context, AuthorizationListener authorizationListener) {
+    public AuthenticationResource(AzureADAttributesStore azureADAttributesStore, RefreshTokenStore refreshTokenStore,
+                                  GraphServiceClientProviderFactory providerFactory, Invoker invoker,
+                                  AuthorizationContext context, AuthorizationListener authorizationListener) {
         this.azureADAttributesStore = azureADAttributesStore;
         this.refreshTokenStore = refreshTokenStore;
         this.providerFactory = providerFactory;
         this.context = context;
         this.authorizationListener = authorizationListener;
+        this.baseRoutingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
+        this.invokerId = invoker.getInvokerId();
+        this.invoker = invoker;
     }
 
     @GET
@@ -88,11 +117,11 @@ public final class AuthenticationResource {
     }
 
     private String getErrorDescription(OAuthException cause) {
-        String errorDescription = "Error occurred during authorization. ";
+        String errorDescription = ERROR_OCCURRED_DURING_AUTHORIZATION;
         if (cause.getMessage() != null && !cause.getMessage().isBlank()) {
-            Map exceptionMap = Constants.GSON.fromJson(cause.getMessage(), Map.class);
-            if (exceptionMap.containsKey("error_description")) {
-                errorDescription = errorDescription + exceptionMap.get("error_description");
+            Map<String, Object> exceptionMap = Constants.GSON.fromJson(cause.getMessage(), Map.class);
+            if (exceptionMap.containsKey(ERROR_DESCRIPTION)) {
+                errorDescription = errorDescription + exceptionMap.get(ERROR_DESCRIPTION);
             }
         }
         return errorDescription;
@@ -102,80 +131,126 @@ public final class AuthenticationResource {
         try {
             clientProvider.getUserRequestBuilder().buildRequest().get();
             return true;
-        } catch (GraphServiceException ignore) {
-            System.err.println("-------IGNORED EXCEPTION-----");
-            ignore.printStackTrace();
+        } catch (GraphServiceException cause) {
+            LOGGER.debug(cause.getMessage(), cause);
             return false;
         }
     }
 
+    private String getAuthContextId(String state) {
+        String[] parts = state.split(HASH);
+        return parts.length > 1 ? parts[1] : null;
+    }
+
+    private GraphServiceClientProvider getGraphServiceClientProvider(String authContextId) {
+        return authContextId == null
+                ? providerFactory.create()
+                : providerFactory.create(authContextId);
+    }
+
+    private String createTestConnectionResponse(boolean isSuccess, String errorMessage, String url) {
+        if (isSuccess) {
+            return Constants.GSON.toJson(new AuthenticationResponse(true, null, null));
+        } else if (url != null) {
+            return Constants.GSON.toJson(new AuthenticationResponse(false, errorMessage, url));
+        } else
+            return Constants.GSON.toJson(new AuthenticationResponse(false,
+                    Objects.requireNonNullElse(errorMessage, "Unknown Error"), null));
+    }
+
+    private String createStateParameter(MustAuthorizeException cause, AzureADAttributes azureADAttributes) {
+        String userId = (String) cause.getDetails().get(0).getValue();
+        Optional<NamedValuedField> authContextIdField = cause.getDetails().stream()
+                .filter(namedValuedField -> Objects.equals(namedValuedField.getName(), AUTH_CONTEXT_ID))
+                .findFirst();
+        String state = userId;
+        if (authContextIdField.isPresent()) {
+            String authContextId = (String) authContextIdField.get().getValue();
+            state += HASH + authContextId;
+        }
+        if (PUBLIC.equals(azureADAttributes.getAuthType())) {
+            state += HASH + azureADAttributes.getForwardPath();
+        }
+        return state;
+    }
+
     @POST
     @Path("/testConnection")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Object> testConnection(Map<String, Object> authPayload) {
+    @Produces("text/plain")
+    public String testConnection(JsonObject authPayload) {
+        LOGGER.info("Testing connection with Microsoft Graph API");
+        AzureADAttributes azureADAttributes = AzureADAttributes.create(authPayload, baseRoutingUrl);
+        String authContextId = providerFactory.createAttributes(azureADAttributes);
+        String authUrl = null;
         try {
-            // Extract auth details from payload
-            String authType = (String) authPayload.getOrDefault("authType", "Public");
-            String email = (String) authPayload.get("email");
-            String clientId = (String) authPayload.get("clientId");
-            String clientSecret = (String) authPayload.get("clientSecret");
-            String tenantId = (String) authPayload.get("tenantId");
-            Boolean allowMailAlert = (Boolean) authPayload.getOrDefault("allowMailAlert", false);
+            LOGGER.info("Verifying API access for email: {}", azureADAttributes.getEmail());
+            providerFactory.create(authContextId).getGraphServiceClientForAdmin().me().buildRequest().get();
 
-            // Create temporary attributes for testing using new constructor signature
-            AzureADAttributes testAttributes = new AzureADAttributes(
-                clientId, clientSecret, tenantId, email, allowMailAlert, authType, "dummy-routing-url");
-
-            // Test the connection
-            GraphServiceClientProvider testProvider = providerFactory.create(testAttributes);
-            testProvider.getGraphServiceClientForAdmin().me().buildRequest().get();
-
-            return Map.of("isSuccess", true, "message", "Connection successful");
-        } catch (Exception e) {
-            return Map.of("isSuccess", false, "errorMessage", e.getMessage());
+            LOGGER.info("Test connection successful");
+            return createTestConnectionResponse(true, null, null);
+        } catch (GraphServiceException cause) {
+            LOGGER.error("Graph API connection failed: {}", cause.getMessage());
+            return createTestConnectionResponse(false, "An error occurred during test connection.", null);
+        } catch (MustAuthorizeException cause) {
+            LOGGER.info("Authorization required, generating auth URL");
+            String state = createStateParameter(cause, azureADAttributes);
+            OAuth20Service oAuth20Service = azureADAttributes.getOAuth20Service();
+            authUrl = oAuth20Service.getAuthorizationUrl(state) + AUTH_URL_QUERY_PARAMS;
+            return createTestConnectionResponse(false, AUTHORIZATION_PROMPT, authUrl);
+        } finally {
+            if (authUrl == null) {
+                azureADAttributesStore.remove(authContextId);
+            }
         }
     }
 
     @POST
     @Path("/saveCredentials")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Object> saveCredentials(Map<String, Object> authPayload) {
+    @Produces("text/plain")
+    public String saveCredentials(JsonObject authPayload) {
+        AzureADAttributes attributes = AzureADAttributes.create(authPayload, baseRoutingUrl);
+        String authContextId = providerFactory.createAttributes(attributes);
         try {
-            // This would typically save the credentials to the extension configuration
-            // For now, return success
-            return Map.of("isSuccess", true, "message", "Credentials saved successfully");
-        } catch (Exception e) {
-            return Map.of("isSuccess", false, "errorMessage", e.getMessage());
+            providerFactory.create(authContextId).getGraphServiceClientForAdmin()
+                    .users(attributes.getEmail())
+                    .buildRequest().get();
+            boolean isSaved = azureADAttributesStore.save(attributes, invokerId);
+            return isSaved
+                    ? Constants.GSON.toJson(new AuthenticationResponse(true, null, null))
+                    : Constants.GSON.toJson(new AuthenticationResponse(false, FAILED_TO_SAVE_ATTRIBUTES, null));
+        } catch (Exception cause) {
+            LOGGER.debug(FAILED_TO_SAVE_ATTRIBUTES);
+            return Constants.GSON.toJson(new AuthenticationResponse(false, FAILED_TO_SAVE_ATTRIBUTES, null));
+        } finally {
+            azureADAttributesStore.remove(authContextId);
         }
     }
 
     @GET
     @Path("/getCredentials")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Object> getCredentials(@QueryParam("authType") String authType) {
-        try {
-            // This would typically retrieve saved credentials
-            // For now, return empty credentials
-            return Map.of(
-                "email", "",
-                "clientId", "",
-                "clientSecret", "",
-                "tenantId", "",
-                "allowMailAlert", false
-            );
-        } catch (Exception e) {
-            return Map.of("error", e.getMessage());
+    @Produces("text/plain")
+    public String getCredentials(@QueryParam(AUTH_TYPE) String authType) {
+        LOGGER.info("Loading attributes for auth-type: {} for invoker {}", authType, invokerId);
+        final AzureADAttributes loadedAttributes = azureADAttributesStore.load(invokerId);
+        if (loadedAttributes != null && authType.equals(loadedAttributes.getAuthType())) {
+            return Constants.GSON.toJson(loadedAttributes.toMap());
+        } else {
+            return "";
         }
     }
 
     @GET
     @Path("/getAuthKey")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces("text/plain")
     public String getAuthKey() {
-        // Return default auth type
-        return "Public";
+        LOGGER.info("Loading stored authentication key.");
+        final AzureADAttributes attributes = azureADAttributesStore.load(invokerId);
+        if (attributes != null) {
+            final String authType = attributes.getAuthType();
+            return Constants.GSON.toJson(Objects.requireNonNullElse(authType, PUBLIC));
+        } else {
+            return "";
+        }
     }
 
     @GET

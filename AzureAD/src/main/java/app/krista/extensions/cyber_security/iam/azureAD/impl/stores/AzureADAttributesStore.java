@@ -28,8 +28,26 @@ public class AzureADAttributesStore {
     }
 
     public AzureADAttributes load(String authContextId) {
-        // If authContextId equals invokerId, return default attributes from invoker
+        // If authContextId equals invokerId, try to load saved attributes first, then fall back to invoker attributes
         if (authContextId != null && authContextId.equals(invoker.getInvokerId())) {
+            // First try to load saved attributes
+            Object savedData = store.get(authContextId);
+            if (savedData != null) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> savedAttributes = Constants.GSON.fromJson(String.valueOf(savedData), Map.class);
+                String routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
+                return new AzureADAttributes(
+                        (String) savedAttributes.get(CLIENT_ID),
+                        (String) savedAttributes.get(CLIENT_SECRET),
+                        (String) savedAttributes.get(TENANT_ID),
+                        (String) savedAttributes.get(EMAIL),
+                        (Boolean) savedAttributes.getOrDefault(ALLOW_MAIL_ALERT, false),
+                        (String) savedAttributes.getOrDefault(AUTH_TYPE, PUBLIC),
+                        routingUrl
+                );
+            }
+
+            // Fall back to invoker attributes if no saved data
             Map<String, Object> invokerAttributes = invoker.getAttributes();
             String routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
             return new AzureADAttributes(
@@ -43,7 +61,9 @@ public class AzureADAttributesStore {
             );
         }
 
-        var attributes = Constants.GSON.fromJson(String.valueOf(store.get(authContextId)), Map.class);
+        // Load temporary attributes for other authContextIds
+        @SuppressWarnings("unchecked")
+        Map<String, Object> attributes = Constants.GSON.fromJson(String.valueOf(store.get(authContextId)), Map.class);
         String routingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
         return new AzureADAttributes(
                 (String) attributes.get(CLIENT_ID),
@@ -60,6 +80,18 @@ public class AzureADAttributesStore {
         String authContextId = UUID.randomUUID().toString();
         store.put(authContextId, Constants.GSON.toJson(azureADAttributes.toMap()));
         return authContextId;
+    }
+
+    public boolean save(AzureADAttributes azureADAttributes, String invokerId) {
+        try {
+            // Save attributes to the invoker's configuration
+            // This would typically save to the invoker's persistent storage
+            // For now, we'll store it in the KeyValueStore with the invokerId as key
+            store.put(invokerId, Constants.GSON.toJson(azureADAttributes.toMap()));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**

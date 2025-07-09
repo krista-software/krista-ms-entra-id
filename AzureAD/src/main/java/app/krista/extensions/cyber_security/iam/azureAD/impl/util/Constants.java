@@ -32,6 +32,17 @@ public class Constants {
     public static final String EXTENSION_FORWARD_PATH = "/rest/azuread/forward";
     public static final String HASH = "#";
 
+    // Authentication constants
+    public static final String AUTH_CONTEXT_ID = "authContextId";
+    public static final String INVALID_STATE_PARAMETERS = "Invalid state parameters!";
+    public static final String UNAUTHORISED_USER = "Unauthorised User.";
+    public static final String USER_AUTHENTICATED_SUCCESSFULLY_SAVE_THE_CHANGES = "User Authenticated Successfully. Save the changes.";
+    public static final String ERROR_OCCURRED_DURING_AUTHORIZATION = "Error occurred during authorization: ";
+    public static final String ERROR_DESCRIPTION = "error_description";
+    public static final String AUTH_URL_QUERY_PARAMS = "&prompt=select_account";
+    public static final String UNDER_SCORE = "_";
+    public static final String WS_CONTACT = "ws_contact";
+
     private Constants() {
     }
 }
