@@ -82,18 +82,25 @@ public class GraphServiceClientProvider {
         try {
             String[] scopes = REQUIRED_SCOPE.split(SCOPE_SEPARATOR);
             Set<String> scopeSet = Arrays.stream(scopes).collect(Collectors.toSet());
+            System.out.println("*** Prepared the scope set");
             RefreshTokenParameters refreshTokenParameters = RefreshTokenParameters.builder(scopeSet, refreshToken).build();
             IClientCredential clientCredential = ClientCredentialFactory.createFromSecret(azureADAttributes.getClientSecret());
+            System.out.println("*** Prepared client credential");
             String authority = AUTHORITY + azureADAttributes.getTenantId();
             ConfidentialClientApplication confidentialClientApplication = ConfidentialClientApplication.builder
                     (azureADAttributes.getClientId(), clientCredential).authority(authority).build();
+            System.out.println("*** Prepared confidential client application");
             IAuthenticationResult authenticationResult = confidentialClientApplication.acquireToken(refreshTokenParameters).get();
             final String cachedTokenContent = confidentialClientApplication.tokenCache().serialize();
+            System.out.println("*** Got the cached token");
             updateRefreshToken(userId, Constants.GSON.fromJson(cachedTokenContent, JsonObject.class));
+            System.out.println("*** Refresh token updated");
             return GraphServiceClient.builder()
                     .authenticationProvider(new GraphServiceClientAuthenticationProvider(authenticationResult.accessToken()))
                     .buildClient();
         } catch (ClientException | ExecutionException | MalformedURLException cause) {
+            cause.printStackTrace();
+            System.out.println("*** Failed to get the graph client - " + cause.getMessage());
             throw createMustAuthorizationException(userId, true);
         } catch (InterruptedException cause) {
             Thread.currentThread().interrupt();

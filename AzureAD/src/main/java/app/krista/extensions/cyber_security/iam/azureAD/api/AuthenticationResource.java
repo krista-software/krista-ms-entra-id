@@ -7,6 +7,7 @@ import app.krista.extension.request.protos.http.HttpProtocol;
 import app.krista.extensions.cyber_security.iam.azureAD.AzureADAttributes;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.connectors.GraphServiceClientProviderFactory;
+import app.krista.extensions.cyber_security.iam.azureAD.impl.connectors.OAuthService;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.stores.AzureADAttributesStore;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.stores.RefreshTokenStore;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
@@ -72,33 +73,80 @@ public final class AuthenticationResource {
     @GET
     @Path("/callback")
     public String getCallBack(@QueryParam(CODE) String code, @QueryParam(STATE) String state) {
-        Objects.requireNonNull(code);
+        LOGGER.info("Private auth callback triggered with Code: [{}], State: [{}]", code, state);
+        return getAuthenticationResponseMessage(code, state);
+    }
+
+    @GET
+    @Path("/v3/oauth/callback")
+    public String getCallbackForV3Auth(@QueryParam(CODE) String code, @QueryParam(STATE) String state) {
+        LOGGER.info("Public auth callback triggered with Code: [{}], State: [{}]", code, state);
+        return getAuthenticationResponseMessage(code, state);
+    }
+
+    @NotNull
+    private String getAuthenticationResponseMessage(String code, String state) {
+        LOGGER.info("Processing authentication callback with Code: [{}], State: [{}]", code, state);
+
+        if (code == null) {
+            LOGGER.error("Missing authorization code in callback. Rejecting authentication.");
+            return "Authentication Failed. Please re-authorize.";
+        }
+
         Objects.requireNonNull(state);
-        String[] parts = state.split("#");
-        if (parts[0].isBlank() || parts.length > 2) {
+        String[] parts = state.split(HASH);
+        if (parts[0].isBlank()) {
+            LOGGER.error("State parameter is invalid or empty.");
             throw new BadRequestException("Invalid state parameters!");
         }
+
         String key = parts[0];
-        String authContextId = parts.length == 2 ? parts[1] : null;
+        String authContextId = getAuthContextId(state);
+
+        LOGGER.debug("Parsed key: [{}] from state. AuthContextId resolved: [{}]", key, authContextId);
+
         try {
+            LOGGER.info("Retrieving GraphServiceClientProvider using AuthContextId: {}", authContextId);
             GraphServiceClientProvider clientProvider = getClientProvider(authContextId);
-            OAuth2AccessToken accessToken = clientProvider.getAzureADAttributes().getOAuth20Service().getAccessToken(code);
+
+            LOGGER.debug("Fetching Azure AD attributes for authentication...");
+            AzureADAttributes azureADAttributes = clientProvider.getAzureADAttributes();
+
+            LOGGER.debug("Initializing OAuth20Service for token exchange...");
+            OAuth20Service oAuth20Service = new OAuthService(azureADAttributes).getOAuth20Service();
+
+
+            LOGGER.info("Requesting access token from Microsoft Graph...");
+            OAuth2AccessToken accessToken = oAuth20Service.getAccessToken(code);
+            LOGGER.info("Access token retrieved successfully.");
+
             refreshTokenStore.put(key, accessToken.getRefreshToken());
+            LOGGER.debug("Refresh token stored for key: {}", key);
+
             if (!key.startsWith("wsContact") && !hasUserAccess(clientProvider)) {
+                LOGGER.warn("User access check failed. Authenticated user does not match setup user.");
                 refreshTokenStore.remove(key);
                 return "Unauthorised user. User email '" + key.split("\\$")[0] + "' configured in the setup does not match with authenticated user.";
             }
+
             if (context.isAuthenticated()) {
+                LOGGER.info("User is authenticated. Notifying authorization listener.");
                 authorizationListener.authorized();
-                return "User authenticated successfully";
+                return USER_AUTHENTICATED_SUCCESSFULLY_PLEASE_PROCEED_WITH_REQUEST;
             }
+
+            LOGGER.info("User authenticated successfully but not yet in active context.");
             return "User authenticated successfully. Save the changes.";
+
         } catch (OAuthException cause) {
+            LOGGER.error("OAuthException occurred during token exchange: {}", cause.getMessage(), cause);
             throw new IllegalStateException(getErrorDescription(cause), cause.getCause());
         } catch (Exception cause) {
+            LOGGER.error("Exception occurred during authorization: {}", cause.getMessage(), cause);
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Error occurred during authorization", cause.getCause());
         } finally {
+            LOGGER.debug("Cleaning up azureADAttributesStore for authContextId: {}", authContextId);
             if (authContextId != null) {
                 azureADAttributesStore.remove(authContextId);
             }
@@ -132,7 +180,7 @@ public final class AuthenticationResource {
             clientProvider.getUserRequestBuilder().buildRequest().get();
             return true;
         } catch (GraphServiceException cause) {
-            LOGGER.debug(cause.getMessage(), cause);
+            LOGGER.debug("Failed to validate user access: {}", cause.getMessage(), cause);
             return false;
         }
     }
@@ -194,7 +242,7 @@ public final class AuthenticationResource {
         } catch (MustAuthorizeException cause) {
             LOGGER.info("Authorization required, generating auth URL");
             String state = createStateParameter(cause, azureADAttributes);
-            OAuth20Service oAuth20Service = azureADAttributes.getOAuth20Service();
+            OAuth20Service oAuth20Service = new OAuthService(azureADAttributes).getOAuth20Service();
             authUrl = oAuth20Service.getAuthorizationUrl(state) + AUTH_URL_QUERY_PARAMS;
             return createTestConnectionResponse(false, AUTHORIZATION_PROMPT, authUrl);
         } finally {

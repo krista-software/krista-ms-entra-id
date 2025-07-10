@@ -1,9 +1,6 @@
 package app.krista.extensions.cyber_security.iam.azureAD;
 
 import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
-import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import java.io.IOException;
@@ -85,7 +82,7 @@ public final class AzureADAttributes {
 
     public String getCallbackEndPoint() {
         if (Constants.PUBLIC.equals(authType)) {
-            return routingUrl.replaceAll("/extension/api/.*", DEFAULT_CALLBACK_PATH);
+             return routingUrl.replaceAll("/extension/api/.*", DEFAULT_CALLBACK_PATH);
         } else if (Constants.PRIVATE.equals(authType)) {
             return routingUrl + "/rest/azuread/callback";
         } else {
@@ -111,14 +108,6 @@ public final class AzureADAttributes {
 
     public String getAuthType() {
         return authType;
-    }
-
-    public synchronized OAuth20Service getOAuth20Service() {
-        return new ServiceBuilder(clientId)
-                .apiSecret(clientSecret)
-                .callback(getCallbackEndPoint())
-                .defaultScope("openid offline_access User.Read Group.ReadWrite.All UserAuthenticationMethod.ReadWrite.All User.ReadWrite.All")
-                .build(MicrosoftAzureActiveDirectory20Api.custom(tenantId));
     }
 
     public Map<String, Object> toMap() {
