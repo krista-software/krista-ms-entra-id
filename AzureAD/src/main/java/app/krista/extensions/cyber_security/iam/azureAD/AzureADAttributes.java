@@ -3,6 +3,8 @@ package app.krista.extensions.cyber_security.iam.azureAD;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -13,6 +15,7 @@ import static app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constan
 import static app.krista.extensions.cyber_security.iam.azureAD.impl.util.Validators.addAttributeIfNotNull;
 
 public final class AzureADAttributes {
+    private static final Logger LOG = LogManager.getLogger(AzureADAttributes.class);
 
     @SerializedName(EMAIL)
     private final String email;

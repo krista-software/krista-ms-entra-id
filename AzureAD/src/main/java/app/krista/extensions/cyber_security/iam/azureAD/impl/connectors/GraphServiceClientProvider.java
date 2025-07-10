@@ -2,6 +2,7 @@ package app.krista.extensions.cyber_security.iam.azureAD.impl.connectors;
 
 import app.krista.extension.authorization.MustAuthorizeException;
 import app.krista.extensions.cyber_security.iam.azureAD.AzureADAttributes;
+import app.krista.extensions.cyber_security.iam.azureAD.api.AuthenticationResource;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.stores.RefreshTokenStore;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import app.krista.ksdk.context.AuthorizationContext;
@@ -17,6 +18,7 @@ import okhttp3.Request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.net.MalformedURLException;
@@ -26,9 +28,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import static app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants.PRIVATE;
+import static app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants.PUBLIC;
+
 public class GraphServiceClientProvider {
     public static final String REQUIRED_SCOPE = Constants.REQUIRED_SCOPE;
     public static final String SCOPE_SEPARATOR = " ";
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GraphServiceClientProvider.class);
     public static final String AUTHORITY = "https://login.microsoftonline.com/";
     private static final Logger LOG =LogManager.getLogger(GraphServiceClientProvider.class.getName());
     private final RefreshTokenStore refreshTokenStore;
@@ -82,28 +88,35 @@ public class GraphServiceClientProvider {
         try {
             String[] scopes = REQUIRED_SCOPE.split(SCOPE_SEPARATOR);
             Set<String> scopeSet = Arrays.stream(scopes).collect(Collectors.toSet());
-            System.out.println("*** Prepared the scope set");
             RefreshTokenParameters refreshTokenParameters = RefreshTokenParameters.builder(scopeSet, refreshToken).build();
             IClientCredential clientCredential = ClientCredentialFactory.createFromSecret(azureADAttributes.getClientSecret());
-            System.out.println("*** Prepared client credential");
-            String authority = AUTHORITY + azureADAttributes.getTenantId();
+
+            String authority;
+            if (PRIVATE.equals(azureADAttributes.getAuthType())) {
+                authority = Constants.AUTHORITY + azureADAttributes.getTenantId();
+            } else if (PUBLIC.equals(azureADAttributes.getAuthType())) {
+                LOGGER.info("Using public authentication type");
+                authority = Constants.ORG_AUTHORITY;
+            } else {
+                throw new IllegalArgumentException("No authentication type found.");
+            }
+            LOGGER.debug("Building client with authority: {}", authority);
+
             ConfidentialClientApplication confidentialClientApplication = ConfidentialClientApplication.builder
                     (azureADAttributes.getClientId(), clientCredential).authority(authority).build();
-            System.out.println("*** Prepared confidential client application");
             IAuthenticationResult authenticationResult = confidentialClientApplication.acquireToken(refreshTokenParameters).get();
             final String cachedTokenContent = confidentialClientApplication.tokenCache().serialize();
-            System.out.println("*** Got the cached token");
             updateRefreshToken(userId, Constants.GSON.fromJson(cachedTokenContent, JsonObject.class));
-            System.out.println("*** Refresh token updated");
+
             return GraphServiceClient.builder()
                     .authenticationProvider(new GraphServiceClientAuthenticationProvider(authenticationResult.accessToken()))
                     .buildClient();
         } catch (ClientException | ExecutionException | MalformedURLException cause) {
             cause.printStackTrace();
-            System.out.println("*** Failed to get the graph client - " + cause.getMessage());
             throw createMustAuthorizationException(userId, true);
         } catch (InterruptedException cause) {
             Thread.currentThread().interrupt();
+            LOG.error("Thread interrupted while getting graph client", cause);
             throw createMustAuthorizationException(userId, true);
         }
     }
