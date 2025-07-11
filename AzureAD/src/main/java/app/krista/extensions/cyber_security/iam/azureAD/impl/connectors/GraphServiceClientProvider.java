@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -62,21 +62,21 @@ public class GraphServiceClientProvider {
     }
 
     public GraphServiceClient<Request> getGraphServiceClient() {
-        return getGraphServiceClient(!requestContext.invokeAsUser());
+        return getGraphServiceClient(!requestContext.invokeAsUser(),false);
     }
 
     public GraphServiceClient<Request> getGraphServiceClientForAdmin() {
-        return getGraphServiceClient(true);
+        return getGraphServiceClient(true,true);
     }
 
-    private GraphServiceClient getGraphServiceClient(boolean useEmail) {
+    private GraphServiceClient getGraphServiceClient(boolean useEmail,boolean handleAuthError) {
         try {
             String userId = getUserId(useEmail);
             String refreshToken = refreshTokenStore.get(userId);
             if (refreshToken == null) {
                 throw createMustAuthorizationException(userId, false);
             }
-            return getGraphServiceClient(userId, refreshToken);
+            return getGraphServiceClient(userId, refreshToken,handleAuthError);
         } catch (RuntimeException cause) {
             System.err.println("Failed to get graph client " + cause.getClass().getName());
             cause.printStackTrace();
@@ -84,7 +84,7 @@ public class GraphServiceClientProvider {
         }
     }
 
-    private GraphServiceClient getGraphServiceClient(String userId, String refreshToken) {
+    private GraphServiceClient getGraphServiceClient(String refreshTokenStoreKey, String refreshToken,boolean handleAuthError) {
         try {
             String[] scopes = REQUIRED_SCOPE.split(SCOPE_SEPARATOR);
             Set<String> scopeSet = Arrays.stream(scopes).collect(Collectors.toSet());
@@ -106,18 +106,24 @@ public class GraphServiceClientProvider {
                     (azureADAttributes.getClientId(), clientCredential).authority(authority).build();
             IAuthenticationResult authenticationResult = confidentialClientApplication.acquireToken(refreshTokenParameters).get();
             final String cachedTokenContent = confidentialClientApplication.tokenCache().serialize();
-            updateRefreshToken(userId, Constants.GSON.fromJson(cachedTokenContent, JsonObject.class));
+            updateRefreshToken(refreshTokenStoreKey, Constants.GSON.fromJson(cachedTokenContent, JsonObject.class));
 
             return GraphServiceClient.builder()
                     .authenticationProvider(new GraphServiceClientAuthenticationProvider(authenticationResult.accessToken()))
                     .buildClient();
-        } catch (ClientException | ExecutionException | MalformedURLException cause) {
-            cause.printStackTrace();
-            throw createMustAuthorizationException(userId, true);
+        } catch (ClientException | ExecutionException | IOException cause) {
+            if (handleAuthError) {
+                throw createMustAuthorizationException(refreshTokenStoreKey, true);
+            } else {
+                throw new IllegalArgumentException(cause.getMessage());
+            }
         } catch (InterruptedException cause) {
             Thread.currentThread().interrupt();
-            LOG.error("Thread interrupted while getting graph client", cause);
-            throw createMustAuthorizationException(userId, true);
+            if (handleAuthError) {
+                throw createMustAuthorizationException(refreshTokenStoreKey, true);
+            } else {
+                throw new IllegalArgumentException(cause.getMessage());
+            }
         }
     }
 
