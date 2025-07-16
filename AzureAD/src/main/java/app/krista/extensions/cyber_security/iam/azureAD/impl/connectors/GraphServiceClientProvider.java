@@ -36,7 +36,7 @@ public class GraphServiceClientProvider {
     public static final String SCOPE_SEPARATOR = " ";
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GraphServiceClientProvider.class);
     public static final String AUTHORITY = "https://login.microsoftonline.com/";
-    private static final Logger LOG =LogManager.getLogger(GraphServiceClientProvider.class.getName());
+    private static final Logger LOG = LogManager.getLogger(GraphServiceClientProvider.class.getName());
     private final RefreshTokenStore refreshTokenStore;
     private final AzureADAttributes azureADAttributes;
     private final RequestContext requestContext;
@@ -62,21 +62,21 @@ public class GraphServiceClientProvider {
     }
 
     public GraphServiceClient<Request> getGraphServiceClient() {
-        return getGraphServiceClient(!requestContext.invokeAsUser(),false);
+        return getGraphServiceClient(!requestContext.invokeAsUser(), false);
     }
 
     public GraphServiceClient<Request> getGraphServiceClientForAdmin() {
-        return getGraphServiceClient(true,true);
+        return getGraphServiceClient(true, true);
     }
 
-    private GraphServiceClient getGraphServiceClient(boolean useEmail,boolean handleAuthError) {
+    private GraphServiceClient getGraphServiceClient(boolean useEmail, boolean handleAuthError) {
         try {
             String userId = getUserId(useEmail);
             String refreshToken = refreshTokenStore.get(userId);
             if (refreshToken == null) {
                 throw createMustAuthorizationException(userId, false);
             }
-            return getGraphServiceClient(userId, refreshToken,handleAuthError);
+            return getGraphServiceClient(userId, refreshToken, handleAuthError);
         } catch (RuntimeException cause) {
             System.err.println("Failed to get graph client " + cause.getClass().getName());
             cause.printStackTrace();
@@ -84,7 +84,7 @@ public class GraphServiceClientProvider {
         }
     }
 
-    private GraphServiceClient getGraphServiceClient(String refreshTokenStoreKey, String refreshToken,boolean handleAuthError) {
+    private GraphServiceClient getGraphServiceClient(String refreshTokenStoreKey, String refreshToken, boolean handleAuthError) {
         try {
             String[] scopes = REQUIRED_SCOPE.split(SCOPE_SEPARATOR);
             Set<String> scopeSet = Arrays.stream(scopes).collect(Collectors.toSet());
