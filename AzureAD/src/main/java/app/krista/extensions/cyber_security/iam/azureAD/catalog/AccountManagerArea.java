@@ -206,7 +206,7 @@ class AccountManagerArea {
             throw authorizeException;
         } catch (Exception cause){
             logger.error("Error Occurred during Get User Details by ID or Email : {}", cause.getMessage(), cause);
-            return new Account();
+            throw new RuntimeException(cause.getMessage(), cause);//new change
         }
     }
 
