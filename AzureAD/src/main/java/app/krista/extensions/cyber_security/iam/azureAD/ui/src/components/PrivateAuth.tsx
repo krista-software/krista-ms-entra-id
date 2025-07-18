@@ -9,7 +9,6 @@ const PrivateAuth = ({onAuthChange}: {
     const [clientId, setClientId] = useState("");
     const [clientSecret, setClientSecret] = useState("");
     const [tenantId, setTenantId] = useState("");
-    const [allowMailAlert, setAllowMailAlert] = useState(false);
     const [savedCred, setSavedCred] = useState<boolean>(false);
 
     useEffect(() => {
@@ -23,11 +22,10 @@ const PrivateAuth = ({onAuthChange}: {
             clientId: clientId,
             clientSecret: clientSecret,
             tenantId: tenantId,
-            allowMailAlert: allowMailAlert,
             isAllRequiredFieldsHaveValue: areFieldsValid(),
             isCredentialsSaved: isCredSaved()
         });
-    }, [email, clientId, clientSecret, tenantId, allowMailAlert, onAuthChange]);
+    }, [email, clientId, clientSecret, tenantId, onAuthChange]);
 
     const areFieldsValid = () => {
         return !!email && !!clientId && !!clientSecret && !!tenantId;
@@ -45,7 +43,6 @@ const PrivateAuth = ({onAuthChange}: {
                 setClientId(credentials["clientId"]);
                 setClientSecret(credentials["clientSecret"]);
                 setTenantId(credentials["tenantId"]);
-                setAllowMailAlert(credentials["allowMailAlert"]);
                 setSavedCred(true);
             } else {
                 console.error('Failed to fetch credentials');
@@ -102,17 +99,7 @@ const PrivateAuth = ({onAuthChange}: {
                             placeholder="Enter Tenant ID"
                         />
                     </div>
-                    <div className="form-group">
-                        <div className="checkbox-label-container">
-                            <input
-                                type="checkbox"
-                                id="allowMailAlert"
-                                checked={allowMailAlert}
-                                onChange={(e) => setAllowMailAlert(e.target.checked)}
-                            />
-                            <label htmlFor="allowMailAlert">Allow Mail Alert</label>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </form>

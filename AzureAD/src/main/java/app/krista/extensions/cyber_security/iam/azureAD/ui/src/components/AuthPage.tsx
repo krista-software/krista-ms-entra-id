@@ -8,7 +8,6 @@ import PublicAuth from "./PublicAuth";
 export interface AuthPayload {
     authType: AuthType;
     email: string;
-    allowMailAlert?: boolean;
     clientId?: string;
     clientSecret?: string;
     tenantId?: string;

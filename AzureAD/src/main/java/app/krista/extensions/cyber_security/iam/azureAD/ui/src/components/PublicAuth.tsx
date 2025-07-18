@@ -4,7 +4,6 @@ import {getCredentials} from "../api";
 
 const PublicAuth = ({onAuthChange}: { onAuthChange: (authPayload: AuthPayload) => void }) => {
     const [email, setEmail] = useState("");
-    const [allowMailAlert, setAllowMailAlert] = useState(false);
     const [savedCred, setSavedCred] = useState<boolean>(false);
 
     useEffect(() => {
@@ -15,11 +14,10 @@ const PublicAuth = ({onAuthChange}: { onAuthChange: (authPayload: AuthPayload) =
         onAuthChange({
             authType: AuthType.Public,
             email: email,
-            allowMailAlert: allowMailAlert,
             isAllRequiredFieldsHaveValue: areFieldsValid(),
             isCredentialsSaved: isCredSaved()
         });
-    }, [email, allowMailAlert]);
+    }, [email]);
 
     const areFieldsValid = () => {
         return !!email;
@@ -34,7 +32,6 @@ const PublicAuth = ({onAuthChange}: { onAuthChange: (authPayload: AuthPayload) =
             const credentials = await getCredentials(AuthType.Public);
             if (credentials) {
                 setEmail(credentials["email"]);
-                setAllowMailAlert(credentials["allowMailAlert"]);
                 setSavedCred(true);
             } else {
                 console.error('Failed to fetch credentials');
@@ -60,18 +57,7 @@ const PublicAuth = ({onAuthChange}: { onAuthChange: (authPayload: AuthPayload) =
                         />
                     </div>
 
-                    <div className="form-group">
-                        <div className="checkbox-label-container">
-                            <input
-                                type="checkbox"
-                                id="allowMailAlert"
-                                checked={allowMailAlert}
-                                onChange={(e) => setAllowMailAlert(e.target.checked)}
-                            />
-                            <label htmlFor="allowMailAlert">Allow Mail Alert</label>
-                        </div>
 
-                    </div>
                 </div>
             </div>
         </form>
