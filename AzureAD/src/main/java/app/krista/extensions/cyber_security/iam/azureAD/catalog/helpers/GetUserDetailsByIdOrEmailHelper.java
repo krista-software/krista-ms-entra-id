@@ -4,6 +4,7 @@ import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
 import app.krista.extension.executor.ErrorBuilder;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ExtensionResponseGenerator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ErrorHandlingStateManager;
@@ -114,7 +115,7 @@ public class GetUserDetailsByIdOrEmailHelper {
         // Create a map with the necessary data for the confirmation step
         Map<String, Object> map = Map.of(
                 SubCatalogConstants.STATE_ID, stateId,
-                "Id", userId != null ? userId : ""
+                AzureResources.ID, userId != null ? userId : ""
         );
 
         // Generate a response that will trigger the confirmation subcatalog request
