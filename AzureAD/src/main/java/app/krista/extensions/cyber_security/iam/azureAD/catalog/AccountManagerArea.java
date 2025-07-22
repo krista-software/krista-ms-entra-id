@@ -2,11 +2,14 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog;
 
 
 import app.krista.extension.authorization.MustAuthorizeException;
+import app.krista.extension.executor.ExtensionResponse;
+import app.krista.extension.executor.ExtensionResponseBuilder;
 import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.GetUserDetailsByIdOrEmailHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 import com.microsoft.graph.core.ClientException;
@@ -32,11 +35,13 @@ class AccountManagerArea {
     public static final String ACCOUNT_STATUS = "Account Status";
     public static final String MESSAGE = "Message";
     private final Accounts account;
+    private final GetUserDetailsByIdOrEmailHelper getUserDetailsHelper;
     private static final Logger logger = LoggerFactory.getLogger(AccountManagerArea.class);
 
     @Inject
-    public AccountManagerArea(AccountImpl account) {
+    public AccountManagerArea(AccountImpl account, GetUserDetailsByIdOrEmailHelper getUserDetailsHelper) {
         this.account = account;
+        this.getUserDetailsHelper = getUserDetailsHelper;
     }
 
 
@@ -48,22 +53,24 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Boolean(name = "Account Status", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns true if the account operation was successful, false if it failed")}, options = {})
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns a descriptive message about the operation result (e.g., 'Account Activated Successfully')")}, options = {})
-    public Map<String, Object> activateOrDeactivateAnAccount(
+    public ExtensionResponse activateOrDeactivateAnAccount(
             @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Set to true to deactivate the account, false to activate it")}, options = {}) Boolean deactivate,
-            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Azure AD")}, options = {}) String userMailOrID){
+            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Azure AD")}, options = {}) String userMailOrID) {
         try {
             boolean accountStatus = account.activateOrDeactivateAccount(userMailOrID, deactivate);
-            String statusMessage =  deactivate ? "Deactivated" : "Activated";
-            return Map.of(
+            String statusMessage = deactivate ? "Deactivated" : "Activated";
+            Map<String, Object> result = Map.of(
                     ACCOUNT_STATUS, accountStatus,
-                    MESSAGE, "Account "+statusMessage+ " Successfully");
+                    MESSAGE, "Account " + statusMessage + " Successfully");
+            return new ExtensionResponseBuilder().success(result).build();
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception cause){
+        } catch (Exception cause) {
             logger.error("Error Occurred during Activate or Deactivate an Account : {}", cause.getMessage(), cause);
-            return Map.of(
+            Map<String, Object> errorResult = Map.of(
                     ACCOUNT_STATUS, false,
                     MESSAGE, cause.getMessage());
+            return new ExtensionResponseBuilder().success(errorResult).build();
         }
     }
 
@@ -73,16 +80,17 @@ class AccountManagerArea {
             description = "Get List of Groups",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "Group List", type = "[ { Group Mail Id: Text, Group Id: Text } ]",required = false)
-    public List<Map<String, String>> getListOfGroups(){
+    @Field.Desc(name = "Group List", type = "[ { Group Mail Id: Text, Group Id: Text } ]", required = false)
+    public ExtensionResponse getListOfGroups() {
         logger.debug("Get List of Groups Initiated");
         try {
-            return account.getAllGroups();
+            List<Map<String, String>> groups = account.getAllGroups();
+            return new ExtensionResponseBuilder().success(Map.of("Group List", groups)).build();
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception cause){
+        } catch (Exception cause) {
             logger.error("Error Occurred during Get List of Groups : {}", cause.getMessage(), cause);
-            return Collections.emptyList();
+            return new ExtensionResponseBuilder().success(Map.of("Group List", Collections.emptyList())).build();
         }
     }
 
@@ -92,17 +100,18 @@ class AccountManagerArea {
             description = "Requires User Id or User Mail and Group Object Id",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field.Desc(name = "Account Info", type = "{ User Mail Id: Text, User Name: Text, Group List: [ { Group Mail Id: Text, Group Id: Text } ], User Id: Text }",required = false)
-    public Map<String, Object> addAnAccountToGroup(
+    @Field.Desc(name = "Account Info", type = "{ User Mail Id: Text, User Name: Text, Group List: [ { Group Mail Id: Text, Group Id: Text } ], User Id: Text }", required = false)
+    public ExtensionResponse addAnAccountToGroup(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to add to the group")}, options = {}) String userMailOrId,
             @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format)")}, options = {}) String groupObjectId) {
         try {
-            return account.addAccountToGroup(userMailOrId, groupObjectId);
+            Map<String, Object> result = account.addAccountToGroup(userMailOrId, groupObjectId);
+            return new ExtensionResponseBuilder().success(Map.of("Account Info", result)).build();
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
             logger.error("Error Occurred during Add an Account to Group : {}", cause.getMessage(), cause);
-            return Collections.emptyMap();
+            return new ExtensionResponseBuilder().success(Map.of("Account Info", Collections.emptyMap())).build();
         }
     }
 
@@ -113,16 +122,17 @@ class AccountManagerArea {
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Boolean(name = "Removed", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns true if the user was successfully removed from the group, false if the operation failed")}, options = {})
-    public Boolean removeGroupFromAccount(
+    public ExtensionResponse removeGroupFromAccount(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to remove from the group")}, options = {}) String userMailOrId,
             @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format) to remove the user from")}, options = {}) String groupObjectId) {
         try {
-            return account.removeAccountFromGroup(userMailOrId, groupObjectId);
+            Boolean removed = account.removeAccountFromGroup(userMailOrId, groupObjectId);
+            return new ExtensionResponseBuilder().success(Map.of("Removed", removed)).build();
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
-            logger.error("Error Occurred during Add an Account to Group : {}", cause.getMessage(), cause);
-            return false;
+            logger.error("Error Occurred during Remove an Account from Group : {}", cause.getMessage(), cause);
+            return new ExtensionResponseBuilder().success(Map.of("Removed", false)).build();
         }
     }
 
@@ -134,18 +144,20 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field(name = "User Id", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "The unique Azure AD object ID assigned to the newly created user account")}, options = {})
     @Field(name = "Default Password", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "The temporary password generated for the new user account (user must change on first login)")}, options = {})
-    public Map<String, Object> createAccount(
+    public ExtensionResponse createAccount(
             @Field(name = "Name", type = "Text", required = true, attributes = {}, options = {}) String name,
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field(name = "Mobile Number", type = "Text", required = true, attributes = {}, options = {}) String mobileNumber,
             @Field.Desc(name = "Extra Fields", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraFields) {
         try {
-            return account.createUser(name, email, mobileNumber, extraFields);
+            Map<String, Object> result = account.createUser(name, email, mobileNumber, extraFields);
+            return new ExtensionResponseBuilder().success(result).build();
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception cause){
+        } catch (Exception cause) {
             logger.error("Error Occurred during Create an Account : {}", cause.getMessage(), cause);
-            return Map.of("User Id", "", "Default Password", "");
+            Map<String, Object> errorResult = Map.of("User Id", "", "Default Password", "");
+            return new ExtensionResponseBuilder().success(errorResult).build();
         }
     }
 
@@ -156,19 +168,20 @@ class AccountManagerArea {
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Updated Entity", type = "Entity(Account)", required = false)
-    public app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account updateAccount(
+    public ExtensionResponse updateAccount(
             @Field(name = "Name", type = "Text", required = false, attributes = {}, options = {}) String name,
             @Field(name = "Mobile Number", type = "Text", required = false, attributes = {}, options = {}) String mobileNumber,
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field.Desc(name = "Extra Field", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraField) {
         try {
-            return account.updateUser(
-                    Objects.requireNonNullElse(name,""), Objects.requireNonNullElse(mobileNumber,""), email, extraField);
+            Account updatedAccount = account.updateUser(
+                    Objects.requireNonNullElse(name, ""), Objects.requireNonNullElse(mobileNumber, ""), email, extraField);
+            return new ExtensionResponseBuilder().success(Map.of("Updated Entity", updatedAccount)).build();
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception cause){
+        } catch (Exception cause) {
             logger.error("Error Occurred during Update an Account : {}", cause.getMessage(), cause);
-            return new Account();
+            return new ExtensionResponseBuilder().success(Map.of("Updated Entity", new Account())).build();
         }
     }
 
@@ -179,15 +192,16 @@ class AccountManagerArea {
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field(name = "Deleted", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns true if the user account was successfully deleted from Azure AD, false if the operation failed")}, options = {})
-    public Boolean deleteAccount(
+    public ExtensionResponse deleteAccount(
             @Field(name = "Email", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the email address of the user account to permanently delete from Azure AD")}, options = {}) String email) {
         try {
-            return account.deleteUser(email);
+            Boolean deleted = account.deleteUser(email);
+            return new ExtensionResponseBuilder().success(Map.of("Deleted", deleted)).build();
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception cause){
+        } catch (Exception cause) {
             logger.error("Error Occurred during Delete an Account : {}", cause.getMessage(), cause);
-            return false;
+            return new ExtensionResponseBuilder().success(Map.of("Deleted", false)).build();
         }
     }
 
@@ -198,15 +212,15 @@ class AccountManagerArea {
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Result", type = "Entity(Account)", required = false)
-    public Account getUserDetailsByIDOrEmail(
+    public ExtensionResponse getUserDetailsByIDOrEmail(
             @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to retrieve their account details")}, options = {}) String id) {
         try {
-            return account.getUser(id);
+            return getUserDetailsHelper.getUserDetailsByIdOrEmailWithValidation(id);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
-        } catch (Exception cause){
+        } catch (Exception cause) {
             logger.error("Error Occurred during Get User Details by ID or Email : {}", cause.getMessage(), cause);
-            throw new RuntimeException(cause.getMessage(), cause);//new change
+            return new ExtensionResponseBuilder().success(Map.of("Result", new Account())).build();
         }
     }
 
@@ -217,7 +231,7 @@ class AccountManagerArea {
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field(name = "Password", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns the new temporary password generated for the user (user must change this password on next login)")}, options = {})
-    public String resetPassword(
+    public ExtensionResponse resetPassword(
             @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to reset their password and generate a temporary password")}, options = {}) String id) {
         final int maxAttempts = 3;
         int attempts = 0;
@@ -225,7 +239,8 @@ class AccountManagerArea {
 
         while (attempts < maxAttempts) {
             try {
-                return account.resetPassword(id);
+                String password = account.resetPassword(id);
+                return new ExtensionResponseBuilder().success(Map.of("Password", password)).build();
             } catch (ClientException cause) {
                 Throwable rootCause = cause.getCause();
 
@@ -239,18 +254,19 @@ class AccountManagerArea {
                             backoffTime *= 2; // exponential backoff
                         } else {
                             logger.error("Max attempts reached. Error occurred while resetting password: {}", cause.getMessage(), cause);
+                            return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
                         }
                     } else {
                         logger.error("GraphServiceException occurred while resetting password: {}", cause.getMessage(), cause);
-                        break;
+                        return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
                     }
                 } else {
                     logger.error("Unexpected error occurred while resetting password: {}", cause.getMessage(), cause);
-                    break;
+                    return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
                 }
             }
         }
-        return "";
+        return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
     }
 
     private void sleepWithBackoff(int backoffTime) {
