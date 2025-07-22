@@ -6,12 +6,11 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.util;
 public class SubCatalogConstants {
 
 
-    private SubCatalogConstants() {
-    }
-
+    private SubCatalogConstants() {}
+    
     // Validation constants
-    public static final String VALIDATION_RESULTS = "VALIDATION_RESULTS";
-    public static final String REENTER = "REENTER";
+    public static final String VALIDATION_RESULTS = "validationResults";
+    public static final String REENTER = "Reenter";
     public static final String STATE_ID = "stateId";
 
     public static final String CONFIRM_REENTER_GET_USER_DETAILS_BY_ID_OR_EMAIL = "confirmReenterGetUserDetailsByIDOrEmail";

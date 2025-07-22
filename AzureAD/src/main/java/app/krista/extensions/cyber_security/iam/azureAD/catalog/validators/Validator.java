@@ -9,7 +9,7 @@ import java.util.Map;
 public interface Validator {
 
     enum ValidationResource {
-        USER_ID
+        ID
     }
 
     /**

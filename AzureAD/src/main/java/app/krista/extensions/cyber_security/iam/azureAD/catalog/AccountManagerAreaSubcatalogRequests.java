@@ -9,6 +9,7 @@ import app.krista.extension.impl.anno.SubCatalogRequest;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ErrorHandlingStateManager;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ExtensionResponseGenerator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.GetUserDetailsByIdOrEmailHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.ValidationOrchestrator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.Validator;
@@ -83,23 +84,24 @@ public class AccountManagerAreaSubcatalogRequests {
             description = "Handle reenter Get User Details by ID or Email",
             type = CatalogRequest.Type.CHANGE_SYSTEM
     )
-    @Field.Desc(name = "Result", type = "[ Entity ]", required = false)
+    @Field.Desc(name = "Result", type = "Entity", required = false)
     @SuppressWarnings("unchecked")
     public ExtensionResponse handleReenterGetUserDetailsByIDOrEmail(
-            @Field.Desc(name = "inputMap", type = "{stateId: Text, Id: Text }", required = true) Map<String, Object> map) {
+            @Field.Desc(name = "inputMap", type = "{stateId: Text, Id: Text }") Map<String, Object> map) {
 
         LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Starting with input map: {}", map);
 
-        String USER_ID = (String) map.get("Id");
+        String userId = (String) map.get(AzureResources.ID);
+        LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Extracted parameters: USER_ID={}", userId);
 
         // Validate the re-entered data
         List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(
-                Map.of(Validator.ValidationResource.USER_ID, USER_ID != null ? USER_ID : "")
+                Map.of(Validator.ValidationResource.ID, userId != null ? userId : "")
         );
-
+       LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Validation results: {} errors", validationResults.size());
         // If validation still fails, return a permanent error response instead of allowing another retry
         if (!validationResults.isEmpty()) {
-
+        LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Validation failed again after re-entry for USER_ID: {}", userId);
             ExtensionResponse.Error error = new ErrorBuilder()
                     .exceptionType(ExtensionResponse.Error.ExceptionType.INPUT_ERROR)
                     .errorMessage("The provided user ID is still invalid. Please try again with a new request.")
@@ -108,7 +110,9 @@ public class AccountManagerAreaSubcatalogRequests {
                     .failure(error)
                     .build();
         }
-        ExtensionResponse response = getUserDetailsHelper.getUserDetailsByIdOrEmailWithValidation(USER_ID);
+        LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Validation passed, retrieving user details");
+        ExtensionResponse response = getUserDetailsHelper.getUserDetailsByIdOrEmailWithValidation(userId);
+        LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Completed successfully");
         return response;
 
     }

@@ -52,7 +52,7 @@ public class GetUserDetailsByIdOrEmailHelper {
         try {
             // Register User ID/Email validator
             UserIdValidator userIdValidator = new UserIdValidator(accountService);
-            validationOrchestrator.registerValidator(Validator.ValidationResource.USER_ID, userIdValidator);
+            validationOrchestrator.registerValidator(Validator.ValidationResource.ID, userIdValidator);
             LOGGER.info("Registered UserIdValidator for USER_ID");
 
             LOGGER.info("GetUserDetailsByIdOrEmailHelper.registerValidators() completed successfully");
@@ -67,7 +67,7 @@ public class GetUserDetailsByIdOrEmailHelper {
 
             // Validate input parameters
             List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(
-                    Map.of(Validator.ValidationResource.USER_ID, userId != null ? userId : "")
+                    Map.of(Validator.ValidationResource.ID, userId != null ? userId : "")
             );
 
             // If validation fails, handle it
