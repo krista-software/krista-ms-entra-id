@@ -105,10 +105,6 @@ public final class AzureADAttributes {
         return email;
     }
 
-    public boolean isAllowMailAlert() {
-        return allowMailAlert;
-    }
-
     public String getAuthType() {
         return authType;
     }
@@ -118,7 +114,6 @@ public final class AzureADAttributes {
         addAttributeIfNotNull(attributesMap, CLIENT_ID, getClientId());
         addAttributeIfNotNull(attributesMap, CLIENT_SECRET, getClientSecret());
         addAttributeIfNotNull(attributesMap, TENANT_ID, getTenantId());
-        addAttributeIfNotNull(attributesMap, ALLOW_MAIL_ALERT, isAllowMailAlert());
         addAttributeIfNotNull(attributesMap, EMAIL, getEmail());
         addAttributeIfNotNull(attributesMap, AUTH_TYPE, getAuthType());
         return attributesMap;

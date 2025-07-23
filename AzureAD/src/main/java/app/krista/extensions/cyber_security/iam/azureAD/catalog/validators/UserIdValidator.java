@@ -2,8 +2,8 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.validators;
 
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.FieldTypes;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
-import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class UserIdValidator implements Validator {
 
     @Override
     public String getFetchFieldName() {
-        return "User ID";
+        return AzureResources.ID;
     }
 
     @Override

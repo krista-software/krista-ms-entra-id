@@ -117,6 +117,7 @@ public class GetUserDetailsByIdOrEmailHelper {
                 SubCatalogConstants.STATE_ID, stateId,
                 AzureResources.ID, userId != null ? userId : ""
         );
+        LOGGER.debug("User ID validation failed, generated confirmation response map: {}", map);
 
         // Generate a response that will trigger the confirmation subcatalog request
         return responseGenerator.generateConfirmationResponse(

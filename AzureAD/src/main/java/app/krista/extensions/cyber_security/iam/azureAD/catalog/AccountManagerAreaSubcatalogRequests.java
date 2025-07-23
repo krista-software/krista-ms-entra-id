@@ -42,7 +42,7 @@ public class AccountManagerAreaSubcatalogRequests {
         this.validationOrchestrator = validationOrchestrator;
         this.getUserDetailsHelper = getUserDetailsHelper;
 
-        LOGGER.info("TeamsAPIsAreaSubCatalogRequests constructor completed");
+        LOGGER.info("AccountManagerArea Sub catalog Requests constructor completed");
     }
 
 
@@ -76,7 +76,7 @@ public class AccountManagerAreaSubcatalogRequests {
                 ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
                 validationResults,
                 SubCatalogConstants.HANDLE_REENTER_GET_USER_DETAILS_BY_ID_OR_EMAIL,
-                addMetaDataToLinkedHashMap(map, stateId));
+                map);
     }
 
     @SubCatalogRequest(
@@ -84,12 +84,17 @@ public class AccountManagerAreaSubcatalogRequests {
             description = "Handle reenter Get User Details by ID or Email",
             type = CatalogRequest.Type.CHANGE_SYSTEM
     )
-    @Field.Desc(name = "Result", type = "Entity", required = false)
+    @Field.Desc(name = "Result", type = "[Entity]", required = false)
     @SuppressWarnings("unchecked")
     public ExtensionResponse handleReenterGetUserDetailsByIDOrEmail(
             @Field.Desc(name = "inputMap", type = "{stateId: Text, Id: Text }") Map<String, Object> map) {
 
-        LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Starting with input map: {}", map);
+        LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Full input map contents: {}", map);
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            LOGGER.debug("Key: '{}', Value: '{}', Value type: {}",
+                entry.getKey(), entry.getValue(),
+                entry.getValue() != null ? entry.getValue().getClass().getSimpleName() : "null");
+        }
 
         String userId = (String) map.get(AzureResources.ID);
         LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Extracted parameters: USER_ID={}", userId);
@@ -169,7 +174,36 @@ public class AccountManagerAreaSubcatalogRequests {
     private Map<String, Object> addMetaDataToLinkedHashMap(Map<String, Object> map, String stateId) {
         Map<String, Object> result = new java.util.LinkedHashMap<>(map);
         result.put(SubCatalogConstants.STATE_ID, stateId);
+        LOGGER.debug("addMetaDataToLinkedHashMap() - Added stateId: {}", stateId);
         return result;
+    }
+
+    /**
+     * Helper method to safely extract a string value from a map, handling null cases.
+     *
+     * @param map The map to extract from
+     * @param key The key to look for
+     * @return The string value, or empty string if not found or null
+     */
+    private String getStringFromMap(Map<String, Object> map, String key) {
+        if (map == null || key == null) {
+            LOGGER.warn("Null map or key provided to getStringFromMap: map={}, key={}", map, key);
+            return "";
+        }
+
+        Object value = map.get(key);
+        if (value == null) {
+            // Try case-insensitive search as fallback
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if (key.equalsIgnoreCase(entry.getKey())) {
+                    LOGGER.debug("Found case-insensitive match for key '{}': '{}'", key, entry.getKey());
+                    value = entry.getValue();
+                    break;
+                }
+            }
+        }
+
+        return value != null ? value.toString() : "";
     }
 }
 
