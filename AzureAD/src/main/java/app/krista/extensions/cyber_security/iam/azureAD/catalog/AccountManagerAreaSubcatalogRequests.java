@@ -92,8 +92,8 @@ public class AccountManagerAreaSubcatalogRequests {
         LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Full input map contents: {}", map);
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             LOGGER.debug("Key: '{}', Value: '{}', Value type: {}",
-                entry.getKey(), entry.getValue(),
-                entry.getValue() != null ? entry.getValue().getClass().getSimpleName() : "null");
+                    entry.getKey(), entry.getValue(),
+                    entry.getValue() != null ? entry.getValue().getClass().getSimpleName() : "null");
         }
 
         String userId = (String) map.get(AzureResources.ID);
@@ -103,10 +103,10 @@ public class AccountManagerAreaSubcatalogRequests {
         List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(
                 Map.of(Validator.ValidationResource.ID, userId != null ? userId : "")
         );
-       LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Validation results: {} errors", validationResults.size());
+        LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Validation results: {} errors", validationResults.size());
         // If validation still fails, return a permanent error response instead of allowing another retry
         if (!validationResults.isEmpty()) {
-        LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Validation failed again after re-entry for USER_ID: {}", userId);
+            LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Validation failed again after re-entry for USER_ID: {}", userId);
             ExtensionResponse.Error error = new ErrorBuilder()
                     .exceptionType(ExtensionResponse.Error.ExceptionType.INPUT_ERROR)
                     .errorMessage("The provided user ID is still invalid. Please try again with a new request.")
@@ -169,41 +169,6 @@ public class AccountManagerAreaSubcatalogRequests {
 
         LOGGER.debug("getValidationResults() retrieved {} validation results", results.size());
         return results;
-    }
-
-    private Map<String, Object> addMetaDataToLinkedHashMap(Map<String, Object> map, String stateId) {
-        Map<String, Object> result = new java.util.LinkedHashMap<>(map);
-        result.put(SubCatalogConstants.STATE_ID, stateId);
-        LOGGER.debug("addMetaDataToLinkedHashMap() - Added stateId: {}", stateId);
-        return result;
-    }
-
-    /**
-     * Helper method to safely extract a string value from a map, handling null cases.
-     *
-     * @param map The map to extract from
-     * @param key The key to look for
-     * @return The string value, or empty string if not found or null
-     */
-    private String getStringFromMap(Map<String, Object> map, String key) {
-        if (map == null || key == null) {
-            LOGGER.warn("Null map or key provided to getStringFromMap: map={}, key={}", map, key);
-            return "";
-        }
-
-        Object value = map.get(key);
-        if (value == null) {
-            // Try case-insensitive search as fallback
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                if (key.equalsIgnoreCase(entry.getKey())) {
-                    LOGGER.debug("Found case-insensitive match for key '{}': '{}'", key, entry.getKey());
-                    value = entry.getValue();
-                    break;
-                }
-            }
-        }
-
-        return value != null ? value.toString() : "";
     }
 }
 

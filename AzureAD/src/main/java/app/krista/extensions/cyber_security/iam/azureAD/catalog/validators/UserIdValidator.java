@@ -43,7 +43,7 @@ public class UserIdValidator implements Validator {
             }
 
             LOGGER.debug("User validation successful for: {}", resourceValue);
-            return true; // Validation passed
+            return true;
 
         } catch (Exception e) {
             LOGGER.error("Error validating user ID/Email '{}': {}", resourceValue, e.getMessage(), e);
