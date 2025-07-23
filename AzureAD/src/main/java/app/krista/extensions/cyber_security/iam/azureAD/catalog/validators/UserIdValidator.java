@@ -68,11 +68,26 @@ public class UserIdValidator implements Validator {
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
-        return "The provided user ID or email '" + resourceValue + "' does not exist in Azure AD. Please enter a valid user ID or email address.";
+        if (isEmail(resourceValue)) {
+            return "Please enter a valid Email that exists in Azure AD.";
+        } else {
+            return "Please enter a valid user ID that exists in Azure AD.";
+        }
     }
 
     @Override
     public String getErrMessage(String resourceValue) {
-        return "User ID or email '" + resourceValue + "' not found in Azure AD.";
+        if (isEmail(resourceValue)) {
+            return "Email '" + resourceValue + "' not found in Azure AD.";
+        } else {
+            return "User ID '" + resourceValue + "' not found in Azure AD.";
+        }
+    }
+
+    /**
+     * Checks if the given string is an email address
+     */
+    private boolean isEmail(String input) {
+        return input != null && input.contains("@") && input.contains(".");
     }
 }
