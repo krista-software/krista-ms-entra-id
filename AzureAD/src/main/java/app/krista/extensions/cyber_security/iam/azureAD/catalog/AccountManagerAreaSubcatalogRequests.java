@@ -84,7 +84,7 @@ public class AccountManagerAreaSubcatalogRequests {
             description = "Handle reenter Get User Details by ID or Email",
             type = CatalogRequest.Type.CHANGE_SYSTEM
     )
-    @Field.Desc(name = "Result", type = "[Entity]", required = false)
+    @Field.Desc(name = "Result", type = "Entity", required = false)
     @SuppressWarnings("unchecked")
     public ExtensionResponse handleReenterGetUserDetailsByIDOrEmail(
             @Field.Desc(name = "inputMap", type = "{stateId: Text, Id: Text }") Map<String, Object> map) {
