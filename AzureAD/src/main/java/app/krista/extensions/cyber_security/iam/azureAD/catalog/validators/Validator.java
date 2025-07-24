@@ -9,7 +9,16 @@ import java.util.Map;
 public interface Validator {
 
     enum ValidationResource {
-        ID
+        ID,
+        EMAIL,
+        USER_MAIL_OR_ID,
+        USER_MAIL_OR_ID_REMOVE_GROUP,
+        GROUP_OBJECT_ID,
+        USER_MAIL_OR_ID_ADD_GROUP,
+        GROUP_OBJECT_ID_ADD_GROUP,
+        NAME_UPDATE_ACCOUNT,
+        MOBILE_NUMBER_UPDATE_ACCOUNT,
+        EMAIL_UPDATE_ACCOUNT
     }
 
     /**

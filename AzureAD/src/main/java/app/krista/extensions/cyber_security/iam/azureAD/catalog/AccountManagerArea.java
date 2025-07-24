@@ -10,15 +10,19 @@ import app.krista.extension.impl.anno.Domain;
 import app.krista.extension.impl.anno.Field;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.GetUserDetailsByIdOrEmailHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.DeleteAccountHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.ActivateDeactivateAccountHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.ResetPasswordHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.RemoveAccountFromGroupHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.AddAccountToGroupHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.UpdateAccountHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
-import com.microsoft.graph.core.ClientException;
-import com.microsoft.graph.http.GraphServiceException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +40,28 @@ class AccountManagerArea {
     public static final String MESSAGE = "Message";
     private final Accounts account;
     private final GetUserDetailsByIdOrEmailHelper getUserDetailsHelper;
+    private final DeleteAccountHelper deleteAccountHelper;
+    private final ActivateDeactivateAccountHelper activateDeactivateAccountHelper;
+    private final ResetPasswordHelper resetPasswordHelper;
+    private final RemoveAccountFromGroupHelper removeAccountFromGroupHelper;
+    private final AddAccountToGroupHelper addAccountToGroupHelper;
+    private final UpdateAccountHelper updateAccountHelper;
+
     private static final Logger logger = LoggerFactory.getLogger(AccountManagerArea.class);
 
     @Inject
-    public AccountManagerArea(AccountImpl account, GetUserDetailsByIdOrEmailHelper getUserDetailsHelper) {
+    public AccountManagerArea(AccountImpl account, GetUserDetailsByIdOrEmailHelper getUserDetailsHelper,
+                              DeleteAccountHelper deleteAccountHelper, ActivateDeactivateAccountHelper activateDeactivateAccountHelper,
+                              ResetPasswordHelper resetPasswordHelper, RemoveAccountFromGroupHelper removeAccountFromGroupHelper,
+                              AddAccountToGroupHelper addAccountToGroupHelper, UpdateAccountHelper updateAccountHelper) {
         this.account = account;
         this.getUserDetailsHelper = getUserDetailsHelper;
+        this.deleteAccountHelper = deleteAccountHelper;
+        this.activateDeactivateAccountHelper = activateDeactivateAccountHelper;
+        this.resetPasswordHelper = resetPasswordHelper;
+        this.removeAccountFromGroupHelper = removeAccountFromGroupHelper;
+        this.addAccountToGroupHelper = addAccountToGroupHelper;
+        this.updateAccountHelper = updateAccountHelper;
     }
 
 
@@ -56,13 +76,8 @@ class AccountManagerArea {
     public ExtensionResponse activateOrDeactivateAnAccount(
             @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Set to true to deactivate the account, false to activate it")}, options = {}) Boolean deactivate,
             @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Azure AD")}, options = {}) String userMailOrID) {
-        try {
-            boolean accountStatus = account.activateOrDeactivateAccount(userMailOrID, deactivate);
-            String statusMessage = deactivate ? "Deactivated" : "Activated";
-            Map<String, Object> result = Map.of(
-                    ACCOUNT_STATUS, accountStatus,
-                    MESSAGE, "Account " + statusMessage + " Successfully");
-            return new ExtensionResponseBuilder().success(result).build();
+        try {;
+           return activateDeactivateAccountHelper.activateOrDeactivateAccountWithValidation(userMailOrID, deactivate);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
@@ -105,8 +120,7 @@ class AccountManagerArea {
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to add to the group")}, options = {}) String userMailOrId,
             @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format)")}, options = {}) String groupObjectId) {
         try {
-            Map<String, Object> result = account.addAccountToGroup(userMailOrId, groupObjectId);
-            return new ExtensionResponseBuilder().success(Map.of("Account Info", result)).build();
+           return addAccountToGroupHelper.addAccountToGroupWithValidation(userMailOrId, groupObjectId);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
@@ -126,8 +140,7 @@ class AccountManagerArea {
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to remove from the group")}, options = {}) String userMailOrId,
             @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format) to remove the user from")}, options = {}) String groupObjectId) {
         try {
-            Boolean removed = account.removeAccountFromGroup(userMailOrId, groupObjectId);
-            return new ExtensionResponseBuilder().success(Map.of("Removed", removed)).build();
+            return removeAccountFromGroupHelper.removeAccountFromGroupWithValidation(userMailOrId, groupObjectId);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
@@ -161,6 +174,7 @@ class AccountManagerArea {
         }
     }
 
+    //Json issue
     @CatalogRequest(
             id = "localDomainRequest_05582946-848b-466c-bc41-75f14413dedf",
             name = "Update an Account",
@@ -177,6 +191,7 @@ class AccountManagerArea {
             Account updatedAccount = account.updateUser(
                     Objects.requireNonNullElse(name, ""), Objects.requireNonNullElse(mobileNumber, ""), email, extraField);
             return new ExtensionResponseBuilder().success(Map.of("Updated Entity", updatedAccount)).build();
+            //return updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
@@ -185,6 +200,7 @@ class AccountManagerArea {
         }
     }
 
+    //Done
     @CatalogRequest(
             id = "localDomainRequest_a8cf8efe-56f8-40a7-be91-da8aa945195f",
             name = "Delete an Account",
@@ -195,8 +211,7 @@ class AccountManagerArea {
     public ExtensionResponse deleteAccount(
             @Field(name = "Email", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the email address of the user account to permanently delete from Azure AD")}, options = {}) String email) {
         try {
-            Boolean deleted = account.deleteUser(email);
-            return new ExtensionResponseBuilder().success(Map.of("Deleted", deleted)).build();
+            return deleteAccountHelper.deleteAccountWithValidation(email);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
@@ -205,6 +220,7 @@ class AccountManagerArea {
         }
     }
 
+    //Done
     @CatalogRequest(
             id = "localDomainRequest_720edeff-9823-4597-b208-921835e1d960",
             name = "Get User Details by ID or Email",
@@ -223,7 +239,7 @@ class AccountManagerArea {
             return new ExtensionResponseBuilder().success(Map.of("Result", new Account())).build();
         }
     }
-
+    //Done
     @CatalogRequest(
             id = "localDomainRequest_57ac8a99-063f-4391-bd6b-25b52f94137e",
             name = "Reset Password",
@@ -233,48 +249,13 @@ class AccountManagerArea {
     @Field(name = "Password", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns the new temporary password generated for the user (user must change this password on next login)")}, options = {})
     public ExtensionResponse resetPassword(
             @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to reset their password and generate a temporary password")}, options = {}) String id) {
-        final int maxAttempts = 3;
-        int attempts = 0;
-        int backoffTime = 3000; // initial backoff time in milliseconds
-
-        while (attempts < maxAttempts) {
-            try {
-                String password = account.resetPassword(id);
-                return new ExtensionResponseBuilder().success(Map.of("Password", password)).build();
-            } catch (ClientException cause) {
-                Throwable rootCause = cause.getCause();
-
-                if (rootCause instanceof GraphServiceException) {
-                    GraphServiceException graphEx = (GraphServiceException) rootCause;
-                    int statusCode = graphEx.getResponseCode();
-                    if (statusCode == Response.Status.FORBIDDEN.getStatusCode()) {
-                        attempts++;
-                        if (attempts < maxAttempts) {
-                            sleepWithBackoff(backoffTime);
-                            backoffTime *= 2; // exponential backoff
-                        } else {
-                            logger.error("Max attempts reached. Error occurred while resetting password: {}", cause.getMessage(), cause);
-                            return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
-                        }
-                    } else {
-                        logger.error("GraphServiceException occurred while resetting password: {}", cause.getMessage(), cause);
-                        return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
-                    }
-                } else {
-                    logger.error("Unexpected error occurred while resetting password: {}", cause.getMessage(), cause);
-                    return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
-                }
-            }
-        }
-        return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
-    }
-
-    private void sleepWithBackoff(int backoffTime) {
         try {
-            Thread.sleep(backoffTime);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            logger.error("Thread interrupted during sleep: {}", e.getMessage(), e);
+            return resetPasswordHelper.resetPasswordWithValidation(id);
+        } catch (MustAuthorizeException authorizeException) {
+            throw authorizeException;
+        } catch (Exception cause) {
+            logger.error("Error Occurred during Reset Password : {}", cause.getMessage(), cause);
+            return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
         }
     }
 }

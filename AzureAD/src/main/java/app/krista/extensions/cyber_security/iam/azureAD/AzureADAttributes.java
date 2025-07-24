@@ -48,12 +48,17 @@ public final class AzureADAttributes {
 
     public static AzureADAttributes create(JsonObject authPayload, String baseurl) {
         String authType = authPayload.get("authType").getAsString();
+        // Handle allowMailAlert field with null-safe access and default value
+        boolean allowMailAlert = authPayload.has(ALLOW_MAIL_ALERT) &&
+                                 authPayload.get(ALLOW_MAIL_ALERT) != null &&
+                                 authPayload.get(ALLOW_MAIL_ALERT).getAsBoolean();
+
         if (Constants.PUBLIC.equals(authType)) {
             return new AzureADAttributes(null, null, null, authPayload.get(EMAIL).getAsString(),
-                    authPayload.get(ALLOW_MAIL_ALERT).getAsBoolean(), authType, baseurl);
+                    allowMailAlert, authType, baseurl);
         } else if (Constants.PRIVATE.equals(authType)) {
             return new AzureADAttributes(authPayload.get(CLIENT_ID).getAsString(), authPayload.get(CLIENT_SECRET).getAsString(),
-                    authPayload.get(TENANT_ID).getAsString(), authPayload.get(EMAIL).getAsString(), authPayload.get(ALLOW_MAIL_ALERT).getAsBoolean(),
+                    authPayload.get(TENANT_ID).getAsString(), authPayload.get(EMAIL).getAsString(), allowMailAlert,
                     authType, baseurl);
         } else {
             throw new IllegalArgumentException(UNSUPPORTED_AUTH);

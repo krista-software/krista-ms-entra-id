@@ -11,7 +11,8 @@ import java.util.Map;
  * Factory for creating named fields for the UI.
  */
 public class NamedFieldFactory {
-    private NamedFieldFactory() {}
+    private NamedFieldFactory() {
+    }
 
     /**
      * Creates a text field with the given name.

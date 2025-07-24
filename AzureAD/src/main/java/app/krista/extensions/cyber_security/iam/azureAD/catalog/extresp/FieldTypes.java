@@ -2,7 +2,8 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp;
 
 public class FieldTypes {
 
-    private FieldTypes(){}
+    private FieldTypes() {
+    }
 
     // Basic field types
     public static final String TEXT_FIELD_LOGICAL_NAME = "com.krista.fields.Text";
