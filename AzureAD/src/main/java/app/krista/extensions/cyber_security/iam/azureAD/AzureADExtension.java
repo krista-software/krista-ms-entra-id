@@ -48,8 +48,7 @@ public class AzureADExtension {
 
     @InvokerRequest(InvokerRequest.Type.INVOKER_REMOVED)
     public void invokerRemoved() {
-        // TODO: Add any cleanup logic here if needed for AzureAD subscriptions or resources
-        // Similar to MailSubscription.deleteSubscription(routingUrl, providerFactory.create()) in Outlook
+        // Add any cleanup logic here if needed for AzureAD subscriptions or resources
     }
 }
 

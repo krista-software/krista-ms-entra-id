@@ -1,4 +1,8 @@
-apply plugin: 'java-library'
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id("io.github.surpsg.code-lines") version "0.0.1"
+}
 jar.archiveBaseName = "AzureAD-extension"
 group 'app.krista.extensions.essentials.collaboration'
 version '2.0.6'
@@ -9,7 +13,7 @@ if (rootProject.file('buildnr.txt').canRead()) {
     ext.buildnr = "0";
 }
 
-task updateVersion {
+tasks.register('updateVersion') {
     doFirst {
         project.ext.newbuildnr = Integer.parseInt(project.ext.buildnr) + 1
         print "Building extension version: " + version as String + "-" + project.ext.newbuildnr
@@ -56,20 +60,21 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
 
     testImplementation 'com.kristasoft.common:common-test:1.0.37'
-    testImplementation 'app.krista:krista-apis:1.0.92'
+    testImplementation 'app.krista:krista-apis:1.0.115'
+
 }
 
-task createSourceDir(type: Exec) {
+tasks.register('createSourceDir', Exec) {
     dependsOn processResources
     commandLine "mkdir", "-p", "$projectDir/build/classes/java/main/META-INF/project"
 }
 
-task copyGradleFile(type: Exec) {
+tasks.register('copyGradleFile', Exec) {
     dependsOn createSourceDir
     commandLine "cp", "$projectDir/build.gradle", "$projectDir/build/classes/java/main/META-INF/project/build.gradle"
 }
 
-task includeSources(type: Exec) {
+tasks.register('includeSources', Exec) {
     dependsOn copyGradleFile
     commandLine "cp", "-r", "$projectDir/src", "$projectDir/build/classes/java/main/META-INF/project/src"
 }
@@ -84,4 +89,8 @@ jar {
     }
     exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
     duplicatesStrategy = "exclude"
+}
+
+test {
+    useJUnitPlatform()
 }

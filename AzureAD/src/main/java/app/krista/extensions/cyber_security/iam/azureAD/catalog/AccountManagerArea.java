@@ -17,6 +17,7 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.RemoveAc
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.AddAccountToGroupHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.UpdateAccountHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.CreateAccountHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.TelemetryHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 
@@ -27,7 +28,6 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Domain(id = "catEntryDomain_5fd12694-66b1-4cd2-8141-c41f02716c3a",
         name = "IAM",
@@ -48,6 +48,7 @@ class AccountManagerArea {
     private final AddAccountToGroupHelper addAccountToGroupHelper;
     private final UpdateAccountHelper updateAccountHelper;
     private final CreateAccountHelper createAccountHelper;
+    private final TelemetryHelper telemetryHelper;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountManagerArea.class);
 
@@ -56,7 +57,7 @@ class AccountManagerArea {
                               DeleteAccountHelper deleteAccountHelper, ActivateDeactivateAccountHelper activateDeactivateAccountHelper,
                               ResetPasswordHelper resetPasswordHelper, RemoveAccountFromGroupHelper removeAccountFromGroupHelper,
                               AddAccountToGroupHelper addAccountToGroupHelper, UpdateAccountHelper updateAccountHelper,
-                              CreateAccountHelper createAccountHelper) {
+                              CreateAccountHelper createAccountHelper, TelemetryHelper telemetryHelper) {
         this.account = account;
         this.getUserDetailsHelper = getUserDetailsHelper;
         this.deleteAccountHelper = deleteAccountHelper;
@@ -66,6 +67,7 @@ class AccountManagerArea {
         this.addAccountToGroupHelper = addAccountToGroupHelper;
         this.updateAccountHelper = updateAccountHelper;
         this.createAccountHelper = createAccountHelper;
+        this.telemetryHelper = telemetryHelper;
     }
 
 
@@ -80,11 +82,18 @@ class AccountManagerArea {
     public ExtensionResponse activateOrDeactivateAnAccount(
             @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Set to true to deactivate the account, false to activate it")}, options = {}) Boolean deactivate,
             @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Azure AD")}, options = {}) String userMailOrID) {
-        try {;
-           return activateDeactivateAccountHelper.activateOrDeactivateAccountWithValidation(userMailOrID, deactivate);
+
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("activateOrDeactivateAnAccount");
+
+        try {
+            ExtensionResponse response = activateDeactivateAccountHelper.activateOrDeactivateAccountWithValidation(userMailOrID, deactivate);
+            operation.recordSuccess(1);
+            return response;
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Activate or Deactivate an Account : {}", cause.getMessage(), cause);
             Map<String, Object> errorResult = Map.of(
                     ACCOUNT_STATUS, false,
@@ -101,13 +110,18 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Group List", type = "[ { Group Mail Id: Text, Group Id: Text } ]", required = false)
     public ExtensionResponse getListOfGroups() {
+
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("getListOfGroups");
         logger.debug("Get List of Groups Initiated");
         try {
             List<Map<String, String>> groups = account.getAllGroups();
+            operation.recordSuccess(groups.size());
             return new ExtensionResponseBuilder().success(Map.of("Group List", groups)).build();
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Get List of Groups : {}", cause.getMessage(), cause);
             return new ExtensionResponseBuilder().success(Map.of("Group List", Collections.emptyList())).build();
         }
@@ -123,11 +137,18 @@ class AccountManagerArea {
     public ExtensionResponse addAnAccountToGroup(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to add to the group")}, options = {}) String userMailOrId,
             @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format)")}, options = {}) String groupObjectId) {
+
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("addAnAccountToGroup");
+
         try {
-           return addAccountToGroupHelper.addAccountToGroupWithValidation(userMailOrId, groupObjectId);
+            ExtensionResponse response = addAccountToGroupHelper.addAccountToGroupWithValidation(userMailOrId, groupObjectId);
+            operation.recordSuccess(1);
+            return response;
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Add an Account to Group : {}", cause.getMessage(), cause);
             return new ExtensionResponseBuilder().success(Map.of("Account Info", Collections.emptyMap())).build();
         }
@@ -143,11 +164,18 @@ class AccountManagerArea {
     public ExtensionResponse removeGroupFromAccount(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to remove from the group")}, options = {}) String userMailOrId,
             @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format) to remove the user from")}, options = {}) String groupObjectId) {
+
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("removeGroupFromAccount");
+
         try {
-            return removeAccountFromGroupHelper.removeAccountFromGroupWithValidation(userMailOrId, groupObjectId);
+            ExtensionResponse response = removeAccountFromGroupHelper.removeAccountFromGroupWithValidation(userMailOrId, groupObjectId);
+            operation.recordSuccess(1);
+            return response;
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Remove an Account from Group : {}", cause.getMessage(), cause);
             return new ExtensionResponseBuilder().success(Map.of("Removed", false)).build();
         }
@@ -166,11 +194,17 @@ class AccountManagerArea {
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field(name = "Mobile Number", type = "Text", required = true, attributes = {}, options = {}) String mobileNumber,
             @Field.Desc(name = "Extra Fields", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraFields) {
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("createAccount");
+
         try {
-            return createAccountHelper.createAccountWithValidation(name, email, mobileNumber, extraFields);
+            ExtensionResponse response = createAccountHelper.createAccountWithValidation(name, email, mobileNumber, extraFields);
+            operation.recordSuccess(1);
+            return response;
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Create an Account : {}", cause.getMessage(), cause);
             Map<String, Object> errorResult = Map.of("User Id", "", "Default Password", "");
             return new ExtensionResponseBuilder().success(errorResult).build();
@@ -189,11 +223,18 @@ class AccountManagerArea {
             @Field(name = "Mobile Number", type = "Text", required = false, attributes = {}, options = {}) String mobileNumber,
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field.Desc(name = "Extra Field", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraField) {
+
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("updateAccount");
+
         try {
-            return updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
+            ExtensionResponse response = updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
+            operation.recordSuccess(1);
+            return response;
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Update an Account : {}", cause.getMessage(), cause);
             return new ExtensionResponseBuilder().success(Map.of("Updated Entity", new Account())).build();
         }
@@ -208,11 +249,17 @@ class AccountManagerArea {
     @Field(name = "Deleted", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns true if the user account was successfully deleted from Azure AD, false if the operation failed")}, options = {})
     public ExtensionResponse deleteAccount(
             @Field(name = "Email", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the email address of the user account to permanently delete from Azure AD")}, options = {}) String email) {
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("deleteAccount");
+
         try {
-            return deleteAccountHelper.deleteAccountWithValidation(email);
+            ExtensionResponse response = deleteAccountHelper.deleteAccountWithValidation(email);
+            operation.recordSuccess(1);
+            return response;
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Delete an Account : {}", cause.getMessage(), cause);
             return new ExtensionResponseBuilder().success(Map.of("Deleted", false)).build();
         }
@@ -227,11 +274,17 @@ class AccountManagerArea {
     @Field.Desc(name = "Result", type = "Entity(Account)", required = false)
     public ExtensionResponse getUserDetailsByIDOrEmail(
             @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to retrieve their account details")}, options = {}) String id) {
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("getUserDetailsByIDOrEmail");
+
         try {
-            return getUserDetailsHelper.getUserDetailsByIdOrEmailWithValidation(id);
+            ExtensionResponse response = getUserDetailsHelper.getUserDetailsByIdOrEmailWithValidation(id);
+            operation.recordSuccess(1);
+            return response;
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Get User Details by ID or Email : {}", cause.getMessage(), cause);
             return new ExtensionResponseBuilder().success(Map.of("Result", new Account())).build();
         }
@@ -246,11 +299,17 @@ class AccountManagerArea {
     @Field(name = "Password", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns the new temporary password generated for the user (user must change this password on next login)")}, options = {})
     public ExtensionResponse resetPassword(
             @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to reset their password and generate a temporary password")}, options = {}) String id) {
+        TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("resetPassword");
+
         try {
-            return resetPasswordHelper.resetPasswordWithValidation(id);
+            ExtensionResponse response = resetPasswordHelper.resetPasswordWithValidation(id);
+            operation.recordSuccess(1);
+            return response;
         } catch (MustAuthorizeException authorizeException) {
+            operation.recordFailure(authorizeException);
             throw authorizeException;
         } catch (Exception cause) {
+            operation.recordFailure(cause);
             logger.error("Error Occurred during Reset Password : {}", cause.getMessage(), cause);
             return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
         }
