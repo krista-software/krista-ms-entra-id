@@ -42,4 +42,8 @@ public class SubCatalogConstants {
     public static final String CONFIRM_UPDATE_ACCOUNT_VALIDATION = "confirmUpdateAccountValidation";
     public static final String HANDLE_UPDATE_ACCOUNT_VALIDATION = "handleUpdateAccountValidation";
 
+    // Create Account validation constants
+    public static final String CONFIRM_CREATE_ACCOUNT_VALIDATION = "confirmCreateAccountValidation";
+    public static final String HANDLE_CREATE_ACCOUNT_VALIDATION = "handleCreateAccountValidation";
+
 }

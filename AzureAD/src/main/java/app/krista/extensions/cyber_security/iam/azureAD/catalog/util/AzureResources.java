@@ -11,5 +11,8 @@ public class AzureResources {
     public static final String NAME_UPDATE_ACCOUNT = "Name";
     public static final String MOBILE_NUMBER_UPDATE_ACCOUNT = "Mobile Number";
     public static final String EMAIL_UPDATE_ACCOUNT = "Email";
+    public static final String NAME_CREATE_ACCOUNT = "Name";
+    public static final String MOBILE_NUMBER_CREATE_ACCOUNT = "Mobile Number";
+    public static final String EMAIL_CREATE_ACCOUNT = "Email";
 }
 

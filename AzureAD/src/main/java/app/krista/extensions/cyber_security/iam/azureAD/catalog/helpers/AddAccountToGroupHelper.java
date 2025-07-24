@@ -112,20 +112,13 @@ public class AddAccountToGroupHelper {
         internalStateManager.put(stateId, Constants.GSON.toJson(stateMap));
         LOGGER.debug("Validation failed, generating confirmation response");
 
-        // Only include failed fields in the confirmation response
-        Map<String, Object> map = Map.of(SubCatalogConstants.STATE_ID, stateId);
+        // Include all fields in the confirmation response to preserve valid values
+        Map<String, Object> map = new HashMap<>();
+        map.put(SubCatalogConstants.STATE_ID, stateId);
 
-        // Add only the fields that failed validation
-        for (ValidationOrchestrator.ValidationResult result : validationResults) {
-            if (AzureResources.USER_MAIL_OR_ID_ADD_GROUP.equals(result.getFetchFieldName())) {
-                map = new HashMap<>(map);
-                map.put(AzureResources.USER_MAIL_OR_ID_ADD_GROUP, userMailOrId != null ? userMailOrId : "");
-            }
-            if (AzureResources.GROUP_OBJECT_ID_ADD_GROUP.equals(result.getFetchFieldName())) {
-                map = new HashMap<>(map);
-                map.put(AzureResources.GROUP_OBJECT_ID_ADD_GROUP, groupObjectId != null ? groupObjectId : "");
-            }
-        }
+        // Always include both fields to preserve valid values during re-entry flow
+        map.put(AzureResources.USER_MAIL_OR_ID_ADD_GROUP, userMailOrId != null ? userMailOrId : "");
+        map.put(AzureResources.GROUP_OBJECT_ID_ADD_GROUP, groupObjectId != null ? groupObjectId : "");
 
         LOGGER.debug("Validation failed, generated confirmation response map: {}", map);
 
