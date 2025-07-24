@@ -15,6 +15,7 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.ResetPas
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.RemoveAccountFromGroupHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.AddAccountToGroupHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.UpdateAccountHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.CreateAccountHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.ValidationOrchestrator;
@@ -44,6 +45,7 @@ public class AccountManagerAreaSubcatalogRequests {
     private final RemoveAccountFromGroupHelper removeAccountFromGroupHelper;
     private final AddAccountToGroupHelper addAccountToGroupHelper;
     private final UpdateAccountHelper updateAccountHelper;
+    private final CreateAccountHelper createAccountHelper;
 
     @Inject
     public AccountManagerAreaSubcatalogRequests(ExtensionResponseGenerator responseGenerator,
@@ -55,7 +57,8 @@ public class AccountManagerAreaSubcatalogRequests {
                                                 ResetPasswordHelper resetPasswordHelper,
                                                 RemoveAccountFromGroupHelper removeAccountFromGroupHelper,
                                                 AddAccountToGroupHelper addAccountToGroupHelper,
-                                                UpdateAccountHelper updateAccountHelper) {
+                                                UpdateAccountHelper updateAccountHelper,
+                                                CreateAccountHelper createAccountHelper) {
         this.responseGenerator = responseGenerator;
         this.internalStateManager = internalStateManager;
         this.validationOrchestrator = validationOrchestrator;
@@ -66,6 +69,7 @@ public class AccountManagerAreaSubcatalogRequests {
         this.removeAccountFromGroupHelper = removeAccountFromGroupHelper;
         this.addAccountToGroupHelper = addAccountToGroupHelper;
         this.updateAccountHelper = updateAccountHelper;
+        this.createAccountHelper = createAccountHelper;
 
         LOGGER.info("AccountManagerArea Sub catalog Requests constructor completed");
     }
@@ -262,8 +266,6 @@ public class AccountManagerAreaSubcatalogRequests {
         LOGGER.debug("handleDeleteAccountValidation() - Completed successfully");
         return response;
     }
- // Uncommenting all from this
-
 
     @SubCatalogRequest(
             name = SubCatalogConstants.CONFIRM_ACTIVATE_DEACTIVATE_ACCOUNT_VALIDATION,
@@ -563,88 +565,160 @@ public class AccountManagerAreaSubcatalogRequests {
         return response;
     }
 
-     //issue is here so commenting this
-//    @SubCatalogRequest(
-//            name = SubCatalogConstants.CONFIRM_UPDATE_ACCOUNT_VALIDATION,
-//            description = "Checks if user wants to re-enter Name, Mobile Number, and Email for update account and validates them",
-//            type = CatalogRequest.Type.QUERY_SYSTEM
-//    )
-//    public ExtensionResponse confirmUpdateAccountValidation(@Field.Desc(
-//            name = "inputMap",
-//            type = "{ Reenter: Boolean, stateId: Text, Name: Text, \"Mobile Number\": Text, Email: Text }",
-//            required = true) Map<String, Object> map) {
-//
-//        LOGGER.debug("confirmUpdateAccountValidation() - Starting with input map: {}", map);
-//
-//        Boolean reenter = (Boolean) map.get(SubCatalogConstants.REENTER);
-//        String stateId = (String) map.get(SubCatalogConstants.STATE_ID);
-//
-//        LOGGER.debug("confirmUpdateAccountValidation() - Reenter: {}, stateId: {}", reenter, stateId);
-//        List<ValidationOrchestrator.ValidationResult> validationResults = getValidationResults(stateId);
-//
-//        if (Boolean.FALSE.equals(reenter)) {
-//            internalStateManager.clear(stateId);
-//            return responseGenerator.generateFetchDenyResponse(
-//                    ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
-//                    validationResults,
-//                    null,
-//                    Map.of());
-//        }
-//        return responseGenerator.generateFetchResponse(
-//                ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
-//                validationResults,
-//                SubCatalogConstants.HANDLE_UPDATE_ACCOUNT_VALIDATION,
-//                map);
-//    }
-//
-//    @SubCatalogRequest(
-//            name = SubCatalogConstants.HANDLE_UPDATE_ACCOUNT_VALIDATION,
-//            description = "Handle reenter Update Account validation",
-//            type = CatalogRequest.Type.CHANGE_SYSTEM
-//    )
-//    @Field.Desc(name = "Updated Entity", type = "Entity(Account)", required = false)
-//    @SuppressWarnings("unchecked")
-//    public ExtensionResponse handleUpdateAccountValidation(
-//            @Field.Desc(name = "inputMap", type = "{stateId: Text, Name: Text, \"Mobile Number\": Text, Email: Text }") Map<String, Object> map) {
-//
-//        LOGGER.debug("handleUpdateAccountValidation() - Full input map contents: {}", map);
-//        for (Map.Entry<String, Object> entry : map.entrySet()) {
-//            LOGGER.debug("Key: '{}', Value: '{}', Value type: {}",
-//                    entry.getKey(), entry.getValue(),
-//                    entry.getValue() != null ? entry.getValue().getClass().getSimpleName() : "null");
-//        }
-//
-//        String name = (String) map.get(AzureResources.NAME_UPDATE_ACCOUNT);
-//        String mobileNumber = (String) map.get(AzureResources.MOBILE_NUMBER_UPDATE_ACCOUNT);
-//        String email = (String) map.get(AzureResources.EMAIL_UPDATE_ACCOUNT);
-//        LOGGER.debug("handleUpdateAccountValidation() - Extracted parameters: NAME={}, MOBILE_NUMBER={}, EMAIL={}", name, mobileNumber, email);
-//
-//        // Validate the re-entered data
-//        List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(
-//                Map.of(
-//                        Validator.ValidationResource.NAME_UPDATE_ACCOUNT, name != null ? name : "",
-//                        Validator.ValidationResource.MOBILE_NUMBER_UPDATE_ACCOUNT, mobileNumber != null ? mobileNumber : "",
-//                        Validator.ValidationResource.EMAIL_UPDATE_ACCOUNT, email != null ? email : ""
-//                )
-//        );
-//        LOGGER.debug("handleUpdateAccountValidation() - Validation results: {} errors", validationResults.size());
-//
-//        // If validation still fails, return a permanent error response instead of allowing another retry
-//        if (!validationResults.isEmpty()) {
-//            LOGGER.debug("handleUpdateAccountValidation() - Validation failed again after re-entry for NAME: {}, MOBILE_NUMBER: {}, EMAIL: {}", name, mobileNumber, email);
-//            ExtensionResponse.Error error = new ErrorBuilder()
-//                    .exceptionType(ExtensionResponse.Error.ExceptionType.INPUT_ERROR)
-//                    .errorMessage("The provided Name, Mobile Number, and/or Email are still invalid. Please try again with a new request.")
-//                    .build();
-//            return new ExtensionResponseBuilder()
-//                    .failure(error)
-//                    .build();
-//        }
-//
-//        LOGGER.debug("handleUpdateAccountValidation() - Validation passed, updating account");
-//        ExtensionResponse response = updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
-//        LOGGER.debug("handleUpdateAccountValidation() - Completed successfully");
-//        return response;
-//    }
+    @SubCatalogRequest(
+            name = SubCatalogConstants.CONFIRM_UPDATE_ACCOUNT_VALIDATION,
+            description = "Checks if user wants to re-enter Name, Mobile Number, and Email for update account and validates them",
+            type = CatalogRequest.Type.QUERY_SYSTEM
+    )
+    public ExtensionResponse confirmUpdateAccountValidation(@Field.Desc(
+            name = "inputMap",
+            type = "{ Reenter: Boolean, stateId: Text, Name: Text, Mobile Number: Text, Email: Text }",
+            required = true) Map<String, Object> map) {
+
+        LOGGER.debug("confirmUpdateAccountValidation() - Starting with input map: {}", map);
+
+        Boolean reenter = (Boolean) map.get(SubCatalogConstants.REENTER);
+        String stateId = (String) map.get(SubCatalogConstants.STATE_ID);
+
+        LOGGER.debug("confirmUpdateAccountValidation() - Reenter: {}, stateId: {}", reenter, stateId);
+        List<ValidationOrchestrator.ValidationResult> validationResults = getValidationResults(stateId);
+
+        if (Boolean.FALSE.equals(reenter)) {
+            internalStateManager.clear(stateId);
+            return responseGenerator.generateFetchDenyResponse(
+                    ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
+                    validationResults,
+                    null,
+                    Map.of());
+        }
+        return responseGenerator.generateFetchResponse(
+                ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
+                validationResults,
+                SubCatalogConstants.HANDLE_UPDATE_ACCOUNT_VALIDATION,
+                map);
+    }
+
+    @SubCatalogRequest(
+            name = SubCatalogConstants.HANDLE_UPDATE_ACCOUNT_VALIDATION,
+            description = "Handle reenter Update Account validation",
+            type = CatalogRequest.Type.CHANGE_SYSTEM
+    )
+    @Field.Desc(name = "Updated Entity", type = "Entity(Account)", required = false)
+    @SuppressWarnings("unchecked")
+    public ExtensionResponse handleUpdateAccountValidation(
+            @Field.Desc(name = "inputMap", type = "{stateId: Text, Name: Text,Mobile Number : Text, Email: Text }") Map<String, Object> map) {
+
+        LOGGER.debug("handleUpdateAccountValidation() - Full input map contents: {}", map);
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            LOGGER.debug("Key: '{}', Value: '{}', Value type: {}",
+                    entry.getKey(), entry.getValue(),
+                    entry.getValue() != null ? entry.getValue().getClass().getSimpleName() : "null");
+        }
+
+        String name = (String) map.get(AzureResources.NAME_UPDATE_ACCOUNT);
+        String mobileNumber = (String) map.get(AzureResources.MOBILE_NUMBER_UPDATE_ACCOUNT);
+        String email = (String) map.get(AzureResources.EMAIL_UPDATE_ACCOUNT);
+        LOGGER.debug("handleUpdateAccountValidation() - Extracted parameters: NAME={}, MOBILE_NUMBER={}, EMAIL={}", name, mobileNumber, email);
+
+        // Validate the re-entered data
+        List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(
+                Map.of(
+                        Validator.ValidationResource.NAME_UPDATE_ACCOUNT, name != null ? name : "",
+                        Validator.ValidationResource.MOBILE_NUMBER_UPDATE_ACCOUNT, mobileNumber != null ? mobileNumber : "",
+                        Validator.ValidationResource.EMAIL_UPDATE_ACCOUNT, email != null ? email : ""
+                )
+        );
+        LOGGER.debug("handleUpdateAccountValidation() - Validation results: {} errors", validationResults.size());
+
+        // If validation still fails, return a permanent error response instead of allowing another retry
+        if (!validationResults.isEmpty()) {
+            LOGGER.debug("handleUpdateAccountValidation() - Validation failed again after re-entry for NAME: {}, MOBILE_NUMBER: {}, EMAIL: {}", name, mobileNumber, email);
+            ExtensionResponse.Error error = new ErrorBuilder()
+                    .exceptionType(ExtensionResponse.Error.ExceptionType.INPUT_ERROR)
+                    .errorMessage("The provided Name, Mobile Number, and/or Email are still invalid. Please try again with a new request.")
+                    .build();
+            return new ExtensionResponseBuilder()
+                    .failure(error)
+                    .build();
+        }
+
+        LOGGER.debug("handleUpdateAccountValidation() - Validation passed, updating account");
+        ExtensionResponse response = updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
+        LOGGER.debug("handleUpdateAccountValidation() - Completed successfully");
+        return response;
+    }
+
+    @SubCatalogRequest(
+            name = SubCatalogConstants.CONFIRM_CREATE_ACCOUNT_VALIDATION,
+            description = "Checks if user wants to re-enter Name, Email, and Mobile Number for create account and validates them",
+            type = CatalogRequest.Type.QUERY_SYSTEM
+    )
+    public ExtensionResponse confirmCreateAccountValidation(@Field.Desc(
+            name = "inputMap",
+            type = "{ Reenter: Boolean, stateId: Text, Name: Text, Email: Text, Mobile Number: Text }",
+            required = true) Map<String, Object> map) {
+
+        LOGGER.debug("confirmCreateAccountValidation() - Starting with input map: {}", map);
+
+        Boolean reenter = (Boolean) map.get(SubCatalogConstants.REENTER);
+        String stateId = (String) map.get(SubCatalogConstants.STATE_ID);
+
+        LOGGER.debug("confirmCreateAccountValidation() - Reenter: {}, stateId: {}", reenter, stateId);
+        List<ValidationOrchestrator.ValidationResult> validationResults = getValidationResults(stateId);
+
+        if (Boolean.FALSE.equals(reenter)) {
+            internalStateManager.clear(stateId);
+            return responseGenerator.generateFetchDenyResponse(
+                    ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
+                    validationResults,
+                    null,
+                    Map.of());
+        }
+        return responseGenerator.generateFetchResponse(
+                ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
+                validationResults,
+                SubCatalogConstants.HANDLE_CREATE_ACCOUNT_VALIDATION,
+                map);
+    }
+
+    @SubCatalogRequest(
+            name = SubCatalogConstants.HANDLE_CREATE_ACCOUNT_VALIDATION,
+            description = "Handle reenter Create Account validation",
+            type = CatalogRequest.Type.CHANGE_SYSTEM
+    )
+    @Field(name = "User Id", type = "Text", required = false)
+    @Field(name = "Default Password", type = "Text", required = false)
+    @SuppressWarnings("unchecked")
+    public ExtensionResponse handleCreateAccountValidation(
+            @Field.Desc(name = "inputMap", type = "{stateId: Text, Name: Text, Email: Text, Mobile Number: Text }") Map<String, Object> map) {
+
+        LOGGER.debug("handleCreateAccountValidation() - Full input map contents: {}", map);
+
+        String name = (String) map.get(AzureResources.NAME_CREATE_ACCOUNT);
+        String email = (String) map.get(AzureResources.EMAIL_CREATE_ACCOUNT);
+        String mobileNumber = (String) map.get(AzureResources.MOBILE_NUMBER_CREATE_ACCOUNT);
+        LOGGER.debug("handleCreateAccountValidation() - Extracted parameters: NAME={}, EMAIL={}, MOBILE_NUMBER={}", name, email, mobileNumber);
+
+        // Validate the re-entered data
+        List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(
+                Map.of(
+                        Validator.ValidationResource.NAME_CREATE_ACCOUNT, name != null ? name : "",
+                        Validator.ValidationResource.EMAIL_CREATE_ACCOUNT, email != null ? email : "",
+                        Validator.ValidationResource.MOBILE_NUMBER_CREATE_ACCOUNT, mobileNumber != null ? mobileNumber : ""
+                )
+        );
+        LOGGER.debug("handleCreateAccountValidation() - Validation results: {} errors", validationResults.size());
+
+        // If validation still fails, continue the validation flow by asking for correct values
+        if (!validationResults.isEmpty()) {
+            LOGGER.debug("handleCreateAccountValidation() - Validation failed again after re-entry for NAME: {}, EMAIL: {}, MOBILE_NUMBER: {}", name, email, mobileNumber);
+            return createAccountHelper.handleValidationFailure(validationResults, name, email, mobileNumber);
+        }
+
+        LOGGER.debug("handleCreateAccountValidation() - Validation passed, creating account");
+        ExtensionResponse response = createAccountHelper.createAccountWithValidation(name, email, mobileNumber, null);
+        LOGGER.debug("handleCreateAccountValidation() - Completed successfully");
+        return response;
+    }
 }
 

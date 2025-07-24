@@ -16,6 +16,7 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.ResetPas
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.RemoveAccountFromGroupHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.AddAccountToGroupHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.UpdateAccountHelper;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers.CreateAccountHelper;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
 import app.krista.extensions.cyber_security.iam.azureAD.service.Accounts;
 
@@ -46,6 +47,7 @@ class AccountManagerArea {
     private final RemoveAccountFromGroupHelper removeAccountFromGroupHelper;
     private final AddAccountToGroupHelper addAccountToGroupHelper;
     private final UpdateAccountHelper updateAccountHelper;
+    private final CreateAccountHelper createAccountHelper;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountManagerArea.class);
 
@@ -53,7 +55,8 @@ class AccountManagerArea {
     public AccountManagerArea(AccountImpl account, GetUserDetailsByIdOrEmailHelper getUserDetailsHelper,
                               DeleteAccountHelper deleteAccountHelper, ActivateDeactivateAccountHelper activateDeactivateAccountHelper,
                               ResetPasswordHelper resetPasswordHelper, RemoveAccountFromGroupHelper removeAccountFromGroupHelper,
-                              AddAccountToGroupHelper addAccountToGroupHelper, UpdateAccountHelper updateAccountHelper) {
+                              AddAccountToGroupHelper addAccountToGroupHelper, UpdateAccountHelper updateAccountHelper,
+                              CreateAccountHelper createAccountHelper) {
         this.account = account;
         this.getUserDetailsHelper = getUserDetailsHelper;
         this.deleteAccountHelper = deleteAccountHelper;
@@ -62,6 +65,7 @@ class AccountManagerArea {
         this.removeAccountFromGroupHelper = removeAccountFromGroupHelper;
         this.addAccountToGroupHelper = addAccountToGroupHelper;
         this.updateAccountHelper = updateAccountHelper;
+        this.createAccountHelper = createAccountHelper;
     }
 
 
@@ -163,8 +167,7 @@ class AccountManagerArea {
             @Field(name = "Mobile Number", type = "Text", required = true, attributes = {}, options = {}) String mobileNumber,
             @Field.Desc(name = "Extra Fields", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraFields) {
         try {
-            Map<String, Object> result = account.createUser(name, email, mobileNumber, extraFields);
-            return new ExtensionResponseBuilder().success(result).build();
+            return createAccountHelper.createAccountWithValidation(name, email, mobileNumber, extraFields);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
@@ -174,7 +177,6 @@ class AccountManagerArea {
         }
     }
 
-    //Json issue
     @CatalogRequest(
             id = "localDomainRequest_05582946-848b-466c-bc41-75f14413dedf",
             name = "Update an Account",
@@ -188,10 +190,7 @@ class AccountManagerArea {
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field.Desc(name = "Extra Field", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraField) {
         try {
-            Account updatedAccount = account.updateUser(
-                    Objects.requireNonNullElse(name, ""), Objects.requireNonNullElse(mobileNumber, ""), email, extraField);
-            return new ExtensionResponseBuilder().success(Map.of("Updated Entity", updatedAccount)).build();
-            //return updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
+            return updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
         } catch (MustAuthorizeException authorizeException) {
             throw authorizeException;
         } catch (Exception cause) {
@@ -200,7 +199,6 @@ class AccountManagerArea {
         }
     }
 
-    //Done
     @CatalogRequest(
             id = "localDomainRequest_a8cf8efe-56f8-40a7-be91-da8aa945195f",
             name = "Delete an Account",
@@ -220,7 +218,6 @@ class AccountManagerArea {
         }
     }
 
-    //Done
     @CatalogRequest(
             id = "localDomainRequest_720edeff-9823-4597-b208-921835e1d960",
             name = "Get User Details by ID or Email",
@@ -239,7 +236,7 @@ class AccountManagerArea {
             return new ExtensionResponseBuilder().success(Map.of("Result", new Account())).build();
         }
     }
-    //Done
+
     @CatalogRequest(
             id = "localDomainRequest_57ac8a99-063f-4391-bd6b-25b52f94137e",
             name = "Reset Password",

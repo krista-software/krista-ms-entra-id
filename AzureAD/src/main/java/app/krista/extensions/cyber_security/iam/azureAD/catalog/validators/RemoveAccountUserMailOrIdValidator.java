@@ -170,12 +170,6 @@ public class RemoveAccountUserMailOrIdValidator implements Validator {
         if (user == null) {
             return false;
         }
-
-        // Add any specific business logic for group removal eligibility
-        // For example: check if user is active, not a system account, etc.
-
-        // For now, we'll assume all existing users are eligible for group removal
-        // This can be extended based on business requirements
         return true;
     }
 }
