@@ -14,7 +14,7 @@ import java.util.Map;
 
 
 @Java(version = Java.Version.JAVA_21)
-@Extension(version = "2.0.5-rc4", name = "AzureAD")
+@Extension(version = "2.0.6", name = "AzureAD")
 @StaticResource(path = "docs", file = "docs")
 @StaticResource(path = "ui", file = "ui/build")
 public class AzureADExtension {

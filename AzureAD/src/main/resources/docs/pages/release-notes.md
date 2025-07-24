@@ -1,14 +1,14 @@
 ### Release Notes - Azure AD Extension
 
-## Version 2.0.5
+## Version 2.0.6
 
-- **Krista Service APIs Java** : 1.0.102
-- **Global Catalog Version** : 1.0.53
-- **Appliance Release Version** : 3.4.2
+- **Krista Service APIs Java** : 1.0.115
+- **Global Catalog Version** : 1.0.58
+- **Appliance Release Version** : 3.5.0
 
 ## Enhancement Highlights
 
-#### Key Highlights of Version 2.0.5
+#### Key Highlights of Version 2.0.6
 
 * **Activate or Deactivate an Account** This request allows admin to activate or deactivate account.
 * **Add an Account to Group** Allows admin to add user/account to respective group using group object id and user id or user mail. 
