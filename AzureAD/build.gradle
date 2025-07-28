@@ -61,6 +61,7 @@ dependencies {
 
     testImplementation 'com.kristasoft.common:common-test:1.0.37'
     testImplementation 'app.krista:krista-apis:1.0.115'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 
 }
 

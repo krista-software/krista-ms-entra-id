@@ -54,7 +54,6 @@ public final class AuthenticationResource {
     private final AuthorizationListener authorizationListener;
     private final String baseRoutingUrl;
     private final String invokerId;
-    private final Invoker invoker;
 
     @Inject
     public AuthenticationResource(AzureADAttributesStore azureADAttributesStore, RefreshTokenStore refreshTokenStore,
@@ -67,7 +66,6 @@ public final class AuthenticationResource {
         this.authorizationListener = authorizationListener;
         this.baseRoutingUrl = invoker.getRoutingInfo().getRoutingURL(HttpProtocol.PROTOCOL_NAME, RoutingInfo.Type.APPLIANCE);
         this.invokerId = invoker.getInvokerId();
-        this.invoker = invoker;
     }
 
     @GET
@@ -307,7 +305,7 @@ public final class AuthenticationResource {
     public String getAuthenticationUI() {
         // Return the built React app HTML with relative paths
         return """
-            <!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Azure AD Authentication Tab"/><link rel="manifest" href="./manifest.json"/><title>Authentication</title><script defer="defer" src="./static/js/main.b34172cb.js"></script><link href="./static/css/main.2cf75125.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>
+            <!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Azure AD Authentication Tab"/><link rel="manifest" href="./manifest.json"/><title>Authentication</title><script defer="defer" src="./static/js/main.b1774c00.js"></script><link href="./static/css/main.2cf75125.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>
             """;
     }
 
