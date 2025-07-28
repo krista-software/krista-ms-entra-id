@@ -30,24 +30,19 @@ import java.util.UUID;
  * Helper class for Reset Password operations with validation support.
  */
 @Service
-public class ResetPasswordHelper {
+public class ResetPasswordHelper extends BaseValidationHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResetPasswordHelper.class);
 
     private final AccountImpl accountService;
-    private final ValidationOrchestrator validationOrchestrator;
-    private final ErrorHandlingStateManager internalStateManager;
-    private final ExtensionResponseGenerator responseGenerator;
 
     @Inject
     public ResetPasswordHelper(AccountImpl accountService,
                                ValidationOrchestrator validationOrchestrator,
                                ErrorHandlingStateManager internalStateManager,
                                ExtensionResponseGenerator responseGenerator) {
+        super(validationOrchestrator, internalStateManager, responseGenerator);
         this.accountService = accountService;
-        this.validationOrchestrator = validationOrchestrator;
-        this.internalStateManager = internalStateManager;
-        this.responseGenerator = responseGenerator;
         LOGGER.info("ResetPasswordHelper initialized");
         registerValidators();
     }
@@ -141,41 +136,21 @@ public class ResetPasswordHelper {
         }
     }
 
-    private ExtensionResponse handleValidationFailure(List<ValidationOrchestrator.ValidationResult> validationResults,
-                                                      String id) {
-        // Generate a unique state ID to track this validation session
-        String stateId = UUID.randomUUID().toString();
-        LOGGER.debug("ID validation failed, storing stateId: {}", stateId);
+    @Override
+    protected Map<String, Object> createParameterMap(String stateId, Object... parameters) {
+        // Extract parameters for Reset Password operation
+        String id = parameters.length > 0 ? safeParameterToString(parameters[0]) : "";
 
-        // Store validation results for later retrieval
-        Map<String, Object> stateMap = Map.of(SubCatalogConstants.VALIDATION_RESULTS, validationResults);
-        internalStateManager.put(stateId, Constants.GSON.toJson(stateMap));
-        LOGGER.debug("ID validation failed, generating confirmation response");
+        Map<String, Object> map = createBaseParameterMap(stateId);
+        map.put(AzureResources.ID, id);
 
-        // Create a map with the necessary data for the confirmation step
-        Map<String, Object> map = Map.of(
-                SubCatalogConstants.STATE_ID, stateId,
-                AzureResources.ID, id != null ? id : ""
-        );
-        LOGGER.debug("ID validation failed, generated confirmation response map: {}", map);
-
-        // Generate a response that will trigger the confirmation subcatalog request
-        return responseGenerator.generateConfirmationResponse(
-                ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
-                validationResults,
-                SubCatalogConstants.CONFIRM_RESET_PASSWORD_VALIDATION,
-                map);
+        return map;
     }
 
-    private ExtensionResponse generateErrorResponse(String errorMessage) {
-        LOGGER.error("Generating error response: {}", errorMessage);
-        ExtensionResponse.Error error = new ErrorBuilder()
-                .exceptionType(ExtensionResponse.Error.ExceptionType.LOGIC_ERROR)
-                .errorMessage(errorMessage)
-                .build();
-
-        return new ExtensionResponseBuilder()
-                .failure(error)
-                .build();
+    @Override
+    protected String getConfirmationSubCatalogRequestName() {
+        return SubCatalogConstants.CONFIRM_RESET_PASSWORD_VALIDATION;
     }
+
+    // Uses default generateErrorResponse from base class (standard failure response)
 }

@@ -10,6 +10,7 @@ public interface Validator {
 
     enum ValidationResource {
         ID,
+        ID_GET_USER_DETAILS,
         EMAIL,
         USER_MAIL_OR_ID,
         USER_MAIL_OR_ID_REMOVE_GROUP,

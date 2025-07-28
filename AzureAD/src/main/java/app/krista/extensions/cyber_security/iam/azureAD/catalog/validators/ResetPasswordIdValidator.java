@@ -4,75 +4,49 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.FieldTypes;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
+import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 
 /**
  * Validator for ID validation specifically for Reset Password operations.
  * Validates that the provided ID (email or user ID) exists in Azure AD and is eligible for password reset.
  */
-public class ResetPasswordIdValidator implements Validator {
+@Singleton
+@Service
+public class ResetPasswordIdValidator extends BaseAzureADUserValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResetPasswordIdValidator.class);
 
-    private final AccountImpl accountService;
-
+    @Inject
     public ResetPasswordIdValidator(AccountImpl accountService) {
-        this.accountService = accountService;
+        super(AzureResources.ID, FieldTypes.TEXT_FIELD_LOGICAL_NAME, accountService);
     }
 
     @Override
-    public Boolean validate(String resourceValue, Map<ValidationResource, String> context) {
-        LOGGER.debug("ResetPasswordIdValidator.validate() called with input: {}", resourceValue);
-
-        // Check if input is null or empty
-        if (resourceValue == null || resourceValue.trim().isEmpty()) {
-            LOGGER.warn("ID is null or empty for password reset");
-            return false;
-        }
-
-        String trimmedId = resourceValue.trim();
-
-        // Basic format validation
-        if (!isValidIdFormat(trimmedId)) {
-            LOGGER.warn("Invalid ID format for password reset: {}", trimmedId);
-            return false;
-        }
-
-        try {
-            // Try to get user details to validate if user exists and is eligible for password reset
-            Account user = accountService.getUser(trimmedId);
-
-            if (user == null) {
-                LOGGER.warn("User not found with ID for password reset: {}", trimmedId);
-                return false;
-            }
-
-            // Additional validation specific to password reset
-            if (!isEligibleForPasswordReset(user)) {
-                LOGGER.warn("User is not eligible for password reset: {}", trimmedId);
-                return false;
-            }
-
-            LOGGER.debug("ID validation successful for password reset: {}", trimmedId);
-            return true;
-
-        } catch (Exception e) {
-            LOGGER.error("Error validating ID for password reset '{}': {}", trimmedId, e.getMessage(), e);
-            return false;
-        }
+    protected boolean isValidFormat(String trimmedValue) {
+        // Use the specific format validation for password reset
+        return isValidIdFormat(trimmedValue);
     }
 
     @Override
-    public String getFetchFieldName() {
-        return AzureResources.ID;
-    }
+    protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
+        // Check if user exists in Azure AD
+        Account user = lookupUser(trimmedValue);
+        if (user == null) {
+            return failure("User not found with ID for password reset: " + trimmedValue);
+        }
 
-    @Override
-    public String getFieldType() {
-        return FieldTypes.TEXT_FIELD_LOGICAL_NAME;
+        // Additional validation specific to password reset
+        if (!isEligibleForPasswordReset(user)) {
+            return failure("User is not eligible for password reset: " + trimmedValue);
+        }
+
+        return success();
     }
 
     @Override
@@ -90,21 +64,16 @@ public class ResetPasswordIdValidator implements Validator {
     }
 
     @Override
-    public String getErrMessage(String resourceValue) {
-        if (resourceValue == null || resourceValue.trim().isEmpty()) {
-            return "User ID or email address is required for password reset.";
-        }
+    protected String getFormatErrorMessage(String value) {
+        return "Invalid ID format: '" + value + "'. Please enter a valid email address or user ID.";
+    }
 
-        String trimmedId = resourceValue.trim();
-
-        if (!isValidIdFormat(trimmedId)) {
-            return "Invalid ID format: '" + trimmedId + "'. Please enter a valid email address or user ID.";
-        }
-
-        if (isEmail(trimmedId)) {
-            return "Email address '" + trimmedId + "' not found in Azure AD or not eligible for password reset.";
+    @Override
+    protected String getBusinessLogicErrorMessage(String value) {
+        if (isEmail(value)) {
+            return "Email address '" + value + "' not found in Azure AD or not eligible for password reset.";
         } else {
-            return "User ID '" + trimmedId + "' not found in Azure AD or not eligible for password reset.";
+            return "User ID '" + value + "' not found in Azure AD or not eligible for password reset.";
         }
     }
 
@@ -125,12 +94,7 @@ public class ResetPasswordIdValidator implements Validator {
         return isValidUserIdFormat(id);
     }
 
-    /**
-     * Checks if the given string is an email address
-     */
-    private boolean isEmail(String input) {
-        return input != null && input.contains("@") && input.contains(".");
-    }
+
 
     /**
      * Validates email format

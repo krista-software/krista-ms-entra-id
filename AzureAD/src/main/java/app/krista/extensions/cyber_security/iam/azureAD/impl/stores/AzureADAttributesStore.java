@@ -41,7 +41,6 @@ public class AzureADAttributesStore {
                         (String) savedAttributes.get(CLIENT_SECRET),
                         (String) savedAttributes.get(TENANT_ID),
                         (String) savedAttributes.get(EMAIL),
-                        (Boolean) savedAttributes.getOrDefault(ALLOW_MAIL_ALERT, false),
                         (String) savedAttributes.getOrDefault(AUTH_TYPE, PUBLIC),
                         routingUrl
                 );
@@ -55,7 +54,6 @@ public class AzureADAttributesStore {
                     InvokerAttributes.getStringOrNull(invokerAttributes, CLIENT_SECRET),
                     InvokerAttributes.getStringOrNull(invokerAttributes, TENANT_ID),
                     InvokerAttributes.getStringOrNull(invokerAttributes, EMAIL),
-                    InvokerAttributes.getBooleanOrDefault(invokerAttributes, ALLOW_MAIL_ALERT, false),
                     InvokerAttributes.getStringOrDefault(invokerAttributes, AUTH_TYPE, PUBLIC),
                     routingUrl
             );
@@ -70,7 +68,6 @@ public class AzureADAttributesStore {
                 (String) attributes.get(CLIENT_SECRET),
                 (String) attributes.get(TENANT_ID),
                 (String) attributes.get(EMAIL),
-                (Boolean) attributes.getOrDefault(ALLOW_MAIL_ALERT, false),
                 (String) attributes.getOrDefault(AUTH_TYPE, PUBLIC),
                 routingUrl
         );

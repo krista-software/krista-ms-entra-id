@@ -2,7 +2,6 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers;
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extension.executor.ErrorBuilder;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ExtensionResponseGenerator;
@@ -30,23 +29,18 @@ import java.util.UUID;
  * Handles validation flow and error handling for account creation.
  */
 @Service
-public class CreateAccountHelper {
+public class CreateAccountHelper extends BaseValidationHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateAccountHelper.class);
 
     private final AccountImpl accountService;
-    private final ValidationOrchestrator validationOrchestrator;
-    private final ErrorHandlingStateManager internalStateManager;
-    private final ExtensionResponseGenerator responseGenerator;
 
     @Inject
     public CreateAccountHelper(AccountImpl accountService, ValidationOrchestrator validationOrchestrator,
                                ErrorHandlingStateManager internalStateManager, ExtensionResponseGenerator responseGenerator,
                                CreateAccountNameValidator nameValidator, CreateAccountMobileNumberValidator mobileNumberValidator,
                                CreateAccountEmailValidator emailValidator) {
+        super(validationOrchestrator, internalStateManager, responseGenerator);
         this.accountService = accountService;
-        this.validationOrchestrator = validationOrchestrator;
-        this.internalStateManager = internalStateManager;
-        this.responseGenerator = responseGenerator;
 
         // Register validators
         validationOrchestrator.registerValidator(Validator.ValidationResource.NAME_CREATE_ACCOUNT, nameValidator);
@@ -94,38 +88,31 @@ public class CreateAccountHelper {
         }
     }
 
-    public ExtensionResponse handleValidationFailure(List<ValidationOrchestrator.ValidationResult> validationResults,
-                                                     String name, String email, String mobileNumber) {
-        // Generate a unique state ID to track this validation session
-        String stateId = UUID.randomUUID().toString();
-        LOGGER.debug("Validation failed, storing stateId: {}", stateId);
+    @Override
+    protected Map<String, Object> createParameterMap(String stateId, Object... parameters) {
+        // Extract parameters for Create Account operation
+        String name = parameters.length > 0 ? safeParameterToString(parameters[0]) : "";
+        String email = parameters.length > 1 ? safeParameterToString(parameters[1]) : "";
+        String mobileNumber = parameters.length > 2 ? safeParameterToString(parameters[2]) : "";
 
-        // Store validation results for later retrieval
-        Map<String, Object> stateMap = Map.of(SubCatalogConstants.VALIDATION_RESULTS, validationResults);
-        internalStateManager.put(stateId, Constants.GSON.toJson(stateMap));
-        LOGGER.debug("Validation failed, generating confirmation response");
+        Map<String, Object> map = createBaseParameterMap(stateId);
 
-        // Include all fields in the confirmation response to preserve valid values
-        Map<String, Object> map = new HashMap<>();
-        map.put(SubCatalogConstants.STATE_ID, stateId);
-        
         // Always include all fields to preserve valid values during re-entry flow
-        map.put(AzureResources.NAME_CREATE_ACCOUNT, name != null ? name : "");
-        map.put(AzureResources.EMAIL_CREATE_ACCOUNT, email != null ? email : "");
-        map.put(AzureResources.MOBILE_NUMBER_CREATE_ACCOUNT, mobileNumber != null ? mobileNumber : "");
+        map.put(AzureResources.NAME_CREATE_ACCOUNT, name);
+        map.put(AzureResources.EMAIL_CREATE_ACCOUNT, email);
+        map.put(AzureResources.MOBILE_NUMBER_CREATE_ACCOUNT, mobileNumber);
 
-        LOGGER.debug("Validation failed, generated confirmation response map: {}", map);
-
-        // Generate a response that will trigger the confirmation subcatalog request
-        return responseGenerator.generateConfirmationResponse(
-                ExtensionResponse.Error.ExceptionType.INPUT_ERROR,
-                validationResults,
-                SubCatalogConstants.CONFIRM_CREATE_ACCOUNT_VALIDATION,
-                map);
+        return map;
     }
 
-    private ExtensionResponse generateErrorResponse(String message) {
-        Map<String, Object> errorResult = Map.of("User Id", "", "Default Password", "");
-        return new ExtensionResponseBuilder().success(errorResult).build();
+    @Override
+    protected String getConfirmationSubCatalogRequestName() {
+        return SubCatalogConstants.CONFIRM_CREATE_ACCOUNT_VALIDATION;
+    }
+
+    @Override
+    protected Map<String, Object> getCustomErrorResult() {
+        // Create Account uses a custom success response with empty fields for errors
+        return Map.of("User Id", "", "Default Password", "");
     }
 }

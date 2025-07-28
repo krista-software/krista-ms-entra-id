@@ -24,9 +24,8 @@ import static com.github.scribejava.core.model.OAuthConstants.STATE;
 
 public class AzureADRequestAuthenticator implements RequestAuthenticator {
 
-    public static final String EXTENSION_OAUTH_VERIFICATION_PATH_V3 = "/outlook/v3/oauth/callback";
-    public static final String EXTENSION_OAUTH_VERIFICATION_PATH_V2 = "/outlook/callback";
-   public static final String OUTLOOK_MAIL_NOTIFICATION = "/outlook/mailNotification";
+    public static final String EXTENSION_OAUTH_VERIFICATION_PATH_V3 = "/azuread/v3/oauth/callback";
+    public static final String EXTENSION_OAUTH_VERIFICATION_PATH_V2 = "/azuread/callback";
     private final AzureADAttributesStore azureADAttributesStore;
     private final String invokerId;
     private final AuthorizationContext authorizationContext;
@@ -59,8 +58,6 @@ public class AzureADRequestAuthenticator implements RequestAuthenticator {
                 String state = String.valueOf(queryParameters.get(STATE).get(0));
                 String[] parts = state.split(Constants.HASH);
                 return parts[0];
-            } else if (OUTLOOK_MAIL_NOTIFICATION.equals(httpRequest.getUri().getPath())) {
-                return authorizationContext.getAuthorizedAccount().getAccountId();
             } else {
                 return null;
             }

@@ -2,7 +2,6 @@ package app.krista.extensions.cyber_security.iam.azureAD.impl.connectors;
 
 import app.krista.extension.authorization.MustAuthorizeException;
 import app.krista.extensions.cyber_security.iam.azureAD.AzureADAttributes;
-import app.krista.extensions.cyber_security.iam.azureAD.api.AuthenticationResource;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.stores.RefreshTokenStore;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import app.krista.ksdk.context.AuthorizationContext;
@@ -35,7 +34,6 @@ public class GraphServiceClientProvider {
     public static final String REQUIRED_SCOPE = Constants.REQUIRED_SCOPE;
     public static final String SCOPE_SEPARATOR = " ";
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GraphServiceClientProvider.class);
-    public static final String AUTHORITY = "https://login.microsoftonline.com/";
     private static final Logger LOG = LogManager.getLogger(GraphServiceClientProvider.class.getName());
     private final RefreshTokenStore refreshTokenStore;
     private final AzureADAttributes azureADAttributes;

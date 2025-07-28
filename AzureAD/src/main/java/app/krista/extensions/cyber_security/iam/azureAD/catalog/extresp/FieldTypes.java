@@ -12,7 +12,5 @@ public class FieldTypes {
     public static final String BOOLEAN_FIELD_LOGICAL_NAME = "com.krista.fields.Boolean";
     public static final String DATE_FIELD_LOGICAL_NAME = "com.krista.fields.Date";
     public static final String RICH_TEXT_FIELD_LOGICAL_NAME = "com.krista.fields.RichText";
-    public static final String FILE_FIELD_LOGICAL_NAME = "com.krista.fields.File";
-    public static final String PICK_ONE_LOGICAL_NAME = "com.krista.fields.PickOne";
 
 }

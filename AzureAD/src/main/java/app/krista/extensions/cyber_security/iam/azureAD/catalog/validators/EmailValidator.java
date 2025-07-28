@@ -4,67 +4,43 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.FieldTypes;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
+import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 
 /**
  * Validator for Email validation for delete account operations.
  * Validates that the provided email exists in Azure AD.
  */
-public class EmailValidator implements Validator {
+@Singleton
+@Service
+public class EmailValidator extends BaseAzureADUserValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailValidator.class);
 
-    private final AccountImpl accountService;
-
+    @Inject
     public EmailValidator(AccountImpl accountService) {
-        this.accountService = accountService;
+        super(AzureResources.EMAIL, FieldTypes.TEXT_FIELD_LOGICAL_NAME, accountService);
     }
 
     @Override
-    public Boolean validate(String resourceValue, Map<ValidationResource, String> context) {
-        LOGGER.debug("EmailValidator.validate() called with input: {}", resourceValue);
-
-        // Check if input is null or empty
-        if (resourceValue == null || resourceValue.trim().isEmpty()) {
-            LOGGER.warn("Email is null or empty");
-            return false;
-        }
-
-        // Basic email format validation
-        if (!isValidEmailFormat(resourceValue.trim())) {
-            LOGGER.warn("Invalid email format: {}", resourceValue);
-            return false;
-        }
-
-        try {
-            // Try to get user details to validate if user exists
-            Account user = accountService.getUser(resourceValue.trim());
-
-            if (user == null) {
-                LOGGER.warn("User not found with email: {}", resourceValue);
-                return false;
-            }
-
-            LOGGER.debug("Email validation successful for: {}", resourceValue);
-            return true;
-
-        } catch (Exception e) {
-            LOGGER.error("Error validating email '{}': {}", resourceValue, e.getMessage(), e);
-            return false;
-        }
+    protected boolean isValidFormat(String trimmedValue) {
+        // Email format validation using the base class EMAIL_PATTERN
+        return isEmail(trimmedValue);
     }
 
     @Override
-    public String getFetchFieldName() {
-        return AzureResources.EMAIL;
-    }
-
-    @Override
-    public String getFieldType() {
-        return FieldTypes.TEXT_FIELD_LOGICAL_NAME;
+    protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
+        // Check if user exists in Azure AD
+        if (userExists(trimmedValue)) {
+            return success();
+        } else {
+            return failure("User not found with email: " + trimmedValue);
+        }
     }
 
     @Override
@@ -78,25 +54,12 @@ public class EmailValidator implements Validator {
     }
 
     @Override
-    public String getErrMessage(String resourceValue) {
-        if (resourceValue == null || resourceValue.trim().isEmpty()) {
-            return "Email address is required.";
-        }
-        if (!isValidEmailFormat(resourceValue.trim())) {
-            return "Invalid email format: '" + resourceValue + "'. Please enter a valid email address.";
-        }
-        return "Email '" + resourceValue + "' not found in Azure AD.";
+    protected String getFormatErrorMessage(String value) {
+        return "Invalid email format: '" + value + "'. Please enter a valid email address.";
     }
 
-    /**
-     * Checks if the given string is a valid email format
-     */
-    private boolean isValidEmailFormat(String email) {
-        return email != null &&
-                email.contains("@") &&
-                email.contains(".") &&
-                email.indexOf("@") > 0 &&
-                email.lastIndexOf(".") > email.indexOf("@") &&
-                email.lastIndexOf(".") < email.length() - 1;
+    @Override
+    protected String getBusinessLogicErrorMessage(String value) {
+        return "Email '" + value + "' not found in Azure AD.";
     }
 }

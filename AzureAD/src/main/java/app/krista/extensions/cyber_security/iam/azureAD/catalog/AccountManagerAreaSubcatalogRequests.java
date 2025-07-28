@@ -125,7 +125,7 @@ public class AccountManagerAreaSubcatalogRequests {
 
         // Validate the re-entered data
         List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(
-                Map.of(Validator.ValidationResource.ID, userId != null ? userId : "")
+                Map.of(Validator.ValidationResource.ID_GET_USER_DETAILS, userId != null ? userId : "")
         );
         LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Validation results: {} errors", validationResults.size());
         // If validation still fails, return a permanent error response instead of allowing another retry
@@ -697,7 +697,6 @@ public class AccountManagerAreaSubcatalogRequests {
         String name = (String) map.get(AzureResources.NAME_CREATE_ACCOUNT);
         String email = (String) map.get(AzureResources.EMAIL_CREATE_ACCOUNT);
         String mobileNumber = (String) map.get(AzureResources.MOBILE_NUMBER_CREATE_ACCOUNT);
-        LOGGER.debug("handleCreateAccountValidation() - Extracted parameters: NAME={}, EMAIL={}, MOBILE_NUMBER={}", name, email, mobileNumber);
 
         // Validate the re-entered data
         List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(
@@ -715,7 +714,6 @@ public class AccountManagerAreaSubcatalogRequests {
             return createAccountHelper.handleValidationFailure(validationResults, name, email, mobileNumber);
         }
 
-        LOGGER.debug("handleCreateAccountValidation() - Validation passed, creating account");
         ExtensionResponse response = createAccountHelper.createAccountWithValidation(name, email, mobileNumber, null);
         LOGGER.debug("handleCreateAccountValidation() - Completed successfully");
         return response;

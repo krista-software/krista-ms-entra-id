@@ -4,61 +4,37 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.FieldTypes;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
+import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 
 /**
  * Validator for User Mail or ID validation for activate/deactivate account operations.
  * Validates that the provided user mail or ID exists in Azure AD.
  */
-public class UserMailOrIdValidator implements Validator {
+@Singleton
+@Service
+public class UserMailOrIdValidator extends BaseAzureADUserValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserMailOrIdValidator.class);
 
-    private final AccountImpl accountService;
-
+    @Inject
     public UserMailOrIdValidator(AccountImpl accountService) {
-        this.accountService = accountService;
+        super(AzureResources.USER_MAIL_OR_ID, FieldTypes.TEXT_FIELD_LOGICAL_NAME, accountService);
     }
 
     @Override
-    public Boolean validate(String resourceValue, Map<ValidationResource, String> context) {
-        LOGGER.debug("UserMailOrIdValidator.validate() called with input: {}", resourceValue);
-
-        // Check if input is null or empty
-        if (resourceValue == null || resourceValue.trim().isEmpty()) {
-            LOGGER.warn("User Mail or ID is null or empty");
-            return false;
+    protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
+        // Check if user exists in Azure AD
+        if (userExists(trimmedValue)) {
+            return success();
+        } else {
+            return failure("User not found with Mail or ID: " + trimmedValue);
         }
-
-        try {
-            // Try to get user details to validate if user exists
-            Account user = accountService.getUser(resourceValue.trim());
-
-            if (user == null) {
-                LOGGER.warn("User not found with Mail or ID: {}", resourceValue);
-                return false;
-            }
-
-            LOGGER.debug("User Mail or ID validation successful for: {}", resourceValue);
-            return true;
-
-        } catch (Exception e) {
-            LOGGER.error("Error validating user Mail or ID '{}': {}", resourceValue, e.getMessage(), e);
-            return false;
-        }
-    }
-
-    @Override
-    public String getFetchFieldName() {
-        return AzureResources.USER_MAIL_OR_ID;
-    }
-
-    @Override
-    public String getFieldType() {
-        return FieldTypes.TEXT_FIELD_LOGICAL_NAME;
     }
 
     @Override
@@ -76,21 +52,11 @@ public class UserMailOrIdValidator implements Validator {
     }
 
     @Override
-    public String getErrMessage(String resourceValue) {
-        if (resourceValue == null || resourceValue.trim().isEmpty()) {
-            return "User Mail or ID is required.";
-        }
-        if (isEmail(resourceValue)) {
-            return "Email '" + resourceValue + "' not found in Azure AD.";
+    protected String getBusinessLogicErrorMessage(String value) {
+        if (isEmail(value)) {
+            return "Email '" + value + "' not found in Azure AD.";
         } else {
-            return "User ID '" + resourceValue + "' not found in Azure AD.";
+            return "User ID '" + value + "' not found in Azure AD.";
         }
-    }
-
-    /**
-     * Checks if the given string is an email address
-     */
-    private boolean isEmail(String input) {
-        return input != null && input.contains("@") && input.contains(".");
     }
 }

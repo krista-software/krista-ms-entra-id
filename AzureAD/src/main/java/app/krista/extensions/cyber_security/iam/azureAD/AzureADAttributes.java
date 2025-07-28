@@ -19,8 +19,6 @@ public final class AzureADAttributes {
 
     @SerializedName(EMAIL)
     private final String email;
-    @SerializedName(ALLOW_MAIL_ALERT)
-    private final boolean allowMailAlert;
     @SerializedName(CLIENT_ID)
     private final String clientId;
     @SerializedName(CLIENT_SECRET)
@@ -34,31 +32,26 @@ public final class AzureADAttributes {
     private String publicClientId;
     private String publicClientSecret;
 
-    public AzureADAttributes(String clientId, String clientSecret, String tenantId, String email, boolean allowMailAlert,
+    public AzureADAttributes(String clientId, String clientSecret, String tenantId, String email,
                              String authType, String routingUrl) {
         loadPublicConfig();
         this.clientId = clientId == null ? publicClientId : clientId;
         this.clientSecret = clientSecret == null ? publicClientSecret : clientSecret;
         this.tenantId = tenantId;
         this.email = email;
-        this.allowMailAlert = allowMailAlert;
         this.authType = authType;
         this.routingUrl = routingUrl.replace(LOCAL_EXTN_URL, LOCAL_EXTN_REPLACE_URL);
     }
 
     public static AzureADAttributes create(JsonObject authPayload, String baseurl) {
         String authType = authPayload.get("authType").getAsString();
-        // Handle allowMailAlert field with null-safe access and default value
-        boolean allowMailAlert = authPayload.has(ALLOW_MAIL_ALERT) &&
-                                 authPayload.get(ALLOW_MAIL_ALERT) != null &&
-                                 authPayload.get(ALLOW_MAIL_ALERT).getAsBoolean();
 
         if (Constants.PUBLIC.equals(authType)) {
             return new AzureADAttributes(null, null, null, authPayload.get(EMAIL).getAsString(),
-                    allowMailAlert, authType, baseurl);
+                    authType, baseurl);
         } else if (Constants.PRIVATE.equals(authType)) {
             return new AzureADAttributes(authPayload.get(CLIENT_ID).getAsString(), authPayload.get(CLIENT_SECRET).getAsString(),
-                    authPayload.get(TENANT_ID).getAsString(), authPayload.get(EMAIL).getAsString(), allowMailAlert,
+                    authPayload.get(TENANT_ID).getAsString(), authPayload.get(EMAIL).getAsString(),
                     authType, baseurl);
         } else {
             throw new IllegalArgumentException(UNSUPPORTED_AUTH);
