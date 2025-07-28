@@ -8,7 +8,6 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.Ex
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ErrorHandlingStateManager;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.ValidationOrchestrator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.Validator;
-import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.ExtensionResponseFactory;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.AddAccountUserMailOrIdValidator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.AddAccountGroupObjectIdValidator;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
@@ -97,7 +96,10 @@ public class AddAccountToGroupHelper {
 
         } catch (Exception cause) {
             LOGGER.error("Error occurred while adding account to group: {}", cause.getMessage(), cause);
-            return ExtensionResponseFactory.generateErrorResponse("Error occurred while adding account to group");
+            return new ExtensionResponseBuilder()
+                    .failure(new ExtensionResponse.Error("Error occurred while adding account to group",
+                            System.currentTimeMillis(), ExtensionResponse.Error.ExceptionType.LOGIC_ERROR, ""))
+                    .build();
         }
     }
 

@@ -2,7 +2,6 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers;
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.ExtensionResponseFactory;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ExtensionResponseGenerator;
@@ -11,7 +10,6 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.Valid
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.Validator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.ResetPasswordIdValidator;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
-import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.core.ClientException;
 import org.slf4j.Logger;
@@ -24,7 +22,6 @@ import org.jvnet.hk2.annotations.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Helper class for Reset Password operations with validation support.
@@ -87,7 +84,7 @@ public class ResetPasswordHelper extends BaseValidationHelper {
 
         } catch (Exception cause) {
             LOGGER.error("Error occurred while resetting password: {}", cause.getMessage(), cause);
-            return ExtensionResponseFactory.generateErrorResponse("Error occurred while resetting password");
+            return generateErrorResponse("Error occurred while resetting password");
         }
     }
 
@@ -152,5 +149,4 @@ public class ResetPasswordHelper extends BaseValidationHelper {
         return SubCatalogConstants.CONFIRM_RESET_PASSWORD_VALIDATION;
     }
 
-    // Uses default generateErrorResponse from base class (standard failure response)
 }

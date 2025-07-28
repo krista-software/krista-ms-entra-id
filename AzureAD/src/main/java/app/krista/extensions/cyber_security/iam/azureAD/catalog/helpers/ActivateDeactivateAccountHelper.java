@@ -2,7 +2,6 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers;
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.ExtensionResponseFactory;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ExtensionResponseGenerator;
@@ -97,7 +96,10 @@ public class ActivateDeactivateAccountHelper {
 
         } catch (Exception cause) {
             LOGGER.error("Error occurred while activating/deactivating account: {}", cause.getMessage(), cause);
-            return ExtensionResponseFactory.generateErrorResponse("Error occurred while activating/deactivating account", cause.getMessage());
+            return new ExtensionResponseBuilder()
+                    .failure(new ExtensionResponse.Error("Error occurred while activating/deactivating account",
+                            System.currentTimeMillis(), ExtensionResponse.Error.ExceptionType.LOGIC_ERROR, ""))
+                    .build();
         }
     }
 

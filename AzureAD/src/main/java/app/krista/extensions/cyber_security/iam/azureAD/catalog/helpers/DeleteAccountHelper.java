@@ -2,7 +2,6 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers;
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extension.executor.ErrorBuilder;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ExtensionResponseGenerator;
@@ -11,7 +10,7 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.Valid
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.Validator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.validators.EmailValidator;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
-import app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,6 @@ import org.jvnet.hk2.annotations.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Helper class for Delete Account operations with validation support.

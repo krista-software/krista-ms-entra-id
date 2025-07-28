@@ -2,7 +2,6 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers;
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.ExtensionResponseFactory;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ExtensionResponseGenerator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ErrorHandlingStateManager;
@@ -83,7 +82,7 @@ public abstract class BaseValidationHelper {
     /**
      * Template method for generating error responses.
      * Provides a consistent error response structure across all helpers.
-     * Uses the centralized ExtensionResponseFactory while preserving custom error logic.
+     * Uses the existing ExtensionResponseBuilder for consistency.
      *
      * @param errorMessage The error message to include
      * @return ExtensionResponse for the error
@@ -97,8 +96,11 @@ public abstract class BaseValidationHelper {
             return new ExtensionResponseBuilder().success(customErrorResult).build();
         }
 
-        // Use centralized error response generation for consistency
-        return ExtensionResponseFactory.generateErrorResponse(errorMessage);
+        // Use standard ExtensionResponseBuilder for error responses
+        return new ExtensionResponseBuilder()
+                .failure(new ExtensionResponse.Error(errorMessage, System.currentTimeMillis(),
+                        ExtensionResponse.Error.ExceptionType.LOGIC_ERROR, ""))
+                .build();
     }
 
     /**
