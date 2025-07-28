@@ -122,12 +122,6 @@ public class RemoveAccountGroupObjectIdValidator implements Validator {
         if (groupId == null || groupId.trim().isEmpty()) {
             return false;
         }
-
-        // Add any specific business logic for group eligibility for user removal
-        // For example: check if group is not a system group, not read-only, etc.
-
-        // For now, we'll assume all existing groups are eligible for user removal
-        // This can be extended based on business requirements
         return true;
     }
 }

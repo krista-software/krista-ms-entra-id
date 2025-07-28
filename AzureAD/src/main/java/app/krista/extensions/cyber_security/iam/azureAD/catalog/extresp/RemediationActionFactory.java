@@ -17,10 +17,6 @@ public class RemediationActionFactory {
         return AskAPersonAction.create(message, RemediationAction.RecipientType.ACTIVE_USER, fields);
     }
 
-    public static RemediationAction createInformAction(String message, List<NamedValuedField> fields) {
-        return InformAPersonAction.create(message, RemediationAction.RecipientType.ACTIVE_USER, fields);
-    }
-
     public static RemediationAction createInformActionALLParticipants(String message, List<NamedValuedField> fields) {
         return InformAPersonAction.create(message, RemediationAction.RecipientType.ALL_PARTICIPANTS, fields);
     }

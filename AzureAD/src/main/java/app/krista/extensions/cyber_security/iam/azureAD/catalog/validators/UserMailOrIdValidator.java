@@ -1,6 +1,5 @@
 package app.krista.extensions.cyber_security.iam.azureAD.catalog.validators;
 
-import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.FieldTypes;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
@@ -28,6 +27,12 @@ public class UserMailOrIdValidator extends BaseAzureADUserValidator {
     }
 
     @Override
+    protected boolean isValidFormat(String trimmedValue) {
+        // Use base class email validation or basic user ID validation
+        return isEmail(trimmedValue) || isValidUserId(trimmedValue);
+    }
+
+    @Override
     protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
         // Check if user exists in Azure AD
         if (userExists(trimmedValue)) {
@@ -52,11 +57,33 @@ public class UserMailOrIdValidator extends BaseAzureADUserValidator {
     }
 
     @Override
+    protected String getFormatErrorMessage(String value) {
+        return "Invalid User Mail or ID format: '" + value + "'. Please enter a valid email address or user ID.";
+    }
+
+    @Override
     protected String getBusinessLogicErrorMessage(String value) {
         if (isEmail(value)) {
             return "Email '" + value + "' not found in Azure AD.";
         } else {
             return "User ID '" + value + "' not found in Azure AD.";
         }
+    }
+
+    /**
+     * Validates user ID format (could be GUID or other formats)
+     */
+    private boolean isValidUserId(String userId) {
+        if (userId == null || userId.trim().isEmpty()) {
+            return false;
+        }
+
+        // Check for GUID format (common in Azure AD)
+        if (userId.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
+            return true;
+        }
+
+        // Allow other reasonable user ID formats (alphanumeric, dots, hyphens, underscores)
+        return userId.matches("^[a-zA-Z0-9._-]+$") && userId.length() >= 3 && userId.length() <= 64;
     }
 }

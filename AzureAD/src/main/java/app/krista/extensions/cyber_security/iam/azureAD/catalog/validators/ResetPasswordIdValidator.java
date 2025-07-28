@@ -135,12 +135,6 @@ public class ResetPasswordIdValidator extends BaseAzureADUserValidator {
         if (user == null) {
             return false;
         }
-
-        // Add any specific business logic for password reset eligibility
-        // For example: check if user is active, not a service account, etc.
-
-        // For now, we'll assume all existing users are eligible for password reset
-        // This can be extended based on business requirements
         return true;
     }
 }

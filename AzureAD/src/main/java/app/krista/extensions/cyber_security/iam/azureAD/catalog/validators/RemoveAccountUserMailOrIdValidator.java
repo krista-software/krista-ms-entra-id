@@ -4,75 +4,48 @@ import app.krista.extensions.cyber_security.iam.azureAD.catalog.entities.Account
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.FieldTypes;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.AzureResources;
 import app.krista.extensions.cyber_security.iam.azureAD.impl.AccountImpl;
+import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 
 /**
  * Validator for User Mail or Id validation specifically for Remove Account From Group operations.
  * Validates that the provided user mail or ID exists in Azure AD and is eligible for group removal.
  */
-public class RemoveAccountUserMailOrIdValidator implements Validator {
+@Singleton
+@Service
+public class RemoveAccountUserMailOrIdValidator extends BaseAzureADUserValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveAccountUserMailOrIdValidator.class);
 
-    private final AccountImpl accountService;
-
+    @Inject
     public RemoveAccountUserMailOrIdValidator(AccountImpl accountService) {
-        this.accountService = accountService;
+        super(AzureResources.USER_MAIL_OR_ID_REMOVE_GROUP, FieldTypes.TEXT_FIELD_LOGICAL_NAME, accountService);
     }
 
     @Override
-    public Boolean validate(String resourceValue, Map<ValidationResource, String> context) {
-        LOGGER.debug("RemoveAccountUserMailOrIdValidator.validate() called with input: {}", resourceValue);
-
-        // Check if input is null or empty
-        if (resourceValue == null || resourceValue.trim().isEmpty()) {
-            LOGGER.warn("User Mail or Id is null or empty for group removal");
-            return false;
-        }
-
-        String trimmedInput = resourceValue.trim();
-
-        // Basic format validation
-        if (!isValidUserMailOrIdFormat(trimmedInput)) {
-            LOGGER.warn("Invalid User Mail or Id format for group removal: {}", trimmedInput);
-            return false;
-        }
-
-        try {
-            // Try to get user details to validate if user exists
-            Account user = accountService.getUser(trimmedInput);
-
-            if (user == null) {
-                LOGGER.warn("User not found with Mail or Id for group removal: {}", trimmedInput);
-                return false;
-            }
-
-            // Additional validation specific to group removal
-            if (!isEligibleForGroupRemoval(user)) {
-                LOGGER.warn("User is not eligible for group removal: {}", trimmedInput);
-                return false;
-            }
-
-            LOGGER.debug("User Mail or Id validation successful for group removal: {}", trimmedInput);
-            return true;
-
-        } catch (Exception e) {
-            LOGGER.error("Error validating User Mail or Id for group removal '{}': {}", trimmedInput, e.getMessage(), e);
-            return false;
-        }
+    protected boolean isValidFormat(String trimmedValue) {
+        return isValidUserMailOrIdFormat(trimmedValue);
     }
 
     @Override
-    public String getFetchFieldName() {
-        return AzureResources.USER_MAIL_OR_ID_REMOVE_GROUP;
-    }
+    protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
+        // Check if user exists in Azure AD
+        Account user = lookupUser(trimmedValue);
+        if (user == null) {
+            return failure("User not found with Mail or Id for group removal: " + trimmedValue);
+        }
 
-    @Override
-    public String getFieldType() {
-        return FieldTypes.TEXT_FIELD_LOGICAL_NAME;
+        // Additional validation specific to group removal
+        if (!isEligibleForGroupRemoval(user)) {
+            return failure("User is not eligible for group removal: " + trimmedValue);
+        }
+
+        return success();
     }
 
     @Override
@@ -90,66 +63,35 @@ public class RemoveAccountUserMailOrIdValidator implements Validator {
     }
 
     @Override
-    public String getErrMessage(String resourceValue) {
-        if (resourceValue == null || resourceValue.trim().isEmpty()) {
-            return "User Mail or Id is required for group removal.";
-        }
+    protected String getFormatErrorMessage(String value) {
+        return "Invalid User Mail or Id format: '" + value + "'. Please enter a valid email address or user ID.";
+    }
 
-        String trimmedInput = resourceValue.trim();
-
-        if (!isValidUserMailOrIdFormat(trimmedInput)) {
-            return "Invalid User Mail or Id format: '" + trimmedInput + "'. Please enter a valid email address or user ID.";
-        }
-
-        if (isEmail(trimmedInput)) {
-            return "Email address '" + trimmedInput + "' not found in Azure AD or not eligible for group removal.";
+    @Override
+    protected String getBusinessLogicErrorMessage(String value) {
+        if (isEmail(value)) {
+            return "Email address '" + value + "' not found in Azure AD or not eligible for group removal.";
         } else {
-            return "User ID '" + trimmedInput + "' not found in Azure AD or not eligible for group removal.";
+            return "User ID '" + value + "' not found in Azure AD or not eligible for group removal.";
         }
     }
 
     /**
-     * Checks if the given string is a valid user mail or ID format
+     * Checks if the given string is a valid user mail or ID format for group removal
      */
     private boolean isValidUserMailOrIdFormat(String input) {
         if (input == null || input.trim().isEmpty()) {
             return false;
         }
 
-        // Check if it's an email format
-        if (isEmail(input)) {
-            return isValidEmailFormat(input);
-        }
-
-        // Check if it's a valid user ID format
-        return isValidUserIdFormat(input);
+        // Use base class email validation or basic user ID validation
+        return isEmail(input) || isValidUserId(input);
     }
 
     /**
-     * Checks if the given string is an email address
+     * Validates user ID format (could be GUID or other formats)
      */
-    private boolean isEmail(String input) {
-        return input != null && input.contains("@") && input.contains(".");
-    }
-
-    /**
-     * Validates email format
-     */
-    private boolean isValidEmailFormat(String email) {
-        return email != null &&
-                email.contains("@") &&
-                email.contains(".") &&
-                email.indexOf("@") > 0 &&
-                email.lastIndexOf(".") > email.indexOf("@") &&
-                email.lastIndexOf(".") < email.length() - 1 &&
-                !email.contains(" ") &&
-                email.length() >= 5; // minimum reasonable email length
-    }
-
-    /**
-     * Validates user ID format
-     */
-    private boolean isValidUserIdFormat(String userId) {
+    private boolean isValidUserId(String userId) {
         if (userId == null || userId.trim().isEmpty()) {
             return false;
         }
@@ -159,12 +101,13 @@ public class RemoveAccountUserMailOrIdValidator implements Validator {
             return true;
         }
 
-        // Allow other reasonable user ID formats
+        // Allow other reasonable user ID formats (alphanumeric, dots, hyphens, underscores)
         return userId.matches("^[a-zA-Z0-9._-]+$") && userId.length() >= 3 && userId.length() <= 64;
     }
 
     /**
      * Checks if the user is eligible for group removal
+     * This includes business logic specific to removing users from groups
      */
     private boolean isEligibleForGroupRemoval(Account user) {
         if (user == null) {
