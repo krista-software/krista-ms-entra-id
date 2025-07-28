@@ -2,7 +2,7 @@ package app.krista.extensions.cyber_security.iam.azureAD.catalog.helpers;
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extension.executor.ErrorBuilder;
+import app.krista.extensions.cyber_security.iam.azureAD.catalog.extresp.ExtensionResponseFactory;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ExtensionResponseGenerator;
 import app.krista.extensions.cyber_security.iam.azureAD.catalog.errorhandlers.ErrorHandlingStateManager;
@@ -83,28 +83,22 @@ public abstract class BaseValidationHelper {
     /**
      * Template method for generating error responses.
      * Provides a consistent error response structure across all helpers.
+     * Uses the centralized ExtensionResponseFactory while preserving custom error logic.
      *
      * @param errorMessage The error message to include
      * @return ExtensionResponse for the error
      */
     public final ExtensionResponse generateErrorResponse(String errorMessage) {
         LOGGER.error("Generating error response: {}", errorMessage);
-        
+
         // Check if this helper needs a custom error response
         Map<String, Object> customErrorResult = getCustomErrorResult();
         if (customErrorResult != null) {
             return new ExtensionResponseBuilder().success(customErrorResult).build();
         }
-        
-        // Default error response using failure pattern
-        ExtensionResponse.Error error = new ErrorBuilder()
-                .exceptionType(ExtensionResponse.Error.ExceptionType.LOGIC_ERROR)
-                .errorMessage(errorMessage)
-                .build();
 
-        return new ExtensionResponseBuilder()
-                .failure(error)
-                .build();
+        // Use centralized error response generation for consistency
+        return ExtensionResponseFactory.generateErrorResponse(errorMessage);
     }
 
     /**

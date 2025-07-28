@@ -103,5 +103,4 @@ public class DeleteAccountHelper extends BaseValidationHelper {
         return SubCatalogConstants.CONFIRM_DELETE_ACCOUNT_VALIDATION;
     }
 
-    // Uses default generateErrorResponse from base class (standard failure response)
 }
