@@ -8,7 +8,7 @@ import javax.ws.rs.core.Application;
 import java.util.Set;
 
 @Service
-@ApplicationPath("/azuread")
+@ApplicationPath("azuread")
 @ContractsProvided(Application.class)
 public class AzureADApplication extends Application {
 

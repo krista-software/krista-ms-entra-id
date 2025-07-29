@@ -26,14 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static app.krista.extensions.cyber_security.iam.azureAD.impl.util.Constants.*;
 import static com.github.scribejava.core.model.OAuthConstants.CODE;
@@ -188,12 +184,6 @@ public final class AuthenticationResource {
         return parts.length > 1 ? parts[1] : null;
     }
 
-    private GraphServiceClientProvider getGraphServiceClientProvider(String authContextId) {
-        return authContextId == null
-                ? providerFactory.create()
-                : providerFactory.create(authContextId);
-    }
-
     private String createTestConnectionResponse(boolean isSuccess, String errorMessage, String url) {
         if (isSuccess) {
             return Constants.GSON.toJson(new AuthenticationResponse(true, null, null));
@@ -300,58 +290,9 @@ public final class AuthenticationResource {
     }
 
     @GET
-    @Path("/docs/")
-    @Produces(MediaType.TEXT_HTML)
-    public String getAuthenticationUI() {
-        // Return the built React app HTML with relative paths
-        return """
-            <!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Azure AD Authentication Tab"/><link rel="manifest" href="./manifest.json"/><title>Authentication</title><script defer="defer" src="./static/js/main.b1774c00.js"></script><link href="./static/css/main.2cf75125.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>
-            """;
+    @Path("/docs/{subPath:.*}")
+    public InputStream customTabs(@PathParam("subPath") String subPath) {
+        String filePath = "ui/" + (subPath.isEmpty() ? "index.html" : subPath);
+        return getClass().getClassLoader().getResourceAsStream(filePath);
     }
-
-    @GET
-    @Path("/docs/static/css/{filename}")
-    @Produces("text/css")
-    public Response getCSSFile(@PathParam("filename") String filename) {
-        try {
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("ui/build/static/css/" + filename);
-            if (inputStream == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            return Response.ok(inputStream).type("text/css").build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GET
-    @Path("/docs/static/js/{filename}")
-    @Produces("application/javascript")
-    public Response getJSFile(@PathParam("filename") String filename) {
-        try {
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("ui/build/static/js/" + filename);
-            if (inputStream == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            return Response.ok(inputStream).type("application/javascript").build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GET
-    @Path("/docs/manifest.json")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getManifest() {
-        try {
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("ui/build/manifest.json");
-            if (inputStream == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            return Response.ok(inputStream).type(MediaType.APPLICATION_JSON).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
 }
