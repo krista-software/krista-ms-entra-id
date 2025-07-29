@@ -1,4 +1,4 @@
-### Release Notes - Azure AD Extension
+### Release Notes - Microsoft Entra ID Extension
 
 ## Version 2.0.6
 
@@ -20,11 +20,11 @@
 * Get All Groups request does not include or support **Security Groups** in its response.
 
 ## Resolved Bugs
-* [KE-1901](https://antbrains.atlassian.net/browse/KE-1901) Azure AD: Invalid Error Message When Re-adding a User to a Group.
-* [KE-1903](https://antbrains.atlassian.net/browse/KE-1903) Azure AD: Error is displayed when an invalid email ID is entered in the Reset Password request.
-* [KE-1904](https://antbrains.atlassian.net/browse/KE-1904) Azure AD: Extension Logs Not Displayed in Diagnostics.
-* [KE-1897](https://antbrains.atlassian.net/browse/KE-1897) Azure AD: The response does not indicate whether the account has been successfully deactivated or not.
-* [KE-1899](https://antbrains.atlassian.net/browse/KE-1899) Azure AD: The response does not confirm if the account has been successfully added to the group.
+* [KE-1901](https://antbrains.atlassian.net/browse/KE-1901) Microsoft Entra ID: Invalid Error Message When Re-adding a User to a Group.
+* [KE-1903](https://antbrains.atlassian.net/browse/KE-1903) Microsoft Entra ID: Error is displayed when an invalid email ID is entered in the Reset Password request.
+* [KE-1904](https://antbrains.atlassian.net/browse/KE-1904) Microsoft Entra ID: Extension Logs Not Displayed in Diagnostics.
+* [KE-1897](https://antbrains.atlassian.net/browse/KE-1897) Microsoft Entra ID: The response does not indicate whether the account has been successfully deactivated or not.
+* [KE-1899](https://antbrains.atlassian.net/browse/KE-1899) Microsoft Entra ID: The response does not confirm if the account has been successfully added to the group.
 
 ## UI/UX Improvements
 * **Authentication UI Cleanup**: Removed unused "Allow Mail Alert" option from authentication tab

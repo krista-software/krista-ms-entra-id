@@ -11,14 +11,14 @@ group 'app.krista.extensions.essentials.cyber_security.iam'
  * Use extension.name for archiveBaseName, extension.version for version.
  * Resulting jar: <extension.name>-<extension.version>.jar e.g. OutlookV3-3.0.4-rc1.jar
  */
-def computedBaseName = "AzureAD"
+def computedBaseName = "MicrosoftEntraID"
 def computedVersion = "local"
 def releasePropsFile = file('release.properties')
 if (releasePropsFile.exists()) {
     def props = new Properties()
     releasePropsFile.withInputStream { stream -> props.load(stream) }
     // Remove whitespace for base name, but allow dashes/underscores
-    computedBaseName = (props['extension.name'] ?: "AzureAD").replaceAll(/\s+/, "")
+    computedBaseName = (props['extension.name'] ?: "MicrosoftEntraID").replaceAll(/\s+/, "")
     computedVersion = props['extension.version'] ?: "local"
 }
 version = computedVersion
@@ -215,8 +215,8 @@ import java.util.regex.Pattern
 abstract class  GenerateReleasePropertiesTask extends DefaultTask {
     @TaskAction
     def generateProperties() {
-        def extensionFilePath = 'src/main/java/app/krista/extensions/cyber_security/iam/azureAD/AzureADExtension.java'
-        def areaFilePath = 'src/main/java/app/krista/extensions/cyber_security/iam/azureAD/catalog/AccountManagerArea.java'
+        def extensionFilePath = 'src/main/java/app/krista/extensions/cyber_security/iam/microsoftEntraID/AzureADExtension.java'
+        def areaFilePath = 'src/main/java/app/krista/extensions/cyber_security/iam/microsoftEntraID/catalog/AccountManagerArea.java'
         def extensionFile = project.file(extensionFilePath)
         def areaFile = project.file(areaFilePath)
         if (!extensionFile.exists()) {
@@ -313,7 +313,7 @@ jar {
             def props = new Properties()
             jarReleasePropsFile.withInputStream { stream -> props.load(stream) }
             // Use extension.name if available, otherwise fall back to default
-            def actualBaseName = (props['extension.name'] ?: "AzureAD").replaceAll(/\s+/, "")
+            def actualBaseName = (props['extension.name'] ?: "MicrosoftEntraID").replaceAll(/\s+/, "")
             def actualVersion = props['extension.version'] ?: "local"
 
             println "Using jar name from release.properties: ${actualBaseName}-${actualVersion}.jar"

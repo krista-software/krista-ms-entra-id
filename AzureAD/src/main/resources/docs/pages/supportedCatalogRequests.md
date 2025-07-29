@@ -1,6 +1,6 @@
 ## Catalog Requests
 
-### The Azure AD Extension supports the following catalog requests
+### The Microsoft Entra ID Extension supports the following catalog requests
 
 #### 1. Create Account
 
@@ -27,8 +27,8 @@
 |-----------|---------------------|-------------------|
 | Name | Empty or invalid format | Please enter a valid name for the new account (2-50 characters, letters, spaces, hyphens, apostrophes, and dots allowed). |
 | Name | Invalid characters or length | The provided name is not valid for account creation. Please enter a valid name. |
-| Email | Empty or invalid format | Please enter a valid email address for the new account that doesn't already exist in Azure AD. |
-| Email | Already exists in Azure AD | The email address already exists in Azure AD. Please enter a different email address. |
+| Email | Empty or invalid format | Please enter a valid email address for the new account that doesn't already exist in Microsoft Entra ID. |
+| Email | Already exists in Microsoft Entra ID | The email address already exists in Microsoft Entra ID. Please enter a different email address. |
 | Email | Invalid format | The provided email address is not in valid format. Please enter a valid email address. |
 | Mobile Number | Empty or invalid format | Please enter a valid mobile number for the new account (10-15 digits, international format supported with + prefix). |
 | Mobile Number | Invalid format | The provided mobile number is not valid for account creation. Please enter a valid mobile number. |
@@ -57,8 +57,8 @@
 |-----------|---------------------|-------------------|
 | Name | Empty or invalid format | Please enter a valid name for account update (2-50 characters, letters, spaces, hyphens, apostrophes, and dots allowed). |
 | Name | Invalid characters or length | The provided name is not valid for account update. Please enter a valid name. |
-| Email | Empty or invalid format | Please enter a valid email address that exists in Azure AD for account update. |
-| Email | Not found in Azure AD | Email not found in Azure AD. |
+| Email | Empty or invalid format | Please enter a valid email address that exists in Microsoft Entra ID for account update. |
+| Email | Not found in Microsoft Entra ID | Email not found in Microsoft Entra ID. |
 | Mobile Number | Empty or invalid format | Please enter a valid mobile number for account update (10-15 digits, international format supported with + prefix). |
 | Mobile Number | Invalid format | The provided mobile number is not valid for account update. Please enter a valid mobile number. |
 
@@ -81,8 +81,8 @@
 
 | **Field** | **Validation Error** | **Error Message** |
 |-----------|---------------------|-------------------|
-| Email | Empty or invalid format | Please enter a valid email address that exists in Azure AD. |
-| Email | Not found in Azure AD | Email not found in Azure AD. |
+| Email | Empty or invalid format | Please enter a valid email address that exists in Microsoft Entra ID. |
+| Email | Not found in Microsoft Entra ID | Email not found in Microsoft Entra ID. |
 | Email | Invalid format | Invalid email format. Please enter a valid email address. |
 
 #### 4. Reset Password
@@ -106,8 +106,8 @@
 |-----------|---------------------|-------------------|
 | ID or User Principal Name | Empty | Please enter a valid user ID or email address for password reset. |
 | ID or User Principal Name | Invalid format | Invalid ID format. Please enter a valid email address or user ID. |
-| ID or User Principal Name | Email not found in Azure AD | Email address not found in Azure AD or not eligible for password reset. |
-| ID or User Principal Name | User ID not found | User ID not found in Azure AD or not eligible for password reset. |
+| ID or User Principal Name | Email not found in Microsoft Entra ID | Email address not found in Microsoft Entra ID or not eligible for password reset. |
+| ID or User Principal Name | User ID not found | User ID not found in Microsoft Entra ID or not eligible for password reset. |
 
 #### 5. Get User Details by ID or Email
 
@@ -128,9 +128,9 @@
 
 | **Field** | **Validation Error** | **Error Message** |
 |-----------|---------------------|-------------------|
-| ID or User Principal Name | Empty | Please enter a valid user ID or email address that exists in Azure AD. |
-| ID or User Principal Name | Email not found | Please enter a valid Email that exists in Azure AD. |
-| ID or User Principal Name | User ID not found | Please enter a valid user ID that exists in Azure AD. |
+| ID or User Principal Name | Empty | Please enter a valid user ID or email address that exists in Microsoft Entra ID. |
+| ID or User Principal Name | Email not found | Please enter a valid Email that exists in Microsoft Entra ID. |
+| ID or User Principal Name | User ID not found | Please enter a valid user ID that exists in Microsoft Entra ID. |
 
 #### 6. Activate or Deactivate an Account
 
@@ -153,10 +153,10 @@
 
 | **Field** | **Validation Error**| **Error Message** |
 |-----------|---------------------|-------------------|
-| User Mail or ID | Empty | Please enter a valid user email address or user ID that exists in Azure AD. |
-| User Mail or ID | Email not found | Please enter a valid email address that exists in Azure AD. |
-| User Mail or ID | User ID not found | Please enter a valid user ID that exists in Azure AD. |
-| User Mail or ID | Not found in Azure AD | Email not found in Azure AD or User ID not found in Azure AD. |
+| User Mail or ID | Empty | Please enter a valid user email address or user ID that exists in Microsoft Entra ID. |
+| User Mail or ID | Email not found | Please enter a valid email address that exists in Microsoft Entra ID. |
+| User Mail or ID | User ID not found | Please enter a valid user ID that exists in Microsoft Entra ID. |
+| User Mail or ID | Not found in Microsoft Entra ID | Email not found in Microsoft Entra ID or User ID not found in Microsoft Entra ID. |
 
 #### 7. Add Group to Account
 
@@ -179,9 +179,9 @@
 | **Field** | **Validation Error** | **Error Message** |
 |-----------|---------------------|-------------------|
 | User Mail or ID | Empty | Please enter a valid user email address or user ID to add to the group. |
-| User Mail or ID | Email not found | Please enter a valid email address that exists in Azure AD to add to the group. |
-| User Mail or ID | User ID not found | Please enter a valid user ID that exists in Azure AD to add to the group. |
-| User Mail or ID | Not found in Azure AD | Email address not found in Azure AD or not eligible for group addition, or User ID not found in Azure AD or not eligible for group addition. |
+| User Mail or ID | Email not found | Please enter a valid email address that exists in Microsoft Entra ID to add to the group. |
+| User Mail or ID | User ID not found | Please enter a valid user ID that exists in Microsoft Entra ID to add to the group. |
+| User Mail or ID | Not found in Microsoft Entra ID | Email address not found in Microsoft Entra ID or not eligible for group addition, or User ID not found in Microsoft Entra ID or not eligible for group addition. |
 | Group Object Id | Empty | Group Object Id is null or empty for user addition. |
 | Group Object Id | Invalid format | The provided Group Object Id is not valid. Please enter a valid Group Object Id. |
 
@@ -206,9 +206,9 @@
 | **Field** | **Validation Error** | **Error Message** |
 |-----------|---------------------|-------------------|
 | User Mail or ID | Empty | Please enter a valid user email address or user ID for group removal. |
-| User Mail or ID | Email not found | Please enter a valid email address that exists in Azure AD for group removal. |
-| User Mail or ID | User ID not found | Please enter a valid user ID that exists in Azure AD for group removal. |
-| User Mail or ID | Not found in Azure AD | Email address not found in Azure AD or not eligible for group removal, or User ID not found in Azure AD or not eligible for group removal. |
+| User Mail or ID | Email not found | Please enter a valid email address that exists in Microsoft Entra ID for group removal. |
+| User Mail or ID | User ID not found | Please enter a valid user ID that exists in Microsoft Entra ID for group removal. |
+| User Mail or ID | Not found in Microsoft Entra ID | Email address not found in Microsoft Entra ID or not eligible for group removal, or User ID not found in Microsoft Entra ID or not eligible for group removal. |
 | Group Object Id | Empty | Group Object Id is null or empty for user removal. |
 | Group Object Id | Invalid format | The provided Group Object Id is not valid. Please enter a valid Group Object Id. |
 
@@ -227,7 +227,7 @@
 
 ## Entity Requests
 
-### The Azure AD Extension supports the following entity requests
+### The Microsoft Entra ID Extension supports the following entity requests
 
 ### 1. Account
 

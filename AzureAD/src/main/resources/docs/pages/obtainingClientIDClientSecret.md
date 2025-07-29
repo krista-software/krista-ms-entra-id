@@ -1,7 +1,7 @@
 ### Obtaining Client ID, Tenant ID, and Client Secret
 
 
-* For the Azure AD Extension, you would need to obtain Client ID, Tenant ID, and Client Secret from the Azure Portal.
+* For the Microsoft Entra ID Extension, you would need to obtain Client ID, Tenant ID, and Client Secret from the Azure Portal.
 
 
 ### Steps to get Client ID, Tenant ID, and Client Secret

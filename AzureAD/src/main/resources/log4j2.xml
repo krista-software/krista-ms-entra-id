@@ -10,7 +10,7 @@
         <Root level="info">
             <AppenderRef ref="console"/>
         </Root>
-        <Logger name="app.krista.extensions.cyber_security.iam.azureAD" additivity="false" level="debug">
+        <Logger name="app.krista.extensions.cyber_security.iam.microsoftEntraID" additivity="false" level="debug">
             <AppenderRef ref="console" />
         </Logger>
     </Loggers>

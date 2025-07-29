@@ -1,7 +1,7 @@
 ### Overview
 
-* The Krista extension connects to the Microsoft Azure AD application and performs various operations.
-* In computing, Microsoft Azure Active Directory, commonly known as Azure AD, is a system in Microsoft Azure that enables the identity management to configure accessibility of users and groups to services and resources. 
+* The Krista extension connects to the Microsoft Entra ID application and performs various operations.
+* In computing, Microsoft Entra ID (formerly known as Azure Active Directory) is a system in Microsoft Azure that enables the identity management to configure accessibility of users and groups to services and resources.
 
 
 ### Prerequisite

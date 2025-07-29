@@ -2,14 +2,14 @@
 
 ### Home Page
 
-This extension connects to **Azure Active Directory** and performs various operations.
+This extension connects to **Microsoft Entra ID** and performs various operations.
 
 * ### Overview
     * [Overview](pages/overview.md)
-* ### Getting your own Azure AD credentials
+* ### Getting your own Microsoft Entra ID credentials
     * [Obtaining Client ID, Tenant ID, and Client Secret](pages/obtainingClientIDClientSecret.md)
-* ### Connecting to Azure AD
-    * [Connecting with Azure AD Extension](pages/connectingWithAzureADExtension.md)
+* ### Connecting to Microsoft Entra ID
+    * [Connecting with Microsoft Entra ID Extension](pages/connectingWithAzureADExtension.md)
 * ### Authentication
     * [Authentication](pages/authentication.md)
 * ### Supported Requests

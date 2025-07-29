@@ -1,6 +1,6 @@
 {
   "short_name": "Authentication",
-  "name": "Azure AD Extension Authentication",
+  "name": "Microsoft Entra ID Extension Authentication",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

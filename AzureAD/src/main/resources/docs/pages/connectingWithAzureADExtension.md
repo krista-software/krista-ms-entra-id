@@ -1,4 +1,4 @@
-### Connecting with Azure AD Extension
+### Connecting with Microsoft Entra ID Extension
 
 
 ### Steps for connection

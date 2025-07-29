@@ -7,7 +7,7 @@
 
 * [Obtaining Client ID, Tenant ID, and Client Secret](pages/obtainingClientIDClientSecret.md)
 
-* [Connecting with Azure AD Extension](pages/connectingWithAzureADExtension.md)
+* [Connecting with Microsoft Entra ID Extension](pages/connectingWithAzureADExtension.md)
 
 * [Authentication](pages/authentication.md)
 
