@@ -8,7 +8,7 @@ import javax.ws.rs.core.Application;
 import java.util.Set;
 
 @Service
-@ApplicationPath("azuread")
+@ApplicationPath("microsoftentraid")//microsoftentraid
 @ContractsProvided(Application.class)
 public class MicrosoftEntraIDApplication extends Application {
 

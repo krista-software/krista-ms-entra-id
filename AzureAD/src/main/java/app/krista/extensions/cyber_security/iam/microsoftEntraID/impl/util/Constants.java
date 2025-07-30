@@ -27,7 +27,7 @@ public class Constants {
     public static final String LOCAL_EXTN_URL = "localhost:8080";
     public static final String LOCAL_EXTN_REPLACE_URL = "host.docker.internal:8080";
     public static final String DEFAULT_CALLBACK_PATH = "/extension/api/rest/v3/oauth/callback";
-    public static final String EXTENSION_FORWARD_PATH = "/rest/azuread/v3/oauth/callback";
+    public static final String EXTENSION_FORWARD_PATH = "/rest/microsoftentraid/v3/oauth/callback";
     public static final String HASH = "#";
 
     // Authentication constants

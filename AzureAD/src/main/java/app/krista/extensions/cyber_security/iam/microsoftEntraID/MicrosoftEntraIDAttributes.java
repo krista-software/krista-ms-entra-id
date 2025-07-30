@@ -85,7 +85,7 @@ public final class MicrosoftEntraIDAttributes {
         if (Constants.PUBLIC.equals(authType)) {
              return routingUrl.replaceAll("/extension/api/.*", DEFAULT_CALLBACK_PATH);
         } else if (Constants.PRIVATE.equals(authType)) {
-            return routingUrl + "/rest/azuread/callback";
+            return routingUrl + "/rest/microsoftentraid/callback";
         } else {
             return EMPTY_STRING;
         }
