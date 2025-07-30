@@ -1,7 +1,7 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.validators;
 
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.extresp.FieldTypes;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.AccountImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +72,7 @@ public class AddAccountGroupObjectIdValidator implements Validator {
 
     @Override
     public String getFetchFieldName() {
-        return AzureResources.GROUP_OBJECT_ID_ADD_GROUP;
+        return MicrosoftEntraIDResources.GROUP_OBJECT_ID_ADD_GROUP;
     }
 
     @Override

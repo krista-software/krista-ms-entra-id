@@ -2,7 +2,7 @@ package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.helper
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.errorhandlers.ExtensionResponseGenerator;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.errorhandlers.ErrorHandlingStateManager;
@@ -130,9 +130,9 @@ public class UpdateAccountHelper {
         // Create a map with the necessary data for the confirmation step
         Map<String, Object> map = Map.of(
                 SubCatalogConstants.STATE_ID, stateId,
-                AzureResources.NAME_UPDATE_ACCOUNT, name != null ? name : "",
-                AzureResources.MOBILE_NUMBER_UPDATE_ACCOUNT, mobileNumber != null ? mobileNumber : "",
-                AzureResources.EMAIL_UPDATE_ACCOUNT, email != null ? email : ""
+                MicrosoftEntraIDResources.NAME_UPDATE_ACCOUNT, name != null ? name : "",
+                MicrosoftEntraIDResources.MOBILE_NUMBER_UPDATE_ACCOUNT, mobileNumber != null ? mobileNumber : "",
+                MicrosoftEntraIDResources.EMAIL_UPDATE_ACCOUNT, email != null ? email : ""
         );
         LOGGER.debug("Validation failed, generated confirmation response map: {}", map);
 

@@ -1,7 +1,7 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.connectors;
 
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.AzureADAttributes;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.AzureADAttributesStore;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.MicrosoftEntraIDAttributes;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.MicrosoftEntraIDAttributesStore;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.RefreshTokenStore;
 import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.ksdk.context.RequestContext;
@@ -14,14 +14,14 @@ import javax.inject.Inject;
 public final class GraphServiceClientProviderFactory {
 
     private final RefreshTokenStore refreshTokenStore;
-    private final AzureADAttributesStore azureADAttributesStore;
+    private final MicrosoftEntraIDAttributesStore azureADAttributesStore;
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
     private final GraphServiceClientProvider defaultClientProvider;
 
     @Inject
     public GraphServiceClientProviderFactory(RefreshTokenStore refreshTokenStore,
-                                             AzureADAttributesStore azureADAttributesStore,
+                                             MicrosoftEntraIDAttributesStore azureADAttributesStore,
                                              RequestContext requestContext,
                                              AuthorizationContext authorizationContext) {
         this.refreshTokenStore = refreshTokenStore;
@@ -31,29 +31,29 @@ public final class GraphServiceClientProviderFactory {
         this.defaultClientProvider = null; // Will be created on demand
     }
 
-    public String createAttributes(AzureADAttributes attributes) {
+    public String createAttributes(MicrosoftEntraIDAttributes attributes) {
         return azureADAttributesStore.save(attributes);
     }
 
     @NotNull
-    private GraphServiceClientProvider getGraphServiceClientProvider(AzureADAttributes attributes,
+    private GraphServiceClientProvider getGraphServiceClientProvider(MicrosoftEntraIDAttributes attributes,
                                                                      String authContextId) {
         return new GraphServiceClientProvider(refreshTokenStore, attributes, requestContext, authorizationContext,
                 authContextId);
     }
 
     public GraphServiceClientProvider create(String authContextId) {
-        final AzureADAttributes attributes = azureADAttributesStore.load(authContextId);
+        final MicrosoftEntraIDAttributes attributes = azureADAttributesStore.load(authContextId);
         return getGraphServiceClientProvider(attributes, authContextId);
     }
 
     public GraphServiceClientProvider create() {
         String key = requestContext.getInvokerId();
-        AzureADAttributes attributes = azureADAttributesStore.load(key);
+        MicrosoftEntraIDAttributes attributes = azureADAttributesStore.load(key);
         return getGraphServiceClientProvider(attributes, null);
     }
 
-    public GraphServiceClientProvider create(AzureADAttributes azureADAttributes) {
+    public GraphServiceClientProvider create(MicrosoftEntraIDAttributes azureADAttributes) {
         String authContextId = azureADAttributesStore.save(azureADAttributes);
         return new GraphServiceClientProvider(refreshTokenStore, azureADAttributes, requestContext, authorizationContext, authContextId);
     }

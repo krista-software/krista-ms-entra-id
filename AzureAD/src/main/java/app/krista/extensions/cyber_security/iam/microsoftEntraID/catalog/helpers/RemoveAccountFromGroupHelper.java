@@ -2,7 +2,7 @@ package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.helper
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.errorhandlers.ExtensionResponseGenerator;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.errorhandlers.ErrorHandlingStateManager;
@@ -121,8 +121,8 @@ public class RemoveAccountFromGroupHelper {
         map.put(SubCatalogConstants.STATE_ID, stateId);
 
         // Always include both fields to preserve valid values during re-entry flow
-        map.put(AzureResources.USER_MAIL_OR_ID_REMOVE_GROUP, userMailOrId != null ? userMailOrId : "");
-        map.put(AzureResources.GROUP_OBJECT_ID, groupObjectId != null ? groupObjectId : "");
+        map.put(MicrosoftEntraIDResources.USER_MAIL_OR_ID_REMOVE_GROUP, userMailOrId != null ? userMailOrId : "");
+        map.put(MicrosoftEntraIDResources.GROUP_OBJECT_ID, groupObjectId != null ? groupObjectId : "");
 
         LOGGER.debug("Validation failed, generated confirmation response map: {}", map);
 

@@ -1,7 +1,7 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.validators;
 
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.extresp.FieldTypes;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.AccountImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public class UpdateAccountMobileNumberValidator implements Validator {
 
     @Override
     public String getFetchFieldName() {
-        return AzureResources.MOBILE_NUMBER_UPDATE_ACCOUNT;
+        return MicrosoftEntraIDResources.MOBILE_NUMBER_UPDATE_ACCOUNT;
     }
 
     @Override

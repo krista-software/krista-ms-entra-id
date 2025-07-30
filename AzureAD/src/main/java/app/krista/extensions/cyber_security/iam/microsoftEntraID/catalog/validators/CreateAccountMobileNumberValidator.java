@@ -1,6 +1,6 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.validators;
 
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.extresp.FieldTypes;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class CreateAccountMobileNumberValidator extends BaseValidator {
     private static final Pattern BASIC_MOBILE_PATTERN = Pattern.compile("^[\\+]?[0-9\\s\\-\\(\\)]{10,15}$");
 
     public CreateAccountMobileNumberValidator() {
-        super(AzureResources.MOBILE_NUMBER_CREATE_ACCOUNT, FieldTypes.TEXT_FIELD_LOGICAL_NAME);
+        super(MicrosoftEntraIDResources.MOBILE_NUMBER_CREATE_ACCOUNT, FieldTypes.TEXT_FIELD_LOGICAL_NAME);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CreateAccountMobileNumberValidator extends BaseValidator {
 
     @Override
     public String getFetchFieldName() {
-        return AzureResources.MOBILE_NUMBER_CREATE_ACCOUNT;
+        return MicrosoftEntraIDResources.MOBILE_NUMBER_CREATE_ACCOUNT;
     }
 
     @Override

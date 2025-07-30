@@ -1,6 +1,6 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util;
 
-public class AzureResources {
+public class MicrosoftEntraIDResources {
     public static final String ID = "Id";
     public static final String EMAIL = "Email";
     public static final String USER_MAIL_OR_ID = "User Mail or ID";

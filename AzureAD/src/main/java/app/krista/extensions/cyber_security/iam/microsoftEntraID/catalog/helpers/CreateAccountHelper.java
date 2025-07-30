@@ -2,7 +2,7 @@ package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.helper
 
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.errorhandlers.ExtensionResponseGenerator;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.errorhandlers.ErrorHandlingStateManager;
@@ -97,9 +97,9 @@ public class CreateAccountHelper extends BaseValidationHelper {
         Map<String, Object> map = createBaseParameterMap(stateId);
 
         // Always include all fields to preserve valid values during re-entry flow
-        map.put(AzureResources.NAME_CREATE_ACCOUNT, name);
-        map.put(AzureResources.EMAIL_CREATE_ACCOUNT, email);
-        map.put(AzureResources.MOBILE_NUMBER_CREATE_ACCOUNT, mobileNumber);
+        map.put(MicrosoftEntraIDResources.NAME_CREATE_ACCOUNT, name);
+        map.put(MicrosoftEntraIDResources.EMAIL_CREATE_ACCOUNT, email);
+        map.put(MicrosoftEntraIDResources.MOBILE_NUMBER_CREATE_ACCOUNT, mobileNumber);
 
         return map;
     }

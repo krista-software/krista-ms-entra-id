@@ -16,7 +16,7 @@ import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.helpers
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.helpers.AddAccountToGroupHelper;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.helpers.UpdateAccountHelper;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.helpers.CreateAccountHelper;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.validators.ValidationOrchestrator;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.validators.Validator;
@@ -120,7 +120,7 @@ public class AccountManagerAreaSubcatalogRequests {
 
         LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Full input map contents: {}", map);
 
-        String userId = (String) map.get(AzureResources.ID);
+        String userId = (String) map.get(MicrosoftEntraIDResources.ID);
         LOGGER.debug("handleReenterGetUserDetailsByIDOrEmail() - Extracted parameters: USER_ID={}", userId);
 
         // Validate the re-entered data
@@ -240,7 +240,7 @@ public class AccountManagerAreaSubcatalogRequests {
 
         LOGGER.debug("handleDeleteAccountValidation() - Full input map contents: {}", map);
 
-        String email = (String) map.get(AzureResources.EMAIL);
+        String email = (String) map.get(MicrosoftEntraIDResources.EMAIL);
         LOGGER.debug("handleDeleteAccountValidation() - Extracted parameters: EMAIL={}", email);
 
         // Validate the re-entered data
@@ -313,7 +313,7 @@ public class AccountManagerAreaSubcatalogRequests {
 
         LOGGER.debug("handleActivateDeactivateAccountValidation() - Full input map contents: {}", map);
 
-        String userMailOrID = (String) map.get(AzureResources.USER_MAIL_OR_ID);
+        String userMailOrID = (String) map.get(MicrosoftEntraIDResources.USER_MAIL_OR_ID);
         Boolean deactivate = (Boolean) map.get("Deactivate");
         LOGGER.debug("handleActivateDeactivateAccountValidation() - Extracted parameters: USER_MAIL_OR_ID={}, Deactivate={}", userMailOrID, deactivate);
 
@@ -386,7 +386,7 @@ public class AccountManagerAreaSubcatalogRequests {
 
         LOGGER.debug("handleResetPasswordValidation() - Full input map contents: {}", map);
 
-        String id = (String) map.get(AzureResources.ID);
+        String id = (String) map.get(MicrosoftEntraIDResources.ID);
         LOGGER.debug("handleResetPasswordValidation() - Extracted parameters: ID={}", id);
 
         // Validate the re-entered data
@@ -458,8 +458,8 @@ public class AccountManagerAreaSubcatalogRequests {
 
         LOGGER.debug("handleRemoveAccountFromGroupValidation() - Full input map contents: {}", map);
 
-        String userMailOrId = (String) map.get(AzureResources.USER_MAIL_OR_ID_REMOVE_GROUP);
-        String groupObjectId = (String) map.get(AzureResources.GROUP_OBJECT_ID);
+        String userMailOrId = (String) map.get(MicrosoftEntraIDResources.USER_MAIL_OR_ID_REMOVE_GROUP);
+        String groupObjectId = (String) map.get(MicrosoftEntraIDResources.GROUP_OBJECT_ID);
         LOGGER.debug("handleRemoveAccountFromGroupValidation() - Extracted parameters: USER_MAIL_OR_ID={}, GROUP_OBJECT_ID={}", userMailOrId, groupObjectId);
 
         // Validate the re-entered data
@@ -534,8 +534,8 @@ public class AccountManagerAreaSubcatalogRequests {
 
         LOGGER.debug("handleAddAccountToGroupValidation() - Full input map contents: {}", map);
 
-        String userMailOrId = (String) map.get(AzureResources.USER_MAIL_OR_ID_ADD_GROUP);
-        String groupObjectId = (String) map.get(AzureResources.GROUP_OBJECT_ID_ADD_GROUP);
+        String userMailOrId = (String) map.get(MicrosoftEntraIDResources.USER_MAIL_OR_ID_ADD_GROUP);
+        String groupObjectId = (String) map.get(MicrosoftEntraIDResources.GROUP_OBJECT_ID_ADD_GROUP);
         LOGGER.debug("handleAddAccountToGroupValidation() - Extracted parameters: USER_MAIL_OR_ID={}, GROUP_OBJECT_ID={}", userMailOrId, groupObjectId);
 
         // Validate the re-entered data
@@ -615,9 +615,9 @@ public class AccountManagerAreaSubcatalogRequests {
                     entry.getValue() != null ? entry.getValue().getClass().getSimpleName() : "null");
         }
 
-        String name = (String) map.get(AzureResources.NAME_UPDATE_ACCOUNT);
-        String mobileNumber = (String) map.get(AzureResources.MOBILE_NUMBER_UPDATE_ACCOUNT);
-        String email = (String) map.get(AzureResources.EMAIL_UPDATE_ACCOUNT);
+        String name = (String) map.get(MicrosoftEntraIDResources.NAME_UPDATE_ACCOUNT);
+        String mobileNumber = (String) map.get(MicrosoftEntraIDResources.MOBILE_NUMBER_UPDATE_ACCOUNT);
+        String email = (String) map.get(MicrosoftEntraIDResources.EMAIL_UPDATE_ACCOUNT);
         LOGGER.debug("handleUpdateAccountValidation() - Extracted parameters: NAME={}, MOBILE_NUMBER={}, EMAIL={}", name, mobileNumber, email);
 
         // Validate the re-entered data
@@ -694,9 +694,9 @@ public class AccountManagerAreaSubcatalogRequests {
 
         LOGGER.debug("handleCreateAccountValidation() - Full input map contents: {}", map);
 
-        String name = (String) map.get(AzureResources.NAME_CREATE_ACCOUNT);
-        String email = (String) map.get(AzureResources.EMAIL_CREATE_ACCOUNT);
-        String mobileNumber = (String) map.get(AzureResources.MOBILE_NUMBER_CREATE_ACCOUNT);
+        String name = (String) map.get(MicrosoftEntraIDResources.NAME_CREATE_ACCOUNT);
+        String email = (String) map.get(MicrosoftEntraIDResources.EMAIL_CREATE_ACCOUNT);
+        String mobileNumber = (String) map.get(MicrosoftEntraIDResources.MOBILE_NUMBER_CREATE_ACCOUNT);
 
         // Validate the re-entered data
         List<ValidationOrchestrator.ValidationResult> validationResults = validationOrchestrator.validate(

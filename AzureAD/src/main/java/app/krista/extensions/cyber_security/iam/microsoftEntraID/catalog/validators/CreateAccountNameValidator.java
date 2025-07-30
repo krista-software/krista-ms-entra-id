@@ -1,6 +1,6 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.validators;
 
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.extresp.FieldTypes;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class CreateAccountNameValidator extends BaseValidator {
     private static final Pattern VALID_NAME_PATTERN = Pattern.compile("^[a-zA-Z\\s\\-'.]{2,50}$");
 
     public CreateAccountNameValidator() {
-        super(AzureResources.NAME_CREATE_ACCOUNT, FieldTypes.TEXT_FIELD_LOGICAL_NAME);
+        super(MicrosoftEntraIDResources.NAME_CREATE_ACCOUNT, FieldTypes.TEXT_FIELD_LOGICAL_NAME);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class CreateAccountNameValidator extends BaseValidator {
 
     @Override
     public String getFetchFieldName() {
-        return AzureResources.NAME_CREATE_ACCOUNT;
+        return MicrosoftEntraIDResources.NAME_CREATE_ACCOUNT;
     }
 
     @Override

@@ -15,9 +15,9 @@ import java.util.regex.Pattern;
  * This class eliminates code duplication across all user-related validators
  * by providing template methods for common validation patterns.
  */
-public abstract class BaseAzureADUserValidator extends BaseValidator {
+public abstract class BaseMicrosoftEntraIDUserValidator extends BaseValidator {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseAzureADUserValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseMicrosoftEntraIDUserValidator.class);
     
     // Common email pattern used across validators
     protected static final Pattern EMAIL_PATTERN = Pattern.compile(
@@ -33,7 +33,7 @@ public abstract class BaseAzureADUserValidator extends BaseValidator {
      * @param fieldType The field type for this validator
      * @param accountService The account service for user lookups
      */
-    protected BaseAzureADUserValidator(String fieldName, String fieldType, Accounts accountService) {
+    protected BaseMicrosoftEntraIDUserValidator(String fieldName, String fieldType, Accounts accountService) {
         super(fieldName, fieldType);
         this.accountService = accountService;
     }

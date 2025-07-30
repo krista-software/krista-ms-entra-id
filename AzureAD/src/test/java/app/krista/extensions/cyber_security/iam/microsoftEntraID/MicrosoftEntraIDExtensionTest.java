@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  * are for testing purposes only. These may be valid or invalid depending on your environment.
  * To run these tests successfully, please replace them with your own valid credentials.
  */
-public class AzureADExtensionTest {
+public class MicrosoftEntraIDExtensionTest {
 
     // Mock Account class for testing
     public static class Account {

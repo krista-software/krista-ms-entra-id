@@ -10,7 +10,7 @@ import java.util.Set;
 @Service
 @ApplicationPath("azuread")
 @ContractsProvided(Application.class)
-public class AzureADApplication extends Application {
+public class MicrosoftEntraIDApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {

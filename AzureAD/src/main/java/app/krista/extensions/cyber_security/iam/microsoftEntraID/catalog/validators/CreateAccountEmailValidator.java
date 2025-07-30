@@ -1,6 +1,6 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.validators;
 
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.extresp.FieldTypes;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.AccountImpl;
 import org.jvnet.hk2.annotations.Service;
@@ -30,7 +30,7 @@ public class CreateAccountEmailValidator extends BaseValidator {
 
     @Inject
     public CreateAccountEmailValidator(AccountImpl accountService) {
-        super(AzureResources.EMAIL_CREATE_ACCOUNT, FieldTypes.TEXT_FIELD_LOGICAL_NAME);
+        super(MicrosoftEntraIDResources.EMAIL_CREATE_ACCOUNT, FieldTypes.TEXT_FIELD_LOGICAL_NAME);
         this.accountService = accountService;
     }
 
@@ -71,7 +71,7 @@ public class CreateAccountEmailValidator extends BaseValidator {
 
     @Override
     public String getFetchFieldName() {
-        return AzureResources.EMAIL_CREATE_ACCOUNT;
+        return MicrosoftEntraIDResources.EMAIL_CREATE_ACCOUNT;
     }
 
     @Override

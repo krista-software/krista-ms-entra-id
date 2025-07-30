@@ -1,7 +1,7 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.connectors;
 
 import app.krista.extension.authorization.MustAuthorizeException;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.AzureADAttributes;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.MicrosoftEntraIDAttributes;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.RefreshTokenStore;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.util.Constants;
 import app.krista.ksdk.context.AuthorizationContext;
@@ -36,18 +36,18 @@ public class GraphServiceClientProvider {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GraphServiceClientProvider.class);
     private static final Logger LOG = LogManager.getLogger(GraphServiceClientProvider.class.getName());
     private final RefreshTokenStore refreshTokenStore;
-    private final AzureADAttributes azureADAttributes;
+    private final MicrosoftEntraIDAttributes azureADAttributes;
     private final RequestContext requestContext;
     private final AuthorizationContext authorizationContext;
     private final String authContextId;
 
 
     @Inject
-    public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, AzureADAttributes azureADAttributes, RequestContext requestContext, AuthorizationContext authorizationContext) {
+    public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, MicrosoftEntraIDAttributes azureADAttributes, RequestContext requestContext, AuthorizationContext authorizationContext) {
         this(refreshTokenStore, azureADAttributes, requestContext, authorizationContext, null);
     }
 
-    public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, AzureADAttributes azureADAttributes, RequestContext requestContext, AuthorizationContext authorizationContext, String authContextId) {
+    public GraphServiceClientProvider(RefreshTokenStore refreshTokenStore, MicrosoftEntraIDAttributes azureADAttributes, RequestContext requestContext, AuthorizationContext authorizationContext, String authContextId) {
         this.refreshTokenStore = refreshTokenStore;
         this.azureADAttributes = azureADAttributes;
         this.requestContext = requestContext;
@@ -55,7 +55,7 @@ public class GraphServiceClientProvider {
         this.authContextId = authContextId;
     }
 
-    public AzureADAttributes getAzureADAttributes() {
+    public MicrosoftEntraIDAttributes getAzureADAttributes() {
         return azureADAttributes;
     }
 

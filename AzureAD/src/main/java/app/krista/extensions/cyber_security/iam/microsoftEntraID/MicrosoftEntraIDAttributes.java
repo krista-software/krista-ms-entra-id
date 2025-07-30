@@ -14,8 +14,8 @@ import java.util.Properties;
 import static app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.util.Constants.*;
 import static app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.util.Validators.addAttributeIfNotNull;
 
-public final class AzureADAttributes {
-    private static final Logger LOG = LogManager.getLogger(AzureADAttributes.class);
+public final class MicrosoftEntraIDAttributes {
+    private static final Logger LOG = LogManager.getLogger(MicrosoftEntraIDAttributes.class);
 
     @SerializedName(EMAIL)
     private final String email;
@@ -32,8 +32,8 @@ public final class AzureADAttributes {
     private String publicClientId;
     private String publicClientSecret;
 
-    public AzureADAttributes(String clientId, String clientSecret, String tenantId, String email,
-                             String authType, String routingUrl) {
+    public MicrosoftEntraIDAttributes(String clientId, String clientSecret, String tenantId, String email,
+                                      String authType, String routingUrl) {
         loadPublicConfig();
         this.clientId = clientId == null ? publicClientId : clientId;
         this.clientSecret = clientSecret == null ? publicClientSecret : clientSecret;
@@ -43,14 +43,14 @@ public final class AzureADAttributes {
         this.routingUrl = routingUrl.replace(LOCAL_EXTN_URL, LOCAL_EXTN_REPLACE_URL);
     }
 
-    public static AzureADAttributes create(JsonObject authPayload, String baseurl) {
+    public static MicrosoftEntraIDAttributes create(JsonObject authPayload, String baseurl) {
         String authType = authPayload.get("authType").getAsString();
 
         if (Constants.PUBLIC.equals(authType)) {
-            return new AzureADAttributes(null, null, null, authPayload.get(EMAIL).getAsString(),
+            return new MicrosoftEntraIDAttributes(null, null, null, authPayload.get(EMAIL).getAsString(),
                     authType, baseurl);
         } else if (Constants.PRIVATE.equals(authType)) {
-            return new AzureADAttributes(authPayload.get(CLIENT_ID).getAsString(), authPayload.get(CLIENT_SECRET).getAsString(),
+            return new MicrosoftEntraIDAttributes(authPayload.get(CLIENT_ID).getAsString(), authPayload.get(CLIENT_SECRET).getAsString(),
                     authPayload.get(TENANT_ID).getAsString(), authPayload.get(EMAIL).getAsString(),
                     authType, baseurl);
         } else {

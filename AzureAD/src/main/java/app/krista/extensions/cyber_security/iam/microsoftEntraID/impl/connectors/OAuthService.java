@@ -1,6 +1,6 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.connectors;
 
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.AzureADAttributes;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.MicrosoftEntraIDAttributes;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.util.Constants;
 import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -14,11 +14,11 @@ import static app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.uti
 @Service
 public class OAuthService {
 
-    private final AzureADAttributes attributes;
+    private final MicrosoftEntraIDAttributes attributes;
     private OAuth20Service oAuth20Service;
 
     @Inject
-    public OAuthService(AzureADAttributes attributes) {
+    public OAuthService(MicrosoftEntraIDAttributes attributes) {
         this.attributes = attributes;
     }
 

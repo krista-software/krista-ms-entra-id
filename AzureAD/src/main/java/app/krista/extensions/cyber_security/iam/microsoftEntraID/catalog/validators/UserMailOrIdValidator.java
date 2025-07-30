@@ -1,7 +1,7 @@
 package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.validators;
 
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.extresp.FieldTypes;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.AccountImpl;
 import org.jvnet.hk2.annotations.Service;
 import org.slf4j.Logger;
@@ -17,13 +17,13 @@ import java.util.Map;
  */
 @Singleton
 @Service
-public class UserMailOrIdValidator extends BaseAzureADUserValidator {
+public class UserMailOrIdValidator extends BaseMicrosoftEntraIDUserValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserMailOrIdValidator.class);
 
     @Inject
     public UserMailOrIdValidator(AccountImpl accountService) {
-        super(AzureResources.USER_MAIL_OR_ID, FieldTypes.TEXT_FIELD_LOGICAL_NAME, accountService);
+        super(MicrosoftEntraIDResources.USER_MAIL_OR_ID, FieldTypes.TEXT_FIELD_LOGICAL_NAME, accountService);
     }
 
     @Override

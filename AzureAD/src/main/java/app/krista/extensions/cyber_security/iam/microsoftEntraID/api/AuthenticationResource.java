@@ -4,11 +4,11 @@ import app.krista.extension.authorization.MustAuthorizeException;
 import app.krista.extension.executor.Invoker;
 import app.krista.extension.request.RoutingInfo;
 import app.krista.extension.request.protos.http.HttpProtocol;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.AzureADAttributes;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.MicrosoftEntraIDAttributes;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.connectors.GraphServiceClientProvider;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.connectors.GraphServiceClientProviderFactory;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.connectors.OAuthService;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.AzureADAttributesStore;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.MicrosoftEntraIDAttributesStore;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.RefreshTokenStore;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.util.Constants;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.util.AuthenticationResponse;
@@ -43,7 +43,7 @@ public final class AuthenticationResource {
     private static final String AUTHORIZATION_PROMPT = "Authorize yourself and click 'Validate Attributes' before saving changes to proceed further.";
     private static final String FAILED_TO_SAVE_ATTRIBUTES = "Failed to save attributes";
 
-    private final AzureADAttributesStore azureADAttributesStore;
+    private final MicrosoftEntraIDAttributesStore azureADAttributesStore;
     private final RefreshTokenStore refreshTokenStore;
     private final GraphServiceClientProviderFactory providerFactory;
     private final AuthorizationContext context;
@@ -52,7 +52,7 @@ public final class AuthenticationResource {
     private final String invokerId;
 
     @Inject
-    public AuthenticationResource(AzureADAttributesStore azureADAttributesStore, RefreshTokenStore refreshTokenStore,
+    public AuthenticationResource(MicrosoftEntraIDAttributesStore azureADAttributesStore, RefreshTokenStore refreshTokenStore,
                                   GraphServiceClientProviderFactory providerFactory, Invoker invoker,
                                   AuthorizationContext context, AuthorizationListener authorizationListener) {
         this.azureADAttributesStore = azureADAttributesStore;
@@ -104,7 +104,7 @@ public final class AuthenticationResource {
             GraphServiceClientProvider clientProvider = getClientProvider(authContextId);
 
             LOGGER.debug("Fetching Azure AD attributes for authentication...");
-            AzureADAttributes azureADAttributes = clientProvider.getAzureADAttributes();
+            MicrosoftEntraIDAttributes azureADAttributes = clientProvider.getAzureADAttributes();
 
             LOGGER.debug("Initializing OAuth20Service for token exchange...");
             OAuth20Service oAuth20Service = new OAuthService(azureADAttributes).getOAuth20Service();
@@ -152,7 +152,7 @@ public final class AuthenticationResource {
         if (authContextId == null) {
             clientProvider = providerFactory.create();
         } else {
-            AzureADAttributes effectiveOneDriveAttributes = azureADAttributesStore.load(authContextId);
+            MicrosoftEntraIDAttributes effectiveOneDriveAttributes = azureADAttributesStore.load(authContextId);
             clientProvider = providerFactory.create(effectiveOneDriveAttributes);
         }
         return clientProvider;
@@ -194,7 +194,7 @@ public final class AuthenticationResource {
                     Objects.requireNonNullElse(errorMessage, "Unknown Error"), null));
     }
 
-    private String createStateParameter(MustAuthorizeException cause, AzureADAttributes azureADAttributes) {
+    private String createStateParameter(MustAuthorizeException cause, MicrosoftEntraIDAttributes azureADAttributes) {
         String userId = (String) cause.getDetails().get(0).getValue();
         Optional<NamedValuedField> authContextIdField = cause.getDetails().stream()
                 .filter(namedValuedField -> Objects.equals(namedValuedField.getName(), AUTH_CONTEXT_ID))
@@ -215,7 +215,7 @@ public final class AuthenticationResource {
     @Produces("text/plain")
     public String testConnection(JsonObject authPayload) {
         LOGGER.info("Testing connection with Microsoft Graph API");
-        AzureADAttributes azureADAttributes = AzureADAttributes.create(authPayload, baseRoutingUrl);
+        MicrosoftEntraIDAttributes azureADAttributes = MicrosoftEntraIDAttributes.create(authPayload, baseRoutingUrl);
         String authContextId = providerFactory.createAttributes(azureADAttributes);
         String authUrl = null;
         try {
@@ -244,7 +244,7 @@ public final class AuthenticationResource {
     @Path("/saveCredentials")
     @Produces("text/plain")
     public String saveCredentials(JsonObject authPayload) {
-        AzureADAttributes attributes = AzureADAttributes.create(authPayload, baseRoutingUrl);
+        MicrosoftEntraIDAttributes attributes = MicrosoftEntraIDAttributes.create(authPayload, baseRoutingUrl);
         String authContextId = providerFactory.createAttributes(attributes);
         try {
             providerFactory.create(authContextId).getGraphServiceClientForAdmin()
@@ -267,7 +267,7 @@ public final class AuthenticationResource {
     @Produces("text/plain")
     public String getCredentials(@QueryParam(AUTH_TYPE) String authType) {
         LOGGER.info("Loading attributes for auth-type: {} for invoker {}", authType, invokerId);
-        final AzureADAttributes loadedAttributes = azureADAttributesStore.load(invokerId);
+        final MicrosoftEntraIDAttributes loadedAttributes = azureADAttributesStore.load(invokerId);
         if (loadedAttributes != null && authType.equals(loadedAttributes.getAuthType())) {
             return Constants.GSON.toJson(loadedAttributes.toMap());
         } else {
@@ -280,7 +280,7 @@ public final class AuthenticationResource {
     @Produces("text/plain")
     public String getAuthKey() {
         LOGGER.info("Loading stored authentication key.");
-        final AzureADAttributes attributes = azureADAttributesStore.load(invokerId);
+        final MicrosoftEntraIDAttributes attributes = azureADAttributesStore.load(invokerId);
         if (attributes != null) {
             final String authType = attributes.getAuthType();
             return Constants.GSON.toJson(Objects.requireNonNullElse(authType, PUBLIC));

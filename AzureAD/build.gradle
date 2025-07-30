@@ -215,7 +215,7 @@ import java.util.regex.Pattern
 abstract class  GenerateReleasePropertiesTask extends DefaultTask {
     @TaskAction
     def generateProperties() {
-        def extensionFilePath = 'src/main/java/app/krista/extensions/cyber_security/iam/microsoftEntraID/AzureADExtension.java'
+        def extensionFilePath = 'src/main/java/app/krista/extensions/cyber_security/iam/microsoftEntraID/MicrosoftEntraIDExtension.java'
         def areaFilePath = 'src/main/java/app/krista/extensions/cyber_security/iam/microsoftEntraID/catalog/AccountManagerArea.java'
         def extensionFile = project.file(extensionFilePath)
         def areaFile = project.file(areaFilePath)

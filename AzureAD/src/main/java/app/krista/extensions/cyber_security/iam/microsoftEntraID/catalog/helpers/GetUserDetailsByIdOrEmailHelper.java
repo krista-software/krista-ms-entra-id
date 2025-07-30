@@ -3,7 +3,7 @@ package app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.helper
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.entities.Account;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.AzureResources;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.MicrosoftEntraIDResources;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.util.SubCatalogConstants;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.errorhandlers.ExtensionResponseGenerator;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.catalog.errorhandlers.ErrorHandlingStateManager;
@@ -99,7 +99,7 @@ public class GetUserDetailsByIdOrEmailHelper extends BaseValidationHelper {
         String userId = parameters.length > 0 ? safeParameterToString(parameters[0]) : "";
 
         Map<String, Object> map = createBaseParameterMap(stateId);
-        map.put(AzureResources.ID, userId);
+        map.put(MicrosoftEntraIDResources.ID, userId);
 
         return map;
     }

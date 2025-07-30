@@ -4,7 +4,7 @@ import app.krista.extension.authorization.RequestAuthenticator;
 import app.krista.extension.executor.Invoker;
 import app.krista.extension.impl.anno.*;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.connectors.GraphServiceClientProviderFactory;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.AzureADAttributesStore;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.MicrosoftEntraIDAttributesStore;
 import app.krista.ksdk.context.AuthorizationContext;
 
 import javax.inject.Inject;
@@ -14,15 +14,15 @@ import java.util.Map;
 @Java(version = Java.Version.JAVA_21)
 @Extension(version = "2.0.6", name = "Microsoft Entra ID")
 @StaticResource(path = "docs", file = "docs")
-public class AzureADExtension {
+public class MicrosoftEntraIDExtension {
 
 
-    private final AzureADRequestAuthenticator requestAuthenticator;
+    private final MicrosoftEntraIDRequestAuthenticator requestAuthenticator;
     private final GraphServiceClientProviderFactory providerFactory;
 
     @Inject
-    public AzureADExtension(Invoker invoker, AzureADAttributesStore attributeStore, GraphServiceClientProviderFactory providerFactory, AuthorizationContext authorizationContext) {
-        this.requestAuthenticator = new AzureADRequestAuthenticator(attributeStore, invoker.getInvokerId(), authorizationContext);
+    public MicrosoftEntraIDExtension(Invoker invoker, MicrosoftEntraIDAttributesStore attributeStore, GraphServiceClientProviderFactory providerFactory, AuthorizationContext authorizationContext) {
+        this.requestAuthenticator = new MicrosoftEntraIDRequestAuthenticator(attributeStore, invoker.getInvokerId(), authorizationContext);
         this.providerFactory = providerFactory;
     }
 

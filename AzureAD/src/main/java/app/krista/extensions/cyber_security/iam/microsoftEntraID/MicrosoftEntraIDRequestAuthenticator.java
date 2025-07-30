@@ -7,7 +7,7 @@ import app.krista.extension.request.ProtoRequest;
 import app.krista.extension.request.ProtoResponse;
 import app.krista.extension.request.protos.http.HttpRequest;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.connectors.OAuthService;
-import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.AzureADAttributesStore;
+import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.stores.MicrosoftEntraIDAttributesStore;
 import app.krista.extensions.cyber_security.iam.microsoftEntraID.impl.util.Constants;
 import app.krista.ksdk.context.AuthorizationContext;
 import app.krista.model.field.NamedField;
@@ -22,16 +22,16 @@ import java.util.*;
 
 import static com.github.scribejava.core.model.OAuthConstants.STATE;
 
-public class AzureADRequestAuthenticator implements RequestAuthenticator {
+public class MicrosoftEntraIDRequestAuthenticator implements RequestAuthenticator {
 
     public static final String EXTENSION_OAUTH_VERIFICATION_PATH_V3 = "/azuread/v3/oauth/callback";
     public static final String EXTENSION_OAUTH_VERIFICATION_PATH_V2 = "/azuread/callback";
-    private final AzureADAttributesStore azureADAttributesStore;
+    private final MicrosoftEntraIDAttributesStore azureADAttributesStore;
     private final String invokerId;
     private final AuthorizationContext authorizationContext;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AzureADRequestAuthenticator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MicrosoftEntraIDRequestAuthenticator.class);
 
-    public AzureADRequestAuthenticator(AzureADAttributesStore azureADAttributesStore, String invokerId, AuthorizationContext authorizationContext) {
+    public MicrosoftEntraIDRequestAuthenticator(MicrosoftEntraIDAttributesStore azureADAttributesStore, String invokerId, AuthorizationContext authorizationContext) {
         this.azureADAttributesStore = azureADAttributesStore;
         this.invokerId = invokerId;
         this.authorizationContext = authorizationContext;
@@ -98,7 +98,7 @@ public class AzureADRequestAuthenticator implements RequestAuthenticator {
                 .filter(namedValuedField -> Objects.equals(namedValuedField.getName(), Constants.AUTH_CONTEXT_ID))
                 .findFirst();
         String state = userId;
-        AzureADAttributes attributes;
+        MicrosoftEntraIDAttributes attributes;
         if (authContext.isPresent()) {
             String authContextId = (String) authContext.get().getValue();
             attributes = azureADAttributesStore.load(authContextId);
