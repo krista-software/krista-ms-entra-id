@@ -9,7 +9,7 @@ group 'app.krista.extensions.essentials.cyber_security.iam'
 
 /*
  * Use extension.name for archiveBaseName, extension.version for version.
- * Resulting jar: <extension.name>-<extension.version>.jar e.g. OutlookV3-3.0.4-rc1.jar
+ * Resulting jar: <extension.name>-<extension.version>.jar e.g. MicrosoftEntraID-2.0.6.jar
  */
 def computedBaseName = "MicrosoftEntraID"
 def computedVersion = "local"
