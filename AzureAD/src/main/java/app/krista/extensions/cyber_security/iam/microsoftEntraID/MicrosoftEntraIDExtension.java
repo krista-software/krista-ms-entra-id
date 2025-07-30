@@ -12,7 +12,7 @@ import java.util.Map;
 
 
 @Java(version = Java.Version.JAVA_21)
-@Extension(version = "3.5.0", name = "Microsoft Entra ID")
+@Extension(version = "3.0.0", name = "Microsoft Entra ID")
 @StaticResource(path = "docs", file = "docs")
 public class MicrosoftEntraIDExtension {
 
