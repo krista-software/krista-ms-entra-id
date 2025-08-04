@@ -70,11 +70,12 @@ public class GraphServiceClientProvider {
     private GraphServiceClient getGraphServiceClient(boolean useEmail, boolean handleAuthError) {
         try {
             String userId = getUserId(useEmail);
-            String refreshToken = refreshTokenStore.get(userId);
+            String refreshTokenStoreKey = getRefTokenStoreKey(userId);
+            String refreshToken = refreshTokenStore.get(refreshTokenStoreKey);
             if (refreshToken == null) {
-                throw createMustAuthorizationException(userId, false);
+                throw createMustAuthorizationException(refreshTokenStoreKey, false);
             }
-            return getGraphServiceClient(userId, refreshToken, handleAuthError);
+            return getGraphServiceClient(refreshTokenStoreKey, refreshToken, handleAuthError);
         } catch (RuntimeException cause) {
             System.err.println("Failed to get graph client " + cause.getClass().getName());
             cause.printStackTrace();
@@ -138,6 +139,14 @@ public class GraphServiceClientProvider {
         return requestContext.invokeAsUser()
                 ? getGraphServiceClient().me()
                 : getGraphServiceClient().users(azureADAttributes.getEmail());
+    }
+    @NotNull
+    private String getRefTokenStoreKey(String userId) {
+        if (userId.startsWith(Constants.WS_CONTACT)) {
+            return userId;
+        } else {
+            return userId + Constants.UNDER_SCORE + azureADAttributes.getClientId() + Constants.UNDER_SCORE + azureADAttributes.getAuthType();
+        }
     }
 
     private MustAuthorizeException createMustAuthorizationException(String userId, boolean reAuthentication) {

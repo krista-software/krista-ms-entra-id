@@ -38,6 +38,9 @@ public class Constants {
     public static final String ORG_AUTHORITY = "https://login.microsoftonline.com/organizations/";
     public static final String AUTHORITY = "https://login.microsoftonline.com/";
 
+    public static final String WS_CONTACT = "wsContact";
+    public static final String UNDER_SCORE = "_";
+
     private Constants() {
     }
 }
