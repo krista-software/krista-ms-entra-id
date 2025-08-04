@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * Validator for ID validation specifically for Reset Password operations.
- * Validates that the provided ID (email or user ID) exists in Azure AD and is eligible for password reset.
+ * Validates that the provided ID (email or user ID) exists in Microsoft Entra ID and is eligible for password reset.
  */
 @Singleton
 @Service
@@ -35,7 +35,7 @@ public class ResetPasswordIdValidator extends BaseMicrosoftEntraIDUserValidator 
 
     @Override
     protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
-        // Check if user exists in Azure AD
+        // Check if user exists in Microsoft Entra ID
         Account user = lookupUser(trimmedValue);
         if (user == null) {
             return failure("User not found with ID for password reset: " + trimmedValue);
@@ -57,9 +57,9 @@ public class ResetPasswordIdValidator extends BaseMicrosoftEntraIDUserValidator 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
         if (isEmail(resourceValue)) {
-            return "Please enter a valid email address that exists in Azure AD for password reset.";
+            return "Please enter a valid email address that exists in Microsoft Entra ID for password reset.";
         } else {
-            return "Please enter a valid user ID that exists in Azure AD for password reset.";
+            return "Please enter a valid user ID that exists in Microsoft Entra ID for password reset.";
         }
     }
 
@@ -71,9 +71,9 @@ public class ResetPasswordIdValidator extends BaseMicrosoftEntraIDUserValidator 
     @Override
     protected String getBusinessLogicErrorMessage(String value) {
         if (isEmail(value)) {
-            return "Email address '" + value + "' not found in Azure AD or not eligible for password reset.";
+            return "Email address '" + value + "' not found in Microsoft Entra ID or not eligible for password reset.";
         } else {
-            return "User ID '" + value + "' not found in Azure AD or not eligible for password reset.";
+            return "User ID '" + value + "' not found in Microsoft Entra ID or not eligible for password reset.";
         }
     }
 
@@ -118,7 +118,7 @@ public class ResetPasswordIdValidator extends BaseMicrosoftEntraIDUserValidator 
             return false;
         }
 
-        // Check for GUID format (common in Azure AD)
+        // Check for GUID format (common in Microsoft Entra ID)
         if (userId.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
             return true;
         }

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 /**
  * Validator for Mobile Number validation specifically for Update Account operations.
- * Validates that the provided mobile number meets Azure AD requirements for account updates.
+ * Validates that the provided mobile number meets Microsoft Entra ID requirements for account updates.
  */
 public class UpdateAccountMobileNumberValidator implements Validator {
 
@@ -77,7 +77,7 @@ public class UpdateAccountMobileNumberValidator implements Validator {
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
-        return "Please enter a valid mobile number that meets Azure AD requirements for account update.";
+        return "Please enter a valid mobile number that meets Microsoft Entra ID requirements for account update.";
     }
 
     @Override

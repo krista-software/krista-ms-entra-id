@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * Validator for User Mail or Id validation specifically for Add Account To Group operations.
- * Validates that the provided user mail or ID exists in Azure AD and is eligible for group addition.
+ * Validates that the provided user mail or ID exists in Microsoft Entra ID and is eligible for group addition.
  */
 @Singleton
 @Service
@@ -34,7 +34,7 @@ public class AddAccountUserMailOrIdValidator extends BaseMicrosoftEntraIDUserVal
 
     @Override
     protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
-        // Check if user exists in Azure AD
+        // Check if user exists in Microsoft Entra ID
         Account user = lookupUser(trimmedValue);
         if (user == null) {
             return failure("User not found with Mail or Id for group addition: " + trimmedValue);
@@ -56,9 +56,9 @@ public class AddAccountUserMailOrIdValidator extends BaseMicrosoftEntraIDUserVal
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
         if (isEmail(resourceValue)) {
-            return "Please enter a valid email address that exists in Azure AD to add to the group.";
+            return "Please enter a valid email address that exists in Microsoft Entra ID to add to the group.";
         } else {
-            return "Please enter a valid user ID that exists in Azure AD to add to the group.";
+            return "Please enter a valid user ID that exists in Microsoft Entra ID to add to the group.";
         }
     }
 
@@ -70,9 +70,9 @@ public class AddAccountUserMailOrIdValidator extends BaseMicrosoftEntraIDUserVal
     @Override
     protected String getBusinessLogicErrorMessage(String value) {
         if (isEmail(value)) {
-            return "Email address '" + value + "' not found in Azure AD or not eligible for group addition.";
+            return "Email address '" + value + "' not found in Microsoft Entra ID or not eligible for group addition.";
         } else {
-            return "User ID '" + value + "' not found in Azure AD or not eligible for group addition.";
+            return "User ID '" + value + "' not found in Microsoft Entra ID or not eligible for group addition.";
         }
     }
 
@@ -96,7 +96,7 @@ public class AddAccountUserMailOrIdValidator extends BaseMicrosoftEntraIDUserVal
             return false;
         }
 
-        // Check for GUID format (common in Azure AD)
+        // Check for GUID format (common in Microsoft Entra ID)
         if (userId.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
             return true;
         }

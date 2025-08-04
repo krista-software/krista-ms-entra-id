@@ -9,8 +9,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
- * Helper class for recording telemetry metrics for Azure AD operations.
- * Provides centralized telemetry functionality for all Azure AD-related operations.
+ * Helper class for recording telemetry metrics for Microsoft Entra ID operations.
+ * Provides centralized telemetry functionality for all Microsoft Entra ID-related operations.
  */
 @Singleton
 @Service
@@ -24,7 +24,7 @@ public class TelemetryHelper {
     }
 
     /**
-     * Records the start of an Azure AD operation.
+     * Records the start of an Microsoft Entra ID operation.
      *
      * @param operationName the name of the operation being started
      */
@@ -38,7 +38,7 @@ public class TelemetryHelper {
     }
 
     /**
-     * Records the successful completion of an Azure AD operation.
+     * Records the successful completion of an Microsoft Entra ID operation.
      *
      * @param operationName the name of the operation that completed successfully
      * @param durationMs the duration of the operation in milliseconds
@@ -54,7 +54,7 @@ public class TelemetryHelper {
     }
 
     /**
-     * Records the failure of an Azure AD operation.
+     * Records the failure of an Microsoft Entra ID operation.
      *
      * @param operationName the name of the operation that failed
      * @param durationMs the duration of the operation before failure in milliseconds
@@ -72,7 +72,7 @@ public class TelemetryHelper {
     }
 
     /**
-     * Records the count of accounts processed in an Azure AD operation.
+     * Records the count of accounts processed in an Microsoft Entra ID operation.
      *
      * @param operationName the name of the operation
      * @param count the number of accounts processed

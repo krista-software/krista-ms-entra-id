@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 /**
  * Validator for Email field in Create Account operation.
- * Validates email format and checks if the email already exists in Azure AD.
+ * Validates email format and checks if the email already exists in Microsoft Entra ID.
  */
 @Singleton
 @Service
@@ -52,17 +52,17 @@ public class CreateAccountEmailValidator extends BaseValidator {
             return false;
         }
 
-        // Check if email already exists in Azure AD
+        // Check if email already exists in Microsoft Entra ID
         try {
             // Try to get user by email - if it exists, validation should fail for creation
             var existingUser = accountService.getUser(trimmedEmail);
             if (existingUser != null) {
-                LOGGER.warn("Email already exists in Azure AD for account creation: {}", trimmedEmail);
+                LOGGER.warn("Email already exists in Microsoft Entra ID for account creation: {}", trimmedEmail);
                 return false;
             }
         } catch (Exception e) {
             // If user doesn't exist (exception thrown), that's good for creation
-            LOGGER.debug("Email doesn't exist in Azure AD (good for creation): {}", trimmedEmail);
+            LOGGER.debug("Email doesn't exist in Microsoft Entra ID (good for creation): {}", trimmedEmail);
         }
 
         LOGGER.debug("Email validation successful for account creation: {}", trimmedEmail);
@@ -81,13 +81,13 @@ public class CreateAccountEmailValidator extends BaseValidator {
 
     @Override
     public String getFetchStepMessage() {
-        return "Please enter a valid email address for the new account that doesn't already exist in Azure AD.";
+        return "Please enter a valid email address for the new account that doesn't already exist in Microsoft Entra ID.";
     }
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
         if (isValidEmailFormat(resourceValue)) {
-            return "The email address '" + resourceValue + "' already exists in Azure AD. Please enter a different email address.";
+            return "The email address '" + resourceValue + "' already exists in Microsoft Entra ID. Please enter a different email address.";
         } else {
             return "The provided email address '" + resourceValue + "' is not in valid format. Please enter a valid email address.";
         }
@@ -109,7 +109,7 @@ public class CreateAccountEmailValidator extends BaseValidator {
         try {
             var existingUser = accountService.getUser(trimmedEmail);
             if (existingUser != null) {
-                return "Email address '" + trimmedEmail + "' already exists in Azure AD. Please use a different email address.";
+                return "Email address '" + trimmedEmail + "' already exists in Microsoft Entra ID. Please use a different email address.";
             }
         } catch (Exception e) {
             // User doesn't exist, so it's just a format issue

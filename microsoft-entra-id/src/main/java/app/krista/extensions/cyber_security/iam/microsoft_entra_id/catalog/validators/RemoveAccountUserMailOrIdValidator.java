@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * Validator for User Mail or Id validation specifically for Remove Account From Group operations.
- * Validates that the provided user mail or ID exists in Azure AD and is eligible for group removal.
+ * Validates that the provided user mail or ID exists in Microsoft Entra ID and is eligible for group removal.
  */
 @Singleton
 @Service
@@ -34,7 +34,7 @@ public class RemoveAccountUserMailOrIdValidator extends BaseMicrosoftEntraIDUser
 
     @Override
     protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
-        // Check if user exists in Azure AD
+        // Check if user exists in Microsoft Entra ID
         Account user = lookupUser(trimmedValue);
         if (user == null) {
             return failure("User not found with Mail or Id for group removal: " + trimmedValue);
@@ -56,9 +56,9 @@ public class RemoveAccountUserMailOrIdValidator extends BaseMicrosoftEntraIDUser
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
         if (isEmail(resourceValue)) {
-            return "Please enter a valid email address that exists in Azure AD for group removal.";
+            return "Please enter a valid email address that exists in Microsoft Entra ID for group removal.";
         } else {
-            return "Please enter a valid user ID that exists in Azure AD for group removal.";
+            return "Please enter a valid user ID that exists in Microsoft Entra ID for group removal.";
         }
     }
 
@@ -70,9 +70,9 @@ public class RemoveAccountUserMailOrIdValidator extends BaseMicrosoftEntraIDUser
     @Override
     protected String getBusinessLogicErrorMessage(String value) {
         if (isEmail(value)) {
-            return "Email address '" + value + "' not found in Azure AD or not eligible for group removal.";
+            return "Email address '" + value + "' not found in Microsoft Entra ID or not eligible for group removal.";
         } else {
-            return "User ID '" + value + "' not found in Azure AD or not eligible for group removal.";
+            return "User ID '" + value + "' not found in Microsoft Entra ID or not eligible for group removal.";
         }
     }
 
@@ -96,7 +96,7 @@ public class RemoveAccountUserMailOrIdValidator extends BaseMicrosoftEntraIDUser
             return false;
         }
 
-        // Check for GUID format (common in Azure AD)
+        // Check for GUID format (common in Microsoft Entra ID)
         if (userId.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
             return true;
         }

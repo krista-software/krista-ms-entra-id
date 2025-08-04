@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 /**
  * Validator for Name validation specifically for Update Account operations.
- * Validates that the provided name meets Azure AD requirements for account updates.
+ * Validates that the provided name meets Microsoft Entra ID requirements for account updates.
  */
 public class UpdateAccountNameValidator implements Validator {
 
@@ -74,7 +74,7 @@ public class UpdateAccountNameValidator implements Validator {
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
-        return "Please enter a valid name that meets Azure AD requirements for account update.";
+        return "Please enter a valid name that meets Microsoft Entra ID requirements for account update.";
     }
 
     @Override

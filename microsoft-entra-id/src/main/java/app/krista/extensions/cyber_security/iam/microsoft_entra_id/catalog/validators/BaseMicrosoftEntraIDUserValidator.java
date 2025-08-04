@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Base class for Azure AD user validators that provides common functionality
+ * Base class for Microsoft Entra ID user validators that provides common functionality
  * for null/empty checks, user lookup, and email validation patterns.
  * 
  * This class eliminates code duplication across all user-related validators
@@ -27,7 +27,7 @@ public abstract class BaseMicrosoftEntraIDUserValidator extends BaseValidator {
     protected final Accounts accountService;
 
     /**
-     * Constructor for base Azure AD user validator.
+     * Constructor for base Microsoft Entra ID user validator.
      * 
      * @param fieldName The field name for this validator
      * @param fieldType The field type for this validator

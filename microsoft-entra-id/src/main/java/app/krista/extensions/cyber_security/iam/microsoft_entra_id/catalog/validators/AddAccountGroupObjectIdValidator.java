@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * Validator for Group Object Id validation specifically for Add Account To Group operations.
- * Validates that the provided Group Object Id exists in Azure AD and is eligible for user addition.
+ * Validates that the provided Group Object Id exists in Microsoft Entra ID and is eligible for user addition.
  */
 public class AddAccountGroupObjectIdValidator implements Validator {
 
@@ -87,7 +87,7 @@ public class AddAccountGroupObjectIdValidator implements Validator {
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
-        return "Please enter a valid Group Object Id that exists in Azure AD to add the user to.";
+        return "Please enter a valid Group Object Id that exists in Microsoft Entra ID to add the user to.";
     }
 
     @Override
@@ -102,7 +102,7 @@ public class AddAccountGroupObjectIdValidator implements Validator {
             return "Invalid Group Object Id format: '" + trimmedGroupId + "'. Please enter a valid GUID format (e.g., 12345678-1234-1234-1234-123456789012) for group addition.";
         }
 
-        return "Group Object Id '" + trimmedGroupId + "' not found in Azure AD or not eligible for user addition.";
+        return "Group Object Id '" + trimmedGroupId + "' not found in Microsoft Entra ID or not eligible for user addition.";
     }
 
     /**

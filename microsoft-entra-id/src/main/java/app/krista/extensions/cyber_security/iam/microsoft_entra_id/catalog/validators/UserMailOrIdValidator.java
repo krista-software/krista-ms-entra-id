@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * Validator for User Mail or ID validation for activate/deactivate account operations.
- * Validates that the provided user mail or ID exists in Azure AD.
+ * Validates that the provided user mail or ID exists in Microsoft Entra ID.
  */
 @Singleton
 @Service
@@ -34,7 +34,7 @@ public class UserMailOrIdValidator extends BaseMicrosoftEntraIDUserValidator {
 
     @Override
     protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
-        // Check if user exists in Azure AD
+        // Check if user exists in Microsoft Entra ID
         if (userExists(trimmedValue)) {
             return success();
         } else {
@@ -44,15 +44,15 @@ public class UserMailOrIdValidator extends BaseMicrosoftEntraIDUserValidator {
 
     @Override
     public String getFetchStepMessage() {
-        return "Please enter a valid user email address or user ID that exists in Azure AD.";
+        return "Please enter a valid user email address or user ID that exists in Microsoft Entra ID.";
     }
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
         if (isEmail(resourceValue)) {
-            return "Please enter a valid email address that exists in Azure AD.";
+            return "Please enter a valid email address that exists in Microsoft Entra ID.";
         } else {
-            return "Please enter a valid user ID that exists in Azure AD.";
+            return "Please enter a valid user ID that exists in Microsoft Entra ID.";
         }
     }
 
@@ -64,9 +64,9 @@ public class UserMailOrIdValidator extends BaseMicrosoftEntraIDUserValidator {
     @Override
     protected String getBusinessLogicErrorMessage(String value) {
         if (isEmail(value)) {
-            return "Email '" + value + "' not found in Azure AD.";
+            return "Email '" + value + "' not found in Microsoft Entra ID.";
         } else {
-            return "User ID '" + value + "' not found in Azure AD.";
+            return "User ID '" + value + "' not found in Microsoft Entra ID.";
         }
     }
 
@@ -78,7 +78,7 @@ public class UserMailOrIdValidator extends BaseMicrosoftEntraIDUserValidator {
             return false;
         }
 
-        // Check for GUID format (common in Azure AD)
+        // Check for GUID format (common in Microsoft Entra ID)
         if (userId.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")) {
             return true;
         }

@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * Validator for Group Object Id validation specifically for Remove Account From Group operations.
- * Validates that the provided Group Object Id exists in Azure AD and is eligible for user removal.
+ * Validates that the provided Group Object Id exists in Microsoft Entra ID and is eligible for user removal.
  */
 public class RemoveAccountGroupObjectIdValidator implements Validator {
 
@@ -85,7 +85,7 @@ public class RemoveAccountGroupObjectIdValidator implements Validator {
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
-        return "Please enter a valid Group Object Id that exists in Azure AD for user removal.";
+        return "Please enter a valid Group Object Id that exists in Microsoft Entra ID for user removal.";
     }
 
     @Override
@@ -100,7 +100,7 @@ public class RemoveAccountGroupObjectIdValidator implements Validator {
             return "Invalid Group Object Id format: '" + trimmedGroupId + "'. Please enter a valid GUID format (e.g., 12345678-1234-1234-1234-123456789012).";
         }
 
-        return "Group Object Id '" + trimmedGroupId + "' not found in Azure AD or not eligible for user removal.";
+        return "Group Object Id '" + trimmedGroupId + "' not found in Microsoft Entra ID or not eligible for user removal.";
     }
 
     /**

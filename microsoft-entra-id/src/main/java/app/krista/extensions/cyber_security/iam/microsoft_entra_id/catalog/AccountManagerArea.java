@@ -81,7 +81,7 @@ class AccountManagerArea {
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns a descriptive message about the operation result (e.g., 'Account Activated Successfully')")}, options = {})
     public ExtensionResponse activateOrDeactivateAnAccount(
             @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Set to true to deactivate the account, false to activate it")}, options = {}) Boolean deactivate,
-            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Azure AD")}, options = {}) String userMailOrID) {
+            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Microsoft Entra ID")}, options = {}) String userMailOrID) {
 
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("activateOrDeactivateAnAccount");
 
@@ -136,7 +136,7 @@ class AccountManagerArea {
     @Field.Desc(name = "Account Info", type = "{ User Mail Id: Text, User Name: Text, Group List: [ { Group Mail Id: Text, Group Id: Text } ], User Id: Text }", required = false)
     public ExtensionResponse addAnAccountToGroup(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to add to the group")}, options = {}) String userMailOrId,
-            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format)")}, options = {}) String groupObjectId) {
+            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Microsoft Entra ID group's unique object ID (GUID format)")}, options = {}) String groupObjectId) {
 
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("addAnAccountToGroup");
 
@@ -163,7 +163,7 @@ class AccountManagerArea {
     @Field.Boolean(name = "Removed", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns true if the user was successfully removed from the group, false if the operation failed")}, options = {})
     public ExtensionResponse removeGroupFromAccount(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to remove from the group")}, options = {}) String userMailOrId,
-            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Azure AD group's unique object ID (GUID format) to remove the user from")}, options = {}) String groupObjectId) {
+            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Microsoft Entra ID group's unique object ID (GUID format) to remove the user from")}, options = {}) String groupObjectId) {
 
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("removeGroupFromAccount");
 
@@ -187,7 +187,7 @@ class AccountManagerArea {
             description = "Create User in Azure Active Directory",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field(name = "User Id", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "The unique Azure AD object ID assigned to the newly created user account")}, options = {})
+    @Field(name = "User Id", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "The unique Microsoft Entra ID object ID assigned to the newly created user account")}, options = {})
     @Field(name = "Default Password", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "The temporary password generated for the new user account (user must change on first login)")}, options = {})
     public ExtensionResponse createAccount(
             @Field(name = "Name", type = "Text", required = true, attributes = {}, options = {}) String name,
@@ -246,9 +246,9 @@ class AccountManagerArea {
             description = "Delete an Account in Azure Active Directory",
             area = "Account Manager",
             type = CatalogRequest.Type.CHANGE_SYSTEM)
-    @Field(name = "Deleted", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns true if the user account was successfully deleted from Azure AD, false if the operation failed")}, options = {})
+    @Field(name = "Deleted", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns true if the user account was successfully deleted from Microsoft Entra ID, false if the operation failed")}, options = {})
     public ExtensionResponse deleteAccount(
-            @Field(name = "Email", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the email address of the user account to permanently delete from Azure AD")}, options = {}) String email) {
+            @Field(name = "Email", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the email address of the user account to permanently delete from Microsoft Entra ID")}, options = {}) String email) {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("deleteAccount");
 
         try {

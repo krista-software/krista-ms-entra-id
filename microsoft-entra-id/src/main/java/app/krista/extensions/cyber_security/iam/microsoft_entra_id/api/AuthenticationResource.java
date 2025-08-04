@@ -103,7 +103,7 @@ public final class AuthenticationResource {
             LOGGER.info("Retrieving GraphServiceClientProvider using AuthContextId: {}", authContextId);
             GraphServiceClientProvider clientProvider = getClientProvider(authContextId);
 
-            LOGGER.debug("Fetching Azure AD attributes for authentication...");
+            LOGGER.debug("Fetching Microsoft Entra ID attributes for authentication...");
             MicrosoftEntraIDAttributes azureADAttributes = clientProvider.getAzureADAttributes();
 
             LOGGER.debug("Initializing OAuth20Service for token exchange...");

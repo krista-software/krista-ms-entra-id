@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 /**
  * Validator for Email validation specifically for Update Account operations.
- * Validates that the provided email exists in Azure AD and meets requirements for account updates.
+ * Validates that the provided email exists in Microsoft Entra ID and meets requirements for account updates.
  */
 public class UpdateAccountEmailValidator implements Validator {
 
@@ -93,12 +93,12 @@ public class UpdateAccountEmailValidator implements Validator {
 
     @Override
     public String getFetchStepMessage() {
-        return "Please enter a valid email address that exists in Azure AD for account update.";
+        return "Please enter a valid email address that exists in Microsoft Entra ID for account update.";
     }
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
-        return "Please enter a valid email address that exists in Azure AD for account update.";
+        return "Please enter a valid email address that exists in Microsoft Entra ID for account update.";
     }
 
     @Override
@@ -113,7 +113,7 @@ public class UpdateAccountEmailValidator implements Validator {
             return "Invalid email format: '" + trimmedEmail + "'. Please enter a valid email address for account update.";
         }
 
-        return "Email address '" + trimmedEmail + "' not found in Azure AD or not eligible for account update.";
+        return "Email address '" + trimmedEmail + "' not found in Microsoft Entra ID or not eligible for account update.";
     }
 
     /**

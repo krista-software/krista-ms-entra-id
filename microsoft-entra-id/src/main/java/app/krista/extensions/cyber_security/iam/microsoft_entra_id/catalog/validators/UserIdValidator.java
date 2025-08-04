@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * Validator for User ID or Email validation.
- * Validates that the provided user ID or email exists in Azure AD.
+ * Validates that the provided user ID or email exists in Microsoft Entra ID.
  */
 @Singleton
 @Service
@@ -28,7 +28,7 @@ public class UserIdValidator extends BaseMicrosoftEntraIDUserValidator {
 
     @Override
     protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
-        // Check if user exists in Azure AD
+        // Check if user exists in Microsoft Entra ID
         if (userExists(trimmedValue)) {
             return success();
         } else {
@@ -38,24 +38,24 @@ public class UserIdValidator extends BaseMicrosoftEntraIDUserValidator {
 
     @Override
     public String getFetchStepMessage() {
-        return "Please enter a valid user ID or email address that exists in Azure AD.";
+        return "Please enter a valid user ID or email address that exists in Microsoft Entra ID.";
     }
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
         if (isEmail(resourceValue)) {
-            return "Please enter a valid Email that exists in Azure AD.";
+            return "Please enter a valid Email that exists in Microsoft Entra ID.";
         } else {
-            return "Please enter a valid user ID that exists in Azure AD.";
+            return "Please enter a valid user ID that exists in Microsoft Entra ID.";
         }
     }
 
     @Override
     protected String getBusinessLogicErrorMessage(String value) {
         if (isEmail(value)) {
-            return "Email '" + value + "' not found in Azure AD.";
+            return "Email '" + value + "' not found in Microsoft Entra ID.";
         } else {
-            return "User ID '" + value + "' not found in Azure AD.";
+            return "User ID '" + value + "' not found in Microsoft Entra ID.";
         }
     }
 }

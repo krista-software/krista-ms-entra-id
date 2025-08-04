@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * Validator for Email validation for delete account operations.
- * Validates that the provided email exists in Azure AD.
+ * Validates that the provided email exists in Microsoft Entra ID.
  */
 @Singleton
 @Service
@@ -34,7 +34,7 @@ public class EmailValidator extends BaseMicrosoftEntraIDUserValidator {
 
     @Override
     protected ValidationResult performUserValidation(String trimmedValue, Map<ValidationResource, String> context) {
-        // Check if user exists in Azure AD
+        // Check if user exists in Microsoft Entra ID
         if (userExists(trimmedValue)) {
             return success();
         } else {
@@ -44,12 +44,12 @@ public class EmailValidator extends BaseMicrosoftEntraIDUserValidator {
 
     @Override
     public String getFetchStepMessage() {
-        return "Please enter a valid email address that exists in Azure AD.";
+        return "Please enter a valid email address that exists in Microsoft Entra ID.";
     }
 
     @Override
     public String getConfirmStepMessage(String resourceValue, Map<ValidationResource, String> context) {
-        return "Please enter a valid email address that exists in Azure AD.";
+        return "Please enter a valid email address that exists in Microsoft Entra ID.";
     }
 
     @Override
@@ -59,6 +59,6 @@ public class EmailValidator extends BaseMicrosoftEntraIDUserValidator {
 
     @Override
     protected String getBusinessLogicErrorMessage(String value) {
-        return "Email '" + value + "' not found in Azure AD.";
+        return "Email '" + value + "' not found in Microsoft Entra ID.";
     }
 }
