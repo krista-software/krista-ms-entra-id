@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {AuthPayload, AuthType} from "./AuthPage";
 import {getCredentials} from "../api";
 
@@ -10,6 +10,14 @@ const PrivateAuth = ({onAuthChange}: {
     const [clientSecret, setClientSecret] = useState("");
     const [tenantId, setTenantId] = useState("");
     const [savedCred, setSavedCred] = useState<boolean>(false);
+
+    const areFieldsValid = useCallback(() => {
+        return !!email && !!clientId && !!clientSecret && !!tenantId;
+    }, [email, clientId, clientSecret, tenantId]);
+
+    const isCredSaved = useCallback((): boolean => {
+        return savedCred;
+    }, [savedCred]);
 
     useEffect(() => {
         getAllCred().catch(error => console.log(error));
@@ -25,15 +33,7 @@ const PrivateAuth = ({onAuthChange}: {
             isAllRequiredFieldsHaveValue: areFieldsValid(),
             isCredentialsSaved: isCredSaved()
         });
-    }, [email, clientId, clientSecret, tenantId, onAuthChange]);
-
-    const areFieldsValid = () => {
-        return !!email && !!clientId && !!clientSecret && !!tenantId;
-    };
-
-    const isCredSaved = (): boolean => {
-        return savedCred;
-    }
+    }, [email, clientId, clientSecret, tenantId, onAuthChange, areFieldsValid, isCredSaved]);
 
     const getAllCred = async () => {
         try {

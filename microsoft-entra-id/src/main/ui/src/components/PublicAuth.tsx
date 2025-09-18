@@ -1,10 +1,18 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {AuthPayload, AuthType} from "./AuthPage";
 import {getCredentials} from "../api";
 
 const PublicAuth = ({onAuthChange}: { onAuthChange: (authPayload: AuthPayload) => void }) => {
     const [email, setEmail] = useState("");
     const [savedCred, setSavedCred] = useState<boolean>(false);
+
+    const areFieldsValid = useCallback(() => {
+        return !!email;
+    }, [email]);
+
+    const isCredSaved = useCallback((): boolean => {
+        return savedCred;
+    }, [savedCred]);
 
     useEffect(() => {
         getAllCred().catch(error => console.log(error));
@@ -17,15 +25,7 @@ const PublicAuth = ({onAuthChange}: { onAuthChange: (authPayload: AuthPayload) =
             isAllRequiredFieldsHaveValue: areFieldsValid(),
             isCredentialsSaved: isCredSaved()
         });
-    }, [email]);
-
-    const areFieldsValid = () => {
-        return !!email;
-    };
-
-    const isCredSaved = (): boolean => {
-        return savedCred;
-    }
+    }, [email, areFieldsValid, isCredSaved, onAuthChange]);
 
     const getAllCred = async () => {
         try {
