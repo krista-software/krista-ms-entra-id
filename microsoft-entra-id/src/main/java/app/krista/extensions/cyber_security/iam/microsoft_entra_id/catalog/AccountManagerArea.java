@@ -93,8 +93,18 @@ class AccountManagerArea {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("activateOrDeactivateAnAccount");
 
         try {
-            ExtensionResponse response = activateDeactivateAccountHelper.activateOrDeactivateAccountWithValidation(userMailOrID, deactivate);
-            operation.recordSuccess(1);
+            ExtensionResponse response;
+            if (isErrorHandlingEnabled()) {
+                logger.debug("Error handling is enabled, using ActivateDeactivateAccountErrorHandler");
+                response = activateDeactivateAccountHelper.activateOrDeactivateAccountWithValidation(userMailOrID, deactivate);
+            } else {
+                boolean accountStatus = accountService.activateOrDeactivateAccount(userMailOrID, deactivate);
+                String statusMessage = deactivate ? "Deactivated" : "Activated";
+                Map<String, Object> result = Map.of(
+                        ACCOUNT_STATUS, accountStatus,
+                        MESSAGE, "Account " + statusMessage + " Successfully");
+                response = new ExtensionResponse(ExtensionResponse.Result.SUCCESS, result, null, null, null);
+            }
             return response;
         } catch (MustAuthorizeException authorizeException) {
             operation.recordFailure(authorizeException);
@@ -148,8 +158,14 @@ class AccountManagerArea {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("addAnAccountToGroup");
 
         try {
-            ExtensionResponse response = addAccountToGroupHelper.addAccountToGroupWithValidation(userMailOrId, groupObjectId);
-            operation.recordSuccess(1);
+            ExtensionResponse response;
+            if (isErrorHandlingEnabled()) {
+                logger.debug("Error handling is enabled, using AddAccountToGroupErrorHandler");
+                response = addAccountToGroupHelper.addAccountToGroupWithValidation(userMailOrId, groupObjectId);
+            } else {
+                Map<String, Object> result = accountService.addAccountToGroup(userMailOrId, groupObjectId);
+                return new ExtensionResponseBuilder().success(Map.of("Account Info", result)).build();
+            }
             return response;
         } catch (MustAuthorizeException authorizeException) {
             operation.recordFailure(authorizeException);
@@ -175,8 +191,18 @@ class AccountManagerArea {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("removeGroupFromAccount");
 
         try {
-            ExtensionResponse response = removeAccountFromGroupHelper.removeAccountFromGroupWithValidation(userMailOrId, groupObjectId);
-            operation.recordSuccess(1);
+            ExtensionResponse response;
+            if (isErrorHandlingEnabled()) {
+                logger.debug("Error handling is enabled, using RemoveAccountFromGroupErrorHandler");
+                response = removeAccountFromGroupHelper.removeAccountFromGroupWithValidation(userMailOrId, groupObjectId);
+            } else {
+                Boolean removed = accountService.removeAccountFromGroup(userMailOrId, groupObjectId);
+                logger.info("Successfully removed account from group for userMailOrId: {}, groupObjectId: {}", userMailOrId, groupObjectId);
+                return new ExtensionResponseBuilder()
+                        .success(Map.of("Removed", removed))
+                        .build();
+
+            }
             return response;
         } catch (MustAuthorizeException authorizeException) {
             operation.recordFailure(authorizeException);
@@ -204,8 +230,14 @@ class AccountManagerArea {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("createAccount");
 
         try {
-            ExtensionResponse response = createAccountHelper.createAccountWithValidation(name, email, mobileNumber, extraFields);
-            operation.recordSuccess(1);
+            ExtensionResponse response;
+            if (isErrorHandlingEnabled()) {
+                logger.debug("Error handling is enabled, using CreateAccountErrorHandler");
+                response = createAccountHelper.createAccountWithValidation(name, email, mobileNumber, extraFields);
+            } else {
+                Map<String, Object> result = accountService.createUser(name, email, mobileNumber, extraFields);
+                return new ExtensionResponseBuilder().success(result).build();
+            }
             return response;
         } catch (MustAuthorizeException authorizeException) {
             operation.recordFailure(authorizeException);
@@ -234,8 +266,20 @@ class AccountManagerArea {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("updateAccount");
 
         try {
-            ExtensionResponse response = updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
-            operation.recordSuccess(1);
+            ExtensionResponse response;
+            if (isErrorHandlingEnabled()) {
+                logger.debug("Error handling is enabled, using UpdateAccountErrorHandler");
+                response = updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
+            } else {
+                Account updatedAccount = accountService.updateUser(
+                        name != null ? name : "",
+                        mobileNumber != null ? mobileNumber : "",
+                        email,
+                        null);
+                return new ExtensionResponseBuilder()
+                        .success(Map.of("Updated Entity", updatedAccount))
+                        .build();
+            }
             return response;
         } catch (MustAuthorizeException authorizeException) {
             operation.recordFailure(authorizeException);
@@ -259,8 +303,17 @@ class AccountManagerArea {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("deleteAccount");
 
         try {
-            ExtensionResponse response = deleteAccountHelper.deleteAccountWithValidation(email);
-            operation.recordSuccess(1);
+            ExtensionResponse response;
+            if (isErrorHandlingEnabled()) {
+                logger.debug("Error handling is enabled, using DeleteAccountErrorHandler");
+                response = deleteAccountHelper.deleteAccountWithValidation(email);
+            }
+            else{
+                Boolean deleted = accountService.deleteUser(email);
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("Deleted", deleted);
+                response = new ExtensionResponse(ExtensionResponse.Result.SUCCESS, responseData, null, null, null);
+            }
             return response;
         } catch (MustAuthorizeException authorizeException) {
             operation.recordFailure(authorizeException);
@@ -324,8 +377,14 @@ class AccountManagerArea {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("resetPassword");
 
         try {
-            ExtensionResponse response = resetPasswordHelper.resetPasswordWithValidation(id);
-            operation.recordSuccess(1);
+            ExtensionResponse response;
+            if (isErrorHandlingEnabled()) {
+                logger.debug("Error handling is enabled, using ResetPasswordErrorHandler");
+                response = resetPasswordHelper.resetPasswordWithValidation(id);
+            } else {
+                String password = accountService.resetPassword(id);
+                response = new ExtensionResponseBuilder().success(Map.of("Password", password)).build();
+            }
             return response;
         } catch (MustAuthorizeException authorizeException) {
             operation.recordFailure(authorizeException);

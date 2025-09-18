@@ -238,6 +238,56 @@
 - **Output Parameters**:
 
 | **Parameter Name** | **Parameter Type** |
-|--------------------|--------------------| 
-| Account            | List<Account>      | 
+|--------------------|--------------------|
+| Account            | List<Account>      |
+
+## Retry Mechanism
+
+### Enable Error Handling Flag
+
+The Microsoft Entra ID Extension supports a configurable retry mechanism through the **Enable Error Handling** flag. This flag controls how catalog requests handle input validation and error scenarios.
+
+#### Configuration
+
+The retry mechanism is controlled by the `Enable Error Handling` flag in the extension configuration:
+
+- **Flag Name**: `Enable Error Handling`
+- **Type**: Boolean
+- **Default Value**: `false`
+
+#### Behavior
+
+##### When Enable Error Handling = `true`
+
+- **Validation Flow**: Input validation is **bypassed**
+- **Execution**: Catalog requests execute direct business logic without validation
+- **Error Handling**: Standard exception handling applies
+- **Performance**: Faster execution as validation steps are skipped
+- **Use Case**: Production environments where input data is trusted or pre-validated
+
+**Flow**:
+1. Catalog request receives input parameters
+2. Validation is skipped
+3. Direct business logic execution (e.g., `accountService.getUser(id)`)
+4. Return response immediately
+
+##### When Enable Error Handling = `false`
+
+- **Validation Flow**: Full input validation is **enabled**
+- **Execution**: Catalog requests go through validation before business logic
+- **Error Handling**: Validation errors trigger retry prompts with SubCatalog requests
+- **Performance**: Additional validation overhead
+- **Use Case**: Interactive environments where user input needs validation and retry capability
+
+**Flow**:
+1. Catalog request receives input parameters
+2. Input validation is performed
+3. If validation fails:
+   - User is prompted to re-enter correct values
+   - SubCatalog request handles retry flow
+   - Validation is re-performed on corrected input
+4. If validation passes: Business logic execution
+5. Return response
+
+**Note**: "Get List of Groups" does not support retry mechanism as it requires no input validation.
 
