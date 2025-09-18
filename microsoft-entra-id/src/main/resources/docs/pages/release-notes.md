@@ -1,10 +1,10 @@
 ### Release Notes - Microsoft Entra ID Extension
 
-## Version 3.0.0
+## Version 3.0.1
 
 - **Developer Name** : Samruddhi Pisal
 - **Krista Service APIs Java** : 1.0.115
-- **Global Catalog Version** : 1.0.58
+- **Global Catalog Version** : GC-2025.09.3
 - **Appliance Release Version** : 3.5.0
 
 ## BREAKING CHANGES for UI/UX 
