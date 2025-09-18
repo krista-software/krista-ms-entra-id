@@ -41,6 +41,8 @@ public class Constants {
     public static final String WS_CONTACT = "wsContact";
     public static final String UNDER_SCORE = "_";
 
+    public static final String ENABLE_ERROR_HANDLING="Enable Error Handling";
+
     private Constants() {
     }
 }

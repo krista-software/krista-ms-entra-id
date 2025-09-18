@@ -4,6 +4,7 @@ package app.krista.extensions.cyber_security.iam.microsoft_entra_id.catalog;
 import app.krista.extension.authorization.MustAuthorizeException;
 import app.krista.extension.executor.ExtensionResponse;
 import app.krista.extension.executor.ExtensionResponseBuilder;
+import app.krista.extension.executor.Invoker;
 import app.krista.extension.impl.anno.Attribute;
 import app.krista.extension.impl.anno.CatalogRequest;
 import app.krista.extension.impl.anno.Domain;
@@ -19,6 +20,7 @@ import app.krista.extensions.cyber_security.iam.microsoft_entra_id.catalog.helpe
 import app.krista.extensions.cyber_security.iam.microsoft_entra_id.catalog.helpers.CreateAccountHelper;
 import app.krista.extensions.cyber_security.iam.microsoft_entra_id.catalog.util.TelemetryHelper;
 import app.krista.extensions.cyber_security.iam.microsoft_entra_id.impl.AccountImpl;
+import app.krista.extensions.cyber_security.iam.microsoft_entra_id.impl.util.Constants;
 import app.krista.extensions.cyber_security.iam.microsoft_entra_id.service.Accounts;
 
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +52,8 @@ class AccountManagerArea {
     private final UpdateAccountHelper updateAccountHelper;
     private final CreateAccountHelper createAccountHelper;
     private final TelemetryHelper telemetryHelper;
+    private final Invoker invoker;
+    private final AccountImpl accountService;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountManagerArea.class);
 
@@ -57,7 +62,7 @@ class AccountManagerArea {
                               DeleteAccountHelper deleteAccountHelper, ActivateDeactivateAccountHelper activateDeactivateAccountHelper,
                               ResetPasswordHelper resetPasswordHelper, RemoveAccountFromGroupHelper removeAccountFromGroupHelper,
                               AddAccountToGroupHelper addAccountToGroupHelper, UpdateAccountHelper updateAccountHelper,
-                              CreateAccountHelper createAccountHelper, TelemetryHelper telemetryHelper) {
+                              CreateAccountHelper createAccountHelper, TelemetryHelper telemetryHelper, Invoker invoker, AccountImpl accountService) {
         this.account = account;
         this.getUserDetailsHelper = getUserDetailsHelper;
         this.deleteAccountHelper = deleteAccountHelper;
@@ -68,6 +73,8 @@ class AccountManagerArea {
         this.updateAccountHelper = updateAccountHelper;
         this.createAccountHelper = createAccountHelper;
         this.telemetryHelper = telemetryHelper;
+        this.invoker = invoker;
+        this.accountService = accountService;
     }
 
 
@@ -277,8 +284,23 @@ class AccountManagerArea {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("getUserDetailsByIDOrEmail");
 
         try {
-            ExtensionResponse response = getUserDetailsHelper.getUserDetailsByIdOrEmailWithValidation(id);
-            operation.recordSuccess(1);
+            ExtensionResponse response;
+            if (isErrorHandlingEnabled()) {
+                logger.debug("Error handling is enabled, using GetUserDetailsByIdOrEmailErrorHandler");
+                response = getUserDetailsHelper.getUserDetailsByIdOrEmailWithValidation(id);
+            } else {
+                logger.debug("Error handling is disabled, using direct logic");
+                Account result = accountService.getUser(id);
+                if (result == null) {
+                    logger.warn("No user found with ID/Email: {}", id);
+                    return new ExtensionResponseBuilder()
+                            .success(Map.of("Result", "No user found with the specified ID or email"))
+                            .build();
+                }
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("Result", result);
+                response = new ExtensionResponse(ExtensionResponse.Result.SUCCESS, responseData, null, null, null);
+            }
             return response;
         } catch (MustAuthorizeException authorizeException) {
             operation.recordFailure(authorizeException);
@@ -314,4 +336,11 @@ class AccountManagerArea {
             return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
         }
     }
+    public boolean isErrorHandlingEnabled() {
+        final Object enableErrorHandling = invoker.getAttributes().get(Constants.ENABLE_ERROR_HANDLING);
+        boolean errorHandlingFlag = enableErrorHandling != null && (Boolean) enableErrorHandling;
+        logger.info("Enable Error Handling Flag:{}", errorHandlingFlag);
+        return errorHandlingFlag;
+    }
+
 }
