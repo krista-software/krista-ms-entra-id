@@ -257,7 +257,7 @@ The retry mechanism is controlled by the `Enable Error Handling` flag in the ext
 
 #### Behavior
 
-##### When Enable Error Handling = `true`
+##### When Enable Error Handling = `false`
 
 - **Validation Flow**: Input validation is **bypassed**
 - **Execution**: Catalog requests execute direct business logic without validation
@@ -271,7 +271,7 @@ The retry mechanism is controlled by the `Enable Error Handling` flag in the ext
 3. Direct business logic execution (e.g., `accountService.getUser(id)`)
 4. Return response immediately
 
-##### When Enable Error Handling = `false`
+##### When Enable Error Handling = `true`
 
 - **Validation Flow**: Full input validation is **enabled**
 - **Execution**: Catalog requests go through validation before business logic

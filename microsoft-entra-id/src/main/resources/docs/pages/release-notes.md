@@ -5,7 +5,7 @@
 - **Developer Name** : Samruddhi Pisal
 - **Krista Service APIs Java** : 1.0.115
 - **Global Catalog Version** : GC-2025.09.3
-- **Appliance Release Version** : 3.5.0
+- **Appliance Release Version** : 3.5.1
 
 ## BREAKING CHANGES for UI/UX 
 
