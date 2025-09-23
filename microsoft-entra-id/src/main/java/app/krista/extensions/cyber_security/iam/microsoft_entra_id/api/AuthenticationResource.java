@@ -161,7 +161,8 @@ public final class AuthenticationResource {
     private String getErrorDescription(OAuthException cause) {
         String errorDescription = ERROR_OCCURRED_DURING_AUTHORIZATION;
         if (cause.getMessage() != null && !cause.getMessage().isBlank()) {
-            Map<String, Object> exceptionMap = Constants.GSON.fromJson(cause.getMessage(), Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> exceptionMap = (Map<String, Object>) Constants.GSON.fromJson(cause.getMessage(), Map.class);
             if (exceptionMap.containsKey(ERROR_DESCRIPTION)) {
                 errorDescription = errorDescription + exceptionMap.get(ERROR_DESCRIPTION);
             }

@@ -28,24 +28,33 @@ const AuthPage = () => {
     const [toastType, setToastType] = useState<string>("error");
     const [authPayload, setAuthPayload] = useState<AuthPayload | null>(null);
     const [isConnectionSuccess, setIsConnectionSuccess] = useState<boolean>(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     const getAuth = useCallback(async () => {
         try {
             const key = await getAuthKey();
-            if (key !== selectedOption) {
+            // Only sync with server on initial load, not on user interactions
+            if (isInitialLoad && key !== selectedOption) {
                 setSelectedOption(key as AuthType);
             }
         } catch (error) {
             console.error('Error fetching credentials:', error);
+        } finally {
+            setIsInitialLoad(false);
         }
-    }, [selectedOption]);
+    }, [selectedOption, isInitialLoad]);
 
     useEffect(() => {
-        getAuth().catch(error => console.log(error));
-    }, [getAuth]);
+        // Only run on initial mount
+        if (isInitialLoad) {
+            getAuth().catch(error => console.log(error));
+        }
+    }, [getAuth, isInitialLoad]);
 
     const handleOptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedOption(e.target.value as AuthType);
+        // Reset connection success state when switching tabs
+        setIsConnectionSuccess(false);
     };
 
     const showNotification = (message: string, type: string) => {

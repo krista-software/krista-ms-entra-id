@@ -67,7 +67,7 @@ public class GraphServiceClientProvider {
         return getGraphServiceClient(true, true);
     }
 
-    private GraphServiceClient getGraphServiceClient(boolean useEmail, boolean handleAuthError) {
+    private GraphServiceClient<Request> getGraphServiceClient(boolean useEmail, boolean handleAuthError) {
         try {
             String userId = getUserId(useEmail);
             String refreshTokenStoreKey = getRefTokenStoreKey(userId);
@@ -83,7 +83,7 @@ public class GraphServiceClientProvider {
         }
     }
 
-    private GraphServiceClient getGraphServiceClient(String refreshTokenStoreKey, String refreshToken, boolean handleAuthError) {
+    private GraphServiceClient<Request> getGraphServiceClient(String refreshTokenStoreKey, String refreshToken, boolean handleAuthError) {
         try {
             String[] scopes = REQUIRED_SCOPE.split(SCOPE_SEPARATOR);
             Set<String> scopeSet = Arrays.stream(scopes).collect(Collectors.toSet());
