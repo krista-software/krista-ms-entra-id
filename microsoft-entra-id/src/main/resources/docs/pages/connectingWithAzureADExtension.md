@@ -15,7 +15,7 @@
 * Authorize with the same administrator account details that you registered application with, on the Azure portal.
 
 
-* Navigate to the Details tab in the extension, copy the **Extension Base URL**. Append **/rest/azuread/callback** at the end of URL ID.
+* Navigate to the Details tab in the extension, copy the **Extension Base URL**. Append **/rest/microsoftentraid/callback** at the end of URL ID.
   ![Routing Id Reference](../_media/routingId.png)
 
 

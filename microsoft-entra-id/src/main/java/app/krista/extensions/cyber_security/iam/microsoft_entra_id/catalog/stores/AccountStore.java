@@ -60,6 +60,7 @@ public class AccountStore implements EntityStore<app.krista.extensions.cyber_sec
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<Account> search(List<SearchCondition> conditions, long pageIndex, int pageSize) {
         return null;
     }
