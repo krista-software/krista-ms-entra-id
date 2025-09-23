@@ -9,16 +9,16 @@ group 'app.krista.extensions.essentials.cyber_security.iam'
 
 /*
  * Use extension.name for archiveBaseName, extension.version for version.
- * Resulting jar: <extension.name>-<extension.version>.jar e.g. MicrosoftEntraID-2.0.6.jar
+ * Resulting jar: microsoft-entra-id-<extension.version>.jar e.g. microsoft-entra-id-3.0.2.jar
  */
-def computedBaseName = "MicrosoftEntraID"
+def computedBaseName = "microsoft-entra-id"
 def computedVersion = "local"
 def releasePropsFile = file('release.properties')
 if (releasePropsFile.exists()) {
     def props = new Properties()
     releasePropsFile.withInputStream { stream -> props.load(stream) }
-    // Remove whitespace for base name, but allow dashes/underscores
-    computedBaseName = (props['extension.name'] ?: "MicrosoftEntraID").replaceAll(/\s+/, "")
+    // Use fixed name for deployment compatibility
+    computedBaseName = "microsoft-entra-id"
     computedVersion = props['extension.version'] ?: "local"
 }
 version = computedVersion
@@ -312,11 +312,11 @@ jar {
         if (jarReleasePropsFile.exists()) {
             def props = new Properties()
             jarReleasePropsFile.withInputStream { stream -> props.load(stream) }
-            // Use extension.name if available, otherwise fall back to default
-            def actualBaseName = (props['extension.name'] ?: "MicrosoftEntraID").replaceAll(/\s+/, "")
+            // Use fixed name for deployment compatibility
+            def actualBaseName = "microsoft-entra-id"
             def actualVersion = props['extension.version'] ?: "local"
 
-            println "Using jar name from release.properties: ${actualBaseName}-${actualVersion}.jar"
+            println "Using jar name for deployment: ${actualBaseName}-${actualVersion}.jar"
 
             // Update the archive base name and version at execution time
             archiveBaseName.set(actualBaseName)
