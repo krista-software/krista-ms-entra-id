@@ -88,13 +88,15 @@ class AccountManagerArea {
     @Field.Text(name = "Message", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns a descriptive message about the operation result (e.g., 'Account Activated Successfully')")}, options = {})
     public ExtensionResponse activateOrDeactivateAnAccount(
             @Field.Boolean(name = "Deactivate", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Set to true to deactivate the account, false to activate it")}, options = {}) Boolean deactivate,
-            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Microsoft Entra ID")}, options = {}) String userMailOrID) {
+            @Field.Text(name = "User Mail or ID", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID from Microsoft Entra ID")}, options = {}) String userMailOrID,
+            @Field(name = "Enable Retry", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "When enabled, prompts for re-entry if validation fails. Default is OFF for automated workflows.")}, options = {}) Boolean enableRetry) {
 
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("activateOrDeactivateAnAccount");
 
         try {
             ExtensionResponse response;
-            if (isErrorHandlingEnabled()) {
+            boolean retryEnabled = enableRetry != null && enableRetry;
+            if (retryEnabled) {
                 logger.debug("Error handling is enabled, using ActivateDeactivateAccountErrorHandler");
                 response = activateDeactivateAccountHelper.activateOrDeactivateAccountWithValidation(userMailOrID, deactivate);
             } else {
@@ -153,13 +155,15 @@ class AccountManagerArea {
     @Field.Desc(name = "Account Info", type = "{ User Mail Id: Text, User Name: Text, Group List: [ { Group Mail Id: Text, Group Id: Text } ], User Id: Text }", required = false)
     public ExtensionResponse addAnAccountToGroup(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to add to the group")}, options = {}) String userMailOrId,
-            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Microsoft Entra ID group's unique object ID (GUID format)")}, options = {}) String groupObjectId) {
+            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Microsoft Entra ID group's unique object ID (GUID format)")}, options = {}) String groupObjectId,
+            @Field(name = "Enable Retry", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "When enabled, prompts for re-entry if validation fails. Default is OFF for automated workflows.")}, options = {}) Boolean enableRetry) {
 
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("addAnAccountToGroup");
 
         try {
             ExtensionResponse response;
-            if (isErrorHandlingEnabled()) {
+            boolean retryEnabled = enableRetry != null && enableRetry;
+            if (retryEnabled) {
                 logger.debug("Error handling is enabled, using AddAccountToGroupErrorHandler");
                 response = addAccountToGroupHelper.addAccountToGroupWithValidation(userMailOrId, groupObjectId);
             } else {
@@ -186,13 +190,15 @@ class AccountManagerArea {
     @Field.Boolean(name = "Removed", required = false, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Returns true if the user was successfully removed from the group, false if the operation failed")}, options = {})
     public ExtensionResponse removeGroupFromAccount(
             @Field.Text(name = "User Mail or Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to remove from the group")}, options = {}) String userMailOrId,
-            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Microsoft Entra ID group's unique object ID (GUID format) to remove the user from")}, options = {}) String groupObjectId) {
+            @Field.Text(name = "Group Object Id", required = true, attributes = {@Attribute(name = "visualWidth", value = "S"), @Attribute(name = "tooltip", value = "Enter the Microsoft Entra ID group's unique object ID (GUID format) to remove the user from")}, options = {}) String groupObjectId,
+            @Field(name = "Enable Retry", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "When enabled, prompts for re-entry if validation fails. Default is OFF for automated workflows.")}, options = {}) Boolean enableRetry) {
 
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("removeGroupFromAccount");
 
         try {
             ExtensionResponse response;
-            if (isErrorHandlingEnabled()) {
+            boolean retryEnabled = enableRetry != null && enableRetry;
+            if (retryEnabled) {
                 logger.debug("Error handling is enabled, using RemoveAccountFromGroupErrorHandler");
                 response = removeAccountFromGroupHelper.removeAccountFromGroupWithValidation(userMailOrId, groupObjectId);
             } else {
@@ -226,12 +232,14 @@ class AccountManagerArea {
             @Field(name = "Name", type = "Text", required = true, attributes = {}, options = {}) String name,
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
             @Field(name = "Mobile Number", type = "Text", required = true, attributes = {}, options = {}) String mobileNumber,
-            @Field.Desc(name = "Extra Fields", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraFields) {
+            @Field.Desc(name = "Extra Fields", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraFields,
+            @Field(name = "Enable Retry", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "When enabled, prompts for re-entry if validation fails. Default is OFF for automated workflows.")}, options = {}) Boolean enableRetry) {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("createAccount");
 
         try {
             ExtensionResponse response;
-            if (isErrorHandlingEnabled()) {
+            boolean retryEnabled = enableRetry != null && enableRetry;
+            if (retryEnabled) {
                 logger.debug("Error handling is enabled, using CreateAccountErrorHandler");
                 response = createAccountHelper.createAccountWithValidation(name, email, mobileNumber, extraFields);
             } else {
@@ -261,13 +269,15 @@ class AccountManagerArea {
             @Field(name = "Name", type = "Text", required = false, attributes = {}, options = {}) String name,
             @Field(name = "Mobile Number", type = "Text", required = false, attributes = {}, options = {}) String mobileNumber,
             @Field(name = "Email", type = "Text", required = true, attributes = {}, options = {}) String email,
-            @Field.Desc(name = "Extra Field", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraField) {
+            @Field.Desc(name = "Extra Field", type = "[ { key: Text, value: Text } ]", required = false) List<Map<String, Object>> extraField,
+            @Field(name = "Enable Retry", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "When enabled, prompts for re-entry if validation fails. Default is OFF for automated workflows.")}, options = {}) Boolean enableRetry) {
 
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("updateAccount");
 
         try {
             ExtensionResponse response;
-            if (isErrorHandlingEnabled()) {
+            boolean retryEnabled = enableRetry != null && enableRetry;
+            if (retryEnabled) {
                 logger.debug("Error handling is enabled, using UpdateAccountErrorHandler");
                 response = updateAccountHelper.updateAccountWithValidation(name, mobileNumber, email);
             } else {
@@ -299,12 +309,14 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field(name = "Deleted", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns true if the user account was successfully deleted from Microsoft Entra ID, false if the operation failed")}, options = {})
     public ExtensionResponse deleteAccount(
-            @Field(name = "Email", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the email address of the user account to permanently delete from Microsoft Entra ID")}, options = {}) String email) {
+            @Field(name = "Email", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the email address of the user account to permanently delete from Microsoft Entra ID")}, options = {}) String email,
+            @Field(name = "Enable Retry", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "When enabled, prompts for re-entry if validation fails. Default is OFF for automated workflows.")}, options = {}) Boolean enableRetry) {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("deleteAccount");
 
         try {
             ExtensionResponse response;
-            if (isErrorHandlingEnabled()) {
+            boolean retryEnabled = enableRetry != null && enableRetry;
+            if (retryEnabled) {
                 logger.debug("Error handling is enabled, using DeleteAccountErrorHandler");
                 response = deleteAccountHelper.deleteAccountWithValidation(email);
             }
@@ -333,12 +345,14 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field.Desc(name = "Result", type = "Entity(Account)", required = false)
     public ExtensionResponse getUserDetailsByIDOrEmail(
-            @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to retrieve their account details")}, options = {}) String id) {
+            @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to retrieve their account details")}, options = {}) String id,
+            @Field(name = "Enable Retry", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "When enabled, prompts for re-entry if validation fails. Default is OFF for automated workflows.")}, options = {}) Boolean enableRetry) {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("getUserDetailsByIDOrEmail");
 
         try {
             ExtensionResponse response;
-            if (isErrorHandlingEnabled()) {
+            boolean retryEnabled = enableRetry != null && enableRetry;
+            if (retryEnabled) {
                 logger.debug("Error handling is enabled, using GetUserDetailsByIdOrEmailErrorHandler");
                 response = getUserDetailsHelper.getUserDetailsByIdOrEmailWithValidation(id);
             } else {
@@ -373,12 +387,14 @@ class AccountManagerArea {
             type = CatalogRequest.Type.CHANGE_SYSTEM)
     @Field(name = "Password", type = "Text", required = false, attributes = {@Attribute(name = "tooltip", value = "Returns the new temporary password generated for the user (user must change this password on next login)")}, options = {})
     public ExtensionResponse resetPassword(
-            @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to reset their password and generate a temporary password")}, options = {}) String id) {
+            @Field(name = "Id", type = "Text", required = true, attributes = {@Attribute(name = "tooltip", value = "Enter the user's email address or unique user ID to reset their password and generate a temporary password")}, options = {}) String id,
+            @Field(name = "Enable Retry", type = "Switch", required = false, attributes = {@Attribute(name = "tooltip", value = "When enabled, prompts for re-entry if validation fails. Default is OFF for automated workflows.")}, options = {}) Boolean enableRetry) {
         TelemetryHelper.TelemetryOperation operation = telemetryHelper.startOperation("resetPassword");
 
         try {
             ExtensionResponse response;
-            if (isErrorHandlingEnabled()) {
+            boolean retryEnabled = enableRetry != null && enableRetry;
+            if (retryEnabled) {
                 logger.debug("Error handling is enabled, using ResetPasswordErrorHandler");
                 response = resetPasswordHelper.resetPasswordWithValidation(id);
             } else {
