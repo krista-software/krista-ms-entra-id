@@ -106,8 +106,8 @@ test {
 
 dependencies {
 
-    annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.115'
-    compileOnly 'app.krista:krista-apis:1.0.115'
+    annotationProcessor 'app.krista:extension-impl-anno-processors:1.0.118'
+    compileOnly 'app.krista:krista-apis:1.0.118'
     compileOnly 'org.glassfish.hk2:hk2-api:3.0.3'
     implementation 'com.microsoft.graph:microsoft-graph:5.52.0'
     implementation 'com.microsoft.graph:microsoft-graph-auth:0.3.0'
