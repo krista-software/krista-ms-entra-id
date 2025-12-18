@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Java(version = Java.Version.JAVA_21)
 @Field.Boolean(value = Constants.ENABLE_ERROR_HANDLING,required = false)
-@Extension(version = "3.0.2", name = "Microsoft Entra ID")
+@Extension(version = "3.0.3", name = "Microsoft Entra ID")
 @StaticResource(path = "docs", file = "docs")
 public class MicrosoftEntraIDExtension {
 

@@ -1,5 +1,33 @@
 ### Release Notes - Microsoft Entra ID Extension
 
+## Version 3.0.3
+
+- **Developer Name** : Avadh Dobaria
+- **Krista Service APIs Java** : 1.0.115
+- **Global Catalog Version** : GC-2025.12.3
+
+### New Features
+
+#### Per-Request Allow Retry Option (KE-2800)
+
+Added an optional `Allow Retry` field to each catalog request with a default value of OFF/False. This prevents automated workflows from getting stuck in a "waiting state" when validation fails.
+
+**Affected Catalog Requests:**
+- Activate or Deactivate an Account
+- Add an Account to Group
+- Remove an Account From Group
+- Create an Account
+- Update an Account
+- Delete an Account
+- Get User Details by ID or Email
+- Reset Password
+
+**Behavior:**
+- **Allow Retry = OFF (default)**: Direct service call without validation prompts. No waiting state for automated workflows.
+- **Allow Retry = ON**: Uses validation helpers that can prompt for re-entry if validation fails.
+
+---
+
 ## Version 3.0.2
 
 - **Developer Name** : Samruddhi Pisal
@@ -7,7 +35,7 @@
 - **Global Catalog Version** : GC-2025.09.3
 - **Appliance Release Version** : 3.5.1
 
-## BREAKING CHANGES for UI/UX 
+## BREAKING CHANGES for UI/UX
 
 **Extension Name Change: Azure AD → Microsoft Entra ID**
 
