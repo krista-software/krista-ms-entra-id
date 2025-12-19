@@ -411,11 +411,6 @@ class AccountManagerArea {
             return new ExtensionResponseBuilder().success(Map.of("Password", "")).build();
         }
     }
-    public boolean isErrorHandlingEnabled() {
-        final Object enableErrorHandling = invoker.getAttributes().get(Constants.ENABLE_ERROR_HANDLING);
-        boolean errorHandlingFlag = enableErrorHandling != null && (Boolean) enableErrorHandling;
-        logger.info("Enable Error Handling Flag:{}", errorHandlingFlag);
-        return errorHandlingFlag;
-    }
+
 
 }
