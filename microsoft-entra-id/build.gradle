@@ -2,8 +2,10 @@ plugins {
     id 'java'
     id "com.github.node-gradle.node" version "3.1.0"
     id 'maven-publish'
+    id "org.sonarqube" version "7.2.0.6526"
 }
 
+apply plugin: 'jacoco'
 apply plugin: 'java-library'
 group 'app.krista.extensions.essentials.cyber_security.iam'
 
@@ -56,6 +58,17 @@ System.setProperty("extensionVersion", version.toString())
 
 sourceCompatibility = '21'
 targetCompatibility = '21'
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
 
 repositories {
     maven {
@@ -367,4 +380,13 @@ tasks.named('jar') {
     // Keep other dependencies
     dependsOn tasks.named('generateReleaseProperties')
     dependsOn tasks.named('buildAndCopyUI')
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectName", "Krista-Global-Catalog"
+        property "sonar.projectKey", "krista-global-catalog"
+        property "sonar.host.url", "https://sonarqube-pune.antbrains.com/"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    }
 }
