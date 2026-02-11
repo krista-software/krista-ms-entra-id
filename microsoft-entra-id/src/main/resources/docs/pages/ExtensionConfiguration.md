@@ -70,9 +70,9 @@ From your Microsoft Entra ID app registration, collect:
 2. **Client Secret**: Created in Certificates & secrets → New client secret
 3. **Tenant ID**: Found in Overview → Directory (tenant) ID
 
-![Client ID and Tenant ID](../_media/ExtensionConfiguration_clientIDtenantID.png)
+![Client ID and Tenant ID](../_media/CreatingMicrosoftEntraIDApp_clientIDtenantID.png)
 
-![Client Secret](../_media/ExtensionConfiguration_clientSecret.png)
+![Client Secret](../_media/CreatingMicrosoftEntraIDApp_clientSecret.png)
 
 ### Step 3: Configure Extension in Krista
 
@@ -129,7 +129,7 @@ The Redirect URI is critical for OAuth 2.0 authentication flow.
    - Enter the redirect URI
    - Click **Configure**
 
-![Authorized Redirect URI](../_media/ExtensionConfiguration_authorizedRedirectURIReference.png)
+![Authorized Redirect URI](../_media/CreatingMicrosoftEntraIDApp_authorizedRedirectURIReference.png)
 
 ### Step 5: Validate Configuration
 
@@ -158,7 +158,7 @@ The Microsoft Entra ID Extension supports two authentication modes that determin
 - **Token**: Uses the refresh token associated with the administrator email
 - **Permissions**: Operations are subject to the service account's permissions
 
-![Service Account Mode](../_media/ExtensionConfiguration_askASystemUnchecked.png)
+![Service Account Mode](../_media/Authentication_askASystemUnchecked.png)
 
 ### User Account Authentication
 
@@ -168,7 +168,7 @@ The Microsoft Entra ID Extension supports two authentication modes that determin
 - **Token**: Each user gets their own access and refresh tokens
 - **Permissions**: Operations are subject to each user's permissions in Microsoft Entra ID
 
-![User Account Mode](../_media/ExtensionConfiguration_askASystemChecked.png)
+![User Account Mode](../_media/Authentication_askASystemChecked.png)
 
 ## Redirect URI Configuration
 
