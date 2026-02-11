@@ -4,7 +4,7 @@
 
 - **Developer Name** : Avadh Dobaria
 - **Krista Service APIs Java** : 1.0.118
-- **Global Catalog Version** : GC-2025.12.3
+- **Global Catalog Version** : GC-2026.02.02
 
 ### New Features
 
