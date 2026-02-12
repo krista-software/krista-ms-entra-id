@@ -60,13 +60,14 @@ public class CreateAccountEmailValidator extends BaseValidator {
                 LOGGER.warn("Email already exists in Microsoft Entra ID for account creation: {}", trimmedEmail);
                 return false;
             }
-        } catch (Exception e) {
-            // If user doesn't exist (exception thrown), that's good for creation
+            // User doesn't exist (null returned), that's good for creation
             LOGGER.debug("Email doesn't exist in Microsoft Entra ID (good for creation): {}", trimmedEmail);
+            return true;
+        } catch (Exception e) {
+            // Service error - fail validation gracefully
+            LOGGER.error("Error checking if email exists in Microsoft Entra ID: {}", e.getMessage(), e);
+            return false;
         }
-
-        LOGGER.debug("Email validation successful for account creation: {}", trimmedEmail);
-        return true;
     }
 
     @Override
